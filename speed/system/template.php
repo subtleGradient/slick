@@ -30,7 +30,7 @@
 				i ++; <?php echo $_GET['function']; ?>(selector);
 				i ++; <?php echo $_GET['function']; ?>(selector);
 				var end = (new Date().getTime() - start);
-				return {'time': Math.round(end), 'found': get_length(elements)};
+				return {'time': Math.round(end)/10, 'found': get_length(elements)};
 			} catch(err){
 				if (elements == undefined) elements = {length: -1};
 				return ({'time': (new Date().getTime() - start) / i, 'found': get_length(elements), 'error': err});
