@@ -78,24 +78,27 @@ window.onload = function load(){
 		var test = tests.shift();
 		if (!test) return;
 		var results = test.execute(test.selector);
-		test.cell.className = 'test';
-		test.cell.innerHTML = results.time + ' ms | ' + results.found + ' found';
-		test.cell.speed = results.time;
-		if (results.error){
-			test.cell.innerHTML = results.time + ' ms | <span class="exception" title="' + results.error + '">error returned</a>';
-			test.cell.className += ' exception';
-			test.cell.found = 0;
-			test.cell.error = true;
-		} else {
-			test.cell.found = results.found;
-			test.cell.error = false;
-		}
-		
-		score[test.name] += test.cell.speed;
-		scores[test.name].innerHTML =  '&nbsp;' + score[test.name] + '&nbsp;';
-		
-		if (test.cell == test.row.lastChild) colourRow(test.row);
-		timer = setTimeout(testRunner, 250);
+		function handleResults(){
+			test.cell.className = 'test';
+			test.cell.innerHTML = results.time + ' ms | ' + results.found + ' found';
+			test.cell.speed = results.time;
+			if (results.error){
+				test.cell.innerHTML = results.time + ' ms | <span class="exception" title="' + results.error + '">error returned</a>';
+				test.cell.className += ' exception';
+				test.cell.found = 0;
+				test.cell.error = true;
+			} else {
+				test.cell.found = results.found;
+				test.cell.error = false;
+			}
+			
+			score[test.name] += test.cell.speed;
+			scores[test.name].innerHTML =  '&nbsp;' + score[test.name] + '&nbsp;';
+			
+			if (test.cell == test.row.lastChild) colourRow(test.row);
+		};
+		setTimeout(handleResults,100);
+		timer = setTimeout(testRunner,0);
 	};
 	
 	var colourRow = function(row){
@@ -130,7 +133,8 @@ window.onload = function load(){
 					}
 				});
 			}
-			if (cell.speed == min) cell.className += ' good';
+			if (cell.found && cell.speed == min) cell.className += ' good';
+			else if (!cell.found) cell.className += ' zero';
 			else if (cell.speed == max) cell.className += ' bad';
 			else cell.className += ' normal';
 		});
