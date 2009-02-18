@@ -16,7 +16,7 @@
 	<script type="text/javascript">
 		<?php
 		$selectors = explode("\n", $selectors);
-		foreach ($selectors as $i => $selector) $list[$i] = "'".$selector."'";
+		foreach ($selectors as $i => $selector) $list[$i] = "'".str_replace("'","\'",$selector)."'";
 		$list = implode(',', $list);
 		echo "window.selectors = [$list]";
 		?>
