@@ -158,40 +158,6 @@ var slick = (function(){
 			
 		}
 		return items;
-		// 
-		// 
-		// var mySplitters = [];
-		// 
-		// var selectors = expression.replace(regExps.splitter, function(m0, m1, m2){
-		// 	mySplitters.push(m1);
-		// 	return ':)' + m2;
-		// }).split(':)');
-		// 
-		// var items, filtered, item;
-		// 
-		// for (var i=0, selector; selector = selectors[i]; i++){
-		// // for (var i = 0, l = selectors.length; i < l; i++){
-		// // 	var selector = selectors[i];
-		// 	
-		// 	if (i == 0 && regExps.quick.test(selector)){
-		// 		items = context.getElementsByTagName(selector);
-		// 		continue;
-		// 	}
-		// 	
-		// 	var tagID = parseTagAndID(selector), tag = tagID[0], id = tagID[1], parsed = parseSelector(selector);
-		// 	
-		// 	if (i == 0){
-		// 		items = getNodesBySelector(context, tag, id, parsed, null, buffer);
-		// 	} else {
-		// 		var splitter = splitters[mySplitters[i - 1]];
-		// 		var uniques = {}, found = [];
-		// 		for (var j = 0, k = items.length; j < k; j++) found = splitter(found, items[j], tag, id, parsed, uniques, buffer);
-		// 		items = found;
-		// 	}
-		// 	
-		// }
-		// 
-		// return items;
 	};
 	
 	// pseudoselectors accessors
@@ -212,8 +178,8 @@ var slick = (function(){
 	
 	slick.match = function(node, selector){
 		if (!selector || (selector == node)) return true;
-		var tagID = parseTagAndID(selector);
-		return matchNodeBySelector(node, tagID[0], tagID[1], parseSelector(selector), null, {});
+		var parseSimpleSelector = SubtleSlickParse(selector)[0][0];
+		return matchNodeBySelector(node, parseSimpleSelector.id, parseSimpleSelector.tag, parseSimpleSelector.parsed, null, {});
 	};
 	
 	// PRIVATE STUFF! Cant touch! AHAHA
