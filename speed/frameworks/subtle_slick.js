@@ -1,3 +1,4 @@
+
 var SubtleSlickParse = (function(){
 	function SubtleSlickParse(CSS3_Selectors){
 		var selector = ''+CSS3_Selectors;
