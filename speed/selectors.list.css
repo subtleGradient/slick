@@ -1,3 +1,8 @@
+a[name]:empty
+a[name]:not(:empty)
+a[href]:not([name])
+a[name]~cite
+.wrapper .inner
 p:empty
 body
 div
@@ -6,19 +11,21 @@ div p
 div > p
 div + p
 div ~ p
-div[class^=exa][class$=mple]
 div p a
 div, p, a
 .note
 div.example
 ul .tocline2
 div.example, div.note
+.wrapper .inner
 #title
 h1#title
 div #title
 ul.toc li.tocline2
 ul.toc > li.tocline2
-h1#title + div > p
+h1#title ~ *
+h1 ~ dl > *
+dt ~ dd code > a
 h1[id]:contains(Selectors)
 a[href][lang][class]
 div[class]
@@ -29,13 +36,34 @@ div[class*=e]
 div[class|=dialog]
 div[class!=made_up]
 div[class~=example]
+div[class^=exa][class$=mple]
+[title]
+[title=Extensible Markup Language]
+[title="Extensible Markup Language"]
+[title='Extensible Markup Language']
+[title^=Extensible]
+[title$=Language]
+[title*=Markup]
+[lang|=tr]
+[title][title!=CSS level 1]
+[title][title!='CSS level 1']
+[title][title!="CSS level 1"]
+[title~=level]
+[title^=Extensible][title$=Language]
 div:not(.example)
 div:not([class])
 div:not([class=example])
+tr>th
+tr>*:not(td)
+tr>:first-child
+tr>:not(:first-child)
 p:contains("will be")
 p:contains(will be)
 p:contains("selectors")
 p:contains(selectors)
+td:contains(":nth-last-child(n)")
+td:contains( ~ )
+td:contains(")")
 p:nth-child(even)
 p:nth-child(2n)
 p:nth-child(odd)
@@ -44,6 +72,5 @@ p:nth-child(n)
 p:only-child
 p:last-child
 p:first-child
-dt ~ dd code > a
 [http-equiv]
 meta[http-equiv]
