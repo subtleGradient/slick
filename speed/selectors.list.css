@@ -1,3 +1,5 @@
+dt ~ dd code > a
+p:empty
 body
 div
 body div
@@ -29,6 +31,11 @@ div[class|=dialog]
 div[class!=made_up]
 div[class~=example]
 div:not(.example)
+div:not([class])
+div:not([class=example])
+p:contains("will be")
+p:contains(will be)
+p:contains("selectors")
 p:contains(selectors)
 p:nth-child(even)
 p:nth-child(2n)

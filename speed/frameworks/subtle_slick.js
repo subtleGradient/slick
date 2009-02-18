@@ -22,7 +22,7 @@ var SubtleSlickParse = (function(){
 		|(?: \\#  ( [a-z][a-z0-9_-]* ) \\b ) # ID\n\
 		|(?: \\.  ( [a-z][a-z0-9_-]* ) \\b ) # ClassName\n\
 		|(?: \\[  ( ([-_:a-z0-9]+) (?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) ) )?     ) \\] ) # attribute\n\
-		|(?:   :+ ( [a-z][a-z0-9_-]* ) \\b (?: \\( ([^\\)]+) \\) )?     ) # PseudoClassPseudoClassValue\n\
+		|(?:   :+ ( [a-z][a-z0-9_-]* ) \\b (?: \\([\"]? ([^\\)\\\"]+) [\"]?\\) )?     ) # PseudoClassPseudoClassValue\n\
 		)".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),'i'
 	);
 	var map = {
