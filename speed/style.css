@@ -89,6 +89,7 @@ table {
 	min-width: 800px;
 	margin: 0;
 	padding: 0;
+	table-layout: fixed;
 }
 
 #legend td {
