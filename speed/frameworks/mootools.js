@@ -3944,3 +3944,5 @@ Request.JSON = new Class({
 	}
 
 });
+
+function $$E(s){return document.getElements(s,true);};
