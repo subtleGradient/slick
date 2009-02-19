@@ -140,13 +140,13 @@ var slick = (function(){
 			var these_items;
 			for (var i=0, this_simpleSelector; this_simpleSelector = parsedSelector[i]; i++){
 				if (!i) {
-					these_items = getNodesBySelector(context, this_simpleSelector.tag, this_simpleSelector.id, this_simpleSelector.parsed, null);
+					these_items = getNodesBySelector(context, this_simpleSelector.tag||'*', this_simpleSelector.id, this_simpleSelector.parsed, null);
 					continue;
 				}
 				
 				var uniques = {}, found = [];
 				for (var itemN=0, this_item; this_item = these_items[itemN++];) {
-					found = splitters[this_simpleSelector.combinator](found, this_item, this_simpleSelector.tag, this_simpleSelector.id, this_simpleSelector.parsed);
+					found = splitters[this_simpleSelector.combinator](found, this_item, this_simpleSelector.tag||'*', this_simpleSelector.id, this_simpleSelector.parsed);
 				}
 				these_items = found;
 			}
@@ -177,7 +177,7 @@ var slick = (function(){
 		if (!selector || (selector == node)) return true;
 		slick.buffer = {};
 		var parseSimpleSelector = SubtleSlickParse(selector)[0][0];
-		return matchNodeBySelector(node, parseSimpleSelector.id, parseSimpleSelector.tag, parseSimpleSelector.parsed, null, {});
+		return matchNodeBySelector(node, parseSimpleSelector.id, parseSimpleSelector.tag||'*', parseSimpleSelector.parsed, null, {});
 	};
 	
 	// PRIVATE STUFF! Cant touch! AHAHA
