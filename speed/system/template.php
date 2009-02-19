@@ -13,27 +13,51 @@
 			return (typeof elements.length == 'function') ? elements.length() : elements.length;
 		}
 	
+		var el = document.createElement('span');
+		document.appendChild(el);
+		
 		function test(selector){
 			try {
+				var times = [];
 				var start = new Date().getTime();
-				var i = 1;
+				var i = 0;
+				
+				
+				el.innerHTML='';
+				times[i]={ start:new Date() };
 				var elements = <?php echo $_GET['function']; ?>(selector);
+				times[i].end = new Date();
+				el.innerHTML='<span></span>';
+				
 				//var step = (new Date().getTime() - start);
 				//if (step > 750) return {'time': step, 'found': get_length(elements)};
-				i ++; <?php echo $_GET['function']; ?>(selector+' ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'  ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'   ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'    ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'     ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'      ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'       ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'        ');
-				i ++; <?php echo $_GET['function']; ?>(selector+'         ');
+				
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+' ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'  ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'   ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'    ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'     ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'      ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'       ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'        ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'         ');times[i].end = new Date();el.innerHTML+='<span></span>';
+				
 				var end = (new Date().getTime() - start);
-				return {'time': Math.round(end)/10, 'found': get_length(elements)};
+				// return {'time': Math.round(end)/10, 'found': get_length(elements)};
+				
+				var data = { time:0, found:get_length(elements) };
+				
+				for (var N=0; N < times.length; N++) {
+					if (!times[N]) continue;
+					data.time += (times[N].end - times[N].start);
+				}
+				data.time && (data.time /= times.length);
+				data.time || (data.time=0);
+				
+				return data;
 			} catch(err){
 				if (elements == undefined) elements = {length: -1};
-				return ({'time': (new Date().getTime() - start) / i, 'found': get_length(elements), 'error': err});
+				return ({'time': ((new Date().getTime() - start) / (i||1)) || 0, 'found': get_length(elements), 'error': err});
 			}
 
 		};

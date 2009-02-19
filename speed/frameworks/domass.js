@@ -1359,3 +1359,7 @@ DOMAssistant.DOMLoad = function () {
 	};
 }();
 DOMAssistant.DOMReady = DOMAssistant.DOMLoad.DOMReady;
+
+// DISABLE CACHE FOR ACCURATE TEST RESULTS
+DOMAssistant.setCache=false;
+
