@@ -9,42 +9,33 @@
 	
 	<script type="text/javascript">
 		
+		
+		
 		var get_length = function(elements){
 			return (typeof elements.length == 'function') ? elements.length() : elements.length;
 		}
 	
-		var el = document.createElement('span');
-		document.appendChild(el);
-		
 		function test(selector){
 			try {
 				var times = [];
-				var start = new Date().getTime();
+				var start = new Date();
 				var i = 0;
 				
-				
-				el.innerHTML='';
 				times[i]={ start:new Date() };
 				var elements = <?php echo $_GET['function']; ?>(selector);
 				times[i].end = new Date();
-				el.innerHTML='<span></span>';
 				
-				//var step = (new Date().getTime() - start);
-				//if (step > 750) return {'time': step, 'found': get_length(elements)};
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
+				i++; times[i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector);times[i].end = new Date();
 				
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+' ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'  ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'   ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'    ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'     ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'      ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'       ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'        ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				times[++i]={ start:new Date() }; <?php echo $_GET['function']; ?>(selector+'         ');times[i].end = new Date();el.innerHTML+='<span></span>';
-				
-				var end = (new Date().getTime() - start);
-				// return {'time': Math.round(end)/10, 'found': get_length(elements)};
-				
+				var end = new Date();
 				var data = { time:0, found:get_length(elements) };
 				
 				for (var N=0; N < times.length; N++) {
@@ -54,6 +45,7 @@
 				data.time && (data.time /= times.length);
 				data.time || (data.time=0);
 				
+				data.time = (end - start) / i;
 				return data;
 			} catch(err){
 				if (elements == undefined) elements = {length: -1};
@@ -62,6 +54,8 @@
 
 		};
 	
+		test.name = "<?php echo $_GET['include']; ?>";
+		
 	</script>
 	
 </head>
