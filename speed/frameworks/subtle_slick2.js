@@ -106,7 +106,7 @@ var SubtleSlickParse = (function(){
 		if (a[map.tagName    ]) return parsedSelectors.type.push('tag')    && (this_selector.tag = a[map.tagName])&&'';
 		if (a[map.id         ]) return parsedSelectors.type.push('id')     && (this_selector.id  = a[map.id     ])&&'';
 		if (a[map.className  ]) return parsedSelectors.type.push('class')  && this_selector.parsed.classes.push(a[map.className])&&'';
-		if (a[map.attribute  ]) return parsedSelectors.type.push('attrib'+a[map.attributeOperator]) && this_selector.parsed.attributes.push({
+		if (a[map.attribute  ]) return parsedSelectors.type.push('attrib') && this_selector.parsed.attributes.push({
 			name     : a[map.attributeKey],
 			operator : a[map.attributeOperator],
 			value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle]
@@ -189,67 +189,6 @@ var slick = (function(){
 	// searchers
 	var searchers = {
 		
-		tag: function(context, parsedSelectors){
-			return context.getElementsByTagName(parsedSelectors[0][0].tag);
-		},
-		
-		id: function(context, parsedSelectors){
-			return [context.getElementById(parsedSelectors[0][0].id)];
-		},
-		
-		tagid: function(context, parsedSelectors){
-			var selector = parsedSelectors[0][0];
-			var node = context.getElementById(selector.id);
-			if (selector.tag && selector.tag != '*' && matchNodeByTag(node, selector.tag)) return [node];
-			return [];
-		},
-		
-		attrib: function(context, parsedSelectors){
-			var selector = parsedSelectors[0][0];
-			var items = [];
-			var nodes = context.getElementsByTagName(selector.tag||'*');
-			
-			for (var i=0, node; node = nodes[i++];) {
-				matchNodeByAttribute(node, selector.name, selector.operator, selector.value) && items.push(node);
-			}
-			
-			return items;
-		},
-		
-		'class': function(context, parsedSelectors){
-			var selector = parsedSelectors[0][0];
-			var nodes;
-			if (getElementsByClassName && context.getElementsByClassName){
-				nodes = context.getElementsByClassName(selector.parsed.classes[0]);
-				if (!selector.tag || selector.tag == '*') return nodes;
-			}
-			var items = [];
-			var matchTag = selector.tag && selector.tag != '*';
-			nodes = nodes || context.getElementsByTagName(selector.tag||'*');
-			for (var i=0, node; node = nodes[i++];) {
-				if (matchTag && !matchNodeByTag(node, selector.tag)) continue;
-				matchNodeByClass(node, selector.parsed.classes[0]) && items.push(node);
-			}
-			return items;
-		},
-		
-		'classclass': function(context, parsedSelectors){
-			var selector = parsedSelectors[0][0];
-			var items = [];
-			var nodes;
-			if (getElementsByClassName && context.getElementsByClassName)
-				nodes = context.getElementsByClassName(selector.parsed.classes[0]);
-			else
-				nodes = context.getElementsByTagName(selector.tag||'*');
-			
-			var matchTag = !getElementsByClassName && selector.tag && selector.tag != '*';
-			for (var i=0, node; node = nodes[i++];) {
-				if (matchTag && !matchNodeByTag(node, selector.tag)) continue;
-				matchNodeByClass(node, selector.parsed.classes[1]) && items.push(node);
-			}
-			return items;
-		},
-		
 		'default': function(context, parsedSelectors){
 			
 			var items = [];
@@ -274,9 +213,6 @@ var slick = (function(){
 			return items;
 		}
 	};
-	searchers.tagattrib = searchers.attrib;
-	searchers.tagclass = searchers['class'];
-	searchers.tagclassclass = searchers['classclass'];
 	
 	//pseudos
 	
@@ -526,8 +462,6 @@ var slick = (function(){
 		}
 		return splitters[' ']([], context, tag, id, parsed);
 	};
-	
-	getElementsByClassName = (document.getElementsByClassName && document.getElementsByClassName.toString().indexOf('[native code]')+1);
 	
 	// splitters
 	

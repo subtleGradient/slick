@@ -177,6 +177,13 @@ td.mismatch {
 	background: #E8C896;
 }
 
+td b {
+	float:left;
+	display:inline;
+	width:49%;
+	font-weight:inherit;
+}
+
 /*page footer*/
 
 div#footer {

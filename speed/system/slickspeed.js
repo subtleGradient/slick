@@ -80,7 +80,7 @@ window.onload = function load(){
 		var results = test.execute(test.selector);
 		function handleResults(){
 			test.cell.className = 'test';
-			test.cell.innerHTML = results.time + ' ms | ' + results.found + ' found';
+			test.cell.innerHTML = '<b>'+Math.round(results.time*10)/10 + ' ms</b><b>' + results.found + ' found</b>';
 			test.cell.speed = results.time;
 			if (results.error){
 				test.cell.innerHTML = results.time + ' ms | <span class="exception" title="' + results.error + '">error returned</a>';
@@ -93,11 +93,12 @@ window.onload = function load(){
 			}
 			
 			score[test.name] += test.cell.speed;
-			scores[test.name].innerHTML =  '&nbsp;' + score[test.name] + '&nbsp;';
+			scores[test.name].innerHTML =  '&nbsp;' + Math.round(score[test.name]) + '&nbsp;';
 			
 			if (test.cell == test.row.lastChild) colourRow(test.row);
 		};
-		setTimeout(handleResults,100);
+		// setTimeout(handleResults,100);
+		handleResults();
 		timer = setTimeout(testRunner,0);
 	};
 	
