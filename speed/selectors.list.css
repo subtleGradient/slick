@@ -1,7 +1,3 @@
-a[name]:empty
-a[name]:not(:empty)
-a[href]:not([name])
-a[name]~cite
 .wrapper .inner
 p:empty
 body
@@ -37,6 +33,10 @@ div[class|=dialog]
 div[class!=made_up]
 div[class~=example]
 div[class^=exa][class$=mple]
+a[name]:empty
+a[name]:not(:empty)
+a[href]:not([name])
+a[name]~cite
 [title]
 [title=Extensible Markup Language]
 [title="Extensible Markup Language"]
