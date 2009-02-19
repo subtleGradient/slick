@@ -2,8 +2,9 @@ var slick = (function(){
 	
 	// MAIN Method: searches a context for an expression.
 	
-	function slick(context, expression, buffer){
-		if (!buffer) buffer = {};
+	function slick(context, expression){
+
+		slick.buffer = {};
 		
 		var mySplitters = [];
 
@@ -12,10 +13,10 @@ var slick = (function(){
 			return ':)' + m2;
 		}).split(':)');
 
-		var items, filtered, item;
-
+		var items;
+		
 		for (var i = 0, l = selectors.length; i < l; i++){
-
+			
 			var selector = selectors[i];
 
 			if (i == 0 && regExps.quick.test(selector)){
@@ -26,11 +27,11 @@ var slick = (function(){
 			var tagID = parseTagAndID(selector), tag = tagID[0], id = tagID[1], parsed = parseSelector(selector);
 			
 			if (i == 0){
-				items = getNodesBySelector(context, tag, id, parsed, null, buffer);
+				items = getNodesBySelector(context, tag, id, parsed, null);
 			} else {
-				var splitter = splitters[mySplitters[i - 1]];
-				var uniques = {}, found = [];
-				for (var j = 0, k = items.length; j < k; j++) found = splitter(found, items[j], tag, id, parsed, uniques, buffer);
+				var splitter = splitters[mySplitters[i - 1]], found = [];
+				slick.buffer.uniques = {};
+				for (var j = 0, k = items.length; j < k; j++) found = splitter(found, items[j], tag, id, parsed);
 				items = found;
 			}
 
@@ -57,8 +58,10 @@ var slick = (function(){
 	
 	slick.match = function(node, selector){
 		if (!selector || (selector == node)) return true;
+		slick.buffer = {};
 		var tagID = parseTagAndID(selector);
-		return matchNodeBySelector(node, tagID[0], tagID[1], parseSelector(selector), null, {});
+		var matches = matchNodeBySelector(node, tagID[0], tagID[1], parseSelector(selector), null, {});
+		return matches;
 	};
 	
 	// PRIVATE STUFF! Cant touch! AHAHA
@@ -166,12 +169,13 @@ var slick = (function(){
 			return true;
 		},
 
-		'nth-child': function(argument, buffer){
+		'nth-child': function(argument){
 			argument = (argument == null) ? 'n' : argument;
 			var parsed = parseNTHArgument(argument);
-			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a, buffer);
+			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a);
 			var count = 0;
-			buffer.positions = buffer.positions || {};
+			var buffer = slick.buffer;
+			if (!buffer.positions) buffer.positions = {};
 			var uid = uidOf(this);
 			if (!buffer.positions[uid]){
 				var self = this;
@@ -199,12 +203,12 @@ var slick = (function(){
 			return (count == index);
 		},
 
-		even: function(argument, buffer){
-			return pseudos['nth-child'].call(this, '2n+1', buffer);
+		even: function(argument){
+			return pseudos['nth-child'].call(this, '2n+1');
 		},
 
-		odd: function(argument, buffer){
-			return pseudos['nth-child'].call(this, '2n', buffer);
+		odd: function(argument){
+			return pseudos['nth-child'].call(this, '2n');
 		}
 
 	};
@@ -212,16 +216,18 @@ var slick = (function(){
 	// fast indexOf with a separator (' ') checking.
 	
 	function stringContains(source, string, separator){
-		return (separator) ? (separator + source + separator).indexOf(separator + string + separator) > -1 : source.indexOf(string) > -1;
+		separator = separator || '';
+		return (separator + source + separator).indexOf(separator + string + separator) > -1;
 	};
 	
 	// checks if a Node is in the "uniques" object literal. If its not, returns true and sets its uid, otherwise returns false.
 	// If an uniques object is not passed, the function returns true.
 	
-	function pushedNodeInUniques(node, uniques){
-		if (!uniques) return true;
+	function pushedNodeInUniques(node){
+		var sbu = slick.buffer.uniques;
+		if (!sbu) return true;
 		var uid = uidOf(node);
-		if (!uniques[uid]) return uniques[uid] = true;
+		if (!sbu[uid]) return sbu[uid] = true;
 		return false;
 	};
 	
@@ -271,8 +277,8 @@ var slick = (function(){
 		return (node.className && stringContains(node.className, className, ' '));
 	};
 	
-	function matchNodeByPseudo(node, parser, argument, buffer){
-		return parser.call(node, argument, buffer);
+	function matchNodeByPseudo(node, parser, argument){
+		return parser.call(node, argument);
 	};
 	
 	function matchNodeByAttribute(node, name, operator, value){
@@ -293,8 +299,8 @@ var slick = (function(){
 	
 	// matches a node against a parsed selector
 	
-	function matchNodeBySelector(node, tag, id, parsed, uniques, buffer){
-		if (uniques && !pushedNodeInUniques(node, uniques)) return false;
+	function matchNodeBySelector(node, tag, id, parsed){
+		if (slick.buffer.uniques && !pushedNodeInUniques(node)) return false;
 		if (tag && !matchNodeByTag(node, tag)) return false;
 		if (id && !matchNodeByID(node, id)) return false;
 		
@@ -316,7 +322,7 @@ var slick = (function(){
 		if (parsed.pseudos){
 			for (i = parsed.pseudos.length; i--; i){
 				var psd = parsed.pseudos[i];
-				if (!matchNodeByPseudo(node, psd.parser, psd.argument, buffer)) return false;
+				if (!psd.parser.call(node, psd.argument)) return false;
 			}
 		}
 		return true;
@@ -325,51 +331,51 @@ var slick = (function(){
 	// retrieves elements by tag and id, based on context.
 	// In case an id is passed, an array containing one element will be returned (or empty, if no id was found).
 	
-	function getNodesBySelector(context, tag, id, parsed, uniques, buffer){
+	function getNodesBySelector(context, tag, id, parsed){
 		if (id && context.getElementById){
 			var node = context.getElementById(id);
-			if (node && !matchNodeBySelector(node, tag, null, parsed, uniques, buffer)) node = null;
+			if (node && !matchNodeBySelector(node, tag, null, parsed)) node = null;
 			return (node) ? [node] : [];
 		}
-		return splitters[' ']([], context, tag, id, parsed, uniques, buffer);
+		return splitters[' ']([], context, tag, id, parsed);
 	};
 	
 	// splitters
 	
 	var splitters = {
 
-		' ': function(found, node, tag, id, parsed, uniques, buffer){
+		' ': function allChildren(found, node, tag, id, parsed){
 			var children = node.getElementsByTagName(tag);
 			for (var i = 0, l = children.length; i < l; i++){
-				if (matchNodeBySelector(children[i], null, id, parsed, uniques, buffer)) found.push(children[i]);
+				if (matchNodeBySelector(children[i], null, id, parsed)) found.push(children[i]);
 			}
 			return found;
 		},
 
-		'>': function(found, node, tag, id, parsed, uniques, buffer){
+		'>': function allSiblings(found, node, tag, id, parsed){
 			var children = node.getElementsByTagName(tag);
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
-				if (child.parentNode == node && matchNodeBySelector(child, null, id, parsed, uniques, buffer)) found.push(child);
+				if (child.parentNode == node && matchNodeBySelector(child, null, id, parsed)) found.push(child);
 			}
 			return found;
 		},
 
-		'+': function(found, node, tag, id, parsed, uniques, buffer){
+		'+': function nextSibling(found, node, tag, id, parsed){
 			while ((node = node.nextSibling)){
 				if (node.nodeType == 1){
-					if (matchNodeBySelector(node, tag, id, parsed, uniques, buffer)) found.push(node);
+					if (matchNodeBySelector(node, tag, id, parsed)) found.push(node);
 					break;
 				}
 			}
 			return found;
 		},
 
-		'~': function(found, node, tag, id, parsed, uniques, buffer){
+		'~': function nextSiblings(found, node, tag, id, parsed){
 			while ((node = node.nextSibling)){
 				if (node.nodeType == 1){
-					if (!pushedNodeInUniques(node, uniques)) break;
-					if (matchNodeBySelector(node, tag, id, parsed, null, buffer)) found.push(node);
+					if (!pushedNodeInUniques(node)) break;
+					if (matchNodeBySelector(node, tag, id, parsed, null)) found.push(node);
 				}
 			}
 			return found;
