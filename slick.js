@@ -213,14 +213,9 @@ var slick = (function(){
 	
 	// PRIVATE STUFF! Cant touch! AHAHA
 	
-	// generates and returns, or simply returns if existing, an unique id for a Node.
+	// uid index
 	
-	var uidOf = (function(){
-		var index = 1;
-		return function uidOf(item){
-			return (item.uid = index++);
-		};
-	})();
+	var index = 1;
 	
 	// nth argument parsed cache
 	
@@ -307,7 +302,7 @@ var slick = (function(){
 			argument = (argument == null) ? 'n' : argument;
 			var parsed = cache.nth[argument] || parseNTHArgument(argument);
 			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a, buffer);
-			var count = 0, uid = this.uid || uidOf(this);
+			var count = 0, uid = this.uid || (this.uid = index++);
 			
 			if (!buffer.positions) buffer.positions = {};
 			if (!buffer.positions[uid]){
@@ -315,7 +310,7 @@ var slick = (function(){
 				while ((self = self.previousSibling)){
 					if (self.nodeType != 1) continue;
 					count ++;
-					var uis = self.uid || uidOf(self);
+					var uis = self.uid || (self.uid = index++);
 					var position = buffer.positions[uis];
 					if (position != null){
 						count = position + count;
@@ -430,7 +425,7 @@ var slick = (function(){
 				var item = node.getElementById(id);
 				selector.id = null;
 				if (!item) return;
-				uid = item.uid || uidOf(item);
+				uid = item.uid || (item.uid = index++);
 				if (found[uid]) return;
 				var matches =  matchNodeBySelector(item, selector, buffer);
 				selector.id = id;
@@ -445,7 +440,7 @@ var slick = (function(){
 
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
-				uid = child.uid || uidOf(child);
+				uid = child.uid || (child.uid = index++);
 				if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
 			}
 			
@@ -457,7 +452,7 @@ var slick = (function(){
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
 				if (child.nodeType == 1){
-					var uid = child.uid || uidOf(child);
+					var uid = child.uid || (child.uid = index++);
 					if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
 				}
 			}
@@ -466,7 +461,7 @@ var slick = (function(){
 		'+': function nextSibling(found, node, selector, buffer){
 			while ((node = node.nextSibling)){
 				if (node.nodeType == 1){
-					var uid = node.uid || uidOf(node);
+					var uid = node.uid || (node.uid = index++);
 					if (!found[uid] && matchNodeBySelector(node, selector, buffer)) found[uid] = node;
 					break;
 				}
@@ -476,7 +471,7 @@ var slick = (function(){
 		'~': function nextSiblings(found, node, selector, buffer){
 			while ((node = node.nextSibling)){
 				if (node.nodeType == 1){
-					var uid = node.uid || uidOf(node);
+					var uid = node.uid || (node.uid = index++);
 					if (found[uid]) break;
 					if (matchNodeBySelector(node, selector, buffer)) found[uid] = node;
 				}
