@@ -1,3 +1,7 @@
+#title
+h1#title
+div#title
+div #title
 body
 div
 body div
@@ -12,9 +16,6 @@ div, p, a
 div.example
 ul .tocline2
 div.example, div.note
-#title
-h1#title
-div #title
 ul.toc li.tocline2
 ul.toc > li.tocline2
 h1#title + div > p
