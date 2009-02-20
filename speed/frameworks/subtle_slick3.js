@@ -581,4 +581,3 @@ document.search = function(expression){
 };
 
 // console.log(document.search('*:not([flarm])'));
-
