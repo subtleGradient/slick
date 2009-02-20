@@ -1,3 +1,126 @@
+var SubtleSlickParse = (function(){
+	function SubtleSlickParse(CSS3_Selectors){
+		var selector = ''+CSS3_Selectors;
+		if(!SubtleSlickParse.debug && cache[selector]) return cache[selector];
+		parsedSelectors = [];
+		parsedSelectors.type=[];
+		
+		while (selector != (selector = selector.replace(parseregexp, parser)));
+		
+		parsedSelectors.type=parsedSelectors.type.join('');
+		return cache[''+CSS3_Selectors] = parsedSelectors;
+	};
+	var parseregexp = new RegExp("\
+		(?x)\
+		^(?:\
+		\\s+$\
+		|(?: \\s* (,)           \\s* ) # Combinator\n\
+		|(?: \\s* (\\s|\\>|\\+|\\~) \\s* ) # Combinator\n\
+		|(?:      ( \\* | \\w+ \\b   )     ) # Tag Name\n\
+		|(?: \\#  ( [a-z][a-z0-9_-]* ) \\b ) # ID\n\
+		|(?: \\.  ( [a-z][a-z0-9_-]* ) \\b ) # ClassName\n\
+		|(?: \\[  ( ([-_:a-z0-9]+) (?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) ) )?     ) \\] ) # attribute\n\
+		|(?:   :+ ( [a-z][a-z0-9_-]* ) \\b (?: \\([\"]? ([^\\)\\\"]+) [\"]?\\) )?     ) # PseudoClassPseudoClassValue\n\
+		)".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),'i');
+	var map = {
+		// Natural replace function argument position
+		rawMatch      : 0,
+		offset        : -2,
+		string        : -1,
+		
+		// Replace function argument position
+		separator       : 1,
+		combinator      : 2,
+		combinatorChild : 2,
+		
+		tagName   : 3,
+		id        : 4,
+		className : 5,
+		
+		attribute            : 6,
+		attributeKey         : 7,
+		attributeOperator    : 8,
+		attributeValueDouble : 9,
+		attributeValueSingle : 10,
+		attributeValue       : 11,
+		
+		pseudoClass      : 12,
+		pseudoClassValue : 13
+	};
+	var cache = {};
+	SubtleSlickParse.cache = cache;
+	var parsedSelectors;
+	var these_selectors;
+	var this_selector;
+	function parser(){
+		var a = arguments;
+		SubtleSlickParse.debug && console.log({
+			argumentsLength : a.length,
+			rawMatch        : a[map.rawMatch],
+			offset          : a[arguments.length-2],
+			string          : a[arguments.length-1],
+			
+			separator       : a[map.separator],
+			combinator      : a[map.combinator],
+			combinatorChild : a[map.combinatorChild],
+			
+			tagName   : a[map.tagName],
+			id        : a[map.id],
+			className : a[map.className],
+			
+			attribute         : a[map.attribute],
+			attributeKey      : a[map.attributeKey],
+			attributeOperator : a[map.attributeOperator],
+			attributeValue    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle],
+			
+			pseudoClass      : a[map.pseudoClass],
+			pseudoClassValue : a[map.pseudoClassValue]
+		});
+		
+		if (!parsedSelectors.length || a[map.separator]) {
+			// Make a new selector!
+			parsedSelectors.push([]);
+			these_selectors = parsedSelectors[parsedSelectors.length-1];
+			if (parsedSelectors.length-1) return '';
+		}
+		if (!these_selectors.length || a[map.combinatorChild] || a[map.combinator]) {
+			// Make a new simple selector!
+			these_selectors.push({
+				bits:0,
+				combinator: a[map.combinatorChild] || a[map.combinator],
+				tag : null,
+				id  : null,
+				parsed:{
+					pseudos    :[],
+					classes    :[],
+					attributes :[]
+				}
+			});
+			this_selector = these_selectors[these_selectors.length-1];
+			parsedSelectors.type.push(this_selector.combinator);
+			if (these_selectors.length-1) return '';
+		}
+		this_selector.bits ++;
+		if (a[map.tagName    ]) return parsedSelectors.type.push('tag')    && (this_selector.tag = a[map.tagName])&&'';
+		if (a[map.id         ]) return parsedSelectors.type.push('id')     && (this_selector.id  = a[map.id     ])&&'';
+		if (a[map.className  ]) return parsedSelectors.type.push('class')  && this_selector.parsed.classes.push(a[map.className])&&'';
+		if (a[map.attribute  ]) return parsedSelectors.type.push('attrib'+a[map.attributeOperator]) && this_selector.parsed.attributes.push({
+			name     : a[map.attributeKey],
+			operator : a[map.attributeOperator],
+			value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle]
+		})&&'';
+		if (a[map.pseudoClass]) return parsedSelectors.type.push('pseudo') && this_selector.parsed.pseudos.push({
+			name     : a[map.pseudoClass],
+			argument : a[map.pseudoClassValue]
+		})&&'';
+		
+		return '';
+	};
+	
+	return SubtleSlickParse;
+})();
+
+
 var slick = (function(){
 	
 	// MAIN Method: searches a context for an expression.
@@ -6,12 +129,24 @@ var slick = (function(){
 		var buffer = {}, parsed = slick.parse(expression);
 		var all, uid;
 		
+		// WIP ATTEMPT TO SPEEDUP
+		
+		// if (parsed.length == 1 && parsed[0].length == 1){
+		// 	var bit = parsed[0][0];
+		// 	var comBit = combinators[bit.combinator || ' '];
+		// 	var selBit = parseBit(bit);
+		// 	var founBit = [];
+		// 	comBit(founBit, context, selBit, buffer);
+		// 	return founBit;
+		// }
+		
 		for (var i = 0; i < parsed.length; i++){
 			
-			var cs = parsed[i], items;
+			var currentSelector = parsed[i], items;
 			
-			for (var j = 0; j < cs.length; j++){
-				var cb = cs[j], combinator = combinators[cb.combinator || ' '], selector = parseBit(cb), found = {};
+			for (var j = 0; j < currentSelector.length; j++){
+				var currentBit = currentSelector[j], combinator = combinators[currentBit.combinator || ' '];
+				var selector = parseBit(currentBit), found = {};
 				
 				if (j == 0){
 					combinator(found, context, selector, buffer);
@@ -57,6 +192,7 @@ var slick = (function(){
 	// default getAttribute
 	
 	slick.getAttribute = function(node, name){
+		if (name == 'class') return node.className;
 		return node.getAttribute(name);
 	};
 	
@@ -81,9 +217,7 @@ var slick = (function(){
 	
 	var uidOf = (function(){
 		var index = 1;
-		return (window.ActiveXObject) ? function uidOf(item){
-			return (item.uid = [index++])[0];
-		} : function uidOf(item){
+		return function uidOf(item){
 			return (item.uid = index++);
 		};
 	})();
@@ -173,11 +307,11 @@ var slick = (function(){
 			argument = (argument == null) ? 'n' : argument;
 			var parsed = cache.nth[argument] || parseNTHArgument(argument);
 			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a, buffer);
-			var count = 0;
+			var count = 0, uid = this.uid || uidOf(this);
+			
 			if (!buffer.positions) buffer.positions = {};
-			var uid = this.uid || uidOf(this);
 			if (!buffer.positions[uid]){
-				var self = this;
+				var self = this;				
 				while ((self = self.previousSibling)){
 					if (self.nodeType != 1) continue;
 					count ++;
@@ -269,17 +403,17 @@ var slick = (function(){
 			var cn = selector.classes[i];
 			if (!node.className || !matchNodeByClass(node, cn)) return false;
 		}
-
+		
 		for (i = selector.attributes.length; i--; i){
 			var attribute = selector.attributes[i];
 			if (!matchNodeByAttribute(node, attribute.name, attribute.operator, attribute.value)) return false;
 		}
-
+		
 		for (i = selector.pseudos.length; i--; i){
 			var pseudo = selector.pseudos[i];
 			if (!matchNodeByPseudo(node, pseudo.name, pseudo.argument, buffer)) return false;
 		}
-
+		
 		return true;
 	};
 	
@@ -288,16 +422,19 @@ var slick = (function(){
 	var combinators = {
 
 		' ': function allChildren(found, node, selector, buffer){
-			var tag = selector.tag, id = selector.id;
+			var tag = selector.tag, id = selector.id, uid;
 			
 			//id optimization
 			
 			if (id && node.getElementById){
 				var item = node.getElementById(id);
 				selector.id = null;
-				var matches =  !!(item && matchNodeBySelector(item, selector, buffer));
+				if (!item) return;
+				uid = item.uid || uidOf(item);
+				if (found[uid]) return;
+				var matches =  matchNodeBySelector(item, selector, buffer);
 				selector.id = id;
-				if (matches) found[item.uid || uidOf(item)] = item;
+				if (matches) found[uid] = item;
 				return;
 			}
 			
@@ -308,7 +445,7 @@ var slick = (function(){
 
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
-				var uid = child.uid || uidOf(child);
+				uid = child.uid || uidOf(child);
 				if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
 			}
 			
