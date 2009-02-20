@@ -3,41 +3,45 @@ var slick = (function(){
 	// MAIN Method: searches a context for an expression.
 	
 	function slick(context, expression){
-
-		slick.buffer = {};
+		var buffer = {}, parsed = slick.parse(expression);
+		var all, uid;
 		
-		var mySplitters = [];
-
-		var selectors = expression.replace(regExps.splitter, function(m0, m1, m2){
-			mySplitters.push(m1);
-			return ':)' + m2;
-		}).split(':)');
-
-		var items;
-		
-		for (var i = 0, l = selectors.length; i < l; i++){
+		for (var i = 0; i < parsed.length; i++){
 			
-			var selector = selectors[i];
-
-			if (i == 0 && regExps.quick.test(selector)){
-				items = context.getElementsByTagName(selector);
-				continue;
-			}
+			var cs = parsed[i], items;
 			
-			var tagID = parseTagAndID(selector), tag = tagID[0], id = tagID[1], parsed = parseSelector(selector);
-			
-			if (i == 0){
-				items = getNodesBySelector(context, tag, id, parsed, null);
-			} else {
-				var splitter = splitters[mySplitters[i - 1]], found = [];
-				slick.buffer.uniques = {};
-				for (var j = 0, k = items.length; j < k; j++) found = splitter(found, items[j], tag, id, parsed);
+			for (var j = 0; j < cs.length; j++){
+				var cb = cs[j], combinator = combinators[cb.combinator || ' '], selector = parseBit(cb), found = {};
+				
+				if (j == 0){
+					combinator(found, context, selector, buffer);
+				} else {
+					for (uid in items) combinator(found, items[uid], selector, buffer);
+				}
+				
 				items = found;
 			}
-
+			
+			if (i == 0){
+				all = items;
+			} else {
+				for (uid in items) all[uid] = items[uid];
+			}
 		}
-
-		return items;
+		
+		var nodes = [], idx = 0;
+		for (uid in all) nodes[idx++] = all[uid];
+		return nodes;
+	};
+	
+	function parseBit(bit){
+		return {
+			tag: bit.tag || '*',
+			id: bit.id,
+			classes: bit.parsed.classes,
+			attributes: bit.parsed.attributes,
+			pseudos: bit.parsed.pseudos
+		};
 	};
 	
 	// pseudoselectors accessors
@@ -56,41 +60,37 @@ var slick = (function(){
 		return node.getAttribute(name);
 	};
 	
-	slick.match = function(node, selector){
-		if (!selector || (selector == node)) return true;
-		slick.buffer = {};
-		var tagID = parseTagAndID(selector);
-		var matches = matchNodeBySelector(node, tagID[0], tagID[1], parseSelector(selector), null, {});
-		return matches;
+	// default parser
+	
+	slick.parse = function(){};
+	
+	//default slicer
+	
+	slick.slice = function(nodes){
+		return nodes;
+	};
+	
+	slick.match = function(node, selector, buffer){
+		if (!selector || selector === node) return true;
+		return matchNodeBySelector(node, parseBit(slick.parse(selector)[0][0]), buffer || {});
 	};
 	
 	// PRIVATE STUFF! Cant touch! AHAHA
-	
-	// cache
-	
-	var cache = {selectors: {}, nth: {}};
-	
-	// commonly used regexps.
-	
-	var regExps = {
-		id: (/#([\w-]+)/),
-		tag: (/^(\w+|\*)/),
-		quick: (/^(\w+|\*)$/),
-		splitter: (/\s*([+>~\s])\s*([a-zA-Z#.*:\[])/g),
-		combined: (/\.([\w-]+)|\[(\w+)(?:([!*^$~|]?=)(["']?)([^\4]*?)\4)?\]|:([\w-]+)(?:\(["']?(.*?)?["']?\)|$)/g)
-	};
 	
 	// generates and returns, or simply returns if existing, an unique id for a Node.
 	
 	var uidOf = (function(){
 		var index = 1;
-		if (window.ActiveXObject) return function uidOf(item){
-			return (item.uid || (item.uid = [index++]))[0];
-		};
-		return function uidOf(item){
-			return (item.uid || (item.uid = index++));
+		return (window.ActiveXObject) ? function uidOf(item){
+			return (item.uid = [index++])[0];
+		} : function uidOf(item){
+			return (item.uid = index++);
 		};
 	})();
+	
+	// nth argument parsed cache
+	
+	var cache = {nth: {}};
 	
 	//pseudos
 	
@@ -129,27 +129,27 @@ var slick = (function(){
 
 		// w3c pseudo selectors
 
-		'checked': function(){
+		'checked': function pseudoChecked(){
 			return this.checked;
 		},
 
-		'empty': function(){
+		'empty': function pseudoEmpty(){
 			return !(this.innerText || this.textContent || '').length;
 		},
 
-		'not': function(selector){
-			return !slick.match(this, selector);
+		'not': function pseudoNot(selector, buffer){
+			return !slick.match(this, selector, buffer);
 		},
 
-		'contains': function(text){
+		'contains': function pseudoContains(text){
 			return ((this.innerText || this.textContent || '').indexOf(text) > -1);
 		},
 
-		'first-child': function(){
+		'first-child': function pseudoFirstChild(){
 			return pseudos.index.call(this, 0);
 		},
 
-		'last-child': function(){
+		'last-child': function pseudoLastChild(){
 			var element = this;
 			while ((element = element.nextSibling)){
 				if (element.nodeType == 1) return false;
@@ -157,7 +157,7 @@ var slick = (function(){
 			return true;
 		},
 
-		'only-child': function(){
+		'only-child': function pseudoOnlyChild(){
 			var prev = this;
 			while ((prev = prev.previousSibling)){
 				if (prev.nodeType == 1) return false;
@@ -169,20 +169,20 @@ var slick = (function(){
 			return true;
 		},
 
-		'nth-child': function(argument){
+		'nth-child': function pseudoNthChild(argument, buffer){
 			argument = (argument == null) ? 'n' : argument;
-			var parsed = parseNTHArgument(argument);
-			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a);
+			var parsed = cache.nth[argument] || parseNTHArgument(argument);
+			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a, buffer);
 			var count = 0;
-			var buffer = slick.buffer;
 			if (!buffer.positions) buffer.positions = {};
-			var uid = uidOf(this);
+			var uid = this.uid || uidOf(this);
 			if (!buffer.positions[uid]){
 				var self = this;
 				while ((self = self.previousSibling)){
 					if (self.nodeType != 1) continue;
 					count ++;
-					var position = buffer.positions[uidOf(self)];
+					var uis = self.uid || uidOf(self);
+					var position = buffer.positions[uis];
 					if (position != null){
 						count = position + count;
 						break;
@@ -195,7 +195,7 @@ var slick = (function(){
 
 		// custom pseudo selectors
 
-		index: function(index){
+		'index': function pseudoIndex(index){
 			var element = this, count = 0;
 			while ((element = element.previousSibling)){
 				if (element.nodeType == 1 && ++count > index) return false;
@@ -203,12 +203,12 @@ var slick = (function(){
 			return (count == index);
 		},
 
-		even: function(argument){
-			return pseudos['nth-child'].call(this, '2n+1');
+		'even': function pseudoEven(argument, buffer){
+			return pseudos['nth-child'].call(this, '2n+1', buffer);
 		},
 
-		odd: function(argument){
-			return pseudos['nth-child'].call(this, '2n');
+		'odd': function pseudoOdd(argument, buffer){
+			return pseudos['nth-child'].call(this, '2n', buffer);
 		}
 
 	};
@@ -220,49 +220,6 @@ var slick = (function(){
 		return (separator + source + separator).indexOf(separator + string + separator) > -1;
 	};
 	
-	// checks if a Node is in the "uniques" object literal. If its not, returns true and sets its uid, otherwise returns false.
-	// If an uniques object is not passed, the function returns true.
-	
-	function pushedNodeInUniques(node){
-		var sbu = slick.buffer.uniques;
-		if (!sbu) return true;
-		var uid = uidOf(node);
-		if (!sbu[uid]) return sbu[uid] = true;
-		return false;
-	};
-	
-	// parses tagName and ID from a selector, and returns an array [tag, id]
-	
-	function parseTagAndID(selector){
-		var tag = selector.match(regExps.tag);
-		var id = selector.match(regExps.id);
-		return [(tag) ? tag[1] : '*', (id) ? id[1] : false];
-	};
-	
-	// parses a selector (classNames, attributes, pseudos) into an object and saves it in the cache for faster re-parsing.
-	
-	function parseSelector(selector){
-		if (cache.selectors[selector]) return cache.selectors[selector];
-		var m, parsed = {classes: [], pseudos: [], attributes: []};
-		while ((m = regExps.combined.exec(selector))){
-			var cn = m[1], an = m[2], ao = m[3], av = m[5], pn = m[6], pa = m[7];
-			if (cn){
-				parsed.classes.push(cn);
-			} else if (pn){
-				var parser = pseudos[pn];
-				if (parser) parsed.pseudos.push({parser: parser, argument: pa});
-				else parsed.attributes.push({name: pn, operator: '=', value: pa});
-			} else if (an){
-				parsed.attributes.push({name: an, operator: ao, value: av});
-			}
-		}
-		if (!parsed.classes.length) delete parsed.classes;
-		if (!parsed.attributes.length) delete parsed.attributes;
-		if (!parsed.pseudos.length) delete parsed.pseudos;
-		if (!parsed.classes && !parsed.attributes && !parsed.pseudos) parsed = null;
-		return cache.selectors[selector] = parsed;
-	};
-	
 	// methods to match a node against tag, id, className, attribute and pseudo
 	
 	function matchNodeByTag(node, tag){
@@ -270,15 +227,17 @@ var slick = (function(){
 	};
 	
 	function matchNodeByID(node, id){
-		return (!id || (node.id && node.id == id));
+		return ((node.id && node.id == id));
 	};
 	
 	function matchNodeByClass(node, className){
-		return (node.className && stringContains(node.className, className, ' '));
+		return (stringContains(node.className, className, ' '));
 	};
 	
-	function matchNodeByPseudo(node, parser, argument){
-		return parser.call(node, argument);
+	function matchNodeByPseudo(node, name, argument, buffer){
+		var parser = pseudos[name];
+		if (parser) return parser.call(node, argument, buffer);
+		return matchNodeByAttribute(node, name, '=', argument);
 	};
 	
 	function matchNodeByAttribute(node, name, operator, value){
@@ -299,86 +258,92 @@ var slick = (function(){
 	
 	// matches a node against a parsed selector
 	
-	function matchNodeBySelector(node, tag, id, parsed){
-		if (slick.buffer.uniques && !pushedNodeInUniques(node)) return false;
-		if (tag && !matchNodeByTag(node, tag)) return false;
-		if (id && !matchNodeByID(node, id)) return false;
+	function matchNodeBySelector(node, selector, buffer){
 		
-		if (!parsed) return true; //no parsers
+		if (selector.tag && !matchNodeByTag(node, selector.tag)) return false;
+		if (selector.id && !matchNodeByID(node, selector.id)) return false;
 		
 		var i;
-		if (parsed.classes){
-			for (i = parsed.classes.length; i--; i){
-				var cn = parsed.classes[i];
-				if (!matchNodeByClass(node, cn)) return false;
-			}
+		
+		for (i = selector.classes.length; i--; i){
+			var cn = selector.classes[i];
+			if (!node.className || !matchNodeByClass(node, cn)) return false;
 		}
-		if (parsed.attributes){
-			for (i = parsed.attributes.length; i--; i){
-				var att = parsed.attributes[i];
-				if (!matchNodeByAttribute(node, att.name, att.operator, att.value)) return false;
-			}
+
+		for (i = selector.attributes.length; i--; i){
+			var attribute = selector.attributes[i];
+			if (!matchNodeByAttribute(node, attribute.name, attribute.operator, attribute.value)) return false;
 		}
-		if (parsed.pseudos){
-			for (i = parsed.pseudos.length; i--; i){
-				var psd = parsed.pseudos[i];
-				if (!psd.parser.call(node, psd.argument)) return false;
-			}
+
+		for (i = selector.pseudos.length; i--; i){
+			var pseudo = selector.pseudos[i];
+			if (!matchNodeByPseudo(node, pseudo.name, pseudo.argument, buffer)) return false;
 		}
+
 		return true;
 	};
 	
-	// retrieves elements by tag and id, based on context.
-	// In case an id is passed, an array containing one element will be returned (or empty, if no id was found).
+	// combinators
 	
-	function getNodesBySelector(context, tag, id, parsed){
-		if (id && context.getElementById){
-			var node = context.getElementById(id);
-			if (node && !matchNodeBySelector(node, tag, null, parsed)) node = null;
-			return (node) ? [node] : [];
-		}
-		return splitters[' ']([], context, tag, id, parsed);
-	};
-	
-	// splitters
-	
-	var splitters = {
+	var combinators = {
 
-		' ': function allChildren(found, node, tag, id, parsed){
-			var children = node.getElementsByTagName(tag);
-			for (var i = 0, l = children.length; i < l; i++){
-				if (matchNodeBySelector(children[i], null, id, parsed)) found.push(children[i]);
+		' ': function allChildren(found, node, selector, buffer){
+			var tag = selector.tag, id = selector.id;
+			
+			//id optimization
+			
+			if (id && node.getElementById){
+				var item = node.getElementById(id);
+				selector.id = null;
+				var matches =  !!(item && matchNodeBySelector(item, selector, buffer));
+				selector.id = id;
+				if (matches) found[item.uid || uidOf(item)] = item;
+				return;
 			}
-			return found;
-		},
-
-		'>': function allSiblings(found, node, tag, id, parsed){
+			
+			//end id optimization
+			
 			var children = node.getElementsByTagName(tag);
+			selector.tag = null;
+
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
-				if (child.parentNode == node && matchNodeBySelector(child, null, id, parsed)) found.push(child);
+				var uid = child.uid || uidOf(child);
+				if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
 			}
-			return found;
+			
+			selector.tag = tag;
 		},
 
-		'+': function nextSibling(found, node, tag, id, parsed){
+		'>': function directChildren(found, node, selector, buffer){
+			var children = node.childNodes;
+			for (var i = 0, l = children.length; i < l; i++){
+				var child = children[i];
+				if (child.nodeType == 1){
+					var uid = child.uid || uidOf(child);
+					if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
+				}
+			}
+		},
+
+		'+': function nextSibling(found, node, selector, buffer){
 			while ((node = node.nextSibling)){
 				if (node.nodeType == 1){
-					if (matchNodeBySelector(node, tag, id, parsed)) found.push(node);
+					var uid = node.uid || uidOf(node);
+					if (!found[uid] && matchNodeBySelector(node, selector, buffer)) found[uid] = node;
 					break;
 				}
 			}
-			return found;
 		},
 
-		'~': function nextSiblings(found, node, tag, id, parsed){
+		'~': function nextSiblings(found, node, selector, buffer){
 			while ((node = node.nextSibling)){
 				if (node.nodeType == 1){
-					if (!pushedNodeInUniques(node)) break;
-					if (matchNodeBySelector(node, tag, id, parsed, null)) found.push(node);
+					var uid = node.uid || uidOf(node);
+					if (found[uid]) break;
+					if (matchNodeBySelector(node, selector, buffer)) found[uid] = node;
 				}
 			}
-			return found;
 		}
 
 	};
@@ -386,6 +351,8 @@ var slick = (function(){
 	return slick;
 	
 })();
+
+slick.parse = SubtleSlickParse;
 
 document.search = function(expression){
 	return slick(document, expression);
