@@ -7,7 +7,7 @@ var SubtleSlickParse = (function(){
 		
 		while (selector != (selector = selector.replace(parseregexp, parser)));
 		
-		parsedSelectors.type=parsedSelectors.type.join('');
+		// parsedSelectors.type=parsedSelectors.type.join('');
 		return cache[''+CSS3_Selectors] = parsedSelectors;
 	};
 	var parseregexp = new RegExp("\
@@ -31,7 +31,6 @@ var SubtleSlickParse = (function(){
 		// Replace function argument position
 		separator       : 1,
 		combinator      : 2,
-		combinatorChild : 2,
 		
 		tagName   : 3,
 		id        : 4,
@@ -47,6 +46,15 @@ var SubtleSlickParse = (function(){
 		pseudoClass      : 12,
 		pseudoClassValue : 13
 	};
+	var MAP = (function(){
+		var obj = {};
+		for (var property in map) {
+			var value = map[property];
+			if (value<1) continue;
+			obj[value] = property;
+		}
+		return obj;
+	})();
 	var cache = {};
 	SubtleSlickParse.cache = cache;
 	var parsedSelectors;
@@ -54,28 +62,23 @@ var SubtleSlickParse = (function(){
 	var this_simpleSelector;
 	function parser(){
 		var a = arguments;
-		SubtleSlickParse.debug && console.log({
-			argumentsLength : a.length,
-			rawMatch        : a[map.rawMatch],
-			offset          : a[arguments.length-2],
-			string          : a[arguments.length-1],
-			
-			separator       : a[map.separator],
-			combinator      : a[map.combinator],
-			combinatorChild : a[map.combinatorChild],
-			
-			tagName   : a[map.tagName],
-			id        : a[map.id],
-			className : a[map.className],
-			
-			attribute         : a[map.attribute],
-			attributeKey      : a[map.attributeKey],
-			attributeOperator : a[map.attributeOperator],
-			attributeValue    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle],
-			
-			pseudoClass      : a[map.pseudoClass],
-			pseudoClassValue : a[map.pseudoClassValue]
-		});
+		var selectorBitMap;
+		var selectorBitName;
+		
+		for (var aN=1; aN < a.length; aN++) {
+			if (a[aN]!==undefined) {
+				SubtleSlickParse.debug && console.log(a[aN]);
+				selectorBitMap = aN;
+				selectorBitName = MAP[selectorBitMap];
+				break;
+			}
+		}
+		
+		SubtleSlickParse.debug && console.log((function(){
+			var o = {};
+			o[selectorBitName] = a[selectorBitMap];
+			return o;
+		})());
 		
 		if (!parsedSelectors.length || a[map.separator]) {
 			// Make a new selector!
@@ -83,37 +86,64 @@ var SubtleSlickParse = (function(){
 			these_simpleSelectors = parsedSelectors[parsedSelectors.length-1];
 			if (parsedSelectors.length-1) return '';
 		}
-		if (!these_simpleSelectors.length || a[map.combinatorChild] || a[map.combinator]) {
+		
+		if (!these_simpleSelectors.length || a[map.combinator]) {
+			this_simpleSelector && (this_simpleSelector.reverseCombinator = a[map.combinator]);
 			// Make a new simple selector!
 			these_simpleSelectors.push({
-				bits:0,
-				combinator: a[map.combinatorChild] || a[map.combinator],
-				tag : null,
-				id  : null,
-				parsed:{
-					pseudos    :[],
-					classes    :[],
-					attributes :[]
-				}
+				// bits:0,
+				combinator: a[map.combinator],
+				tag : '*'
+				// id  : null,
+				// pseudos    :[],
+				// classes    :[],
+				// attributes :[]
 			});
 			this_simpleSelector = these_simpleSelectors[these_simpleSelectors.length-1];
 			parsedSelectors.type.push(this_simpleSelector.combinator);
 			if (these_simpleSelectors.length-1) return '';
 		}
-		this_simpleSelector.bits ++;
-		if (a[map.tagName    ]) return parsedSelectors.type.push('tag')    && (this_simpleSelector.tag = a[map.tagName])&&'';
-		if (a[map.id         ]) return parsedSelectors.type.push('id')     && (this_simpleSelector.id  = a[map.id     ])&&'';
-		if (a[map.className  ]) return parsedSelectors.type.push('class')  && this_simpleSelector.parsed.classes.push(a[map.className])&&'';
-		if (a[map.attribute  ]) return parsedSelectors.type.push('attrib'+a[map.attributeOperator]) && this_simpleSelector.parsed.attributes.push({
-			name     : a[map.attributeKey],
-			operator : a[map.attributeOperator],
-			value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle]
-		})&&'';
-		if (a[map.pseudoClass]) return parsedSelectors.type.push('pseudo') && this_simpleSelector.parsed.pseudos.push({
-			name     : a[map.pseudoClass],
-			argument : a[map.pseudoClassValue]
-		})&&'';
 		
+		switch(selectorBitMap){
+			
+		case map.tagName:
+			this_simpleSelector.tag = a[map.tagName];
+			break;
+			
+		case map.id:
+			this_simpleSelector.id  = a[map.id];
+			break;
+			
+		case map.className:
+			if(!this_simpleSelector.classes)
+				this_simpleSelector.classes = []
+			;
+			this_simpleSelector.classes.push(a[map.className]);
+			break;
+			
+		case map.attribute:
+			if(!this_simpleSelector.attributes)
+				this_simpleSelector.attributes = []
+			;
+			this_simpleSelector.attributes.push({
+				name     : a[map.attributeKey],
+				operator : a[map.attributeOperator],
+				value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle]
+			});
+			break;
+			
+		case map.pseudoClass:
+			if(!this_simpleSelector.pseudos)
+				this_simpleSelector.pseudos = []
+			;
+			this_simpleSelector.pseudos.push({
+				name     : a[map.pseudoClass],
+				argument : a[map.pseudoClassValue]
+			});
+			break;
+		}
+		
+		parsedSelectors.type.push(selectorBitName + (a[map.attributeOperator]||''));
 		return '';
 	};
 	
@@ -173,9 +203,9 @@ var slick = (function(){
 		return {
 			tag: bit.tag || '*',
 			id: bit.id,
-			classes: bit.parsed.classes,
-			attributes: bit.parsed.attributes,
-			pseudos: bit.parsed.pseudos
+			classes: bit.classes||[],
+			attributes: bit.attributes||[],
+			pseudos: bit.pseudos||[]
 		};
 	};
 	
