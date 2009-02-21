@@ -1,45 +1,38 @@
-html body #title
-html body h1#title
-html body div#title
-html body * #title
-html body div #title
-html body html #title
-html body body #title
-html body body
-html body body div
-html body div
-html body div p
-html body p
-html body div > p
-html body div + p
-html body div ~ p
-html body div[class^=exa][class$=mple]
-html body div p a
-html body div, p, a
-html body .note
-html body div.example
-html body ul .tocline2
-html body div.example, div.note
-html body ul.toc li.tocline2
-html body ul.toc > li.tocline2
-html body h1#title + div > p
-html body h1[id]:contains(Selectors)
-html body a[href][lang][class]
-html body div[class]
-html body div[class=example]
-html body div[class^=exa]
-html body div[class$=mple]
-html body div[class*=e]
-html body div[class|=dialog]
-html body div[class!=made_up]
-html body div[class~=example]
-html body div:not(.example)
-html body p:contains(selectors)
-html body p:nth-child(even)
-html body p:nth-child(2n)
-html body p:nth-child(odd)
-html body p:nth-child(2n+1)
-html body p:nth-child(n)
-html body p:only-child
-html body p:last-child
-html body p:first-child
+.a1 .a2 .a3 .a4 .a5 .a6
+.a2 .a4 .a6
+.a1>.a2>.a3>.a4>.a5>.a6
+body #title
+body h1#title
+body div#title
+body * #title
+body div #title
+body blockquote #title
+body div
+body div p
+body p
+body div > p
+body div + p
+body div ~ p
+body div[class^=exa][class$=mple]
+body div p a
+body div, p, a
+body .note
+body div.example
+body ul .tocline2
+body div.example, div.note
+body ul.toc li.tocline2
+body ul.toc > li.tocline2
+body h1#title + div > p
+body h1[id]:contains(Selectors)
+body a[href][lang][class]
+body div[class]
+body div[class=example]
+body div[class^=exa]
+body div[class$=mple]
+body div[class*=e]
+body div[class|=dialog]
+body div[class!=made_up]
+body div[class~=example]
+body div:not(.example)
+body p:contains(markup)
+body p:contains(selectors)

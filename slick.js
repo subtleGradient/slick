@@ -201,18 +201,34 @@ var slick = (function(){
 			getAllAncesters(context, targetItems[tuid], ancestors);
 			found = ancestors.found;
 			ancestors = ancestors.reverse();
-			console.log(ancestors);
+			// console.log(ancestors);
 			
 			for (var i=parsedSelector.length-1, simpleSelector; simpleSelector = parsedSelector[--i];) {
 				// ;;;console.log(simpleSelector.classes);;;
 				
-				while (
-					(this_ancestor = ancestors.pop()) &&
-					!(match = matchNodeBySelector(this_ancestor, simpleSelector, buffer))
-				){ console.log(simpleSelector.classes, this_ancestor, match);}
-				   console.log(simpleSelector.classes, this_ancestor, match);
+				switch(simpleSelector.reverseCombinator){
+					
+				case ' ':
+					
+					for (var ai=ancestors.length; this_ancestor = ancestors[--ai];) {
+						if (match = matchNodeBySelector(this_ancestor, simpleSelector, buffer)) break;
+						// console.log(simpleSelector.classes, this_ancestor, match);
+					}
+					// console.log(simpleSelector.classes, this_ancestor, match);
+					break;
+					
+				case '>':
+					this_ancestor = ancestors.pop()
+					match = matchNodeBySelector(this_ancestor, simpleSelector, buffer)
+					match || (this_ancestor=null);
+					console.log(simpleSelector.classes, this_ancestor, match);
+					break;
+					
+				default:
+					
+				}
 				
-				if (simpleSelector.reverseCombinator == '>') break;
+				
 				if (!this_ancestor) break;
 			}
 			if (!match) delete targetItems[tuid]
@@ -225,7 +241,7 @@ var slick = (function(){
 	function getAllAncesters(context, node, foundArray){
 		// ;;;console.log('getAllAncesters');;;
 		var found = foundArray.found = {};
-		while (node = node.parentNode) {
+		while ((node = node.parentNode) && (node != context)) {
 			var uid = node.uid || (node.uid = index++);
 			if (!found[uid]) found[uid] = node;
 			foundArray.push(found[uid]);
