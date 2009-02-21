@@ -157,7 +157,7 @@ var slick = (function(){
 	// MAIN Method: searches a context for an expression.
 	
 	function slick(context, expression){
-		;;;console.log(expression);;;
+		// ;;;console.log(expression);;;
 		
 		var buffer = {},
 			parsed = slick.parse(expression),
@@ -184,7 +184,7 @@ var slick = (function(){
 			targetItems = [],
 			uid
 		;
-		console.log('get all of the targetItems');
+		// console.log('get all of the targetItems');
 		combinators[' '](targetItems, context, parsedSelector[parsedSelector.length-1], buffer);
 		
 		if (parsedSelector.length == 1) return targetItems;
@@ -192,10 +192,10 @@ var slick = (function(){
 		ancestors = targetItems;
 		// console.log(targetItems) 
 		
-		console.log('FILTER TARGETITEMS BY ANCESTORS');
+		// console.log('FILTER TARGETITEMS BY ANCESTORS');
 		
 		for (var tuid in targetItems) {
-			;;;console.log("TARGETITEM", targetItems[tuid]);;;
+			// ;;;console.log("TARGETITEM", targetItems[tuid]);;;
 			var ancestors = [], found, this_ancestor, match;
 			
 			getAllAncesters(context, targetItems[tuid], ancestors);
@@ -221,7 +221,7 @@ var slick = (function(){
 					this_ancestor = ancestors.pop()
 					match = matchNodeBySelector(this_ancestor, simpleSelector, buffer)
 					match || (this_ancestor=null);
-					console.log(simpleSelector.classes, this_ancestor, match);
+					// console.log(simpleSelector.classes, this_ancestor, match);
 					break;
 					
 				default:
@@ -234,7 +234,7 @@ var slick = (function(){
 			if (!match) delete targetItems[tuid]
 		}
 		
-		console.log('/FILTER TARGETITEMS BY ANCESTORS');
+		// console.log('/FILTER TARGETITEMS BY ANCESTORS');
 		return targetItems;
 	};
 	
