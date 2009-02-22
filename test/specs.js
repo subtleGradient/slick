@@ -25,6 +25,32 @@ describe('SubtleSlickParse', {
 				value_of( s[0][1].combinator ).should_be( combinator );
 			}
 		}
+	},
+	
+	'should transform even to 2n+1 in pseudos nth arguments': function(){
+		var nths = [
+			{raw:":nth-child(even)" , name:'nth-child', argument:"2n+1"},
+			{raw:":nth-child(2n+1)" , name:'nth-child', argument:"2n+1"},
+			{raw:":nth-child(n)"    , name:'nth-child', argument:"n"   },
+		];
+		for (var i=0,s, N; N = nths[i]; i++){
+			s = SubtleSlickParse(N.raw);
+			value_of( s[0][0].pseudos[0].name ).should_be( N.name );
+			value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
+		}
+	},
+	
+	'should transform odd to 2n in pseudo nth arguments': function(){
+		var nths = [
+			{raw:":nth-child(odd)"  , name:'nth-child', argument:"2n" },
+			{raw:":nth-child(2n)"   , name:'nth-child', argument:"2n"  },
+			{raw:":nth-child(n)"    , name:'nth-child', argument:"n"   },
+		];
+		for (var i=0,s, N; N = nths[i]; i++){
+			s = SubtleSlickParse(N.raw);
+			value_of( s[0][0].pseudos[0].name ).should_be( N.name );
+			value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
+		}
 	}
 	
 });
