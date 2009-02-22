@@ -68,7 +68,7 @@ var SubtleSlickParse = (function(){
 		var selectorBitName;
 		
 		for (var aN=1; aN < a.length; aN++) {
-			if (a[aN]!==undefined) {
+			if (a[aN]) {
 				SubtleSlickParse.debug && console.log(a[aN]);
 				selectorBitMap = aN;
 				selectorBitName = MAP[selectorBitMap];
@@ -94,8 +94,8 @@ var SubtleSlickParse = (function(){
 			// Make a new simple selector!
 			these_simpleSelectors.push({
 				// bits:0,
-				combinator: a[map.combinator],
-				tag : '*'
+				combinator: a[map.combinator]
+				// tag : '*'
 				// id  : null,
 				// pseudos    :[],
 				// classes    :[],
@@ -155,7 +155,6 @@ var SubtleSlickParse = (function(){
 	
 	return SubtleSlickParse;
 })();
-
 
 var slick = (function(){
 	

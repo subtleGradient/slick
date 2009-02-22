@@ -8,6 +8,23 @@ describe('SubtleSlickParse', {
 		value_of( SubtleSlickParse ).should_not_be_undefined();
 	},
 	
+	'should parse multiple selectors': function(){
+		var s = SubtleSlickParse('a, b, c');
+		value_of( s[0][0].tag ).should_be( 'a' );
+		value_of( s[1][0].tag ).should_be( 'b' );
+		value_of( s[2][0].tag ).should_be( 'c' );
+	},
+	
+	'should parse multiple selectors with class': function(){
+		var s = SubtleSlickParse('a.class, b.class, c.class');
+		value_of( s[0][0].tag ).should_be( 'a' );
+		value_of( s[1][0].tag ).should_be( 'b' );
+		value_of( s[2][0].tag ).should_be( 'c' );
+		value_of( s[0][0].classes[0] ).should_be( 'class' );
+		value_of( s[1][0].classes[0] ).should_be( 'class' );
+		value_of( s[2][0].classes[0] ).should_be( 'class' );
+	},
+	
 	'should parse tag names': function(){
 		for (var i=0; i < tags.length; i++) {var tag = tags[i];
 			value_of( SubtleSlickParse(tag)[0][0].tag ).should_be( tag );
