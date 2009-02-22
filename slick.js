@@ -419,7 +419,7 @@ var slick = (function(){
 			return node.uid || (node.uid = uidx++);
 		},
 		
-		parseBit: function(bit){
+		parseBit: function(buffer, bit){
 			return {
 				tag: bit.tag || '*',
 				id: bit.id,
