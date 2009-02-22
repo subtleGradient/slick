@@ -29,9 +29,14 @@ describe('SubtleSlickParse', {
 	
 	'should transform even to 2n+1 in pseudos nth arguments': function(){
 		var nths = [
-			{raw:":nth-child(even)" , name:'nth-child', argument:"2n+1"},
-			{raw:":nth-child(2n+1)" , name:'nth-child', argument:"2n+1"},
-			{raw:":nth-child(n)"    , name:'nth-child', argument:"n"   },
+			{raw:        ":nth-child(even)", name:       "nth-child", argument:"2n+1"},
+			{raw:   ":nth-last-child(even)", name:  "nth-last-child", argument:"2n+1"},
+			{raw: ":nth-last-of-type(even)", name:"nth-last-of-type", argument:"2n+1"},
+			{raw:      ":nth-of-type(even)", name:     "nth-of-type", argument:"2n+1"},
+			
+			{raw:        ":nth-child(even)", name:'nth-child', argument:"2n+1"},
+			{raw:        ":nth-child(2n+1)", name:'nth-child', argument:"2n+1"},
+			{raw:           ":nth-child(n)", name:'nth-child', argument:"n"   },
 		];
 		for (var i=0,s, N; N = nths[i]; i++){
 			s = SubtleSlickParse(N.raw);
@@ -42,6 +47,11 @@ describe('SubtleSlickParse', {
 	
 	'should transform odd to 2n in pseudo nth arguments': function(){
 		var nths = [
+			{raw:        ":nth-child(odd)", name:       "nth-child", argument:"2n"},
+			{raw:   ":nth-last-child(odd)", name:  "nth-last-child", argument:"2n"},
+			{raw: ":nth-last-of-type(odd)", name:"nth-last-of-type", argument:"2n"},
+			{raw:      ":nth-of-type(odd)", name:     "nth-of-type", argument:"2n"},
+			
 			{raw:":nth-child(odd)"  , name:'nth-child', argument:"2n" },
 			{raw:":nth-child(2n)"   , name:'nth-child', argument:"2n"  },
 			{raw:":nth-child(n)"    , name:'nth-child', argument:"n"   },
