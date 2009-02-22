@@ -126,32 +126,26 @@ var slick = (function(){
 	// MAIN Method: searches a context for an expression.
 	
 	function slick(context, expression){
-		var buffer = {}, parsed = slick.parse(expression);
+		var buff = buffer;
+		buff.positions = {};
+		
+		var parsed = slick.parse(expression);
 		var all, uid;
-		
-		// WIP ATTEMPT TO SPEEDUP
-		
-		// if (parsed.length == 1 && parsed[0].length == 1){
-		// 	var bit = parsed[0][0];
-		// 	var comBit = combinators[bit.combinator || ' '];
-		// 	var selBit = parseBit(bit);
-		// 	var founBit = [];
-		// 	comBit(founBit, context, selBit, buffer);
-		// 	return founBit;
-		// }
 		
 		for (var i = 0; i < parsed.length; i++){
 			
 			var currentSelector = parsed[i], items;
 			
 			for (var j = 0; j < currentSelector.length; j++){
-				var currentBit = currentSelector[j], combinator = combinators[currentBit.combinator || ' '];
-				var selector = parseBit(currentBit), found = {};
-				
+				var currentBit = currentSelector[j], combinator = buff.combinators[currentBit.combinator || ' '];
+				var selector = buff.parseBit(currentBit), found = [];
+				buff.uniques = {};
 				if (j == 0){
-					combinator(found, context, selector, buffer);
+					buff.push = buff.pushArray;
+					combinator(buff, context, found, selector[0], selector[1], selector[2]);
 				} else {
-					for (uid in items) combinator(found, items[uid], selector, buffer);
+					buff.push = buff.pushObject;
+					for (var m = 0, n = items.length; m < n; m++) combinator(buff, items[m], found, selector[0], selector[1], selector[2]);
 				}
 				
 				items = found;
@@ -160,23 +154,23 @@ var slick = (function(){
 			if (i == 0){
 				all = items;
 			} else {
-				for (uid in items) all[uid] = items[uid];
+				all = all.concat(items);
 			}
 		}
 		
-		var nodes = [], idx = 0;
-		for (uid in all) nodes[idx++] = all[uid];
-		return nodes;
-	};
-	
-	function parseBit(bit){
-		return {
-			tag: bit.tag || '*',
-			id: bit.id,
-			classes: bit.parsed.classes,
-			attributes: bit.parsed.attributes,
-			pseudos: bit.parsed.pseudos
-		};
+		if (parsed.length > 1){
+			var nodes = [], uniques = {};
+			for (var k = 0; k < all.length; k++){
+				var node = all[k];
+				uid = buff.uidOf(node);
+				if (!uniques[uid]){
+					nodes.push(node);
+					uniques[uid] = true;
+				}
+			}
+			return nodes;
+		}
+		return all;
 	};
 	
 	// pseudoselectors accessors
@@ -200,59 +194,63 @@ var slick = (function(){
 	
 	slick.parse = function(){};
 	
-	//default slicer
-	
-	slick.slice = function(nodes){
-		return nodes;
-	};
-	
-	slick.match = function(node, selector, buffer){
+	slick.match = function(node, selector, buff){
+		if (!buff){
+			buff = buffer;
+			buffer.positions = {};
+		}
 		if (!selector || selector === node) return true;
-		return matchNodeBySelector(node, parseBit(slick.parse(selector)[0][0]), buffer || {});
+		var pb = buffer.parseBit(slick.parse(selector)[0][0]);
+		return buff.matchNodeBySelector(buff, node, pb[0], pb[1], pb[2]);
 	};
 	
-	// PRIVATE STUFF! Cant touch! AHAHA
+	// PRIVATE
 	
 	// uid index
 	
-	var index = 1;
+	// slick.index = 1;
+	// 
+	// var uidOf = (window.ActiveXObject) ? function(node){
+	// 	return (node.uid || (node.uid = [slick.index++]))[0];
+	// } : function(node){
+	// 	return node.uid || (node.uid = slick.index++);
+	// };
 	
 	// nth argument parsed cache
 	
-	var cache = {nth: {}};
+	// var cache = {nth: {}};
 	
 	//pseudos
 	
 	// utility function for the nth pseudo selector, parses the complex argument.
 	
-	function parseNTHArgument(argument){
-		if (cache.nth[argument]) return cache.nth[argument];
-		var parsed = argument.match(/^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/);
-		if (!parsed) return false;
-		var inta = parseInt(parsed[1], 10);
-		var a = (inta || inta === 0) ? inta : 1;
-		var special = parsed[2] || false;
-		var b = parseInt(parsed[3], 10) || 0;
-		if (a != 0){
-			b--;
-			while (b < 1) b += a;
-			while (b >= a) b -= a;
-		} else {
-			a = b;
-			special = 'index';
-		}
-		switch (special){
-			case 'n': parsed = {a: a, b: b, special: 'n'}; break;
-			case 'odd': parsed = {a: 2, b: 0, special: 'n'}; break;
-			case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
-			case 'first': parsed = {a: 0, special: 'index'}; break;
-			case 'last': parsed = {special: 'last-child'}; break;
-			case 'only': parsed = {special: 'only-child'}; break;
-			default: parsed = {a: (a - 1), special: 'index'};
-		}
-
-		return cache.nth[argument] = parsed;
-	};
+	// function parseNTHArgument(argument){
+	// 	var parsed = argument.match(/^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/);
+	// 	if (!parsed) return false;
+	// 	var inta = parseInt(parsed[1], 10);
+	// 	var a = (inta || inta === 0) ? inta : 1;
+	// 	var special = parsed[2] || false;
+	// 	var b = parseInt(parsed[3], 10) || 0;
+	// 	if (a != 0){
+	// 		b--;
+	// 		while (b < 1) b += a;
+	// 		while (b >= a) b -= a;
+	// 	} else {
+	// 		a = b;
+	// 		special = 'index';
+	// 	}
+	// 	switch (special){
+	// 		case 'n': parsed = {a: a, b: b, special: 'n'}; break;
+	// 		case 'odd': parsed = {a: 2, b: 0, special: 'n'}; break;
+	// 		case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
+	// 		case 'first': parsed = {a: 0, special: 'index'}; break;
+	// 		case 'last': parsed = {special: 'last-child'}; break;
+	// 		case 'only': parsed = {special: 'only-child'}; break;
+	// 		default: parsed = {a: (a - 1), special: 'index'};
+	// 	}
+	// 
+	// 	return cache.nth[argument] = parsed;
+	// };
 	
 	var pseudos = {
 
@@ -281,7 +279,7 @@ var slick = (function(){
 		'last-child': function pseudoLastChild(){
 			var element = this;
 			while ((element = element.nextSibling)){
-				if (element.nodeType == 1) return false;
+				if (element.nodeType === 1) return false;
 			}
 			return true;
 		},
@@ -289,28 +287,28 @@ var slick = (function(){
 		'only-child': function pseudoOnlyChild(){
 			var prev = this;
 			while ((prev = prev.previousSibling)){
-				if (prev.nodeType == 1) return false;
+				if (prev.nodeType === 1) return false;
 			}
 			var next = this;
 			while ((next = next.nextSibling)){
-				if (next.nodeType == 1) return false;
+				if (next.nodeType === 1) return false;
 			}
 			return true;
 		},
 
 		'nth-child': function pseudoNthChild(argument, buffer){
 			argument = (argument == null) ? 'n' : argument;
-			var parsed = cache.nth[argument] || parseNTHArgument(argument);
-			if (parsed.special != 'n') return pseudos[parsed.special].call(this, parsed.a, buffer);
-			var count = 0, uid = this.uid || (this.uid = index++);
+			var parsed = buffer.cache.nth[argument] || buffer.parseNTHArgument(buffer, argument);
+			if (parsed.special != 'n') return buffer.pseudos[parsed.special].call(this, parsed.a, buffer);
+			var count = 0, uid = buffer.uidOf(this);
 			
 			if (!buffer.positions) buffer.positions = {};
 			if (!buffer.positions[uid]){
-				var self = this;				
+				var self = this;		
 				while ((self = self.previousSibling)){
 					if (self.nodeType != 1) continue;
 					count ++;
-					var uis = self.uid || (self.uid = index++);
+					var uis = buffer.uidOf(self);
 					var position = buffer.positions[uis];
 					if (position != null){
 						count = position + count;
@@ -319,7 +317,7 @@ var slick = (function(){
 				}
 				buffer.positions[uid] = count;
 			}
-			return (buffer.positions[uid] % parsed.a == parsed.b);
+			return (buffer.positions[uid] % parsed.a === parsed.b);
 		},
 
 		// custom pseudo selectors
@@ -327,9 +325,9 @@ var slick = (function(){
 		'index': function pseudoIndex(index){
 			var element = this, count = 0;
 			while ((element = element.previousSibling)){
-				if (element.nodeType == 1 && ++count > index) return false;
+				if (element.nodeType === 1 && ++count > index) return false;
 			}
-			return (count == index);
+			return (count === index);
 		},
 
 		'even': function pseudoEven(argument, buffer){
@@ -342,143 +340,269 @@ var slick = (function(){
 
 	};
 	
-	// fast indexOf with a separator (' ') checking.
-	
-	function stringContains(source, string, separator){
-		separator = separator || '';
-		return (separator + source + separator).indexOf(separator + string + separator) > -1;
-	};
-	
-	// methods to match a node against tag, id, className, attribute and pseudo
-	
-	function matchNodeByTag(node, tag){
-		return (tag == '*' || (node.tagName && node.tagName.toLowerCase() == tag));
-	};
-	
-	function matchNodeByID(node, id){
-		return ((node.id && node.id == id));
-	};
-	
-	function matchNodeByClass(node, className){
-		return (stringContains(node.className, className, ' '));
-	};
-	
-	function matchNodeByPseudo(node, name, argument, buffer){
-		var parser = pseudos[name];
-		if (parser) return parser.call(node, argument, buffer);
-		return matchNodeByAttribute(node, name, '=', argument);
-	};
-	
-	function matchNodeByAttribute(node, name, operator, value){
-		var result = slick.getAttribute(node, name);
-		if (!result) return (operator == '!=');
-		if (!operator || value == null) return true;
-		switch (operator){
-			case '=': return (result == value);
-			case '*=': return (result.indexOf(value) > -1);
-			case '^=': return (result.substr(0, value.length) == value);
-			case '$=': return (result.substr(result.length - value.length) == value);
-			case '!=': return (result != value);
-			case '~=': return stringContains(result,value, ' ');
-			case '|=': return stringContains(result, value, '-');
-		}
-		return false;
-	};
-	
-	// matches a node against a parsed selector
-	
-	function matchNodeBySelector(node, selector, buffer){
-		
-		if (selector.tag && !matchNodeByTag(node, selector.tag)) return false;
-		if (selector.id && !matchNodeByID(node, selector.id)) return false;
-		
-		var i;
-		
-		for (i = selector.classes.length; i--; i){
-			var cn = selector.classes[i];
-			if (!node.className || !matchNodeByClass(node, cn)) return false;
-		}
-		
-		for (i = selector.attributes.length; i--; i){
-			var attribute = selector.attributes[i];
-			if (!matchNodeByAttribute(node, attribute.name, attribute.operator, attribute.value)) return false;
-		}
-		
-		for (i = selector.pseudos.length; i--; i){
-			var pseudo = selector.pseudos[i];
-			if (!matchNodeByPseudo(node, pseudo.name, pseudo.argument, buffer)) return false;
-		}
-		
-		return true;
-	};
-	
 	// combinators
 	
 	var combinators = {
-
-		' ': function allChildren(found, node, selector, buffer){
-			var tag = selector.tag, id = selector.id, uid;
-			
-			//id optimization
+	
+		' ': function allChildren(buffer, node, found, tag, id, selector){
+			var uid;
 			
 			if (id && node.getElementById){
 				var item = node.getElementById(id);
-				selector.id = null;
-				if (!item) return;
-				uid = item.uid || (item.uid = index++);
-				if (found[uid]) return;
-				var matches =  matchNodeBySelector(item, selector, buffer);
-				selector.id = id;
-				if (matches) found[uid] = item;
+				if (item) buffer.push(buffer, item, found, tag, null, selector);
 				return;
 			}
 			
-			//end id optimization
-			
 			var children = node.getElementsByTagName(tag);
-			selector.tag = null;
-
+	
+			for (var i = 0, l = children.length; i < l; i++) buffer.push(buffer, children[i], found, null, id, selector);
+		},
+	
+		'>': function directChildren(buffer, node, found, tag, id, selector){
+			var children = node.getElementsByTagName(tag);
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
-				uid = child.uid || (child.uid = index++);
-				if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
-			}
-			
-			selector.tag = tag;
-		},
-
-		'>': function directChildren(found, node, selector, buffer){
-			var children = node.childNodes;
-			for (var i = 0, l = children.length; i < l; i++){
-				var child = children[i];
-				if (child.nodeType == 1){
-					var uid = child.uid || (child.uid = index++);
-					if (!found[uid] && matchNodeBySelector(child, selector, buffer)) found[uid] = child;
-				}
+				if (child.parentNode === node) buffer.push(buffer, child, found, tag, id, selector);
 			}
 		},
-
-		'+': function nextSibling(found, node, selector, buffer){
+	
+		'+': function nextSibling(buffer, node, found, tag, id, selector){
 			while ((node = node.nextSibling)){
-				if (node.nodeType == 1){
-					var uid = node.uid || (node.uid = index++);
-					if (!found[uid] && matchNodeBySelector(node, selector, buffer)) found[uid] = node;
+				if (node.nodeType === 1){
+					buffer.push(buffer, node, found, tag, id, selector);
 					break;
 				}
 			}
 		},
-
-		'~': function nextSiblings(found, node, selector, buffer){
+	
+		'~': function nextSiblings(buffer, node, found, tag, id, selector){
 			while ((node = node.nextSibling)){
-				if (node.nodeType == 1){
-					var uid = node.uid || (node.uid = index++);
-					if (found[uid]) break;
-					if (matchNodeBySelector(node, selector, buffer)) found[uid] = node;
+				if (node.nodeType === 1){
+					var uid = buffer.uidOf(node);
+					if (buffer.uniques[uid]) break;
+					if (buffer.matchNodeBySelector(buffer, node, tag, id, selector)){
+						buffer.uniques[uid] = true;
+						found.push(node);
+					}
 				}
 			}
 		}
+	
+	};
+	
+	// Buffer
+	
+	var uidx = 1;
+	
+	var buffer = {
+		
+		pseudos: pseudos,
+		
+		combinators: combinators,
+		
+		cache: {nth: {}},
+		
+		uidOf: (window.ActiveXObject) ? function(node){
+			return (node.uid || (node.uid = [uidx++]))[0];
+		} : function(node){
+			return node.uid || (node.uid = uidx++);
+		},
+		
+		parseBit: function(bit){
+			return [bit.tag || '*', bit.id, {
+				classes: bit.parsed.classes,
+				attributes: bit.parsed.attributes,
+				pseudos: bit.parsed.pseudos
+			}];
+		},
+		
+		parseNTHArgument: function(buffer, argument){
+			var parsed = argument.match(/^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/);
+			if (!parsed) return false;
+			var inta = parseInt(parsed[1], 10);
+			var a = (inta || inta === 0) ? inta : 1;
+			var special = parsed[2] || false;
+			var b = parseInt(parsed[3], 10) || 0;
+			if (a != 0){
+				b--;
+				while (b < 1) b += a;
+				while (b >= a) b -= a;
+			} else {
+				a = b;
+				special = 'index';
+			}
+			switch (special){
+				case 'n': parsed = {a: a, b: b, special: 'n'}; break;
+				case 'odd': parsed = {a: 2, b: 0, special: 'n'}; break;
+				case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
+				case 'first': parsed = {a: 0, special: 'index'}; break;
+				case 'last': parsed = {special: 'last-child'}; break;
+				case 'only': parsed = {special: 'only-child'}; break;
+				default: parsed = {a: (a - 1), special: 'index'};
+			}
+
+			return buffer.cache.nth[argument] = parsed;
+		},
+		
+		stringContains: function(source, string, separator){
+			separator = separator || '';
+			return (separator + source + separator).indexOf(separator + string + separator) > -1;
+		},
+		
+		matchNodeByTag: function(node, tag){
+			return (tag === '*' || (node.tagName && node.tagName.toLowerCase() === tag));
+		},
+		
+		matchNodeByID: function(node, id){
+			return ((node.id && node.id === id));
+		},
+
+		matchNodeByClass: function(buffer, node, className){
+			return (buffer.stringContains(node.className, className, ' '));
+		},
+
+		matchNodeByPseudo: function(buffer, node, name, argument){
+			var parser = buffer.pseudos[name];
+			if (parser) return parser.call(node, argument, buffer);
+			return buffer.matchNodeByAttribute(node, name, '=', argument);
+		},
+
+		matchNodeByAttribute: function(buffer, node, name, operator, value){
+			var result = slick.getAttribute(node, name);
+			if (!result) return (operator === '!=');
+			if (!operator || value == null) return true;
+			switch (operator){
+				case '=': return (result === value);
+				case '*=': return (result.indexOf(value) > -1);
+				case '^=': return (result.substr(0, value.length) === value);
+				case '$=': return (result.substr(result.length - value.length) === value);
+				case '!=': return (result != value);
+				case '~=': return buffer.stringContains(result,value, ' ');
+				case '|=': return buffer.stringContains(result, value, '-');
+			}
+			return false;
+		},
+		
+		matchNodeBySelector: function(buffer, node, tag, id, selector){
+			if (tag && !buffer.matchNodeByTag(node, tag)) return false;
+			if (id && !buffer.matchNodeByID(node, id)) return false;
+
+			var i;
+
+			var sc = selector.classes;
+			for (i = sc.length; i--; i){
+				var cn = sc[i];
+				if (!node.className || !buffer.matchNodeByClass(buffer, node, cn)) return false;
+			}
+
+			var sa = selector.attributes;
+			for (i = sa.length; i--; i){
+				var attribute = sa[i];
+				if (!buffer.matchNodeByAttribute(buffer, node, attribute.name, attribute.operator, attribute.value)) return false;
+			}
+
+			var sp = selector.pseudos;
+			for (i = sp.length; i--; i){
+				var pseudo = sp[i];
+				if (!buffer.matchNodeByPseudo(buffer, node, pseudo.name, pseudo.argument)) return false;
+			}
+
+			return true;
+		},
+		
+		pushObject: function(buffer, node, found, tag, id, selector){
+			var uid = buffer.uidOf(node);
+			if (!buffer.uniques[uid] && buffer.matchNodeBySelector(buffer, node, tag, id, selector)){
+				buffer.uniques[uid] = true;
+				found.push(node);
+			}
+		},
+
+		pushArray: function(buffer, node, found, tag, id, selector){
+			if (buffer.matchNodeBySelector(buffer, node, tag, id, selector)) found.push(node);
+		}
 
 	};
+	
+	// fast indexOf with a separator (' ') checking.
+	
+	// function stringContains(source, string, separator){
+	// 	separator = separator || '';
+	// 	return (separator + source + separator).indexOf(separator + string + separator) > -1;
+	// };
+	
+	// var nodeContains = document.compareDocumentPosition ? function nodeContains(source, node){
+	// 	return (source.compareDocumentPosition(node) & 16);
+	// } : function nodeContains(source, node){
+	// 	return source !== node && (source.contains ? source.contains(node) : true);
+	// };
+
+	// methods to match a node against tag, id, className, attribute and pseudo
+	
+	// function matchNodeByTag(node, tag){
+	// 	return (tag === '*' || (node.tagName && node.tagName.toLowerCase() === tag));
+	// };
+	
+	// function matchNodeByID(node, id){
+	// 	return ((node.id && node.id === id));
+	// };
+	// 
+	// function matchNodeByClass(node, className, buffer){
+	// 	return (buffer.stringContains(node.className, className, ' '));
+	// };
+	// 
+	// function matchNodeByPseudo(node, name, argument, buffer){
+	// 	var parser = pseudos[name];
+	// 	if (parser) return parser.call(node, argument, buffer);
+	// 	return buffer.matchNodeByAttribute(node, name, '=', argument);
+	// };
+	// 
+	// function matchNodeByAttribute(node, name, operator, value, buffer){
+	// 	var result = slick.getAttribute(node, name);
+	// 	if (!result) return (operator === '!=');
+	// 	if (!operator || value == null) return true;
+	// 	switch (operator){
+	// 		case '=': return (result === value);
+	// 		case '*=': return (result.indexOf(value) > -1);
+	// 		case '^=': return (result.substr(0, value.length) === value);
+	// 		case '$=': return (result.substr(result.length - value.length) === value);
+	// 		case '!=': return (result != value);
+	// 		case '~=': return buffer.stringContains(result,value, ' ');
+	// 		case '|=': return buffer.stringContains(result, value, '-');
+	// 	}
+	// 	return false;
+	// };
+	// 
+	// // matches a node against a parsed selector
+	// 
+	// function matchNodeBySelector(node, tag, id, selector, buffer){
+	// 	if (tag && !buffer.matchNodeByTag(node, tag)) return false;
+	// 	if (id && !buffer.matchNodeByID(node, id)) return false;
+	// 	
+	// 	var i;
+	// 	
+	// 	var sc = selector.classes;
+	// 	for (i = sc.length; i--; i){
+	// 		var cn = sc[i];
+	// 		if (!node.className || !buffer.matchNodeByClass(node, cn, buffer)) return false;
+	// 	}
+	// 	
+	// 	var sa = selector.attributes;
+	// 	for (i = sa.length; i--; i){
+	// 		var attribute = sa[i];
+	// 		if (!buffer.matchNodeByAttribute(node, attribute.name, attribute.operator, attribute.value, buffer)) return false;
+	// 	}
+	// 	
+	// 	var sp = selector.pseudos;
+	// 	for (i = sp.length; i--; i){
+	// 		var pseudo = sp[i];
+	// 		if (!buffer.matchNodeByPseudo(node, pseudo.name, pseudo.argument, buffer)) return false;
+	// 	}
+	// 	
+	// 	return true;
+	// };
+	
+	// combinators
 	
 	return slick;
 	
