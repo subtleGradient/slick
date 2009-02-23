@@ -146,7 +146,7 @@ var SubtleSlickParse = (function(){
 	};
 	
 	function attribValueToRegex(operator, value){
-		if (!operator) return;
+		if (!operator) operator = '!=';
 		var val = XRegExp_escape(value);
 		switch(operator){
 		case  '=': return new RegExp('^'      +val+ '$'     );
