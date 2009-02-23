@@ -1,5 +1,6 @@
 var combinators = ' ,>,+,~'.split(',');
 var tags = 'a,abbr,acronym,address,applet,area,b,base,basefont,bdo,big,blockquote,br,button,caption,center,cite,code,col,colgroup,dd,del,dfn,dir,div,dl,dt,em,fieldset,font,form,frame,frameset,h1,h2,h3,h4,h5,h6,head,hr,html,i,iframe,img,input,ins,isindex,kbd,label,legend,li,link,map,menu,meta,noframes,noscript,object,ol,optgroup,option,p,param,pre,q,s,samp,script,select,small,span,strike,strong,style,sub,sup,table,tbody,td,textarea,tfoot,th,thead,title,tr,tt,u,ul,var'.split(',');
+var attribOperators = ',=,!=,*=,^=,$=,~=,|='.split(',');
 
 
 describe('SubtleSlickParse', {
@@ -99,6 +100,27 @@ describe('SubtleSlickParse', {
 		value_of( s.pseudos[0].argument ).should_be('[attr=""]');
 	}
 	
+	,
+	'should parse attributes': function(){
+		var vals = ',myValueOfDoom,"fred",\'fred\''.split(',');
+		var attr = 'attr';
+		for (var vi=0; vi < vals.length; vi++) {
+			var val = vals[i];
+			for (var i=0; i < attribOperators.length; i++) {
+				var op = attribOperators[i];
+				var s = SubtleSlickParse('['+ attr + op + val +']')[0][0];
+				value_of( s.attributes.length ).should_be( 1 );
+				value_of( s.attributes[0].operator||'' ).should_be( op );
+				if (!op) {
+					value_of( s.attributes[0].operator ).should_be_undefined();
+					value_of( s.attributes[0].value ).should_be_undefined();
+					value_of( s.attributes[0].regexp ).should_be_undefined();
+				} else {
+					value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val).toString() );
+				}
+			}
+		}
+	}
 });
 
 
@@ -107,5 +129,8 @@ describe('MooTools-Slick', {
 	'should exist': function(){
 		value_of( slick ).should_not_be_undefined();
 	}
-	
+	,
+	'should match attributes': function(){
+		
+	}
 });
