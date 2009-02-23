@@ -123,7 +123,7 @@ var SubtleSlickParse = (function(){
 				name     : a[map.attributeKey],
 				operator : a[map.attributeOperator],
 				value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle],
-				regexp   : attribValueToRegex(a[map.attributeOperator], a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle] || '')
+				regexp   : SubtleSlickParse.attribValueToRegex(a[map.attributeOperator], a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle] || '')
 			});
 			break;
 			
@@ -145,7 +145,7 @@ var SubtleSlickParse = (function(){
 		return '';
 	};
 	
-	function attribValueToRegex(operator, value){
+	SubtleSlickParse.attribValueToRegex = function attribValueToRegex(operator, value){
 		if (!operator) operator = '!=';
 		var val = XRegExp_escape(value);
 		switch(operator){
@@ -174,7 +174,7 @@ var SubtleSlickParse = (function(){
 	    |, #, [comma], and whitespace.
 	*/
 	XRegExp_escape = function (str) {
-	    return str.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
+	    return String(str).replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
 	return SubtleSlickParse;
