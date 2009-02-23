@@ -139,8 +139,8 @@ var SubtleSlickParse = (function(){
 				this_simpleSelector.pseudos = []
 			;
 			var pseudoClassValue = a[map.pseudoClassValue];
-			if (pseudoClassValue == 'even') pseudoClassValue = '2n+1';
-			if (pseudoClassValue == 'odd') pseudoClassValue = '2n';
+			if (pseudoClassValue == 'odd') pseudoClassValue = '2n+1';
+			if (pseudoClassValue == 'even') pseudoClassValue = '2n';
 			
 			this_simpleSelector.pseudos.push({
 				name     : a[map.pseudoClass],
