@@ -1,6 +1,7 @@
 /* Subtle Parser */
 
 var SubtleSlickParse = (function(){
+	
 	function SubtleSlickParse(CSS3_Selectors){
 		var selector = ''+CSS3_Selectors;
 		if(!SubtleSlickParse.debug && cache[selector]) return cache[selector];
@@ -12,6 +13,7 @@ var SubtleSlickParse = (function(){
 		// parsedSelectors.type=parsedSelectors.type.join('');
 		return cache[''+CSS3_Selectors] = parsedSelectors;
 	};
+	
 	var parseregexp = new RegExp("\
 		(?x)\
 		^(?:\
@@ -24,6 +26,7 @@ var SubtleSlickParse = (function(){
 		|(?: \\[  ( ([-_:a-z0-9]+) (?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) ) )?     ) \\] ) # attribute\n\
 		|(?:   :+ ( [a-z][a-z0-9_-]* ) \\b (?: \\([\"]? ([^\\)\\\"]+) [\"]?\\) )?     ) # PseudoClassPseudoClassValue\n\
 		)".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),'i');
+	
 	var map = {
 		// Natural replace function argument position
 		rawMatch      : 0,
@@ -57,11 +60,12 @@ var SubtleSlickParse = (function(){
 		}
 		return obj;
 	})();
-	var cache = {};
-	SubtleSlickParse.cache = cache;
+	var cache = SubtleSlickParse.cache = {};
+	
 	var parsedSelectors;
 	var these_simpleSelectors;
 	var this_simpleSelector;
+	
 	function parser(){
 		var a = arguments;
 		var selectorBitMap;
@@ -118,15 +122,13 @@ var SubtleSlickParse = (function(){
 			
 		case map.className:
 			if(!this_simpleSelector.classes)
-				this_simpleSelector.classes = []
-			;
+				this_simpleSelector.classes = [];
 			this_simpleSelector.classes.push(a[map.className]);
 			break;
 			
 		case map.attribute:
 			if(!this_simpleSelector.attributes)
-				this_simpleSelector.attributes = []
-			;
+				this_simpleSelector.attributes = [];
 			this_simpleSelector.attributes.push({
 				name     : a[map.attributeKey],
 				operator : a[map.attributeOperator],
@@ -136,8 +138,7 @@ var SubtleSlickParse = (function(){
 			
 		case map.pseudoClass:
 			if(!this_simpleSelector.pseudos)
-				this_simpleSelector.pseudos = []
-			;
+				this_simpleSelector.pseudos = [];
 			var pseudoClassValue = a[map.pseudoClassValue];
 			if (pseudoClassValue == 'odd') pseudoClassValue = '2n+1';
 			if (pseudoClassValue == 'even') pseudoClassValue = '2n';
@@ -169,10 +170,12 @@ var slick = (function(){
 		var all, uid, buffPushArray = buff['push(array)'], buffPushObject = buff['push(object)'];
 		var parseBit = buff['util(parse-bit)'];
 		
+		processEachSelector:
 		for (var i = 0; i < parsed.length; i++){
 			
 			var currentSelector = parsed[i], items;
 			
+			processEachSimpleSelector:
 			for (var j = 0; j < currentSelector.length; j++){
 				var currentBit = currentSelector[j], combinator = 'combinator(' + (currentBit.combinator || ' ') + ')';
 				var selector = parseBit(currentBit);
@@ -187,6 +190,7 @@ var slick = (function(){
 					buff[combinator](context, tag, id, params);
 				} else {
 					buff.push = buffPushObject;
+					processEachItemCombinator:
 					for (var m = 0, n = items.length; m < n; m++) buff[combinator](items[m], tag, id, params);
 				}
 				
