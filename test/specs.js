@@ -85,7 +85,7 @@ describe('SubtleSlickParse', {
 		var s = SubtleSlickParse(":not()")[0][0];
 		value_of( s.pseudos.length ).should_be(1);
 		value_of( s.pseudos[0].name ).should_be('not');
-		value_of( s.pseudos[0].argument ).should_be_undefined();
+		value_of( s.pseudos[0].argument ).should_be("");
 		
 		s = SubtleSlickParse(':not([attr])')[0][0];
 		value_of( s.pseudos[0].argument ).should_be('[attr]');
@@ -99,24 +99,46 @@ describe('SubtleSlickParse', {
 		s = SubtleSlickParse(':not([attr=""])')[0][0];
 		value_of( s.pseudos[0].argument ).should_be('[attr=""]');
 	}
-	
+	,
+	'should parse :pseudo arguments as null': function(){
+		var s = SubtleSlickParse(":pseudo")[0][0];
+		value_of( s.pseudos.length ).should_be(1);
+		value_of( s.pseudos[0].name ).should_be('pseudo');
+		value_of( s.pseudos[0].argument ).should_be_null();
+	}
+	,
+	'should parse :pseudo() arguments as ""': function(){
+		var s = SubtleSlickParse(":pseudo()")[0][0];
+		value_of( s.pseudos.length ).should_be(1);
+		value_of( s.pseudos[0].name ).should_be('pseudo');
+		value_of( s.pseudos[0].argument ).should_not_be_null();
+		value_of( s.pseudos[0].argument ).should_be("");
+	}
 	,
 	'should parse attributes': function(){
-		var vals = ',myValueOfDoom,"fred",\'fred\''.split(',');
-		var attr = 'attr';
-		for (var vi=0; vi < vals.length; vi++) {
-			var val = vals[i];
-			for (var i=0; i < attribOperators.length; i++) {
-				var op = attribOperators[i];
-				var s = SubtleSlickParse('['+ attr + op + val +']')[0][0];
-				value_of( s.attributes.length ).should_be( 1 );
-				value_of( s.attributes[0].operator||'' ).should_be( op );
-				if (!op) {
-					value_of( s.attributes[0].operator ).should_be_undefined();
-					value_of( s.attributes[0].value ).should_be_undefined();
-					value_of( s.attributes[0].regexp ).should_be_undefined();
-				} else {
-					value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val).toString() );
+		var attrs = 'attr,html:lang,fred-rocks'.split(',');
+		var vals = 'myValueOfDoom,"double",\'single\',(),{},\'thing[]\',"thing[]"'.split(',');
+		
+		vals: for (var vi=0; vi < vals.length; vi++) {
+			var val = vals[vi];
+			attrs: for (var ai=0; ai < attrs.length; ai++) {
+				var attr = attrs[ai];
+				operators: for (var i=0; i < attribOperators.length; i++) {
+					var op = attribOperators[i];
+					console.log('trying ['+ attr + op + (op&&val) +']')
+					var s = SubtleSlickParse('['+ attr + op + (op&&val) +']')[0][0];
+					
+					value_of( s.attributes.length ).should_be( 1 );
+					value_of( s.attributes[0].name||'' ).should_be( attr );
+					value_of( s.attributes[0].operator||'' ).should_be( op );
+					if (!op) {
+						value_of( s.attributes[0].operator ).should_be_undefined();
+						value_of( s.attributes[0].value ).should_be_undefined();
+						value_of( s.attributes[0].regexp ).should_be_undefined();
+					} else {
+						value_of( s.attributes[0].value ).should_be( val.replace(/^["']|['"]$/g,'') );
+						value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^["']|['"]$/g,'')).toString() );
+					}
 				}
 			}
 		}

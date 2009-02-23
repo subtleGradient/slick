@@ -18,13 +18,13 @@ var SubtleSlickParse = (function(){
 		(?x)\
 		^(?:\
 		\\s+$\
-		|(?: \\s* (,)           \\s* ) # Combinator\n\
-		|(?: \\s* (\\s|\\>|\\+|\\~) \\s* ) # Combinator\n\
-		|(?:      ( \\* | \\w+ \\b   )     ) # Tag Name\n\
-		|(?: \\#  ( [a-z][a-z0-9_-]* ) \\b ) # ID\n\
-		|(?: \\.  ( [a-z][a-z0-9_-]* ) \\b ) # ClassName\n\
-		|(?: \\[  ( ([-_:a-z0-9]+) (?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) ) )?     ) \\] ) # attribute\n\
-		|(?:   :+ ( [a-z][a-z0-9_-]* ) \\b (?: \\([\"]? ([^\\)\\\"]+) [\"]?\\) )?     ) # PseudoClassPseudoClassValue\n\
+		|(?: \\s*  (,)                 \\s* ) # Separator\n\
+		|(?: \\s*  (\\s|\\>|\\+|\\~)   \\s* ) # Combinator\n\
+		|(?:       ( \\* | \\w+ \\b   )     ) # Tag\n\
+		|(?: \\#   ( [a-z][a-z0-9_-]* ) \\b ) # ID\n\
+		|(?: \\.   ( [a-z][a-z0-9_-]* ) \\b ) # ClassName\n\
+		|(?: \\[ ( ( [-_:a-z0-9]+     ) (?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )? ) \\](?!\\]) ) # Attribute\n\
+		|(?:   :+  ( [a-z][a-z0-9_-]* ) \\b        ( \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )? ) # Pseudo\n\
 		)".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),'i');
 	
 	var map = {
@@ -46,8 +46,11 @@ var SubtleSlickParse = (function(){
 		attributeValueSingle : 10,
 		attributeValue       : 11,
 		
-		pseudoClass      : 12,
-		pseudoClassValue : 13
+		pseudoClass            : 12,
+		pseudoClassArgs        : 13,
+		pseudoClassValueDouble : 14,
+		pseudoClassValueSingle : 15,
+		pseudoClassValue       : 16
 	};
 	var MAP = (function(){
 		var obj = {};
@@ -130,9 +133,11 @@ var SubtleSlickParse = (function(){
 		case map.pseudoClass:
 			if(!this_simpleSelector.pseudos)
 				this_simpleSelector.pseudos = [];
-			var pseudoClassValue = a[map.pseudoClassValue];
+			var pseudoClassValue = a[map.pseudoClassValue] || a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle];
 			if (pseudoClassValue == 'odd') pseudoClassValue = '2n+1';
 			if (pseudoClassValue == 'even') pseudoClassValue = '2n';
+			
+			pseudoClassValue = pseudoClassValue || (a[map.pseudoClassArgs] ? "" : null);
 			
 			this_simpleSelector.pseudos.push({
 				name     : a[map.pseudoClass],
