@@ -79,6 +79,25 @@ describe('SubtleSlickParse', {
 			value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
 		}
 	}
+	,
+	'should parse :not(with quoted innards)': function(){
+		var s = SubtleSlickParse(":not()")[0][0];
+		value_of( s.pseudos.length ).should_be(1);
+		value_of( s.pseudos[0].name ).should_be('not');
+		value_of( s.pseudos[0].argument ).should_be_undefined();
+		
+		s = SubtleSlickParse(':not([attr])')[0][0];
+		value_of( s.pseudos[0].argument ).should_be('[attr]');
+		
+		s = SubtleSlickParse(':not([attr=])')[0][0];
+		value_of( s.pseudos[0].argument ).should_be('[attr=]');
+		
+		s = SubtleSlickParse(":not([attr=''])")[0][0];
+		value_of( s.pseudos[0].argument ).should_be("[attr='']");
+		
+		s = SubtleSlickParse(':not([attr=""])')[0][0];
+		value_of( s.pseudos[0].argument ).should_be('[attr=""]');
+	}
 	
 });
 
