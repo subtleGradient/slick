@@ -28,14 +28,12 @@ var SubtleSlickParse = (function(){
 		)".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),'i');
 	
 	var map = {
-		// Natural replace function argument position
-		rawMatch      : 0,
-		offset        : -2,
-		string        : -1,
+		rawMatch : 0,
+		offset   : -2,
+		string   : -1,
 		
-		// Replace function argument position
-		separator       : 1,
-		combinator      : 2,
+		separator  : 1,
+		combinator : 2,
 		
 		tagName   : 3,
 		id        : 4,
@@ -87,7 +85,6 @@ var SubtleSlickParse = (function(){
 		})());
 		
 		if (!parsedSelectors.length || a[map.separator]) {
-			// Make a new selector!
 			parsedSelectors.push([]);
 			these_simpleSelectors = parsedSelectors[parsedSelectors.length-1];
 			if (parsedSelectors.length-1) return '';
@@ -95,15 +92,8 @@ var SubtleSlickParse = (function(){
 		
 		if (!these_simpleSelectors.length || a[map.combinator]) {
 			this_simpleSelector && (this_simpleSelector.reverseCombinator = a[map.combinator]);
-			// Make a new simple selector!
 			these_simpleSelectors.push({
-				// bits:0,
 				combinator: a[map.combinator]
-				// tag : '*'
-				// id  : null,
-				// pseudos    :[],
-				// classes    :[],
-				// attributes :[]
 			});
 			this_simpleSelector = these_simpleSelectors[these_simpleSelectors.length-1];
 			parsedSelectors.type.push(this_simpleSelector.combinator);
@@ -132,7 +122,8 @@ var SubtleSlickParse = (function(){
 			this_simpleSelector.attributes.push({
 				name     : a[map.attributeKey],
 				operator : a[map.attributeOperator],
-				value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle]
+				value    : a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle],
+				regexp   : attribValueToRegex(a[map.attributeOperator], a[map.attributeValue] || a[map.attributeValueDouble] || a[map.attributeValueSingle] || '')
 			});
 			break;
 			
@@ -152,6 +143,38 @@ var SubtleSlickParse = (function(){
 		
 		parsedSelectors.type.push(selectorBitName + (a[map.attributeOperator]||''));
 		return '';
+	};
+	
+	function attribValueToRegex(operator, value){
+		if (!operator) return;
+		var val = XRegExp_escape(value);
+		switch(operator){
+		case  '=': return new RegExp('^'      +val+ '$'     );
+		case '!=': return new RegExp('^(?!'   +val+ '$)'    );
+		case '*=': return new RegExp(          val          );
+		case '^=': return new RegExp('^'      +val          );
+		case '$=': return new RegExp(          val+ '$'     );
+		case '~=': return new RegExp('(^|\\s)'+val+'(\\s|$)');
+		case '|=': return new RegExp('(^|\\|)'+val+'(\\||$)');
+		default  : return;
+		}
+	};
+	
+	/*
+	    XRegExp_escape taken from
+	    XRegExp 0.6.1
+	    (c) 2007-2008 Steven Levithan
+	    <http://stevenlevithan.com/regex/xregexp/>
+	    MIT License
+	*/
+	/*** XRegExp.escape
+	    accepts a string; returns the string with regex metacharacters escaped.
+	    the returned string can safely be used within a regex to match a literal
+	    string. escaped characters are [, ], {, }, (, ), -, *, +, ?, ., \, ^, $,
+	    |, #, [comma], and whitespace.
+	*/
+	XRegExp_escape = function (str) {
+	    return str.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
 	return SubtleSlickParse;
