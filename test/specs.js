@@ -134,7 +134,7 @@ describe('SubtleSlickParse', {
 					if (!op) {
 						value_of( s.attributes[0].operator ).should_be_undefined();
 						value_of( s.attributes[0].value ).should_be_undefined();
-						value_of( s.attributes[0].regexp ).should_be_undefined();
+						value_of( s.attributes[0].regexp ).should_be_null();
 					} else {
 						value_of( s.attributes[0].value ).should_be( val.replace(/^["']|['"]$/g,'') );
 						value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^["']|['"]$/g,'')).toString() );
