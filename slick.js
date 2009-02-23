@@ -151,7 +151,7 @@ var SubtleSlickParse = (function(){
 	};
 	
 	SubtleSlickParse.attribValueToRegex = function attribValueToRegex(operator, value){
-		if (!operator) return;
+		if (!operator) return null;
 		var val = XRegExp_escape(value);
 		switch(operator){
 		case  '=': return new RegExp('^'      +val+ '$'     );
@@ -161,7 +161,7 @@ var SubtleSlickParse = (function(){
 		case '$=': return new RegExp(          val+ '$'     );
 		case '~=': return new RegExp('(^|\\s)'+val+'(\\s|$)');
 		case '|=': return new RegExp('(^|\\|)'+val+'(\\||$)');
-		default  : return;
+		default  : return null;
 		}
 	};
 	
@@ -178,7 +178,7 @@ var SubtleSlickParse = (function(){
 	    string. escaped characters are [, ], {, }, (, ), -, *, +, ?, ., \, ^, $,
 	    |, #, [comma], and whitespace.
 	*/
-	XRegExp_escape = function (str) {
+	var XRegExp_escape = function (str) {
 	    return String(str).replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
@@ -197,12 +197,10 @@ var slick = (function(){
 		
 		buff.state.context = context;
 		
-		processEachSelector:
 		for (var i = 0; i < parsed.length; i++){
 			
 			var currentSelector = parsed[i], items = [context];
 			
-			processEachSimpleSelector:
 			for (var j = 0; j < currentSelector.length; j++){
 				var currentBit = currentSelector[j], combinator = 'combinator(' + (currentBit.combinator || ' ') + ')';
 				var selector = buffParseBit(currentBit);
@@ -217,7 +215,6 @@ var slick = (function(){
 					buff[combinator](context, tag, id, params);
 				} else {
 					buff.push = buffPushObject;
-					processEachItemCombinator:
 					for (var m = 0, n = items.length; m < n; m++) buff[combinator](items[m], tag, id, params);
 				}
 				
@@ -248,12 +245,12 @@ var slick = (function(){
 	var pseudos = {};
 	
 	slick.addPseudoSelector = function(name, fn){
-		pseudos['pseudo(' + name + ')'] = fn;
+		pseudos[name] = fn;
 		return slick;
 	};
 	
 	slick.getPseudoSelector = function(name){
-		return pseudos['pseudo(' + name + ')'];
+		return pseudos[name];
 	};
 	
 	// default getAttribute
@@ -463,10 +460,7 @@ var slick = (function(){
 			
 			for (var i = 0; i < selector.pseudos.length; i++){
 				var pseudo = selector.pseudos[i];
-				if (!pseudo.newName){
-					pseudo.name = 'pseudo(' + pseudo.name + ')';
-					pseudo.newName = true;
-				}
+				if (!pseudo.newName) pseudo.newName = 'pseudo(' + pseudo.name + ')';
 			};
 			
 			return [bit.tag || '*', bit.id, selector];
@@ -494,17 +488,18 @@ var slick = (function(){
 		'match(attribute)': function(node, name, operator, value, regexp){
 			var actual = slick.getAttribute(node, name);
 			if (!operator) return (actual != null);
+			if (operator === '=') return (actual === value);
 			if (actual == null && (!value || operator === '!=')) return false;
 			return regexp.test(actual);
 		},
 		
-		'match(pseudo)': function(node, name, argument){
-			if (this[name]){
-				return this[name](node, argument);
+		'match(pseudo)': function(node, name, argument, newName){
+			if (this[newName]){
+				return this[newName](node, argument);
 			} else if (pseudos[name]){
 				return pseudos[name].call(node, argument);
 			} else {
-				return false;
+				return this['match(attribute)'](node, name, (argument == null) ? null : '=', argument);
 			}
 		},
 		
@@ -529,7 +524,7 @@ var slick = (function(){
 			var pseudos = selector.pseudos;
 			for (i = pseudos.length; i--; i){
 				var pseudo = pseudos[i];
-				if (!this['match(pseudo)'](node, pseudo.name, pseudo.argument)) return false;
+				if (!this['match(pseudo)'](node, pseudo.name, pseudo.argument, pseudo.newName)) return false;
 			}
 
 			return true;
@@ -566,4 +561,3 @@ document.search = function(expression){
 document.find = function(expression){
 	return (slick(document, expression)[0] || null);
 };
-
