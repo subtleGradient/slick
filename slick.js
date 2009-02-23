@@ -1,23 +1,3 @@
-/* Subtle Parser */
-
-var SubtleSlickParse=(function(){function SubtleSlickParse(CSS3_Selectors){var selector=''+CSS3_Selectors;if(!SubtleSlickParse.debug&&cache[selector])return cache[selector];parsedSelectors=[];parsedSelectors.type=[];while(selector!=(selector=selector.replace(parseregexp,parser)));return cache[''+CSS3_Selectors]=parsedSelectors;};var parseregexp=new RegExp("\
-  (?x)\
-  ^(?:\
-  \\s+$\
-  |(?: \\s* (,)           \\s* ) # Combinator\n\
-  |(?: \\s* (\\s|\\>|\\+|\\~) \\s* ) # Combinator\n\
-  |(?:      ( \\* | \\w+ \\b   )     ) # Tag Name\n\
-  |(?: \\#  ( [a-z][a-z0-9_-]* ) \\b ) # ID\n\
-  |(?: \\.  ( [a-z][a-z0-9_-]* ) \\b ) # ClassName\n\
-  |(?: \\[  ( ([-_:a-z0-9]+) (?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) ) )?     ) \\] ) # attribute\n\
-  |(?:   :+ ( [a-z][a-z0-9_-]* ) \\b (?: \\([\"]? ([^\\)\\\"]+) [\"]?\\) )?     ) # PseudoClassPseudoClassValue\n\
-  )".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),'i');var map={rawMatch:0,offset:-2,string:-1,separator:1,combinator:2,tagName:3,id:4,className:5,attribute:6,attributeKey:7,attributeOperator:8,attributeValueDouble:9,attributeValueSingle:10,attributeValue:11,pseudoClass:12,pseudoClassValue:13};var MAP=(function(){var obj={};for(var property in map){var value=map[property];if(value<1)continue;obj[value]=property;}
-return obj;})();var cache={};SubtleSlickParse.cache=cache;var parsedSelectors;var these_simpleSelectors;var this_simpleSelector;function parser(){var a=arguments;var selectorBitMap;var selectorBitName;for(var aN=1;aN<a.length;aN++){if(a[aN]){SubtleSlickParse.debug&&console.log(a[aN]);selectorBitMap=aN;selectorBitName=MAP[selectorBitMap];break;}}
-SubtleSlickParse.debug&&console.log((function(){var o={};o[selectorBitName]=a[selectorBitMap];return o;})());if(!parsedSelectors.length||a[map.separator]){parsedSelectors.push([]);these_simpleSelectors=parsedSelectors[parsedSelectors.length-1];if(parsedSelectors.length-1)return'';}
-if(!these_simpleSelectors.length||a[map.combinator]){this_simpleSelector&&(this_simpleSelector.reverseCombinator=a[map.combinator]);these_simpleSelectors.push({combinator:a[map.combinator]});this_simpleSelector=these_simpleSelectors[these_simpleSelectors.length-1];parsedSelectors.type.push(this_simpleSelector.combinator);if(these_simpleSelectors.length-1)return'';}
-switch(selectorBitMap){case map.tagName:this_simpleSelector.tag=a[map.tagName];break;case map.id:this_simpleSelector.id=a[map.id];break;case map.className:if(!this_simpleSelector.classes)this_simpleSelector.classes=[];this_simpleSelector.classes.push(a[map.className]);break;case map.attribute:if(!this_simpleSelector.attributes)this_simpleSelector.attributes=[];this_simpleSelector.attributes.push({name:a[map.attributeKey],operator:a[map.attributeOperator],value:a[map.attributeValue]||a[map.attributeValueDouble]||a[map.attributeValueSingle]});break;case map.pseudoClass:if(!this_simpleSelector.pseudos)this_simpleSelector.pseudos=[];var pseudoClassValue=a[map.pseudoClassValue];if(pseudoClassValue=='even')pseudoClassValue='2n';if(pseudoClassValue=='odd')pseudoClassValue='2n+1';this_simpleSelector.pseudos.push({name:a[map.pseudoClass],argument:pseudoClassValue});break;}
-parsedSelectors.type.push(selectorBitName+(a[map.attributeOperator]||''));return'';};return SubtleSlickParse;})();
-
 /* Slick2 */
 
 var slick = (function(){
@@ -25,19 +5,18 @@ var slick = (function(){
 	// slick function
 	
 	function slick(context, expression){
-		var buff = buffer.reset();
+		var buff = buffer.reset(), parsed = slick.parse(expression), all = [];
+		var buffPushArray = buff['push(array)'], buffPushObject = buff['push(object)'], buffParseBit = buff['util(parse-bit)'];
 		
-		var parsed = slick.parse(expression);
-		var all, uid, buffPushArray = buff['push(array)'], buffPushObject = buff['push(object)'];
-		var parseBit = buff['util(parse-bit)'];
+		buff.state.context = context;
 		
 		for (var i = 0; i < parsed.length; i++){
 			
-			var currentSelector = parsed[i], items;
+			var currentSelector = parsed[i], items = [context];
 			
 			for (var j = 0; j < currentSelector.length; j++){
 				var currentBit = currentSelector[j], combinator = 'combinator(' + (currentBit.combinator || ' ') + ')';
-				var selector = parseBit(currentBit);
+				var selector = buffParseBit(currentBit);
 				var tag = selector[0], id = selector[1], params = selector[2];
 				
 				buff.state.found = [];
@@ -55,18 +34,14 @@ var slick = (function(){
 				items = buffer.state.found;
 			}
 			
-			if (i == 0){
-				all = items;
-			} else {
-				all = all.concat(items);
-			}
+			all = (i === 0) ? items : all.concat(items);
 		}
 		
 		if (parsed.length > 1){
 			var nodes = [], uniques = {}, idx = 0;
 			for (var k = 0; k < all.length; k++){
 				var node = all[k];
-				uid = buff['util(uid)'](node);
+				var uid = buff['util(uid)'](node);
 				if (!uniques[uid]){
 					nodes[idx++] = node;
 					uniques[uid] = true;
@@ -74,6 +49,7 @@ var slick = (function(){
 			}
 			return nodes;
 		}
+		
 		return all;
 	};
 	
@@ -103,6 +79,8 @@ var slick = (function(){
 		return object;
 	};
 	
+	// matcher
+	
 	slick.match = function(node, selector, buff){
 		if (!selector || selector === node) return true;
 		if (!buff) buff = buffer.reset();
@@ -129,12 +107,17 @@ var slick = (function(){
 		
 		// combinators
 		
-		'combinator( )': function(node, tag, id, selector){
+		'combinator( )': function allChildren(node, tag, id, selector){			
+			if (id && node.getElementById){
+				var item = node.getElementById(id);
+				if (item) this.push(item, tag, null, selector);
+				return;
+			}
 			var children = node.getElementsByTagName(tag);
 			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, selector);
 		},
 		
-		'combinator(>)': function(node, tag, id, selector){
+		'combinator(>)': function directChildren(node, tag, id, selector){
 			var children = node.getElementsByTagName(tag);
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
@@ -142,7 +125,7 @@ var slick = (function(){
 			}
 		},
 		
-		'combinator(+)': function(node, tag, id, selector){
+		'combinator(+)': function nextSibling(node, tag, id, selector){
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1){
 					this.push(node, tag, id, selector);
@@ -151,7 +134,7 @@ var slick = (function(){
 			}
 		},
 		
-		'combinator(~)': function(node, tag, id, selector){
+		'combinator(~)': function nextSiblings(node, tag, id, selector){
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1){
 					var uid = this['util(uid)'](node);
@@ -166,34 +149,34 @@ var slick = (function(){
 		
 		// pseudo
 		
-		'pseudo(checked)': function(node){
+		'pseudo(checked)': function pseudoChecked(node){
 			return node.checked;
 		},
 
-		'pseudo(empty)': function(node){
+		'pseudo(empty)': function pseudoEmpty(node){
 			return !(node.innerText || node.textContent || '').length;
 		},
 
-		'pseudo(not)': function(node, selector){
+		'pseudo(not)': function pseudoNot(node, selector){
 			return !slick.match(node, selector, this);
 		},
 
-		'pseudo(contains)': function(node, text){
+		'pseudo(contains)': function pseudoContains(node, text){
 			return ((node.innerText || node.textContent || '').indexOf(text) > -1);
 		},
 
-		'pseudo(first-child)': function(node){
+		'pseudo(first-child)': function pseudoFirstChild(node){
 			return this['pseudo(index)'](node, 0);
 		},
 
-		'pseudo(last-child)': function(node){
+		'pseudo(last-child)': function pseudoLastChild(node){
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1) return false;
 			}
 			return true;
 		},
 
-		'pseudo(only-child)': function(node){
+		'pseudo(only-child)': function pseudoOnlyChild(node){
 			var prev = node;
 			while ((prev = prev.previousSibling)){
 				if (prev.nodeType === 1) return false;
@@ -205,7 +188,7 @@ var slick = (function(){
 			return true;
 		},
 
-		'pseudo(nth-child)': function(node, argument){
+		'pseudo(nth-child)': function pseudoNTHChild(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cache.nth[argument] || this['util(parse-nth-argument)'](argument);
 			if (parsed.special != 'n') return this['pseudo(' + parsed.special + ')'](node, argument);
@@ -229,7 +212,7 @@ var slick = (function(){
 
 		// custom pseudo selectors
 
-		'pseudo(index)': function(node, index){
+		'pseudo(index)': function pseudoIndex(node, index){
 			var count = 0;
 			while ((node = node.previousSibling)){
 				if (node.nodeType === 1 && ++count > index) return false;
@@ -237,20 +220,20 @@ var slick = (function(){
 			return (count === index);
 		},
 
-		'pseudo(even)': function(node, argument){
+		'pseudo(even)': function pseudoEven(node, argument){
 			return this['pseudo(nth-child)'](node, '2n+1');
 		},
 
-		'pseudo(odd)': function(node, argument){
+		'pseudo(odd)': function pseudoOdd(node, argument){
 			return this['pseudo(nth-child)'](node, '2n');
 		},
 		
 		// util
 		
 		'util(uid)': (window.ActiveXObject) ? function(node){
-			return (node.sLick_uid || (node.sLick_uid = [this.uidx++]))[0];
+			return (node.sLickUID || (node.sLickUID = [this.uidx++]))[0];
 		} : function(node){
-			return node.sLick_uid || (node.sLick_uid = this.uidx++);
+			return node.sLickUID || (node.sLickUID = this.uidx++);
 		},
 		
 		'util(parse-nth-argument)': function(argument){
@@ -345,15 +328,15 @@ var slick = (function(){
 		},
 		
 		'match(selector)': function(node, tag, id, selector){
-			if (tag && !this['match(tag)'](node, tag)) return false;
-			if (id && !this['match(id)'](node, id)) return false;
+			if (tag && !(tag === '*' || (node.tagName && node.tagName.toLowerCase() === tag))) return false;
+			if (id && !(node.id && node.id === id)) return false;
 
 			var i;
 
 			var classes = selector.classes;
 			for (i = classes.length; i--; i){
 				var className = classes[i];
-				if (!node.className || !this['match(class)'](node, className)) return false;
+				if (!node.className || !this['util(string-contains)'](node.className, className, ' ')) return false;
 			}
 
 			var attributes = selector.attributes;
@@ -391,10 +374,15 @@ var slick = (function(){
 
 })();
 
-
 slick.parse = SubtleSlickParse;
+
+// implementation
 
 document.search = function(expression){
 	return slick(document, expression);
+};
+
+document.find = function(expression){
+	return (slick(document, expression)[0] || null);
 };
 
