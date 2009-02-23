@@ -486,20 +486,11 @@ var slick = (function(){
 			return (this['util(string-contains)'](node.className, className, ' '));
 		},
 		
-		'match(attribute)': function(node, name, operator, value){
-			var result = slick.getAttribute(node, name);
-			if (!result) return (operator === '!=');
-			if (!operator || value == null) return true;
-			switch (operator){
-				case '=': return (result === value);
-				case '*=': return (result.indexOf(value) > -1);
-				case '^=': return (result.substr(0, value.length) === value);
-				case '$=': return (result.substr(result.length - value.length) === value);
-				case '!=': return (result != value);
-				case '~=': return this['util(string-contains)'](result,value, ' ');
-				case '|=': return this['util(string-contains)'](result, value, '-');
-			}
-			return false;
+		'match(attribute)': function(node, name, operator, value, regexp){
+			var actual = slick.getAttribute(node, name);
+			if (!operator) return (actual != null);
+			if (actual == null && (!value || operator === '!=')) return false;
+			return regexp.test(actual);
 		},
 		
 		'match(pseudo)': function(node, name, argument){
@@ -508,26 +499,26 @@ var slick = (function(){
 			} else if (pseudos[name]){
 				return pseudos[name].call(node, argument);
 			} else {
-				return this['match(attribute)'](node, name, '=', argument);
+				return false;
 			}
 		},
 		
 		'match(selector)': function(node, tag, id, selector){
-			if (tag && !(tag === '*' || (node.tagName && node.tagName.toLowerCase() === tag))) return false;
-			if (id && !(node.id && node.id === id)) return false;
+			if (tag && !this['match(tag)'](node, tag)) return false;
+			if (id && !this['match(id)'](node, tag)) return false;
 
 			var i;
 
 			var classes = selector.classes;
 			for (i = classes.length; i--; i){
 				var className = classes[i];
-				if (!node.className || !this['util(string-contains)'](node.className, className, ' ')) return false;
+				if (!node.className || !this['match(class)'](node, className)) return false;
 			}
 
 			var attributes = selector.attributes;
 			for (i = attributes.length; i--; i){
 				var attribute = attributes[i];
-				if (!this['match(attribute)'](node, attribute.name, attribute.operator, attribute.value)) return false;
+				if (!this['match(attribute)'](node, attribute.name, attribute.operator, attribute.value, attribute.regexp)) return false;
 			}
 
 			var pseudos = selector.pseudos;
