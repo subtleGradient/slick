@@ -125,7 +125,7 @@ describe('SubtleSlickParse', {
 				var attr = attrs[ai];
 				operators: for (var i=0; i < attribOperators.length; i++) {
 					var op = attribOperators[i];
-					console.log('trying ['+ attr + op + (op&&val) +']')
+					try{console.log('trying ['+ attr + op + (op&&val) +']')}catch(e){};
 					var s = SubtleSlickParse('['+ attr + op + (op&&val) +']')[0][0];
 					
 					value_of( s.attributes.length ).should_be( 1 );
