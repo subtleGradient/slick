@@ -294,7 +294,7 @@ var slick = (function(){
 		
 		// combinators
 		
-		'combinator( )': function allChildren(node, tag, id, selector){			
+		'combinator( )': function(node, tag, id, selector){			
 			if (id && node.getElementById){
 				var item = node.getElementById(id);
 				if (item) this.push(item, tag, null, selector);
@@ -304,7 +304,7 @@ var slick = (function(){
 			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, selector);
 		},
 		
-		'combinator(>)': function directChildren(node, tag, id, selector){
+		'combinator(>)': function(node, tag, id, selector){
 			var children = node.getElementsByTagName(tag);
 			for (var i = 0, l = children.length; i < l; i++){
 				var child = children[i];
@@ -312,7 +312,7 @@ var slick = (function(){
 			}
 		},
 		
-		'combinator(+)': function nextSibling(node, tag, id, selector){
+		'combinator(+)': function(node, tag, id, selector){
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1){
 					this.push(node, tag, id, selector);
@@ -321,7 +321,7 @@ var slick = (function(){
 			}
 		},
 		
-		'combinator(~)': function nextSiblings(node, tag, id, selector){
+		'combinator(~)': function(node, tag, id, selector){
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1){
 					var uid = this['util(uid)'](node);
@@ -336,34 +336,34 @@ var slick = (function(){
 		
 		// pseudo
 		
-		'pseudo(checked)': function pseudoChecked(node){
+		'pseudo(checked)': function(node){
 			return node.checked;
 		},
 
-		'pseudo(empty)': function pseudoEmpty(node){
+		'pseudo(empty)': function(node){
 			return !(node.innerText || node.textContent || '').length;
 		},
 
-		'pseudo(not)': function pseudoNot(node, selector){
+		'pseudo(not)': function(node, selector){
 			return !slick.match(node, selector, this);
 		},
 
-		'pseudo(contains)': function pseudoContains(node, text){
+		'pseudo(contains)': function(node, text){
 			return ((node.innerText || node.textContent || '').indexOf(text) > -1);
 		},
 
-		'pseudo(first-child)': function pseudoFirstChild(node){
+		'pseudo(first-child)': function(node){
 			return this['pseudo(index)'](node, 0);
 		},
 
-		'pseudo(last-child)': function pseudoLastChild(node){
+		'pseudo(last-child)': function(node){
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1) return false;
 			}
 			return true;
 		},
 
-		'pseudo(only-child)': function pseudoOnlyChild(node){
+		'pseudo(only-child)': function(node){
 			var prev = node;
 			while ((prev = prev.previousSibling)){
 				if (prev.nodeType === 1) return false;
@@ -375,7 +375,7 @@ var slick = (function(){
 			return true;
 		},
 
-		'pseudo(nth-child)': function pseudoNTHChild(node, argument){
+		'pseudo(nth-child)': function(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cache.nth[argument] || this['util(parse-nth-argument)'](argument);
 			if (parsed.special != 'n') return this['pseudo(' + parsed.special + ')'](node, argument);
@@ -399,7 +399,7 @@ var slick = (function(){
 
 		// custom pseudo selectors
 
-		'pseudo(index)': function pseudoIndex(node, index){
+		'pseudo(index)': function(node, index){
 			var count = 0;
 			while ((node = node.previousSibling)){
 				if (node.nodeType === 1 && ++count > index) return false;
@@ -407,11 +407,11 @@ var slick = (function(){
 			return (count === index);
 		},
 
-		'pseudo(even)': function pseudoEven(node, argument){
+		'pseudo(even)': function(node, argument){
 			return this['pseudo(nth-child)'](node, '2n+1');
 		},
 
-		'pseudo(odd)': function pseudoOdd(node, argument){
+		'pseudo(odd)': function(node, argument){
 			return this['pseudo(nth-child)'](node, '2n');
 		},
 		
