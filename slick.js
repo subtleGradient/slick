@@ -191,9 +191,43 @@ var slick = (function(){
 	
 	// slick function
 	
+	Array.fromNodeList = function(arr){return Array.prototype.slice.call(arr);};
+	try{ Array.prototype.slice.call(document.documentElement.childNodes) }catch(e){
+		Array.fromNodeList = function(arr){return arr;};
+	};
+	function getByXPATH(context, XPATH_Selector){
+		var THEM = [], item;
+		var xpathResult = document.evaluate(XPATH_Selector, context, null, XPathResult.ANY_TYPE, null);
+		while (item = xpathResult.iterateNext())
+			THEM.push(item);
+		return THEM;
+	}
+	document.getByXPATH = getByXPATH;
+	function getByClass(context, className){
+		if (context.getElementsByClassName)
+			return Array.fromNodeList(context.getElementsByClassName(className));
+		
+		if (typeof XPathResult != 'undefined')
+			return getByXPATH(context, '//*[contains(concat(" ", @class, " "), " '+className+' ")]');
+		
+		var THEM = Array.fromNodeList(document.getElementsByTagName('*'));
+		var THEMPARSED = [];
+		var classRegex = SubtleSlickParse.attribValueToRegex('~=', className)
+		for (var i = THEM.length - 1; i >= 0; i--)
+			if (classRegex.test(THEM[i].className))
+				THEMPARSED.push(THEM[i]);
+		return THEMPARSED;
+	};
+	
+	
 	function slick(context, expression){
 		var buff = buffer.reset(), parsed = slick.parse(expression), all = [];
 		var buffPushArray = buff['push(array)'], buffPushObject = buff['push(object)'], buffParseBit = buff['util(parse-bit)'];
+		
+		// Match a single classname alone
+		// proof of concept test
+		if (parsed.length === 1 && parsed[0].length === 1 && parsed[0][0].classes && parsed[0][0].classes.length === 1)
+			return getByClass(context, parsed[0][0].classes[0]);
 		
 		buff.state.context = context;
 		
