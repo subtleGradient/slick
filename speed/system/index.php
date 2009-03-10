@@ -41,7 +41,7 @@
 		$include = $properties['file'];
 		$function = $properties['function'];
 		$time = time();
-		echo "<iframe name='$framework' src='system/template.php?include=$include&function=$function&nocache=$time'></iframe>\n\n";
+		echo "<iframe name='$framework' src='system/template.php?include=$include%3F$time&function=$function&nocache=$time'></iframe>\n\n";
 	}
 ?>
 
