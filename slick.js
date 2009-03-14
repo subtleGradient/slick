@@ -17,9 +17,9 @@ var SubtleSlickParse = (function(){
 	var parseregexp = new RegExp("(?x)\
 		^(?:\n\
 		         \\s+ (?=[>+~] | $)       # Meaningless Whitespace \n\
-		|      ( ,                 ) \\s* # Separator              \n\
-		|      ( \\s     (?=[^>+~]))      # CombinatorChildren     \n\
+		|        (\\s)+  (?=[^>+~])       # CombinatorChildren     \n\
 		|      ( [>+~]             ) \\s* # Combinator             \n\
+		|      ( ,                 ) \\s* # Separator              \n\
 		|      ( [a-z0-9_-]+ | \\* )      # Tag                    \n\
 		| \\#  ( [a-z0-9_-]+       )      # ID                     \n\
 		| \\.  ( [a-z0-9_-]+       )      # ClassName              \n\
@@ -32,9 +32,9 @@ var SubtleSlickParse = (function(){
 		offset   : -2,
 		string   : -1,
 		
-		separator  : 1,
-		combinator : 2,
-		combinatorChildren : 3,
+		combinator : 1,
+		combinatorChildren : 2,
+		separator  : 3,
 		
 		tagName   : 4,
 		id        : 5,
