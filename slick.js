@@ -80,9 +80,9 @@ var SubtleSlickParse = (function(ssp){
 			// MAP arguments
 			for (var aN=1; aN < a.length; aN++) {
 				if (a[aN]) {
-					SubtleSlickParse.debug && console.log(a[aN]);
 					selectorBitMap = aN;
 					selectorBitName = ssp.MAP[selectorBitMap];
+					SubtleSlickParse.debug && console.log(a[0], selectorBitName);
 					break;
 				}
 			}
