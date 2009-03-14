@@ -2,6 +2,8 @@ String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'//');
 }
 
+SubtleSlickParse.debug = true;
+
 // (function(){
 	var SubtleSlickParse_Specs = {
 		
@@ -109,7 +111,7 @@ String.escapeSingle = function escapeSingle(string){
 	// var tags = 'a abbr acronym address applet area b base basefont bdo big blockquote br button caption center cite code col colgroup dd del dfn dir div dl dt em fieldset font form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins isindex kbd label legend li link map menu meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var'.split(' ');
 	var tags = 'a abbr div A ABBR DIV'.split(' ');
 	var attribOperators = ' = != *= ^= $= ~= |='.split(' ');
-	var attrs = 'attr html:lang fred-rocks'.split(' ');
+	var attrs = 'attr lang fred-rocks'.split(' ');
 	var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split(';');
 	
 	// 'should parse tag names with combinators': function(){
@@ -129,6 +131,25 @@ String.escapeSingle = function escapeSingle(string){
 		}
 	}
 	
+	
+	function makeSlickTestAttrib(attr, op, val) {
+		return function(){
+			var s = SubtleSlickParse('['+ attr + op + (op&&val) +']')[0][0];
+			
+			value_of( s.attributes.length ).should_be( 1 );
+			value_of( s.attributes[0].name||'' ).should_be( attr );
+			value_of( s.attributes[0].operator||'' ).should_be( op );
+			if (!op) {
+				value_of( s.attributes[0].operator ).should_be_undefined();
+				value_of( s.attributes[0].value ).should_be_undefined();
+				value_of( s.attributes[0].regexp ).should_be_null();
+			} else {
+				value_of( s.attributes[0].value ).should_be( val.replace(/^["']|['"]$/g,'') );
+				value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^["']|['"]$/g,'')).toString() );
+			}
+		};
+	}
+	
 	vals: for (var vi=0; vi < vals.length; vi++) {
 		var val = vals[vi];
 		attrs: for (var ai=0; ai < attrs.length; ai++) {
@@ -136,23 +157,7 @@ String.escapeSingle = function escapeSingle(string){
 			
 			operators: for (var i=0; i < attribOperators.length; i++) {
 				var op = attribOperators[i];
-				var ATTRIBUTE = '['+ attr + op + (op&&val) +']';
-				
-					SubtleSlickParse_Specs['should parse attributes: '+ ATTRIBUTE] = function(){
-					var s = SubtleSlickParse(ATTRIBUTE)[0][0];
-					
-					value_of( s.attributes.length ).should_be( 1 );
-					value_of( s.attributes[0].name||'' ).should_be( attr );
-					value_of( s.attributes[0].operator||'' ).should_be( op );
-					if (!op) {
-						value_of( s.attributes[0].operator ).should_be_undefined();
-						value_of( s.attributes[0].value ).should_be_undefined();
-						value_of( s.attributes[0].regexp ).should_be_null();
-					} else {
-						value_of( s.attributes[0].value ).should_be( val.replace(/^["']|['"]$/g,'') );
-						value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^["']|['"]$/g,'')).toString() );
-					}
-				};
+				SubtleSlickParse_Specs['should parse attributes: '+ '['+ attr + op + (op&&val) +']'] = makeSlickTestAttrib(attr, op, val);
 			}
 		}
 	}
