@@ -2,9 +2,76 @@ String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
-SubtleSlickParse.debug = true;
+function makeSlickTestCombinator(tag, combinator, tag2) {
+	var functionString = '\n';
+	functionString += "var s = SubtleSlickParse('"+String.escapeSingle(tag + combinator + tag2)+"');\n";
+	
+	functionString+="value_of( s[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
+					"value_of( s[0][1].tag ).should_be( '"+String.escapeSingle(tag2)+"' );\n" +
+					"value_of( s[0][1].combinator ).should_be( '"+String.escapeSingle(combinator.length===3 ? combinator[1] : combinator)+"' );\n";
+	return new Function(functionString);
+}
 
-// (function(){
+function makeSlickTestAttrib(attr, op, val) {
+	var functionString = '\n';
+	functionString += "var s = SubtleSlickParse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
+	value_of( s.attributes.length ).should_be( 1 );\n\
+	value_of( s.attributes[0].name ).should_be( '"+String.escapeSingle(attr)+"' );\n\
+	";
+	if (!op) {
+		functionString += "\
+		value_of( s.attributes[0].operator ).should_be_null();\n\
+		value_of( s.attributes[0].value ).should_be_null();\n\
+		value_of( s.attributes[0].regexp ).should_be_null();\n\
+		";
+	} else {
+		functionString += "\
+		value_of( s.attributes[0].operator ).should_be( '"+String.escapeSingle( op )+"' );\n\
+		value_of( s.attributes[0].value ).should_be( '"+String.escapeSingle( val.replace(/^[\"']|['\"]$/g,'') )+"' );\n\
+		value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
+		";
+	}
+	return new Function(functionString);
+}
+
+// SubtleSlickParse.debug = true;
+
+var combinators = ' ,>,+,~,   , > , + , ~ '.split(',');
+// var tags = 'a abbr acronym address applet area b base basefont bdo big blockquote br button caption center cite code col colgroup dd del dfn dir div dl dt em fieldset font form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins isindex kbd label legend li link map menu meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var'.split(' ');
+var tags = 'a abbr div A ABBR DIV'.split(' ');
+var attribOperators = ' = != *= ^= $= ~= |='.split(' ');
+var attrs = 'attr lang fred-rocks'.split(' ');
+var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split(';');
+
+
+// Custom combinators tests
+(function(){
+	var combinatorsSpecial = '+ - ± ≠ / \\ ^ $ ! ¡ & > < ? ¿ ++ -- >> << // \\\\'.split(' ');
+	var combinatorsOld;
+	
+	var SubtleSlickParse_Specs = {
+		before_all: function(){
+			combinatorsOld = SubtleSlickParse.getCombinators(combinatorsSpecial);
+			SubtleSlickParse.setCombinators(combinatorsSpecial);
+		},
+		after_all: function(){
+			SubtleSlickParse.setCombinators(combinatorsOld);
+		}
+	};
+	
+	
+	for (var C=0; C < combinatorsSpecial.length; C++) {var combinator = combinatorsSpecial[C];
+		for (var i=0; i < tags.length; i++) {var tag = tags[i];
+			
+			SubtleSlickParse_Specs['should parse '+tag+' tags with "'+combinator+'" custom combinator' ] = makeSlickTestCombinator(tag, combinator, tag);
+		}
+	}
+	
+	describe('SubtleSlickParse Custom Combinators', SubtleSlickParse_Specs);
+})();
+
+
+(function(){
 	var SubtleSlickParse_Specs = {
 		
 		'should exist': function(){
@@ -107,51 +174,14 @@ SubtleSlickParse.debug = true;
 		'should parse attributes': function(){ }
 	};
 	
-	var combinators = ' ,>,+,~,   , > , + , ~ '.split(',');
-	// var tags = 'a abbr acronym address applet area b base basefont bdo big blockquote br button caption center cite code col colgroup dd del dfn dir div dl dt em fieldset font form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins isindex kbd label legend li link map menu meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var'.split(' ');
-	var tags = 'a abbr div A ABBR DIV'.split(' ');
-	var attribOperators = ' = != *= ^= $= ~= |='.split(' ');
-	var attrs = 'attr lang fred-rocks'.split(' ');
-	var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split(';');
-	
 	// 'should parse tag names with combinators': function(){
 	// };
 	
 	for (var C=0; C < combinators.length; C++) {var combinator = combinators[C];
 		for (var i=0; i < tags.length; i++) {var tag = tags[i];
 			
-			var functionString = '\n';
-			functionString += "var s = SubtleSlickParse('"+String.escapeSingle(tag + combinator + tag)+"');\n";
-			
-			functionString+="value_of( s[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
-							"value_of( s[0][1].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
-							"value_of( s[0][1].combinator ).should_be( '"+String.escapeSingle(combinator.length===3 ? combinator[1] : combinator)+"' );\n";
-			
-			SubtleSlickParse_Specs['should parse '+tag+' tags with "'+combinator+'" combinator' ] = new Function(functionString);
+			SubtleSlickParse_Specs['should parse '+tag+' tags with "'+combinator+'" combinator' ] = makeSlickTestCombinator(tag, combinator, tag);
 		}
-	}
-	
-	
-	function makeSlickTestAttrib(attr, op, val) {
-		var functionString = '\n';
-		functionString += "var s = SubtleSlickParse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
-		value_of( s.attributes.length ).should_be( 1 );\n\
-		value_of( s.attributes[0].name ).should_be( '"+String.escapeSingle(attr)+"' );\n\
-		";
-		if (!op) {
-			functionString += "\
-			value_of( s.attributes[0].operator ).should_be_null();\n\
-			value_of( s.attributes[0].value ).should_be_null();\n\
-			value_of( s.attributes[0].regexp ).should_be_null();\n\
-			";
-		} else {
-			functionString += "\
-			value_of( s.attributes[0].operator ).should_be( '"+String.escapeSingle( op )+"' );\n\
-			value_of( s.attributes[0].value ).should_be( '"+String.escapeSingle( val.replace(/^[\"']|['\"]$/g,'') )+"' );\n\
-			value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
-			";
-		}
-		return new Function(functionString);
 	}
 	
 	vals: for (var vi=0; vi < vals.length; vi++) {
@@ -167,7 +197,7 @@ SubtleSlickParse.debug = true;
 	}
 	
 	describe('SubtleSlickParse', SubtleSlickParse_Specs);
-// })();
+})();
 
 
 var s,f,kid,template;

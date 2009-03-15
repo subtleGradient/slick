@@ -14,14 +14,26 @@ var SubtleSlickParse = (function(ssp){
 		return ssp.cache[''+CSS3_Selectors] = ssp.parsedSelectors;
 	};
 	
-	ssp.MAP(ssp);
-	ssp.parser(ssp);
+	// Public methods ad properties
+	var parseregexpBuilder = ssp.parseregexp;
+	SubtleSlickParse.setCombinators = function setCombinators(combinatorsArray){
+		ssp.combinators = combinatorsArray;
+		ssp.parseregexp = parseregexpBuilder(ssp.XRegExp_escape(ssp.combinators.join('')));
+	};
+	SubtleSlickParse.getCombinators = function getCombinators(){
+		return ssp.combinators;
+	};
+	
 	SubtleSlickParse.cache = ssp.cache;
 	SubtleSlickParse.attribValueToRegex = ssp.attribValueToRegex(ssp);
 	
+	ssp.MAP(ssp);
+	ssp.parser(ssp);
+	SubtleSlickParse.setCombinators(ssp.combinators);
+	
 	return SubtleSlickParse;
 })({
-	parseregexp: (function(combinators){
+	parseregexp: function(combinators){
 		return new RegExp(("(?x)\n\
 			^(?:\n\
 			         \\s   +  (?= ["+combinators+"] | $) # Meaningless Whitespace \n\
@@ -34,7 +46,9 @@ var SubtleSlickParse = (function(ssp){
 			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
 			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
 			)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
-	})('>+~'),
+	},
+	
+	combinators:'> + ~'.split(' '),
 	
 	map: {
 		rawMatch : 0,
