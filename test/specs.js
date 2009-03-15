@@ -1,6 +1,6 @@
 String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'//');
-}
+};
 
 SubtleSlickParse.debug = true;
 
@@ -154,9 +154,9 @@ SubtleSlickParse.debug = true;
 		var val = vals[vi];
 		attrs: for (var ai=0; ai < attrs.length; ai++) {
 			var attr = attrs[ai];
-			
-			operators: for (var i=0; i < attribOperators.length; i++) {
-				var op = attribOperators[i];
+			operators: for (var oi=0; oi < attribOperators.length; oi++) {
+				var op = attribOperators[oi];
+				
 				SubtleSlickParse_Specs['should parse attributes: '+ '['+ attr + op + (op&&val) +']'] = makeSlickTestAttrib(attr, op, val);
 			}
 		}
