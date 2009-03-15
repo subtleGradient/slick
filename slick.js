@@ -21,19 +21,20 @@ var SubtleSlickParse = (function(ssp){
 	
 	return SubtleSlickParse;
 })({
-	parseregexp: new RegExp("(?x)\
-		^(?:\n\
-		         \\s+ (?=[>+~] | $)       # Meaningless Whitespace \n\
-		|        (\\s)+  (?=[^>+~])       # CombinatorChildren     \n\
-		|      ( [>+~]             ) \\s* # Combinator             \n\
-		|      ( ,                 ) \\s* # Separator              \n\
-		|      ( [a-z0-9_-]+ | \\* )      # Tag                    \n\
-		| \\#  ( [a-z0-9_-]+       )      # ID                     \n\
-		| \\.  ( [a-z0-9_-]+       )      # ClassName              \n\
-		| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-		|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-		)".replace(/\(\?x\)|\s+#.*$|\s+/gim,''),
-	'i'),
+	parseregexp: (function(combinators){
+		return new RegExp(("(?x)\n\
+			^(?:\n\
+			         \\s   +  (?= ["+combinators+"] | $) # Meaningless Whitespace \n\
+			|      ( \\s  )+  (?=[^"+combinators+"]    ) # CombinatorChildren     \n\
+			|      ( ["+combinators+"] ) \\s* # Combinator             \n\
+			|      ( ,                 ) \\s* # Separator              \n\
+			|      ( [a-z0-9_-]+ | \\* )      # Tag                    \n\
+			| \\#  ( [a-z0-9_-]+       )      # ID                     \n\
+			| \\.  ( [a-z0-9_-]+       )      # ClassName              \n\
+			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+			)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+	})('>+~'),
 	
 	map: {
 		rawMatch : 0,
@@ -130,8 +131,8 @@ var SubtleSlickParse = (function(ssp){
 					ssp.this_simpleSelector.attributes = [];
 				ssp.this_simpleSelector.attributes.push({
 					name     : a[ssp.map.attributeKey],
-					operator : a[ssp.map.attributeOperator],
-					value    : a[ssp.map.attributeValue] || a[ssp.map.attributeValueDouble] || a[ssp.map.attributeValueSingle],
+					operator : a[ssp.map.attributeOperator] || null,
+					value    : a[ssp.map.attributeValue] || a[ssp.map.attributeValueDouble] || a[ssp.map.attributeValueSingle] || null,
 					regexp   : SubtleSlickParse.attribValueToRegex(a[ssp.map.attributeOperator], a[ssp.map.attributeValue] || a[ssp.map.attributeValueDouble] || a[ssp.map.attributeValueSingle] || '')
 				});
 				break;

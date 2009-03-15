@@ -1,5 +1,5 @@
 String.escapeSingle = function escapeSingle(string){
-	return (''+string).replace(/(?=[\\\n'])/g,'//');
+	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
 SubtleSlickParse.debug = true;
@@ -133,21 +133,25 @@ SubtleSlickParse.debug = true;
 	
 	
 	function makeSlickTestAttrib(attr, op, val) {
-		return function(){
-			var s = SubtleSlickParse('['+ attr + op + (op&&val) +']')[0][0];
-			
-			value_of( s.attributes.length ).should_be( 1 );
-			value_of( s.attributes[0].name||'' ).should_be( attr );
-			value_of( s.attributes[0].operator||'' ).should_be( op );
-			if (!op) {
-				value_of( s.attributes[0].operator ).should_be_undefined();
-				value_of( s.attributes[0].value ).should_be_undefined();
-				value_of( s.attributes[0].regexp ).should_be_null();
-			} else {
-				value_of( s.attributes[0].value ).should_be( val.replace(/^["']|['"]$/g,'') );
-				value_of( s.attributes[0].regexp.toString() ).should_be( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^["']|['"]$/g,'')).toString() );
-			}
-		};
+		var functionString = '\n';
+		functionString += "var s = SubtleSlickParse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
+		value_of( s.attributes.length ).should_be( 1 );\n\
+		value_of( s.attributes[0].name ).should_be( '"+String.escapeSingle(attr)+"' );\n\
+		";
+		if (!op) {
+			functionString += "\
+			value_of( s.attributes[0].operator ).should_be_null();\n\
+			value_of( s.attributes[0].value ).should_be_null();\n\
+			value_of( s.attributes[0].regexp ).should_be_null();\n\
+			";
+		} else {
+			functionString += "\
+			value_of( s.attributes[0].operator ).should_be( '"+String.escapeSingle( op )+"' );\n\
+			value_of( s.attributes[0].value ).should_be( '"+String.escapeSingle( val.replace(/^[\"']|['\"]$/g,'') )+"' );\n\
+			value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( SubtleSlickParse.attribValueToRegex(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
+			";
+		}
+		return new Function(functionString);
 	}
 	
 	vals: for (var vi=0; vi < vals.length; vi++) {
