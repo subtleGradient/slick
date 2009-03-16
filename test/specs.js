@@ -45,7 +45,7 @@ function makeSlickTestSearch(selector, count) {
 var combinators = ' ,>,+,~,   , > , + , ~ '.split(',');
 // var tags = 'a abbr acronym address applet area b base basefont bdo big blockquote br button caption center cite code col colgroup dd del dfn dir div dl dt em fieldset font form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins isindex kbd label legend li link map menu meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var'.split(' ');
 var tags = 'a abbr div A ABBR DIV'.split(' ');
-var attribOperators = ' = != *= ^= $= ~= |='.split(' ');
+var attribOperators = '= != *= ^= $= ~= |='.split(' ');
 var attrs = 'attr lang fred-rocks'.split(' ');
 var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split(';');
 
@@ -77,7 +77,7 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 	describe('SubtleSlickParse Custom Combinators', SubtleSlickParse_Specs);
 })();
 
-
+// Parsing
 (function(){
 	var SubtleSlickParse_Specs = {
 		
@@ -206,6 +206,27 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 	describe('SubtleSlickParse', SubtleSlickParse_Specs);
 })();
 
+// Verify attribute selector regex
+(function(){
+	var SubtleSlickParse_Specs = {};
+	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
+		return function(){
+			value_of( SubtleSlickParse.attribValueToRegex(operator, value).test(matchAgainst) )[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
+		};
+	}
+	
+	var junk = [
+		{ operator:'', value:'', matchAgainst:'', shouldBeTrue:true },
+	];
+	
+	for (var t=0,J; J=junk[t]; t++)
+		SubtleSlickParse_Specs['should '+J.shouldBeTrue?'':'NOT'+' match '+J.operator + J.value+' to "'+J.matchAgainst+'"'] =
+			makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
+	
+	// SubtleSlickParse_Specs['should convert attribute selector to regex'] = makeAttributeRegexTest('=', 'shmoo', 'shmoo', true);
+	
+	describe('SubtleSlickParse attribute regex', SubtleSlickParse_Specs);
+})()
 
 var s,f,kid,template;
 (function(SlickFindingSpecs){
