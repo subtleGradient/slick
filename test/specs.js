@@ -208,20 +208,39 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 
 // Verify attribute selector regex
 (function(){
+	var testNode = document.createElement('div');
 	var SubtleSlickParse_Specs = {};
 	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
 		return function(){
 			value_of( SubtleSlickParse.attribValueToRegex(operator, value).test(matchAgainst) )[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
+			
+			console.log(SubtleSlickParse.attribValueToRegex(operator, value));
+			
+			testNode.setAttribute('attr', matchAgainst);
+			value_of( slick.match(testNode, "[attr"+operator+"'"+String.escapeSingle(matchAgainst)+"']") ).should_be_true();//[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
+			testNode.removeAttribute('attr');
 		};
 	}
 	
 	var junk = [
-		{ operator:'', value:'', matchAgainst:'', shouldBeTrue:true },
+		{ operator:'=',  value:'test you!', matchAgainst:'test you!', shouldBeTrue:true },
+		{ operator:'=',  value:'test you!', matchAgainst:'test me!', shouldBeTrue:false },
+		
+		{ operator:'^=', value:'test', matchAgainst:'test you!', shouldBeTrue:true },
+		{ operator:'^=', value:'test', matchAgainst:' test you!', shouldBeTrue:false },
+		
+		{ operator:'$=', value:'you!', matchAgainst:'test you!', shouldBeTrue:true },
+		{ operator:'$=', value:'you!', matchAgainst:'test you! ', shouldBeTrue:false },
+		
+		{ operator:'!=', value:'test you!', matchAgainst:'test you?', shouldBeTrue:true },
+		{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false },
 	];
 	
 	for (var t=0,J; J=junk[t]; t++)
-		SubtleSlickParse_Specs['should '+J.shouldBeTrue?'':'NOT'+' match '+J.operator + J.value+' to "'+J.matchAgainst+'"'] =
+		SubtleSlickParse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match [attr'+J.operator + J.value+']'] =
 			makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
+	
+	console.log(SubtleSlickParse_Specs);
 	
 	// SubtleSlickParse_Specs['should convert attribute selector to regex'] = makeAttributeRegexTest('=', 'shmoo', 'shmoo', true);
 	
