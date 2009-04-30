@@ -514,7 +514,7 @@ slick.parse = (function(){
 	    return String(str).replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
-	var attribValueToRegex = function(operator, value){
+	var attribValueToRegex = SubtleSlickParse.attribValueToRegex = function(operator, value){
 		if (!operator) return null;
 		var val = XRegExp_escape(value);
 		switch(operator){
