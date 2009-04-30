@@ -502,6 +502,13 @@ var slick = (function(){
 		},
 		
 		'match(attribute)': function(node, name, operator, value, regexp){
+			if (node.hasAttribute) {
+				if(node.hasAttribute(name)){
+					if(!operator){ return true;}
+				}else{
+					return false;
+				}
+			}
 			var actual = slick.getAttribute(node, name);
 			if (!operator) return (actual != null);
 			if (operator === '=') return (actual === value);

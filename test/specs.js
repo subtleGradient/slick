@@ -259,6 +259,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 
 var s,f,kid,template;
 (function(SlickFindingSpecs){
+	SlickFindingSpecs.before_all();
 	
 	var count, selector, selectors = {
 		'html': 1,
@@ -314,7 +315,7 @@ var s,f,kid,template;
 		
 		'#title': 1,
 		'h1#title': 1,
-		'div #title': 1,
+		'body #title': 1,
 		
 		'ul.toc li.tocline2': 12,
 		'ul.toc > li.tocline2': 12,
@@ -322,20 +323,86 @@ var s,f,kid,template;
 		
 		// contains
 		// var count = [];Array.prototype.slice.call($$('*')).forEach(function(el){ el.innerHTML.search(/Selectors/)+1 && count.push(el); });count
-		'h1[id]:contains(Selectors)': 1,
-		'h1[id]:contains("Selectors")': 1,
-		':contains(Selectors)': 58,
-		':contains("Selectors")': 58,
-		'p:contains(selectors)': 22,
-		'p:contains("selectors")': 22,
+		'h1[id]:contains(Selectors)': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('h1');
+			for (var i=0; i < elements.length; i++) {
+				if (elements[i].id != null && elements[i].id != '')
+				if (/Selectors/.test(elements[i].innerHTML)) count++;
+			}
+			return count;
+		})(),
+		'h1[id]:contains("Selectors")': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('h1');
+			for (var i=0; i < elements.length; i++) {
+				if (elements[i].id != null && elements[i].id != '')
+				if (/Selectors/.test(elements[i].innerHTML)) count++;
+			}
+			return count;
+		})(),
+		':contains(Selectors)': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('*');
+			for (var i=0; i < elements.length; i++) {
+				if (/Selectors/.test(elements[i].innerHTML)) count++;
+			}
+			return count;
+		})(),
+		':contains("Selectors")': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('*');
+			for (var i=0; i < elements.length; i++) {
+				if (/Selectors/.test(elements[i].innerHTML)) count++;
+			}
+			return count;
+		})(),
+		'p:contains(selectors)': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('p');
+			for (var i=0; i < elements.length; i++) {
+				if (/selectors/.test(elements[i].innerHTML)) count++;
+			}
+			return count;
+		})(),
+		'p:contains("selectors")': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('p');
+			for (var i=0; i < elements.length; i++) {
+				if (/selectors/.test(elements[i].innerHTML)) count++;
+			}
+			return count;
+		})(),
 		
 		// attribs
 		'[href][lang][class]': 1,
-		'[class]': 55,
+		'[class]': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('*');
+			for (var i=0; i < elements.length; i++) {
+				if (elements[i].className != null && elements[i].className != '') count++;
+			}
+			return count;
+		})(),
 		'[class=example]': 43,
 		'[class^=exa]': 43,
 		'[class$=mple]': 43,
-		'[class*=e]': 54,
+		'[class*=e]': 
+		(function(){
+			var count = 0;
+			var elements = template.getElementsByTagName('*');
+			for (var i=0; i < elements.length; i++) {
+				if (elements[i].className != null && elements[i].className.match(/e/)) count++;
+			}
+			return count;
+		})(),
 		'[lang|=tr]': 1,
 		'[class!=made_up]': 59,
 		'[class~=example]': 43,
@@ -425,7 +492,7 @@ var s,f,kid,template;
 		document.body.style.display='';
 	},
 	
-	before_all: function(argument){
+	before_all: function(){
 		template = document.createElement('div');
 		(function(){
 			
