@@ -3,12 +3,13 @@ String.escapeSingle = function escapeSingle(string){
 };
 
 function makeSlickTestCombinator(tag, combinator, tag2) {
+	if (combinator.split('').length===3) combinator = combinator.split('')[2];
 	var functionString = '\n';
 	functionString += "var s = SubtleSlickParse('"+String.escapeSingle(tag + combinator + tag2)+"');\n";
 	
 	functionString+="value_of( s[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
 					"value_of( s[0][1].tag ).should_be( '"+String.escapeSingle(tag2)+"' );\n" +
-					"value_of( s[0][1].combinator ).should_be( '"+String.escapeSingle(combinator.length===3 ? combinator[1] : combinator)+"' );\n";
+					"value_of( s[0][1].combinator ).should_be( '"+String.escapeSingle(combinator)+"' );\n";
 	return new Function(functionString);
 }
 
@@ -47,12 +48,12 @@ var combinators = ' ,>,+,~,   , > , + , ~ '.split(',');
 var tags = 'a abbr div A ABBR DIV'.split(' ');
 var attribOperators = '= != *= ^= $= ~= |='.split(' ');
 var attrs = 'attr lang fred-rocks'.split(' ');
-var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split(';');
-
+var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\'thing[]\';"thing[]"'.split(';');
 
 // Custom combinators tests
 (function(){
-	var combinatorsSpecial = '+ - ± ≠ / \\ ^ $ ! ¡ & > < ? ¿ ++ -- >> << // \\\\'.split(' ');
+	var combinatorsSpecial = '! $ & + ++ +> / // < <+ << <~ > >> ? ^ ~> ~~ ≠ ¡ ± ¿'.split(/\s+/).sort();
+	
 	var combinatorsOld;
 	
 	var SubtleSlickParse_Specs = {
@@ -66,7 +67,8 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 	};
 	
 	
-	for (var C=0; C < combinatorsSpecial.length; C++) {var combinator = combinatorsSpecial[C];
+	for (var C=0; C < combinatorsSpecial.length; C++) {
+		var combinator = combinatorsSpecial[C];
 		tag = tag2 = tags[0];
 		// for (var i=0; i < tags.length; i++) {var tag = tags[i];
 			
@@ -177,8 +179,6 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 			value_of( s.pseudos[0].argument ).should_not_be_null();
 			value_of( s.pseudos[0].argument ).should_be("");
 		}
-		,
-		'should parse attributes': function(){ }
 	};
 	
 	// 'should parse tag names with combinators': function(){
@@ -208,18 +208,21 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 
 // Verify attribute selector regex
 (function(){
-	var testNode = document.createElement('div');
-	var SubtleSlickParse_Specs = {};
+	var SubtleSlickParse_Specs = {
+		before_all: function(){
+			window.testNode = document.createElement('div');
+		},
+		after_all: function(){
+			delete window.testNode;
+		}
+	};
 	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
-		return function(){
-			value_of( SubtleSlickParse.attribValueToRegex(operator, value).test(matchAgainst) )[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
-			
-			console.log(SubtleSlickParse.attribValueToRegex(operator, value));
-			
-			testNode.setAttribute('attr', matchAgainst);
-			value_of( slick.match(testNode, "[attr"+operator+"'"+String.escapeSingle(matchAgainst)+"']") ).should_be_true();//[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
-			testNode.removeAttribute('attr');
-		};
+		var code = [''];
+		code.push("value_of( SubtleSlickParse.attribValueToRegex('"+ String.escapeSingle(operator) +"', '"+ String.escapeSingle(value) +"').test('"+ String.escapeSingle(matchAgainst) +"') ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
+		code.push("testNode.setAttribute('attr', '"+ String.escapeSingle(matchAgainst) +"');")
+		code.push("value_of( slick.match(testNode, \"[attr"+ operator +"'"+ String.escapeSingle(matchAgainst) +"']\") ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
+		code.push("testNode.removeAttribute('attr');");
+		return Function(code.join("\n\t"));
 	}
 	
 	var junk = [
@@ -240,7 +243,7 @@ var vals = 'myValueOfDoom;"double";\'single\';();{};\'thing[]\';"thing[]"'.split
 		SubtleSlickParse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match [attr'+J.operator + J.value+']'] =
 			makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
 	
-	console.log(SubtleSlickParse_Specs);
+	// console&&console.log&&console.log(SubtleSlickParse_Specs);
 	
 	// SubtleSlickParse_Specs['should convert attribute selector to regex'] = makeAttributeRegexTest('=', 'shmoo', 'shmoo', true);
 	
@@ -368,7 +371,7 @@ var s,f,kid,template;
 			qsa_results.push(',\n');
 		}
 		qsa_results.push('\t"":0\n}');
-		console.log(qsa_results.join(''));
+		// console&&console.log&&console.log(qsa_results.join(''));
 	};
 	
 	for (selector in selectors) {
