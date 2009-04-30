@@ -407,6 +407,11 @@ var s,f,kid,template;
 		s&&document.body.appendChild(s);
 		f&&document.body.appendChild(f);
 		
+		// Show test results after each run?
+		// document.body.style.display='';
+	},
+	
+	after_all: function(){
 		document.body.style.display='';
 	},
 	
