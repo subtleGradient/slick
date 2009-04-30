@@ -583,7 +583,7 @@ Authors:
 						return attribute != value;
 					}; break;
 					case '*=': test = function(value){
-						return attribute.indexOf(value) > -1;
+						return value.indexOf(attribute) > -1;
 					}; break;
 					case '^=': regexp = new RegExp('^' + escapeRegExp(attribute)); break;
 					case '$=': regexp = new RegExp(escapeRegExp(attribute) + '$'); break;
