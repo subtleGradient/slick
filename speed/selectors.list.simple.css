@@ -1,6 +1,8 @@
 #title
 h1#title
 div#title
+div #title
+a #title
 .company
 .copyright
 .described
@@ -13,17 +15,14 @@ div#title
 .inner
 .meaning
 .note
-.origin
-.pattern
 .profile
 .refs
 .selectorsReview
 .subtoc
 .title
 .toc
-.tocline2
-.tocline3
-.tocline4
+.toc .tocline2
+.tocline2, .tocline3, .tocline4
 .tprofile
 .url
 .vcard
@@ -32,7 +31,12 @@ a
 a.inner
 .url.fn
 a.url.fn
+a[href^="http://"]
+a[href^=#]
+a[href=#]
 abbr
+abbr[title]
+abbr[title^="CSS"]
 acronym
 b
 br
@@ -49,16 +53,15 @@ div.note
 div.profile
 div.subtoc
 div.wrapper
-dl
+dl dt
 dl.refs
+dl dt
 dt
 em
-h1#title
-h2
-h3
-h4
-h5
+h2, h3, h4, h5
 hr
+.nest.a1 .flatInNest
+i.nest.a1 b.flatInNest
 img
 li
 li.tocline2
@@ -80,17 +83,20 @@ sup
 table
 table.selectorsReview
 table.tprofile
+table .origin
+table .pattern
+table td.origin
+table td.pattern
 tbody
 td
 td.described
 td.meaning
-td.origin
-td.pattern
+td.pattern, td.origin
 th
 th.described
 th.meaning
-th.origin
-th.pattern
+table th.origin
+table th.pattern
 th.title
 thead
 tr
