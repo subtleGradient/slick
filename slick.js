@@ -1,6 +1,174 @@
 /* Subtle Parser */
 
-var SubtleSlickParse = (function(ssp){
+var SubtleSlickParse = (function(){
+	
+	var ssp = {
+		parseregexp: function(combinators){
+			return new RegExp(("(?x)\n\
+			^(?:\n\
+				    \\s+   (?=[ "+combinators+"]+ |$|(?=,) )       # Meaningless Whitespace \n\
+				| ( \\s )+ (?=[^"+combinators+"]+        )         # spaceCombinator \n\
+				| (           [ "+combinators+"]+          ) \\s*  # Combinator \n\
+				| ( ,                                      ) \\s*  # Separator \n\
+				\
+				|      ( [a-z0-9_-]+ | \\* ) # Tag \n\
+				| \\#  ( [a-z0-9_-]+       ) # ID \n\
+				| \\.  ( [a-z0-9_-]+       ) # ClassName \n\
+				| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+				|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+			)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+		},
+		
+		combinators:'> + ~'.split(' '),
+		
+		MAP: function(){
+			var obj = {};
+			for (var property in ssp.map) {
+				var value = ssp.map[property];
+				if (value<1) continue;
+				obj[value] = property;
+			}
+			return ssp.MAP = obj;
+		},
+		
+		parser: function(){
+			function parser(){
+				var a = arguments;
+				var selectorBitMap;
+				var selectorBitName;
+				
+				// MAP arguments
+				for (var aN=1; aN < a.length; aN++) {
+					if (a[aN]) {
+						selectorBitMap = aN;
+						selectorBitName = ssp.MAP[selectorBitMap];
+						SubtleSlickParse.debug && console.log(a[0], selectorBitName);
+						break;
+					}
+				}
+				
+				SubtleSlickParse.debug && console.log((function(){ var o = {}; o[selectorBitName] = a[selectorBitMap]; return o; })());
+				
+				if (!ssp.parsedSelectors.length || a[map_separator]) {
+					ssp.parsedSelectors.push([]);
+					ssp[these_simpleSelectors] = ssp.parsedSelectors[ssp.parsedSelectors.length-1];
+					if (ssp.parsedSelectors.length-1) return '';
+				}
+				
+				if (!ssp[these_simpleSelectors].length || a[map_spaceCombinator] || a[map_combinator]) {
+					ssp[this_simpleSelector] && (ssp[this_simpleSelector].reverseCombinator = a[map_spaceCombinator] || a[map_combinator]);
+					ssp[these_simpleSelectors].push({
+						combinator: a[map_spaceCombinator] || a[map_combinator]
+					});
+					ssp[this_simpleSelector] = ssp[these_simpleSelectors][ssp[these_simpleSelectors].length-1];
+					ssp.parsedSelectors.type.push(ssp[this_simpleSelector].combinator);
+					if (ssp[these_simpleSelectors].length-1) return '';
+				}
+				
+				switch(selectorBitMap){
+					
+				case map_tagName:
+					ssp[this_simpleSelector].tag = a[map_tagName];
+					break;
+					
+				case map_id:
+					ssp[this_simpleSelector].id  = a[map_id];
+					break;
+					
+				case map_className:
+					if(!ssp[this_simpleSelector].classes)
+						ssp[this_simpleSelector].classes = [];
+					ssp[this_simpleSelector].classes.push(a[map_className]);
+					break;
+					
+				case map_attributeKey:
+					if(!ssp[this_simpleSelector].attributes)
+						ssp[this_simpleSelector].attributes = [];
+					ssp[this_simpleSelector].attributes.push({
+						name     : a[map_attributeKey],
+						operator : a[map_attributeOperator] || null,
+						value    : a[map_attributeValue] || a[map_attributeValueDouble] || a[map_attributeValueSingle] || null,
+						regexp   : SubtleSlickParse.attribValueToRegex(a[map_attributeOperator], a[map_attributeValue] || a[map_attributeValueDouble] || a[map_attributeValueSingle] || '')
+					});
+					break;
+					
+				case map_pseudoClass:
+					if(!ssp[this_simpleSelector].pseudos)
+						ssp[this_simpleSelector].pseudos = [];
+					var pseudoClassValue = a[map_pseudoClassValue] || a[map_pseudoClassValueDouble] || a[map_pseudoClassValueSingle];
+					if (pseudoClassValue == 'odd') pseudoClassValue = '2n+1';
+					if (pseudoClassValue == 'even') pseudoClassValue = '2n';
+					
+					pseudoClassValue = pseudoClassValue || (a[map_pseudoClassArgs] ? "" : null);
+					
+					ssp[this_simpleSelector].pseudos.push({
+						name     : a[map_pseudoClass],
+						argument : pseudoClassValue
+					});
+					break;
+				}
+				
+				ssp.parsedSelectors.type.push(selectorBitName + (a[map_attributeOperator]||''));
+				return '';
+			};
+			return ssp.parser = parser;
+		},
+		
+		attribValueToRegex: function(){
+			function attribValueToRegex(operator, value){
+				if (!operator) return null;
+				var val = ssp.XRegExp_escape(value);
+				switch(operator){
+				case  '=': return new RegExp('^'      +val+ '$'     );
+				case '!=': return new RegExp('^(?!'   +val+ '$)'    );
+				case '*=': return new RegExp(          val          );
+				case '^=': return new RegExp('^'      +val          );
+				case '$=': return new RegExp(          val+ '$'     );
+				case '~=': return new RegExp('(^|\\s)'+val+'(\\s|$)');
+				case '|=': return new RegExp('(^|\\|)'+val+'(\\||$)');
+				default  : return null;
+				}
+			};
+			return ssp.attribValueToRegex = attribValueToRegex;
+		},
+		
+		cache:{},
+		
+		// selector: null,
+		// parsedSelectors: null,
+		// this_simpleSelector: null,
+		// these_simpleSelectors: null,
+		
+		/* XRegExp_escape taken from XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License */
+		/*** XRegExp.escape accepts a string; returns the string with regex metacharacters escaped. the returned string can safely be used within a regex to match a literal string. escaped characters are [, ], {, }, (, ), -, *, +, ?, ., \, ^, $, |, #, [comma], and whitespace. */
+		XRegExp_escape: function(str){ return String(str).replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&"); }
+		
+	};
+	
+	var map_rawMatch = 0
+	,   map_offset   = -2
+	,   map_string   = -1
+	,   map_combinator = 1
+	,   map_spaceCombinator = 2
+	,   map_separator  = 3
+	,   map_tagName   = 4
+	,   map_id        = 5
+	,   map_className = 6
+	,   map_attributeKey         = 7
+	,   map_attributeOperator    = 8
+	,   map_attributeValueDouble = 9
+	,   map_attributeValueSingle = 10
+	,   map_attributeValue       = 11
+	,   map_pseudoClass            = 12
+	,   map_pseudoClassArgs        = 13
+	,   map_pseudoClassValueDouble = 14
+	,   map_pseudoClassValueSingle = 15
+	,   map_pseudoClassValue       = 16
+	
+	,   this_simpleSelector   = 'this_simpleSelector'
+	,   these_simpleSelectors = 'these_simpleSelectors'
+	;
+	
 	
 	function SubtleSlickParse(CSS3_Selectors){
 		ssp.selector = ''+CSS3_Selectors;
@@ -32,177 +200,7 @@ var SubtleSlickParse = (function(ssp){
 	SubtleSlickParse.setCombinators(ssp.combinators);
 	
 	return SubtleSlickParse;
-})({
-	parseregexp: function(combinators){
-		return new RegExp(("(?x)\n\
-			^(?:\n\
-			         \\s  + (?=[ "+combinators+"]+ | $ | (?=,)) # Meaningless Whitespace \n\
-			|      ( \\s )+ (?=[^"+combinators+"]+            ) # spaceCombinator \n\
-			|      (           [ "+combinators+"]+)    \\s*     # Combinator \n\
-			|      ( ,                            )    \\s*     # Separator \n\
-			|      ( [a-z0-9_-]+ | \\* ) # Tag \n\
-			| \\#  ( [a-z0-9_-]+       ) # ID \n\
-			| \\.  ( [a-z0-9_-]+       ) # ClassName \n\
-			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-			)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
-	},
-	
-	combinators:'> + ~'.split(' '),
-	
-	map: {
-		rawMatch : 0,
-		offset   : -2,
-		string   : -1,
-		
-		combinator : 1,
-		spaceCombinator : 2,
-		separator  : 3,
-		
-		tagName   : 4,
-		id        : 5,
-		className : 6,
-		
-		attributeKey         : 7,
-		attributeOperator    : 8,
-		attributeValueDouble : 9,
-		attributeValueSingle : 10,
-		attributeValue       : 11,
-		
-		pseudoClass            : 12,
-		pseudoClassArgs        : 13,
-		pseudoClassValueDouble : 14,
-		pseudoClassValueSingle : 15,
-		pseudoClassValue       : 16
-	},
-	
-	MAP: function(ssp){
-		var obj = {};
-		for (var property in ssp.map) {
-			var value = ssp.map[property];
-			if (value<1) continue;
-			obj[value] = property;
-		}
-		return ssp.MAP = obj;
-	},
-	
-	parser: function(ssp){
-		function parser(){
-			var a = arguments;
-			var selectorBitMap;
-			var selectorBitName;
-		
-			// MAP arguments
-			for (var aN=1; aN < a.length; aN++) {
-				if (a[aN]) {
-					selectorBitMap = aN;
-					selectorBitName = ssp.MAP[selectorBitMap];
-					SubtleSlickParse.debug && console.log(a[0], selectorBitName);
-					break;
-				}
-			}
-		
-			SubtleSlickParse.debug && console.log((function(){
-				var o = {};
-				o[selectorBitName] = a[selectorBitMap];
-				return o;
-			})());
-		
-			if (!ssp.parsedSelectors.length || a[ssp.map.separator]) {
-				ssp.parsedSelectors.push([]);
-				ssp.these_simpleSelectors = ssp.parsedSelectors[ssp.parsedSelectors.length-1];
-				if (ssp.parsedSelectors.length-1) return '';
-			}
-		
-			if (!ssp.these_simpleSelectors.length || a[ssp.map.spaceCombinator] || a[ssp.map.combinator]) {
-				ssp.this_simpleSelector && (ssp.this_simpleSelector.reverseCombinator = a[ssp.map.spaceCombinator] || a[ssp.map.combinator]);
-				ssp.these_simpleSelectors.push({
-					combinator: a[ssp.map.spaceCombinator] || a[ssp.map.combinator]
-				});
-				ssp.this_simpleSelector = ssp.these_simpleSelectors[ssp.these_simpleSelectors.length-1];
-				ssp.parsedSelectors.type.push(ssp.this_simpleSelector.combinator);
-				if (ssp.these_simpleSelectors.length-1) return '';
-			}
-		
-			switch(selectorBitMap){
-			
-			case ssp.map.tagName:
-				ssp.this_simpleSelector.tag = a[ssp.map.tagName];
-				break;
-			
-			case ssp.map.id:
-				ssp.this_simpleSelector.id  = a[ssp.map.id];
-				break;
-			
-			case ssp.map.className:
-				if(!ssp.this_simpleSelector.classes)
-					ssp.this_simpleSelector.classes = [];
-				ssp.this_simpleSelector.classes.push(a[ssp.map.className]);
-				break;
-			
-			case ssp.map.attributeKey:
-				if(!ssp.this_simpleSelector.attributes)
-					ssp.this_simpleSelector.attributes = [];
-				ssp.this_simpleSelector.attributes.push({
-					name     : a[ssp.map.attributeKey],
-					operator : a[ssp.map.attributeOperator] || null,
-					value    : a[ssp.map.attributeValue] || a[ssp.map.attributeValueDouble] || a[ssp.map.attributeValueSingle] || null,
-					regexp   : SubtleSlickParse.attribValueToRegex(a[ssp.map.attributeOperator], a[ssp.map.attributeValue] || a[ssp.map.attributeValueDouble] || a[ssp.map.attributeValueSingle] || '')
-				});
-				break;
-			
-			case ssp.map.pseudoClass:
-				if(!ssp.this_simpleSelector.pseudos)
-					ssp.this_simpleSelector.pseudos = [];
-				var pseudoClassValue = a[ssp.map.pseudoClassValue] || a[ssp.map.pseudoClassValueDouble] || a[ssp.map.pseudoClassValueSingle];
-				if (pseudoClassValue == 'odd') pseudoClassValue = '2n+1';
-				if (pseudoClassValue == 'even') pseudoClassValue = '2n';
-			
-				pseudoClassValue = pseudoClassValue || (a[ssp.map.pseudoClassArgs] ? "" : null);
-			
-				ssp.this_simpleSelector.pseudos.push({
-					name     : a[ssp.map.pseudoClass],
-					argument : pseudoClassValue
-				});
-				break;
-			}
-		
-			ssp.parsedSelectors.type.push(selectorBitName + (a[ssp.map.attributeOperator]||''));
-			return '';
-		};
-		return ssp.parser = parser;
-	},
-	
-	attribValueToRegex: function(ssp){
-		function attribValueToRegex(operator, value){
-			if (!operator) return null;
-			var val = ssp.XRegExp_escape(value);
-			switch(operator){
-			case  '=': return new RegExp('^'      +val+ '$'     );
-			case '!=': return new RegExp('^(?!'   +val+ '$)'    );
-			case '*=': return new RegExp(          val          );
-			case '^=': return new RegExp('^'      +val          );
-			case '$=': return new RegExp(          val+ '$'     );
-			case '~=': return new RegExp('(^|\\s)'+val+'(\\s|$)');
-			case '|=': return new RegExp('(^|\\|)'+val+'(\\||$)');
-			default  : return null;
-			}
-		};
-		return ssp.attribValueToRegex = attribValueToRegex;
-	},
-	
-	cache:{},
-	
-	selector: null,
-	parsedSelectors: null,
-	this_simpleSelector: null,
-	these_simpleSelectors: null,
-	
-	/* XRegExp_escape taken from XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License */
-	/*** XRegExp.escape accepts a string; returns the string with regex metacharacters escaped. the returned string can safely be used within a regex to match a literal string. escaped characters are [, ], {, }, (, ), -, *, +, ?, ., \, ^, $, |, #, [comma], and whitespace. */
-	XRegExp_escape: function(str){ return String(str).replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&"); }
-	
-});
+})();
 
 /* Slick */
 
