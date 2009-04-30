@@ -1,5 +1,5 @@
 /*!
- * Sizzle CSS Selector Engine - v0.9.3
+ * Sizzle CSS Selector Engine - v1.0
  *  Copyright 2009, The Dojo Foundation
  *  Released under the MIT, BSD, and GPL Licenses.
  *  More information: http://sizzlejs.com/
@@ -8,20 +8,22 @@
 
 var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^[\]]*\]|['"][^'"]*['"]|[^[\]'"]+)+\]|\\.|[^ >+~,(\[\\]+)+|[>+~])(\s*,\s*)?/g,
 	done = 0,
-	toString = Object.prototype.toString;
+	toString = Object.prototype.toString,
+	hasDuplicate = false;
 
 var Sizzle = function(selector, context, results, seed) {
 	results = results || [];
-	context = context || document;
+	var origContext = context = context || document;
 
-	if ( context.nodeType !== 1 && context.nodeType !== 9 )
+	if ( context.nodeType !== 1 && context.nodeType !== 9 ) {
 		return [];
+	}
 	
 	if ( !selector || typeof selector !== "string" ) {
 		return results;
 	}
 
-	var parts = [], m, set, checkSet, check, mode, extra, prune = true;
+	var parts = [], m, set, checkSet, check, mode, extra, prune = true, contextXML = isXML(context);
 	
 	// Reset the position of the chunker regexp (start from head)
 	chunker.lastIndex = 0;
@@ -53,31 +55,43 @@ var Sizzle = function(selector, context, results, seed) {
 			}
 		}
 	} else {
-		var ret = seed ?
-			{ expr: parts.pop(), set: makeArray(seed) } :
-			Sizzle.find( parts.pop(), parts.length === 1 && context.parentNode ? context.parentNode : context, isXML(context) );
-		set = Sizzle.filter( ret.expr, ret.set );
-
-		if ( parts.length > 0 ) {
-			checkSet = makeArray(set);
-		} else {
-			prune = false;
+		// Take a shortcut and set the context if the root selector is an ID
+		// (but not if it'll be faster if the inner selector is an ID)
+		if ( !seed && parts.length > 1 && context.nodeType === 9 && !contextXML &&
+				Expr.match.ID.test(parts[0]) && !Expr.match.ID.test(parts[parts.length - 1]) ) {
+			var ret = Sizzle.find( parts.shift(), context, contextXML );
+			context = ret.expr ? Sizzle.filter( ret.expr, ret.set )[0] : ret.set[0];
 		}
 
-		while ( parts.length ) {
-			var cur = parts.pop(), pop = cur;
+		if ( context ) {
+			var ret = seed ?
+				{ expr: parts.pop(), set: makeArray(seed) } :
+				Sizzle.find( parts.pop(), parts.length === 1 && (parts[0] === "~" || parts[0] === "+") && context.parentNode ? context.parentNode : context, contextXML );
+			set = ret.expr ? Sizzle.filter( ret.expr, ret.set ) : ret.set;
 
-			if ( !Expr.relative[ cur ] ) {
-				cur = "";
+			if ( parts.length > 0 ) {
+				checkSet = makeArray(set);
 			} else {
-				pop = parts.pop();
+				prune = false;
 			}
 
-			if ( pop == null ) {
-				pop = context;
-			}
+			while ( parts.length ) {
+				var cur = parts.pop(), pop = cur;
 
-			Expr.relative[ cur ]( checkSet, pop, isXML(context) );
+				if ( !Expr.relative[ cur ] ) {
+					cur = "";
+				} else {
+					pop = parts.pop();
+				}
+
+				if ( pop == null ) {
+					pop = context;
+				}
+
+				Expr.relative[ cur ]( checkSet, pop, contextXML );
+			}
+		} else {
+			checkSet = parts = [];
 		}
 	}
 
@@ -92,7 +106,7 @@ var Sizzle = function(selector, context, results, seed) {
 	if ( toString.call(checkSet) === "[object Array]" ) {
 		if ( !prune ) {
 			results.push.apply( results, checkSet );
-		} else if ( context.nodeType === 1 ) {
+		} else if ( context && context.nodeType === 1 ) {
 			for ( var i = 0; checkSet[i] != null; i++ ) {
 				if ( checkSet[i] && (checkSet[i] === true || checkSet[i].nodeType === 1 && contains(context, checkSet[i])) ) {
 					results.push( set[i] );
@@ -110,23 +124,26 @@ var Sizzle = function(selector, context, results, seed) {
 	}
 
 	if ( extra ) {
-		Sizzle( extra, context, results, seed );
+		Sizzle( extra, origContext, results, seed );
+		Sizzle.uniqueSort( results );
+	}
 
-		if ( sortOrder ) {
-			hasDuplicate = false;
-			results.sort(sortOrder);
+	return results;
+};
 
-			if ( hasDuplicate ) {
-				for ( var i = 1; i < results.length; i++ ) {
-					if ( results[i] === results[i-1] ) {
-						results.splice(i--, 1);
-					}
+Sizzle.uniqueSort = function(results){
+	if ( sortOrder ) {
+		hasDuplicate = false;
+		results.sort(sortOrder);
+
+		if ( hasDuplicate ) {
+			for ( var i = 1; i < results.length; i++ ) {
+				if ( results[i] === results[i-1] ) {
+					results.splice(i--, 1);
 				}
 			}
 		}
 	}
-
-	return results;
 };
 
 Sizzle.matches = function(expr, set){
@@ -640,7 +657,7 @@ var Expr = Sizzle.selectors = {
 var origPOS = Expr.match.POS;
 
 for ( var type in Expr.match ) {
-	Expr.match[ type ] = RegExp( Expr.match[ type ].source + /(?![^\[]*\])(?![^\(]*\))/.source );
+	Expr.match[ type ] = new RegExp( Expr.match[ type ].source + /(?![^\[]*\])(?![^\(]*\))/.source );
 }
 
 var makeArray = function(array, results) {
@@ -719,9 +736,9 @@ if ( document.documentElement.compareDocumentPosition ) {
 // querying by getElementById (and provide a workaround)
 (function(){
 	// We're going to inject a fake input element with a specified name
-	var form = document.createElement("form"),
+	var form = document.createElement("div"),
 		id = "script" + (new Date).getTime();
-	form.innerHTML = "<input name='" + id + "'/>";
+	form.innerHTML = "<a name='" + id + "'/>";
 
 	// Inject it into the root element, check its status, and remove it quickly
 	var root = document.documentElement;
@@ -810,10 +827,9 @@ if ( document.querySelectorAll ) (function(){
 		return oldSizzle(query, context, extra, seed);
 	};
 
-	Sizzle.find = oldSizzle.find;
-	Sizzle.filter = oldSizzle.filter;
-	Sizzle.selectors = oldSizzle.selectors;
-	Sizzle.matches = oldSizzle.matches;
+	for ( var prop in oldSizzle ) {
+		Sizzle[ prop ] = oldSizzle[ prop ];
+	}
 })();
 
 if ( document.getElementsByClassName && document.documentElement.getElementsByClassName ) (function(){
@@ -925,7 +941,7 @@ var contains = document.compareDocumentPosition ?  function(a, b){
 
 var isXML = function(elem){
 	return elem.nodeType === 9 && elem.documentElement.nodeName !== "HTML" ||
-		!!elem.ownerDocument && isXML( elem.ownerDocument );
+		!!elem.ownerDocument && elem.ownerDocument.documentElement.nodeName !== "HTML";
 };
 
 var posProcess = function(selector, context){
