@@ -213,7 +213,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 			window.testNode = document.createElement('div');
 		},
 		after_all: function(){
-			delete window.testNode;
+			window.testNode = undefined;
 		}
 	};
 	function makeAttributeTest(operator, value, matchAgainst, shouldBeTrue) {
