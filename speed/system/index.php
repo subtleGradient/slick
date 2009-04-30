@@ -1,7 +1,58 @@
 <?php
-
 	$frameworks = parse_ini_file('config.ini', true);
-	$selectors = file_get_contents('selectors.list.css');
+
+	$valid = true;
+
+	$special_list = array('' => 'Default', 'loose' => 'Loose DOM Fragment', 'xml' => 'XML Document');
+
+	$special = '';
+	if (isset($_REQUEST['special'])) {
+		if (array_key_exists($_REQUEST['special'], $special_list)) {
+			$special = $_REQUEST['special'];
+		} else {
+			$valid = false;
+		}
+	}
+
+	$css_list = array('' => 'Default', 'simple' => 'Simple', 'extended' => 'Extended', 'yahoo' => 'Yahoo (via ejohn)', 'crazy' => 'Just crazy');
+
+	$css = '';
+	if (isset($_REQUEST['css'])) {
+		if (array_key_exists($_REQUEST['css'], $css_list)) {
+			$css = $_REQUEST['css'];
+		} else {
+			$valid = false;
+		}
+	}
+
+	if (!$valid) {
+		header('Location: ' . $_SERVER['SCRIPT_NAME']);
+		exit;
+	}
+
+	$link = $_SERVER['SCRIPT_NAME'];
+
+	if (!$valid) {
+		header('Location: ' . $link);
+		exit;
+	}
+
+	if ($css || $special) {
+		$build = array();
+		if ($css) $build['css'] = $css;
+		if ($special) $build['special'] = $special;
+		$link = $link . '?' . http_build_query($build, '', '&');
+	}
+
+	if (count($_POST)) {
+		header('Location: ' . $link);
+		exit;
+	}
+
+	$file = 'selectors.list.css';
+	if ($css) $file = 'selectors.list.' . $css . '.css';
+
+	$selectors = file_get_contents($file);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -12,7 +63,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<title>SlickSpeed Selectors Test</title>
 	<link rel="stylesheet" href="style.css" type="text/css" media="screen">
-	
+
 	<script type="text/javascript">
 		<?php
 		$selectors = explode("\n", $selectors);
@@ -21,27 +72,36 @@
 		echo "window.selectors = [$list]";
 		?>
 	</script>
-	
+
 	<script src="system/slickspeed.js" type="text/javascript"></script>
 </head>
 
 <body>
-	
+
 <div id="container">
-	
+
 	<div id="controls">
 		<a class="stop" href="#">stop tests</a>
 		<a class="start" href="#">start tests</a>
 	</div>
-	
-<?php include('header.html'); ?>
+
+<?php include('header.php'); ?>
 
 <?php
+
 	foreach ($frameworks as $framework => $properties){
-		$include = $properties['file'];
-		$function = $properties['function'];
 		$time = time();
-		echo "<iframe name='$framework' src='system/template.php?include=$include%3F$time&function=$function&nocache=$time'></iframe>\n\n";
+
+		$query = http_build_query(array(
+			'include' => $properties['file'] . '?' . $time,
+			'function' => $properties['function'],
+			'initialize' => isset($properties['initialize']) ? $properties['initialize'] : '',
+			'special' => $special,
+			'css' => $css,
+			'nocache' => $time
+		), '', '&amp;');
+
+		echo '<iframe name="' . $framework . '" src="system/template.php?' . $query . '"></iframe>';
 	}
 ?>
 
@@ -71,10 +131,10 @@
 			}
 		?>
 	</tbody>
-	
+
 	<tfoot id="tfoot">
 		<tr>
-		<th class="score-title"><strong>final time (less is better)</strong></th>
+		<th class="score-title"><strong>final ops/ms (more is better)</strong></th>
 		<?php
 			foreach ($frameworks as $framework){
 				echo "<td class='score'>0</td>";

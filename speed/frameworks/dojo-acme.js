@@ -1,5 +1,3 @@
-/*
-curl -s http://svn.dojotoolkit.org/src/dojo/trunk/_base/query.js #*/
 //>>excludeStart("webkitMobile", kwArgs.webkitMobile);
 if(typeof dojo != "undefined"){
 //>>excludeEnd("webkitMobile");
@@ -997,7 +995,7 @@ if(typeof dojo != "undefined"){
 
 				retFunc = function(root, arr){
 					var te = d.byId(query.id, (root.ownerDocument||root));
-					if(!filterFunc(te)){ return; }
+					if(!te || !filterFunc(te)){ return; }
 					if(9 == root.nodeType){ // if root's a doc, we just return directly
 						return getArr(te, arr);
 					}else{ // otherwise check ancestry
@@ -1511,6 +1509,10 @@ if(typeof dojo != "undefined"){
 		//	|		});
 		//	|	});
 
+		//Set list constructor to desired value. This can change
+		//between calls, so always re-assign here.
+		qlc = d._queryListCtor;
+
 		if(!query){
 			return new qlc();
 		}
@@ -1535,7 +1537,7 @@ if(typeof dojo != "undefined"){
 		// 		Opera in XHTML mode doesn't detect case-sensitivity correctly
 		// 		and it's not clear that there's any way to test for it
 		caseSensitive = (root.contentType && root.contentType=="application/xml") || 
-						(d.isOpera && root.doctype) ||
+						(d.isOpera && (root.doctype || od.toString() == "[object XMLDocument]")) ||
 						(!!od) && 
 						(d.isIE ? od.xml : (root.xmlVersion||od.xmlVersion));
 
