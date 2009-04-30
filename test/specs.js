@@ -216,12 +216,16 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 			delete window.testNode;
 		}
 	};
+	function makeAttributeTest(operator, value, matchAgainst, shouldBeTrue) {
+		var code = [''];
+		code.push("testNode.setAttribute('attr', '"+ String.escapeSingle(matchAgainst) +"');")
+		code.push("value_of( slick.match(testNode, \"[attr"+ operator +"'"+ String.escapeSingle(value) +"']\") ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
+		code.push("testNode.removeAttribute('attr');");
+		return Function(code.join("\n\t"));
+	}
 	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
 		var code = [''];
 		code.push("value_of( SubtleSlickParse.attribValueToRegex('"+ String.escapeSingle(operator) +"', '"+ String.escapeSingle(value) +"').test('"+ String.escapeSingle(matchAgainst) +"') ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
-		code.push("testNode.setAttribute('attr', '"+ String.escapeSingle(matchAgainst) +"');")
-		code.push("value_of( slick.match(testNode, \"[attr"+ operator +"'"+ String.escapeSingle(matchAgainst) +"']\") ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
-		code.push("testNode.removeAttribute('attr');");
 		return Function(code.join("\n\t"));
 	}
 	
@@ -239,9 +243,12 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false },
 	];
 	
-	for (var t=0,J; J=junk[t]; t++)
-		SubtleSlickParse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match [attr'+J.operator + J.value+']'] =
+	for (var t=0,J; J=junk[t]; t++){
+		SubtleSlickParse_Specs['RegExp: "'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match '+ SubtleSlickParse.attribValueToRegex(J.operator, J.value)] =
 			makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
+		SubtleSlickParse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +" match \"[attr"+ J.operator +"'"+ String.escapeSingle(J.matchAgainst) +"']\""] =
+			makeAttributeTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
+	}
 	
 	// console&&console.log&&console.log(SubtleSlickParse_Specs);
 	
