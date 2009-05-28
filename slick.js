@@ -63,13 +63,13 @@ Authors:
 		return this.cacheNTH[argument] = parsed;
 	};
 	
-	local.pushArray = function(node, tag, id, selector){
-		if (this['match:selector'](node, tag, id, selector)) this.found.push(node);
+	local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
+		if (this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
 	};
 	
-	local.pushUID = function(node, tag, id, selector){
+	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
 		var uid = this.uidOf(node);
-		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector)){
+		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
 			this.uniques[uid] = true;
 			this.found.push(node);
 		}
@@ -78,27 +78,28 @@ Authors:
 	var matchers = {
 		
 		node: function(node, selector){
-			var parsed = this.slick.parse(selector)[0][0];
+			var parsed = this.slick.parse(selector).expressions[0][0];
+			if (!parsed) return true;
 			return this['match:selector'](node, parsed.tag, parsed.id, parsed.parts);
 		},
 
 		pseudo: function(node, name, argument){
 			var pseudoName = 'pseudo:' + name;
 			if (this[pseudoName]) return this[pseudoName](node, argument);
-			var attribute = this.slick.getAttribute(node, name);
+			var attribute = this.getAttribute(node, name);
 			return (argument) ? argument == attribute : !!attribute;
 		},
 
-		selector: function(node, tag, id, parts){
+		selector: function(node, tag, id, parts, classes, attributes, pseudos){
 			if (tag && tag != '*' && (!node.tagName || node.tagName.toLowerCase() != tag)) return false;
 			if (id && node.id != id) return false;
 
 			for (var i = 0, l = parts.length; i < l; i++){
 				var part = parts[i];
 				switch (part.type){
-					case 'class': if (!node.className || !part.regexp.test(node.className)) return false; break;
-					case 'pseudo': if (!this['match:pseudo'](node, part.key, part.value)) return false; break;
-					case 'attribute': if (!part.test(this.slick.getAttribute(node, part.key))) return false; break;
+					case 'class': if (classes !== false && (!node.className || !part.regexp.test(node.className))) return false; break;
+					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
+					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
 				}
 			}
 
@@ -111,7 +112,7 @@ Authors:
 	
 	var combinators = {
 
-		'>>': function(node, tag, id, parts){ // all child nodes, any level
+		' ': function(node, tag, id, parts, classes){ // all child nodes, any level
 			if (id){
 				var item;
 				if (node.getElementById){
@@ -127,9 +128,9 @@ Authors:
 			
 			var children;
 			
-			if (node.getElementsByClassName && parts.length == 1 && parts[0].type == 'class'){
-				children = node.getElementsByClassName(parts[0].value);
-				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, []);
+			if (node.getElementsByClassName && classes){
+				children = node.getElementsByClassName(classes.join(' '));
+				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, parts, false);
 				return;
 			}
 
@@ -137,7 +138,7 @@ Authors:
 			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
 		},
 		
-		'<<': function(node, tag, id, parts){  // all parent nodes up to document
+		'!': function(node, tag, id, parts){  // all parent nodes up to document
 			while ((node = node.parentNode)){
 				if (node != document) this.push(node, tag, id, parts);
 			}
@@ -151,9 +152,16 @@ Authors:
 			}
 		},
 		
-		'<': function(node, tag, id, parts){}, // direct parent (one level)
+		'!>': function(node, tag, id, parts){ // direct parent (one level)
+			while ((node = node.parentNode)){
+				if (node != document){
+					this.push(node, tag, id, parts);
+					break;
+				}
+			}
+		},
 
-		'+>': function(node, tag, id, parts){ // next sibling
+		'+': function(node, tag, id, parts){ // next sibling
 			while ((node = node.nextSibling)){
 				if (node.nodeType === 1){
 					this.push(node, tag, id, parts);
@@ -162,7 +170,7 @@ Authors:
 			}
 		},
 
-		'<+': function(node, tag, id, parts){  // previous sibling
+		'!+': function(node, tag, id, parts){  // previous sibling
 			while ((node = node.previousSibling)){
 				if (node.nodeType === 1){
 					this.push(node, tag, id, parts);
@@ -179,7 +187,7 @@ Authors:
 			}
 		},
 
-		'$': function(node, tag, id, parts){  // last child
+		'!^': function(node, tag, id, parts){  // last child
 			node = node.lastChild;
 			if (node){
 				if (node.nodeType === 1) this.push(node, tag, id, parts);
@@ -187,7 +195,7 @@ Authors:
 			}
 		},
 
-		'~>': function(node, tag, id, parts){  // next siblings
+		'~': function(node, tag, id, parts){  // next siblings
 			while ((node = node.nextSibling)){
 				if (node.nodeType !== 1) continue;
 				var uid = this.uidOf(node);
@@ -197,7 +205,7 @@ Authors:
 			}
 		},
 
-		'<~': function(node, tag, id, parts){ // previous siblings
+		'!~': function(node, tag, id, parts){ // previous siblings
 			while ((node = node.previousSibling)){
 				if (node.nodeType !== 1) continue;
 				var uid = this.uidOf(node);
@@ -206,10 +214,16 @@ Authors:
 				this.push(node, tag, id, parts);
 			}
 		},
-
-		'~~': function(node, tag, id, parts){}, // next siblings and previous siblings
 		
-		'++': function(node, tag, id, parts){} // next sibling and previous sibling
+		'++': function(node, tag, id, parts){ // next sibling and previous sibling
+			this['combinator:+'](node, tag, id, parts);
+			this['combinator:!+'](node, tag, id, parts);
+		},
+
+		'~~': function(node, tag, id, parts){ // next siblings and previous siblings
+			this['combinator:~'](node, tag, id, parts);
+			this['combinator:!~'](node, tag, id, parts);
+		}
 
 	};
 	
@@ -301,8 +315,6 @@ Authors:
 	
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	var combinatorMap = {' ': '>>', '+': '+>', '~': '~>'};
-	
 	// slick
 	
 	this.slick = function(context, expression, append){
@@ -322,29 +334,39 @@ Authors:
 
 		var current;
 		var parsed = slick.parse(expression);
+		
+		// querySelectorAll for simple selectors
+		
+		if (parsed.simple && context.querySelectorAll){
+			var nodes = context.querySelectorAll(expression);
+			for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
+			return append;
+		}
+		
 		var tempUniques = {};
+		var expressions = parsed.expressions;
 
-		local.push = (parsed.length == 1 && parsed[0].length == 1) ? local.pushArray : local.pushUID;
-
-		for (var i = 0; i < parsed.length; i++){
+		local.push = (parsed.length == 1 && expressions[0].length == 1) ? local.pushArray : local.pushUID;
+		
+		for (var i = 0; i < expressions.length; i++){
 			
-			var currentSelector = parsed[i];
+			var currentExpression = expressions[i];
 			
-			for (var j = 0; j < currentSelector.length; j++){
-				var currentBit = currentSelector[j];
+			for (var j = 0; j < currentExpression.length; j++){
+				var currentBit = currentExpression[j];
 				
-				var combinator = currentBit.combinator;
-				var alias = combinatorMap[combinator];
-				if (alias) combinator = alias;
-				combinator = 'combinator:' + combinator;
+				var combinator = 'combinator:' + currentBit.combinator;
 
 				var tag = currentBit.tag;
 				var id = currentBit.id;
 				var parts = currentBit.parts;
+				var classes = currentBit.classes;
+				var attributes = currentBit.attributes;
+				var pseudos = currentBit.pseudos;
 				
 				local.localUniques = {};
 				
-				if (j === (currentSelector.length - 1)){
+				if (j === (currentExpression.length - 1)){
 					local.uniques = tempUniques;
 					local.found = append;
 				} else {
@@ -353,10 +375,10 @@ Authors:
 				}
 				
 				if (j == 0){
-					local[combinator](context, tag, id, parts);
+					local[combinator](context, tag, id, parts, classes, attributes, pseudos);
 				} else {
 					var items = current;
-					for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts);
+					for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
 				}
 				
 				current = local.found;
@@ -375,7 +397,7 @@ Authors:
 	
 	slick.contains = local.contains;
 	
-	// add pseudo
+	// add pseudos
 	
 	slick.definePseudo = function(name, fn){
 		local['pseudo:' + name] = function(node, argument){
@@ -384,21 +406,31 @@ Authors:
 		return this;
 	};
 	
-	// add combinator function
-	
-	slick.defineCombinator = function(name, fn){
-		local['combinator:' + name] = function(node, tag, id, parts){
-			var nodes = fn.call(node);
-			if (!nodes || !nodes.length) return;
-			for (var i = 0, l = nodes.length; i < l; i++) push(nodes[i], tag, id, parts);
+	slick.lookupPseudo = function(name){
+		var pseudo = local['pseudo:' + name];
+		if (pseudo) return function(argument){
+			return pseudo.call(this, argument);
 		};
+	};
+	
+	local.attributeMethods = {};
+	
+	slick.lookupAttribute = function(name){
+		return local.attributeMethods[name] || null;
+	};
+	
+	slick.defineAttribute = function(name, fn){
+		local.attributeMethods[name] = fn;
 		return this;
 	};
 	
-	// default getAttribute (override this please)
+	slick.defineAttribute('class', function(){
+		return this.className;
+	});
 	
-	slick.getAttribute = function(node, name){
-		return (name == 'class') ? node.className : node.getAttribute(name);
+	local.getAttribute = function(node, name){
+		var method = this.attributeMethods[name];
+		return (method) ? method.call(node) : node.getAttribute(name, 2);
 	};
 	
 	// matcher
@@ -424,28 +456,6 @@ Authors:
 
 })();
 
-// > direct children
-// < direct parent
-
-// >> all children (aka ' ')
-// << all parents
-
-// ~> next siblings (aka '~')
-// <~ previous siblings
-
-// +> next sibling (aka '+')
-// <+ previous sibling
-
-// ^ first child
-// $ last child
-
-// ~~ nexts and previouses brothers
-// ++ next and previous brothers
-
-// possible combinators?
-
-// ~> // +> // => // <~ // <+ // <= // >> // << // ~~ // ++ // == // @@ // %% // ^^ // $$ // && // !! // **
-
 // parser
 
 (function(){
@@ -455,9 +465,10 @@ Authors:
 	slick.parse = function(expression){
 		if (cache[expression]) return cache[expression];
 		var exp = expression;
-		parsed = [];
+		parsed = {simple: true, expressions: [[]], raw: expression};
 		separatorIndex = -1;
 		while (exp != (exp = exp.replace(regexp, parser)));
+		parsed.length = parsed.expressions.length;
 		return cache[expression] = parsed;
 	};
 	
@@ -465,14 +476,16 @@ Authors:
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
-	var combinators = "<>*~+^$=@%&!";
-
+	var qsaCombinators = (/^(\s|[~+>])$/);
+	
+	var combinatorChars = "<>*~+^$=@%&!";
+	
 	var regexp = new RegExp(("(?x)\
 		^(?:\n\
-		       \\s+ (?=[" + combinators + "] | $) # Meaningless Whitespace \n\
+		       \\s+ (?=[" + combinatorChars + "] | $) # Meaningless Whitespace \n\
 		|      ( , ) \\s*                         # Separator              \n\
-		|      ( \\s  (?=[^" + combinators + "])) # CombinatorChildren     \n\
-		|      ( [" + combinators + "]{1,2}) \\s* # Combinator             \n\
+		|      ( \\s  (?=[^" + combinatorChars + "])) # CombinatorChildren     \n\
+		|      ( [" + combinatorChars + "]{1,2}) \\s* # Combinator             \n\
 		|      ( [a-z0-9_-]+ | \\* )              # Tag                    \n\
 		| \\#  ( [a-z0-9_-]+       )              # ID                     \n\
 		| \\.  ( [a-z0-9_-]+       )              # ClassName              \n\
@@ -524,7 +537,7 @@ Authors:
 		var isSeparator = selectorBitName == 'separator';
 	
 		if (isSeparator || separatorIndex == -1){
-			parsed[++separatorIndex] = [];
+			parsed.expressions[++separatorIndex] = [];
 			combinatorIndex = -1;
 			if (isSeparator) return '';
 		}
@@ -532,12 +545,14 @@ Authors:
 		var isCombinator = (selectorBitName == 'combinator') || (selectorBitName == 'combinatorChildren');
 	
 		if (isCombinator || combinatorIndex == -1){
-			parsed[separatorIndex][++combinatorIndex] = {combinator: a[map.combinatorChildren] || '>>', tag: '*', parts: []};
+			var combinator = a[map.combinatorChildren] || ' ';
+			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
+			parsed.expressions[separatorIndex][++combinatorIndex] = {combinator: combinator, tag: '*', parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
 		}
 	
-		var currentParsed = parsed[separatorIndex][combinatorIndex];
+		var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
 	
 		switch (selectorBitName){
 			
@@ -550,8 +565,11 @@ Authors:
 			return '';
 		
 			case 'className':
-
+			
 				var className = a[map.className];
+			
+				if (!currentParsed.classes) currentParsed.classes = [className];
+				else currentParsed.classes.push(className);
 				
 				currentParsed.parts[partIndex] = {
 					type: 'class',
@@ -561,13 +579,25 @@ Authors:
 
 			break;
 		
-			case 'pseudoClass': currentParsed.parts[partIndex] = {
-				type: 'pseudo',
-				key: a[map.pseudoClass],
-				value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
-			}; break;
+			case 'pseudoClass':
+			
+				parsed.simple = false;
+			
+				if (!currentParsed.pseudos) currentParsed.pseudos = [];
+			
+				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
+					type: 'pseudo',
+					key: a[map.pseudoClass],
+					value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
+				});
+
+			break;
 		
 			case 'attributeKey':
+			
+				parsed.simple = false;
+			
+				if (!currentParsed.attributes) currentParsed.attributes = [];
 				
 				var key = a[map.attributeKey];
 				var operator = a[map.attributeOperator];
@@ -599,13 +629,13 @@ Authors:
 					return regexp.test(value);
 				};
 
-				currentParsed.parts[partIndex] = {
+				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
 					type: 'attribute',
 					key: key,
 					operator: operator,
 					value: attribute,
 					test: test
-				};
+				});
 
 			break;
 
