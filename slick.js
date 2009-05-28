@@ -547,7 +547,7 @@ Authors:
 		if (isCombinator || combinatorIndex == -1){
 			var combinator = a[map.combinatorChildren] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
-			parsed.expressions[separatorIndex][++combinatorIndex] = {combinator: combinator, tag: '*', parts: []};
+			parsed.expressions[separatorIndex][++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
 		}
