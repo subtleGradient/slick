@@ -141,7 +141,7 @@ Authors:
 		
 		'!': function(node, tag, id, parts){  // all parent nodes up to document
 			while ((node = node.parentNode)){
-				if (node != document) this.push(node, tag, id, parts);
+				if (node !== document) this.push(node, tag, id, parts);
 			}
 		},
 
@@ -154,12 +154,8 @@ Authors:
 		},
 		
 		'!>': function(node, tag, id, parts){ // direct parent (one level)
-			while ((node = node.parentNode)){
-				if (node != document){
-					this.push(node, tag, id, parts);
-					break;
-				}
-			}
+			node = node.parentNode;
+			if (node !== document) this.push(node, tag, id, parts);
 		},
 
 		'+': function(node, tag, id, parts){ // next sibling
@@ -173,7 +169,7 @@ Authors:
 
 		'!+': function(node, tag, id, parts){  // previous sibling
 			while ((node = node.previousSibling)){
-				if (node.nodeType === 1){
+				if (node.nodeType == 1){
 					this.push(node, tag, id, parts);
 					break;
 				}
@@ -183,7 +179,7 @@ Authors:
 		'^': function(node, tag, id, parts){ // first child
 			node = node.firstChild;
 			if (node){
-				if (node.nodeType === 1) this.push(node, tag, id, parts);
+				if (node.nodeType == 1) this.push(node, tag, id, parts);
 				else this['combinator:+>'](node, tag, id, parts);
 			}
 		},
@@ -191,14 +187,14 @@ Authors:
 		'!^': function(node, tag, id, parts){  // last child
 			node = node.lastChild;
 			if (node){
-				if (node.nodeType === 1) this.push(node, tag, id, parts);
+				if (node.nodeType == 1) this.push(node, tag, id, parts);
 				else this['combinator:<+'](node, tag, id, parts);
 			}
 		},
 
 		'~': function(node, tag, id, parts){  // next siblings
 			while ((node = node.nextSibling)){
-				if (node.nodeType !== 1) continue;
+				if (node.nodeType != 1) continue;
 				var uid = this.uidOf(node);
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
@@ -208,7 +204,7 @@ Authors:
 
 		'!~': function(node, tag, id, parts){ // previous siblings
 			while ((node = node.previousSibling)){
-				if (node.nodeType !== 1) continue;
+				if (node.nodeType != 1) continue;
 				var uid = this.uidOf(node);
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
@@ -320,21 +316,26 @@ Authors:
 	
 	this.slick = function(context, expression, append){
 		
-		local.inSlick = true;
-		
 		if (!append) append = [];
 		
-		if (expression == null) return append;
+		var parsed;
 		
-		if (typeof expression != 'string' && slick.contains(context, expression)){
+		if (expression == null){
+			return append;
+		} else if (typeof expression == 'string'){
+			parsed = slick.parse(expression);
+		} else if (expression.slick){
+			parsed = expression;
+		} else if (local.contains(context, expression)){
 			append.push(expression);
+			return append;
+		} else {
 			return append;
 		}
 		
 		local.positions = {};
 
 		var current;
-		var parsed = slick.parse(expression);
 		
 		// querySelectorAll for simple selectors
 		
@@ -387,7 +388,6 @@ Authors:
 			}
 		}
 
-		local.inSlick = false;
 		return append;
 
 	};
@@ -442,6 +442,13 @@ Authors:
 		return local['match:node'](node, selector);
 	};
 	
+	// slick.reverseMatch = function(node, selector){
+		
+		// var selector = slick.reverse(selector);
+		
+		// return slick(node, );
+	// };
+	
 	slick.uniques = function(nodes, append){
 		var uniques = {};
 		if (!append) append = [];
@@ -461,16 +468,45 @@ Authors:
 
 (function(){
 
-	var parsed, separatorIndex, combinatorIndex, partIndex, cache = {};
-
-	slick.parse = function(expression){
-		if (cache[expression]) return cache[expression];
+	var parsed, separatorIndex, combinatorIndex, partIndex, reversed, cache = {}, reverseCache = {};
+	
+	var parse = function(expression, isReversed){
+		reversed = !!isReversed;
+		var currentCache = (reversed) ? reverseCache : cache;
+		if (currentCache[expression]) return currentCache[expression];
 		var exp = expression;
-		parsed = {simple: true, expressions: [[]], raw: expression};
+		parsed = {slick: true, simple: true, expressions: [[]], raw: expression, reverse: function(){
+			return parse(this.raw, true);
+		}};
 		separatorIndex = -1;
 		while (exp != (exp = exp.replace(regexp, parser)));
 		parsed.length = parsed.expressions.length;
-		return cache[expression] = parsed;
+		return currentCache[expression] = (reversed) ? reverse(parsed) : parsed;
+	};
+	
+	var reverseCombinator = function(combinator){
+		if (combinator == '!') return ' ';
+		else if (combinator == ' ') return '!';
+		else if ((/^!/).test(combinator)) return combinator.replace(/^(!)/, '');
+		else return '!' + combinator;
+	};
+	
+	var reverse = function(expression){
+		var expressions = expression.expressions;
+		for (var i = 0; i < expressions.length; i++){
+			var exp = expressions[i];
+			var last = {parts: [], tag: '*', combinator: reverseCombinator(exp[0].combinator)};
+
+			for (var j = 0; j < exp.length; j++){
+				var cexp = exp[j];
+				if (!cexp.reverseCombinator) cexp.reverseCombinator = ' ';
+				cexp.combinator = cexp.reverseCombinator;
+				delete cexp.reverseCombinator;
+			}
+			
+			exp.reverse().push(last);
+		}
+		return expression;
 	};
 	
 	var escapeRegExp = function(string){ // Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
@@ -548,7 +584,11 @@ Authors:
 		if (isCombinator || combinatorIndex == -1){
 			var combinator = a[map.combinatorChildren] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
-			parsed.expressions[separatorIndex][++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
+			var currentSeparator = parsed.expressions[separatorIndex];
+			if (reversed){
+				if (currentSeparator[combinatorIndex]) currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
+			}
+			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
 		}
@@ -644,6 +684,14 @@ Authors:
 	
 		partIndex++;
 		return '';
+	};
+	
+	slick.parse = function(expression){
+		return parse(expression);
+	};
+	
+	slick.reverse = function(expression){
+		return parse((typeof expression == 'string') ? expression : expression.raw, true);
 	};
 
 })();
