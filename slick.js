@@ -339,9 +339,14 @@ Authors:
 		// querySelectorAll for simple selectors
 		
 		if (parsed.simple && context.querySelectorAll){
-			var nodes = context.querySelectorAll(expression);
-			for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
-			return append;
+			var nodes;
+			try{ nodes = context.querySelectorAll(expression); }
+			catch(error){ if (slick.debug) slick.debug('QSA Fail ' + expression, error); };
+			
+			if (nodes && nodes.length) {
+				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
+				return append;
+			}
 		}
 		
 		var tempUniques = {};
@@ -608,7 +613,6 @@ Authors:
 			break;
 		
 			case 'attributeKey':
-			
 				parsed.simple = false;
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];

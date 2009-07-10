@@ -32,6 +32,11 @@ slick.parse.attribValueToFn = function(operator, attribute){
 	return regexp || { test:test, toString: function(){return String(test);} };
 };
 
+slick.debug = function(message){
+	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
+	throw new Error(message);
+};
+slick.debug = false;
 
 function makeSlickTestCombinator(tag, combinator, tag2) {
 	if (combinator.split('').length===3) combinator = combinator.split('')[2];
@@ -115,7 +120,10 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	}
 	
 	slick_parse_Specs = {
-		'Should exist slick.parse.setCombinators':slick_parse_Specs['Should exist slick.parse.setCombinators']
+		'Should exist slick.parse.setCombinators':slick_parse_Specs['Should exist slick.parse.setCombinators'],
+		'Should finalize object format': function(){
+			throw new Error('uncomment all these tests once we finalize the object format');
+		}
 	};
 	describe('slick.parse Custom Combinators', slick_parse_Specs);
 })();
