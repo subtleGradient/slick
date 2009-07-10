@@ -479,23 +479,34 @@ Authors:
 	
 	slick.parse.escapeRegExp = escapeRegExp;
 	
+	slick.parse.getCombinators = function(){
+		return combinatorChars.split('');
+	};
+	
+	slick.parse.setCombinators = function(combinators){
+		combinatorChars = escapeRegExp(combinators.join(''));
+		regexp = new RegExp(("(?x)\
+			^(?:\n\
+			       \\s+ (?=[" + combinatorChars + "] | $) # Meaningless Whitespace \n\
+			|      ( , ) \\s*                         # Separator              \n\
+			|      ( \\s  (?=[^" + combinatorChars + "])) # CombinatorChildren     \n\
+			|      ( [" + combinatorChars + "]{1,2}) \\s* # Combinator             \n\
+			|      ( [a-z0-9_-]+ | \\* )              # Tag                    \n\
+			| \\#  ( [a-z0-9_-]+       )              # ID                     \n\
+			| \\.  ( [a-z0-9_-]+       )              # ClassName              \n\
+			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+		
+		return slick.parse;
+	};
+	
 	var qsaCombinators = (/^(\s|[~+>])$/);
 	
 	var combinatorChars = "<>*~+^$=@%&!";
 	
-	var regexp = new RegExp(("(?x)\
-		^(?:\n\
-		       \\s+ (?=[" + combinatorChars + "] | $) # Meaningless Whitespace \n\
-		|      ( , ) \\s*                         # Separator              \n\
-		|      ( \\s  (?=[^" + combinatorChars + "])) # CombinatorChildren     \n\
-		|      ( [" + combinatorChars + "]{1,2}) \\s* # Combinator             \n\
-		|      ( [a-z0-9_-]+ | \\* )              # Tag                    \n\
-		| \\#  ( [a-z0-9_-]+       )              # ID                     \n\
-		| \\.  ( [a-z0-9_-]+       )              # ClassName              \n\
-		| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-		|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-	)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
-
+	var regexp = slick.parse.setCombinators(combinatorChars.split(''));
+	
 	var map = {
 		rawMatch: 0,
 		separator: 1,
