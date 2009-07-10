@@ -477,6 +477,8 @@ Authors:
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
+	slick.parse.escapeRegExp = escapeRegExp;
+	
 	var qsaCombinators = (/^(\s|[~+>])$/);
 	
 	var combinatorChars = "<>*~+^$=@%&!";
