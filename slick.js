@@ -473,6 +473,14 @@ Authors:
 
 (function(){
 	
+	slick.parse = function(expression){
+		return parse(expression);
+	};
+	
+	slick.reverse = function(expression){
+		return parse((typeof expression == 'string') ? expression : expression.raw, true);
+	};
+	
 	var parsed, separatorIndex, combinatorIndex, partIndex, reversed, cache = {}, reverseCache = {};
 	
 	var parse = function(expression, isReversed){
@@ -703,14 +711,6 @@ Authors:
 		return '';
 	};
 	
-	slick.parse = function(expression){
-		return parse(expression);
-	};
-	
-	slick.reverse = function(expression){
-		return parse((typeof expression == 'string') ? expression : expression.raw, true);
-	};
-
 })();
 
 document.search = function(expression){
