@@ -460,9 +460,9 @@ Authors:
 // parser
 
 (function(){
-
+	
 	var parsed, separatorIndex, combinatorIndex, partIndex, cache = {};
-
+	
 	slick.parse = function(expression){
 		if (cache[expression]) return cache[expression];
 		var exp = expression;
@@ -518,10 +518,10 @@ Authors:
 		pseudoClassValueSingle : 15,
 		pseudoClassValue: 16
 	};
-
+	
 	var rmap = {};
 	for (var p in map) rmap[map[p]] = p;
-
+	
 	var parser = function(){
 		var a = arguments;
 
@@ -647,7 +647,7 @@ Authors:
 		partIndex++;
 		return '';
 	};
-
+	
 })();
 
 document.search = function(expression){
