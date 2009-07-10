@@ -340,9 +340,14 @@ Authors:
 		// querySelectorAll for simple selectors
 		
 		if (parsed.simple && context.querySelectorAll){
-			var nodes = context.querySelectorAll(expression);
-			for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
-			return append;
+			var nodes;
+			try{ nodes = context.querySelectorAll(expression); }
+			catch(error){ if (slick.debug) slick.debug('QSA Fail ' + expression, error); };
+			
+			if (nodes && nodes.length) {
+				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
+				return append;
+			}
 		}
 		
 		var tempUniques = {};
@@ -467,7 +472,7 @@ Authors:
 // parser
 
 (function(){
-
+	
 	var parsed, separatorIndex, combinatorIndex, partIndex, reversed, cache = {}, reverseCache = {};
 	
 	var parse = function(expression, isReversed){
@@ -513,23 +518,36 @@ Authors:
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
+	slick.parse.escapeRegExp = escapeRegExp;
+	
+	slick.parse.getCombinators = function(){
+		return combinatorChars.split('');
+	};
+	
+	slick.parse.setCombinators = function(combinators){
+		combinatorChars = escapeRegExp(combinators.join(''));
+		regexp = new RegExp(("(?x)\
+			^(?:\n\
+			       \\s+ (?=[" + combinatorChars + "] | $) # Meaningless Whitespace \n\
+			|      ( , ) \\s*                         # Separator              \n\
+			|      ( \\s  (?=[^" + combinatorChars + "])) # CombinatorChildren     \n\
+			|      ( [" + combinatorChars + "]{1,2}) \\s* # Combinator             \n\
+			|      ( [a-z0-9_-]+ | \\* )              # Tag                    \n\
+			| \\#  ( [a-z0-9_-]+       )              # ID                     \n\
+			| \\.  ( [a-z0-9_-]+       )              # ClassName              \n\
+			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+		
+		return slick.parse;
+	};
+	
 	var qsaCombinators = (/^(\s|[~+>])$/);
 	
 	var combinatorChars = "<>*~+^$=@%&!";
 	
-	var regexp = new RegExp(("(?x)\
-		^(?:\n\
-		       \\s+ (?=[" + combinatorChars + "] | $) # Meaningless Whitespace \n\
-		|      ( , ) \\s*                         # Separator              \n\
-		|      ( \\s  (?=[^" + combinatorChars + "])) # CombinatorChildren     \n\
-		|      ( [" + combinatorChars + "]{1,2}) \\s* # Combinator             \n\
-		|      ( [a-z0-9_-]+ | \\* )              # Tag                    \n\
-		| \\#  ( [a-z0-9_-]+       )              # ID                     \n\
-		| \\.  ( [a-z0-9_-]+       )              # ClassName              \n\
-		| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-		|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-	)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
-
+	var regexp = slick.parse.setCombinators(combinatorChars.split(''));
+	
 	var map = {
 		rawMatch: 0,
 		separator: 1,
@@ -552,10 +570,10 @@ Authors:
 		pseudoClassValueSingle : 15,
 		pseudoClassValue: 16
 	};
-
+	
 	var rmap = {};
 	for (var p in map) rmap[map[p]] = p;
-
+	
 	var parser = function(){
 		var a = arguments;
 
@@ -635,7 +653,6 @@ Authors:
 			break;
 		
 			case 'attributeKey':
-			
 				parsed.simple = false;
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
