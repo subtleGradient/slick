@@ -28,9 +28,10 @@ Authors:
 	} : (document.documentElement.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
 	} : function(context, node){
-		var nodes = context.getElementsByTagName(node.tagName);
-		for (var i = 0, l = nodes.length; i < l; i++){
-			if (nodes[i] === node) return true;
+		if (node){
+			while ((node = node.parentNode)){
+				if (node === context) return true;
+			}
 		}
 		return false;
 	};
