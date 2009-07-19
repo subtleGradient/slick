@@ -71,10 +71,10 @@ function makeSlickTestAttrib(attr, op, val) {
 	return new Function(functionString);
 }
 
-function makeSlickTestSearch(selector, count) {
+function makeSlickTestSearch(selector, count, disableQSA) {
 	// if (document.querySelectorAll)
 	// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
-	return new Function(" value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );");
+	return new Function("slick.disableQSA = "+!!disableQSA+";\n value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( "+count+" ); delete slick.disableQSA;");
 }
 
 // slick.parse.debug = true;
@@ -505,7 +505,9 @@ var s,f,kid,template;
 	
 	for (selector in selectors) {
 		
-		SlickFindingSpecs['should find '+selectors[selector]+' "'+selector+'"' ] = makeSlickTestSearch(selector, selectors[selector]);
+		if (document.querySelectorAll)
+			SlickFindingSpecs['should find '+selectors[selector]+' "'+selector+'" with QSA' ] = makeSlickTestSearch(selector, selectors[selector], false);
+		SlickFindingSpecs['should find '+selectors[selector]+' "'+selector+'" without QSA' ] = makeSlickTestSearch(selector, selectors[selector], true);
 		
 	};
 	
