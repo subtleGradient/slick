@@ -385,7 +385,10 @@ Authors:
 					local[combinator](context, tag, id, parts, classes, attributes, pseudos);
 				} else {
 					var items = current;
-					for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+					if (local[combinator])
+						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+					else
+						if (slick.debug) slick.debug("Tried calling non-existant combinator: '"+currentBit.combinator+"'", currentExpression);
 				}
 				
 				current = local.found;
