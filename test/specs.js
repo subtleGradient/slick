@@ -459,7 +459,7 @@ var s,f,kid,template;
 			return count;
 		})(),
 		'[lang|=tr]': 1,
-		'[class!=made_up]': 59,
+		'[class][class!=made_up]': 324,
 		'[class~=example]': 43,
 		
 		// pseudos
