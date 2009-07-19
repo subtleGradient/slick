@@ -36,7 +36,7 @@ slick.debug = function(message){
 	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
 	throw new Error(message);
 };
-slick.debug = false;
+// slick.debug = false;
 
 function makeSlickTestCombinator(tag, combinator, tag2) {
 	if (combinator.split('').length===3) combinator = combinator.split('')[2];
@@ -358,6 +358,7 @@ var s,f,kid,template;
 		'div > p': 134,
 		'div + p': 22,
 		'div ~ p': 183,
+		'div & p': 0,
 		
 		'div[class^=exa][class$=mple]': 43,
 		'div p a': 12,
