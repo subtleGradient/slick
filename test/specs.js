@@ -316,6 +316,7 @@ var s,f,kid,template;
 	SlickFindingSpecs.before_all();
 	
 	var count, selector, selectors = {
+		'*':1825,
 		'html': 1,
 		'body': 1,
 		'head': 1,
@@ -330,28 +331,35 @@ var s,f,kid,template;
 		'.a1   .a1': 2,
 		'.a1 > .a1': 2,
 		'.a1 + .a1': 0,
-		'.a1 * .a1': 0,
+		
+		'.a1   *': 12,
+		'.a1 > *': 3,
+		'.a1 + *': 2,
+		'.a1 ~ *': 6,
+		
+		'.a1 !  *': 7,
+		'.a1 !> *': 4,
+		'.a4 !+ *': 2,
+		'.a4 !~ *': 4,
+		
 		'.a4': 4,
 		'.a4   .a4': 2,
 		'.a4 > .a4': 2,
 		'.a4 + .a4': 0,
-		'.a4 * .a4': 0,
 		
-		'[class]': 324,
-		'[class=]': 0,
-		'[class=""]': 0,
-		'[class!=]': 324,
-		'[class!=""]': 324,
-		'[class]:not([class=""])': 324,
-		':not([class=""])': 1825,
+		'[class]': 324,                       '[title]': 13,
+		':not([class])':1825-324,             ':not([title])': 1825-13,
 		
-		'[title]': 13,
-		'[title=]': 0,
-		'[title=""]': 0,
-		'[title!=]': 13,
-		'[title!=""]': 13,
-		'[title]:not([title=""])': 13,
-		':not([title=""])': 1825,
+		// '[class=""]': 1,                      '[title=""]': 0,
+		// '[class!=""]': 324,                   '[title!=""]': 13,
+		// 
+		// '[class]:not([class=""])': 324,       '[title]:not([title=""])': 13,
+		// ':not([class]):not([class=""])': 324, ':not([title]):not([title=""])': 13,
+		// ':not([class=""])':324,               ':not([title=""])': 1825,
+		// 
+		// '[class]:not([class!=""])': 324,       '[title]:not([title!=""])': 13,
+		// ':not([class]):not([class!=""])': 324, ':not([title]):not([title!=""])': 13,
+		// ':not([class!=""])':324,               ':not([title!=""])': 1825,
 		
 		'body div': 59,
 		'div p': 140,
@@ -398,24 +406,24 @@ var s,f,kid,template;
 			}
 			return count;
 		})(),
-		':contains(Selectors)': 
-		(function(){
-			var count = 0;
-			var elements = template.getElementsByTagName('*');
-			for (var i=0; i < elements.length; i++) {
-				if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
-			}
-			return count;
-		})(),
-		':contains("Selectors")': 
-		(function(){
-			var count = 0;
-			var elements = template.getElementsByTagName('*');
-			for (var i=0; i < elements.length; i++) {
-				if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
-			}
-			return count;
-		})(),
+		':contains(Selectors)': 58,
+		// (function(){
+		// 	var count = 0;
+		// 	var elements = template.getElementsByTagName('*');
+		// 	for (var i=0; i < elements.length; i++) {
+		// 		if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
+		// 	}
+		// 	return count;
+		// })(),
+		':contains("Selectors")': 58,
+		// (function(){
+		// 	var count = 0;
+		// 	var elements = template.getElementsByTagName('*');
+		// 	for (var i=0; i < elements.length; i++) {
+		// 		if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
+		// 	}
+		// 	return count;
+		// })(),
 		'p:contains(selectors)': 
 		(function(){
 			var count = 0;
@@ -448,7 +456,7 @@ var s,f,kid,template;
 		})(),
 		'[class=example]': 43,
 		'[class^=exa]': 43,
-		'[class$=mple]': 43,
+		'[class$=mple]': 44,
 		'[class*=e]': 
 		(function(){
 			var count = 0;
