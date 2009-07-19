@@ -493,6 +493,7 @@ var s,f,kid,template;
 		
 	};
 	
+/*
 	SlickFindingSpecs['Get QSA Results'] = function(){
 		var qsa_results = ['{\n'], count;
 		for (selector in selectors) {
@@ -510,6 +511,7 @@ var s,f,kid,template;
 		qsa_results.push('\t"":0\n}');
 		// console&&console.log&&console.log(qsa_results.join(''));
 	};
+*/
 	
 	for (selector in selectors) {
 		
