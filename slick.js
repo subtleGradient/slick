@@ -552,9 +552,10 @@ Authors:
 	
 	var qsaCombinators = (/^(\s|[~+>])$/);
 	
-	var combinatorChars = "<>*~+^$=@%&!";
+	var combinatorChars = ">+~" + "`!@$%^&={}\\;</";
 	
-	var regexp = slick.parse.setCombinators(combinatorChars.split(''));
+	var regexp;
+	slick.parse.setCombinators(combinatorChars.split(''));
 	
 	var map = {
 		rawMatch: 0,
