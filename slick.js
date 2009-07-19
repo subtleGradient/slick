@@ -339,7 +339,7 @@ Authors:
 		
 		// querySelectorAll for simple selectors
 		
-		if (parsed.simple && context.querySelectorAll){
+		if (parsed.simple && context.querySelectorAll && !slick.disableQSA){
 			var nodes;
 			try{ nodes = context.querySelectorAll(expression); }
 			catch(error){ if (slick.debug) slick.debug('QSA Fail ' + expression, error); };
