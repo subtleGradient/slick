@@ -2,7 +2,7 @@ String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
-slick.parse.attribValueToFn = function(operator, attribute){
+Slick.parse.attribValueToFn = function(operator, attribute){
 	var test, regexp;
 	
 	switch (operator){
@@ -15,10 +15,10 @@ slick.parse.attribValueToFn = function(operator, attribute){
 		case '*=': test = function(value){
 			return value.indexOf(attribute) > -1;
 		}; break;
-		case '^=': regexp = new RegExp('^' + slick.parse.escapeRegExp(attribute)); break;
-		case '$=': regexp = new RegExp(slick.parse.escapeRegExp(attribute) + '$'); break;
-		case '~=': regexp = new RegExp('(^|\\s)' + slick.parse.escapeRegExp(attribute) + '(\\s|$)'); break;
-		case '|=': regexp = new RegExp('(^|\\|)' + slick.parse.escapeRegExp(attribute) + '(\\||$)'); break;
+		case '^=': regexp = new RegExp('^' + Slick.parse.escapeRegExp(attribute)); break;
+		case '$=': regexp = new RegExp(Slick.parse.escapeRegExp(attribute) + '$'); break;
+		case '~=': regexp = new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(attribute) + '(\\s|$)'); break;
+		case '|=': regexp = new RegExp('(^|\\|)' + Slick.parse.escapeRegExp(attribute) + '(\\||$)'); break;
 		
 		default: test = function(value){
 			return !!value;
@@ -32,16 +32,16 @@ slick.parse.attribValueToFn = function(operator, attribute){
 	return regexp || { test:test, toString: function(){return String(test);} };
 };
 
-slick.debug = function(message){
+Slick.debug = function(message){
 	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
 	throw new Error(message);
 };
-// slick.debug = false;
+// Slick.debug = false;
 
 function makeSlickTestCombinator(tag, combinator, tag2) {
 	if (combinator.split('').length===3) combinator = combinator.split('')[2];
 	var functionString = '\n';
-	functionString += "var s = slick.parse('"+String.escapeSingle(tag + combinator + tag2)+"');\n";
+	functionString += "var s = Slick.parse('"+String.escapeSingle(tag + combinator + tag2)+"');\n";
 	
 	functionString+="value_of( s[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
 					"value_of( s[0][1].tag ).should_be( '"+String.escapeSingle(tag2)+"' );\n" +
@@ -51,7 +51,7 @@ function makeSlickTestCombinator(tag, combinator, tag2) {
 
 function makeSlickTestAttrib(attr, op, val) {
 	var functionString = '\n';
-	functionString += "var s = slick.parse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
+	functionString += "var s = Slick.parse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
 	value_of( s.attributes.length ).should_be( 1 );\n\
 	value_of( s.attributes[0].name ).should_be( '"+String.escapeSingle(attr)+"' );\n\
 	";
@@ -65,7 +65,7 @@ function makeSlickTestAttrib(attr, op, val) {
 		functionString += "\
 		value_of( s.attributes[0].operator ).should_be( '"+String.escapeSingle( op )+"' );\n\
 		value_of( s.attributes[0].value ).should_be( '"+String.escapeSingle( val.replace(/^[\"']|['\"]$/g,'') )+"' );\n\
-		value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( slick.parse.attribValueToFn(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
+		value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( Slick.parse.attribValueToFn(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
 		";
 	}
 	return new Function(functionString);
@@ -73,11 +73,11 @@ function makeSlickTestAttrib(attr, op, val) {
 
 function makeSlickTestSearch(selector, count, disableQSA) {
 	// if (document.querySelectorAll)
-	// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
-	return new Function("slick.disableQSA = "+!!disableQSA+";\n value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( "+count+" ); delete slick.disableQSA;");
+	// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
+	return new Function("Slick.disableQSA = "+!!disableQSA+";\n value_of( Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( "+count+" ); delete Slick.disableQSA;");
 }
 
-// slick.parse.debug = true;
+// Slick.parse.debug = true;
 
 var combinators = ' ,>,+,~,   , > , + , ~ '.split(',');
 // var tags = 'a abbr acronym address applet area b base basefont bdo big blockquote br button caption center cite code col colgroup dd del dfn dir div dl dt em fieldset font form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins isindex kbd label legend li link map menu meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var'.split(' ');
@@ -92,20 +92,20 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	
 	var combinatorsOld;
 	
-	var slick_parse_Specs = {
+	var Slick_parse_Specs = {
 		before_all: function(){
-			combinatorsOld = slick.parse.getCombinators(combinatorsSpecial);
-			slick.parse.setCombinators(combinatorsSpecial);
+			combinatorsOld = Slick.parse.getCombinators(combinatorsSpecial);
+			Slick.parse.setCombinators(combinatorsSpecial);
 		},
 		after_all: function(){
-			slick.parse.setCombinators(combinatorsOld);
+			Slick.parse.setCombinators(combinatorsOld);
 		},
 		
-		'Should exist slick.parse.setCombinators': function(){
-			value_of( slick.parse.setCombinators ).should_not_be_undefined();
-			combinatorsOld = slick.parse.getCombinators(combinatorsSpecial);
-			slick.parse.setCombinators(combinatorsSpecial);
-			slick.parse.setCombinators(combinatorsOld);
+		'Should exist Slick.parse.setCombinators': function(){
+			value_of( Slick.parse.setCombinators ).should_not_be_undefined();
+			combinatorsOld = Slick.parse.getCombinators(combinatorsSpecial);
+			Slick.parse.setCombinators(combinatorsSpecial);
+			Slick.parse.setCombinators(combinatorsOld);
 		}
 	};
 	
@@ -115,36 +115,36 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		tag = tag2 = tags[0];
 		// for (var i=0; i < tags.length; i++) {var tag = tags[i];
 			
-			slick_parse_Specs['should parse '+tag+' tags with "'+combinator+'" custom combinator' ] = makeSlickTestCombinator(tag, combinator, tag);
+			Slick_parse_Specs['should parse '+tag+' tags with "'+combinator+'" custom combinator' ] = makeSlickTestCombinator(tag, combinator, tag);
 		// }
 	}
 	
-	slick_parse_Specs = {
-		'Should exist slick.parse.setCombinators':slick_parse_Specs['Should exist slick.parse.setCombinators'],
+	Slick_parse_Specs = {
+		'Should exist Slick.parse.setCombinators':Slick_parse_Specs['Should exist Slick.parse.setCombinators'],
 		'Should finalize object format': function(){
 			throw new Error('uncomment all these tests once we finalize the object format');
 		}
 	};
-	describe('slick.parse Custom Combinators', slick_parse_Specs);
+	describe('Slick.parse Custom Combinators', Slick_parse_Specs);
 })();
 
 // Parsing
 (function(){
-	var slick_parse_Specs = {
+	var Slick_parse_Specs = {
 		
 		'should exist': function(){
-			value_of( slick.parse ).should_not_be_undefined();
+			value_of( Slick.parse ).should_not_be_undefined();
 		}
 		,
 		'should parse multiple selectors': function(){
-			var s = slick.parse('a, b, c');
+			var s = Slick.parse('a, b, c');
 			value_of( s[0][0].tag ).should_be( 'a' );
 			value_of( s[1][0].tag ).should_be( 'b' );
 			value_of( s[2][0].tag ).should_be( 'c' );
 		}
 		,
 		'should parse multiple selectors with class': function(){
-			var s = slick.parse('a.class, b.class, c.class');
+			var s = Slick.parse('a.class, b.class, c.class');
 			value_of( s[0][0].tag ).should_be( 'a' );
 			value_of( s[1][0].tag ).should_be( 'b' );
 			value_of( s[2][0].tag ).should_be( 'c' );
@@ -155,7 +155,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		,
 		'should parse tag names': function(){
 			for (var i=0; i < tags.length; i++) {var tag = tags[i];
-				value_of( slick.parse(tag)[0][0].tag ).should_be( tag );
+				value_of( Slick.parse(tag)[0][0].tag ).should_be( tag );
 			}
 		}
 		,
@@ -171,7 +171,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 				{raw:          ":nth-child(n)", name:'nth-child', argument:"n"   }
 			];
 			for (var i=0,s, N; N = nths[i]; i++){
-				s = slick.parse(N.raw);
+				s = Slick.parse(N.raw);
 				value_of( s[0][0].pseudos[0].name ).should_be( N.name );
 				value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
 			}
@@ -189,40 +189,40 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 				{raw:":nth-child(n)"   , name:'nth-child', argument:"n"  }
 			];
 			for (var i=0,s, N; N = nths[i]; i++){
-				s = slick.parse(N.raw);
+				s = Slick.parse(N.raw);
 				value_of( s[0][0].pseudos[0].name ).should_be( N.name );
 				value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
 			}
 		}
 		,
 		'should parse :not(with quoted innards)': function(){
-			var s = slick.parse(":not()")[0][0];
+			var s = Slick.parse(":not()")[0][0];
 			value_of( s.pseudos.length ).should_be(1);
 			value_of( s.pseudos[0].name ).should_be('not');
 			value_of( s.pseudos[0].argument ).should_be("");
 			
-			s = slick.parse(':not([attr])')[0][0];
+			s = Slick.parse(':not([attr])')[0][0];
 			value_of( s.pseudos[0].argument ).should_be('[attr]');
 			
-			s = slick.parse(':not([attr=])')[0][0];
+			s = Slick.parse(':not([attr=])')[0][0];
 			value_of( s.pseudos[0].argument ).should_be('[attr=]');
 			
-			s = slick.parse(":not([attr=''])")[0][0];
+			s = Slick.parse(":not([attr=''])")[0][0];
 			value_of( s.pseudos[0].argument ).should_be("[attr='']");
 			
-			s = slick.parse(':not([attr=""])')[0][0];
+			s = Slick.parse(':not([attr=""])')[0][0];
 			value_of( s.pseudos[0].argument ).should_be('[attr=""]');
 		}
 		,
 		'should parse :pseudo arguments as null': function(){
-			var s = slick.parse(":pseudo")[0][0];
+			var s = Slick.parse(":pseudo")[0][0];
 			value_of( s.pseudos.length ).should_be(1);
 			value_of( s.pseudos[0].name ).should_be('pseudo');
 			value_of( s.pseudos[0].argument ).should_be_null();
 		}
 		,
 		'should parse :pseudo() arguments as ""': function(){
-			var s = slick.parse(":pseudo()")[0][0];
+			var s = Slick.parse(":pseudo()")[0][0];
 			value_of( s.pseudos.length ).should_be(1);
 			value_of( s.pseudos[0].name ).should_be('pseudo');
 			value_of( s.pseudos[0].argument ).should_not_be_null();
@@ -236,7 +236,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	for (var C=0; C < combinators.length; C++) {var combinator = combinators[C];
 		for (var i=0; i < tags.length; i++) {var tag = tags[i];
 			
-			slick_parse_Specs['should parse '+tag+' tags with "'+combinator+'" combinator' ] = makeSlickTestCombinator(tag, combinator, tag);
+			Slick_parse_Specs['should parse '+tag+' tags with "'+combinator+'" combinator' ] = makeSlickTestCombinator(tag, combinator, tag);
 		}
 	}
 	
@@ -247,14 +247,14 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 			/*operators:*/ for (var oi=0; oi < attribOperators.length; oi++) {
 				var op = attribOperators[oi];
 				
-				slick_parse_Specs['should parse attributes: '+ '['+ attr + op + (op&&val) +']'] = makeSlickTestAttrib(attr, op, val);
+				Slick_parse_Specs['should parse attributes: '+ '['+ attr + op + (op&&val) +']'] = makeSlickTestAttrib(attr, op, val);
 			}
 		}
 	}
 	
-	// describe('slick.parse', slick_parse_Specs);
-	describe('slick.parse', {
-		'should finalize the slick.parse object': function(){
+	// describe('Slick.parse', Slick_parse_Specs);
+	describe('Slick.parse', {
+		'should finalize the Slick.parse object': function(){
 			throw new Error('fix these tests!');
 		}
 	});
@@ -262,7 +262,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 
 // Verify attribute selector regex
 (function(){
-	var slick_parse_Specs = {
+	var Slick_parse_Specs = {
 		before_all: function(){
 			window.testNode = document.createElement('div');
 		},
@@ -273,13 +273,13 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	function makeAttributeTest(operator, value, matchAgainst, shouldBeTrue) {
 		var code = [''];
 		code.push("testNode.setAttribute('attr', '"+ String.escapeSingle(matchAgainst) +"');")
-		code.push("value_of( slick.match(testNode, \"[attr"+ operator +"'"+ String.escapeSingle(value) +"']\") ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
+		code.push("value_of( Slick.match(testNode, \"[attr"+ operator +"'"+ String.escapeSingle(value) +"']\") ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
 		code.push("testNode.removeAttribute('attr');");
 		return Function(code.join("\n\t"));
 	}
 	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
 		var code = [''];
-		code.push("value_of( slick.parse.attribValueToFn('"+ String.escapeSingle(operator) +"', '"+ String.escapeSingle(value) +"').test('"+ String.escapeSingle(matchAgainst) +"') ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
+		code.push("value_of( Slick.parse.attribValueToFn('"+ String.escapeSingle(operator) +"', '"+ String.escapeSingle(value) +"').test('"+ String.escapeSingle(matchAgainst) +"') ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
 		return Function(code.join("\n\t"));
 	}
 	
@@ -298,17 +298,17 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	];
 	
 	for (var t=0,J; J=junk[t]; t++){
-		slick_parse_Specs['RegExp: "'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match '+ slick.parse.attribValueToFn(J.operator, J.value)] =
+		Slick_parse_Specs['RegExp: "'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match '+ Slick.parse.attribValueToFn(J.operator, J.value)] =
 			makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
-		slick_parse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +" match \"[attr"+ J.operator +"'"+ String.escapeSingle(J.matchAgainst) +"']\""] =
+		Slick_parse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +" match \"[attr"+ J.operator +"'"+ String.escapeSingle(J.matchAgainst) +"']\""] =
 			makeAttributeTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
 	}
 	
-	// console&&console.log&&console.log(slick_parse_Specs);
+	// console&&console.log&&console.log(Slick_parse_Specs);
 	
-	// slick_parse_Specs['should convert attribute selector to regex'] = makeAttributeRegexTest('=', 'shmoo', 'shmoo', true);
+	// Slick_parse_Specs['should convert attribute selector to regex'] = makeAttributeRegexTest('=', 'shmoo', 'shmoo', true);
 	
-	describe('slick.parse attribute regex', slick_parse_Specs);
+	describe('Slick.parse attribute regex', Slick_parse_Specs);
 })()
 
 var s,f,kid,template;
@@ -526,7 +526,7 @@ var s,f,kid,template;
 	
 })({
 	'should exist': function(){
-		value_of( slick ).should_not_be_undefined();
+		value_of( Slick ).should_not_be_undefined();
 	},
 	
 	before: function(){
