@@ -2,6 +2,42 @@ String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
+slick.parse.attribValueToFn = function(operator, attribute){
+	var test, regexp;
+	
+	switch (operator){
+		case '=': test = function(value){
+			return attribute == value;
+		}; break;
+		case '!=': test = function(value){
+			return attribute != value;
+		}; break;
+		case '*=': test = function(value){
+			return value.indexOf(attribute) > -1;
+		}; break;
+		case '^=': regexp = new RegExp('^' + slick.parse.escapeRegExp(attribute)); break;
+		case '$=': regexp = new RegExp(slick.parse.escapeRegExp(attribute) + '$'); break;
+		case '~=': regexp = new RegExp('(^|\\s)' + slick.parse.escapeRegExp(attribute) + '(\\s|$)'); break;
+		case '|=': regexp = new RegExp('(^|\\|)' + slick.parse.escapeRegExp(attribute) + '(\\||$)'); break;
+		
+		default: test = function(value){
+			return !!value;
+		};
+	}
+	
+	if (!test) test = function(value){
+		return regexp.test(value);
+	};
+	
+	return regexp || { test:test, toString: function(){return String(test);} };
+};
+
+slick.debug = function(message){
+	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
+	throw new Error(message);
+};
+// slick.debug = false;
+
 function makeSlickTestCombinator(tag, combinator, tag2) {
 	if (combinator.split('').length===3) combinator = combinator.split('')[2];
 	var functionString = '\n';
@@ -29,16 +65,16 @@ function makeSlickTestAttrib(attr, op, val) {
 		functionString += "\
 		value_of( s.attributes[0].operator ).should_be( '"+String.escapeSingle( op )+"' );\n\
 		value_of( s.attributes[0].value ).should_be( '"+String.escapeSingle( val.replace(/^[\"']|['\"]$/g,'') )+"' );\n\
-		value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( slick.parse.attribValueToRegex(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
+		value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( slick.parse.attribValueToFn(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
 		";
 	}
 	return new Function(functionString);
 }
 
-function makeSlickTestSearch(selector, count) {
+function makeSlickTestSearch(selector, count, disableQSA) {
 	// if (document.querySelectorAll)
 	// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
-	return new Function(" value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );");
+	return new Function("slick.disableQSA = "+!!disableQSA+";\n value_of( slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( "+count+" ); delete slick.disableQSA;");
 }
 
 // slick.parse.debug = true;
@@ -63,6 +99,13 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		},
 		after_all: function(){
 			slick.parse.setCombinators(combinatorsOld);
+		},
+		
+		'Should exist slick.parse.setCombinators': function(){
+			value_of( slick.parse.setCombinators ).should_not_be_undefined();
+			combinatorsOld = slick.parse.getCombinators(combinatorsSpecial);
+			slick.parse.setCombinators(combinatorsSpecial);
+			slick.parse.setCombinators(combinatorsOld);
 		}
 	};
 	
@@ -76,6 +119,12 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		// }
 	}
 	
+	slick_parse_Specs = {
+		'Should exist slick.parse.setCombinators':slick_parse_Specs['Should exist slick.parse.setCombinators'],
+		'Should finalize object format': function(){
+			throw new Error('uncomment all these tests once we finalize the object format');
+		}
+	};
 	describe('slick.parse Custom Combinators', slick_parse_Specs);
 })();
 
@@ -203,7 +252,12 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		}
 	}
 	
-	describe('slick.parse', slick_parse_Specs);
+	// describe('slick.parse', slick_parse_Specs);
+	describe('slick.parse', {
+		'should finalize the slick.parse object': function(){
+			throw new Error('fix these tests!');
+		}
+	});
 })();
 
 // Verify attribute selector regex
@@ -225,7 +279,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	}
 	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
 		var code = [''];
-		code.push("value_of( slick.parse.attribValueToRegex('"+ String.escapeSingle(operator) +"', '"+ String.escapeSingle(value) +"').test('"+ String.escapeSingle(matchAgainst) +"') ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
+		code.push("value_of( slick.parse.attribValueToFn('"+ String.escapeSingle(operator) +"', '"+ String.escapeSingle(value) +"').test('"+ String.escapeSingle(matchAgainst) +"') ).should_be_"+ (shouldBeTrue ? 'true' : 'false') +"();");
 		return Function(code.join("\n\t"));
 	}
 	
@@ -244,7 +298,7 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 	];
 	
 	for (var t=0,J; J=junk[t]; t++){
-		slick_parse_Specs['RegExp: "'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match '+ slick.parse.attribValueToRegex(J.operator, J.value)] =
+		slick_parse_Specs['RegExp: "'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +' match '+ slick.parse.attribValueToFn(J.operator, J.value)] =
 			makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
 		slick_parse_Specs['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +" match \"[attr"+ J.operator +"'"+ String.escapeSingle(J.matchAgainst) +"']\""] =
 			makeAttributeTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
@@ -262,6 +316,7 @@ var s,f,kid,template;
 	SlickFindingSpecs.before_all();
 	
 	var count, selector, selectors = {
+		'*':1825,
 		'html': 1,
 		'body': 1,
 		'head': 1,
@@ -276,34 +331,42 @@ var s,f,kid,template;
 		'.a1   .a1': 2,
 		'.a1 > .a1': 2,
 		'.a1 + .a1': 0,
-		'.a1 * .a1': 0,
+		
+		'.a1   *': 12,
+		'.a1 > *': 3,
+		'.a1 + *': 2,
+		'.a1 ~ *': 6,
+		
+		'.a1 !  *': 7,
+		'.a1 !> *': 4,
+		'.a4 !+ *': 2,
+		'.a4 !~ *': 4,
+		
 		'.a4': 4,
 		'.a4   .a4': 2,
 		'.a4 > .a4': 2,
 		'.a4 + .a4': 0,
-		'.a4 * .a4': 0,
 		
-		'[class]': 324,
-		'[class=]': 0,
-		'[class=""]': 0,
-		'[class!=]': 324,
-		'[class!=""]': 324,
-		'[class]:not([class=""])': 324,
-		':not([class=""])': 1825,
+		'[class]': 324,                       '[title]': 13,
+		':not([class])':1825-324,             ':not([title])': 1825-13,
 		
-		'[title]': 13,
-		'[title=]': 0,
-		'[title=""]': 0,
-		'[title!=]': 13,
-		'[title!=""]': 13,
-		'[title]:not([title=""])': 13,
-		':not([title=""])': 1825,
+		// '[class=""]': 1,                      '[title=""]': 0,
+		// '[class!=""]': 324,                   '[title!=""]': 13,
+		// 
+		// '[class]:not([class=""])': 324,       '[title]:not([title=""])': 13,
+		// ':not([class]):not([class=""])': 324, ':not([title]):not([title=""])': 13,
+		// ':not([class=""])':324,               ':not([title=""])': 1825,
+		// 
+		// '[class]:not([class!=""])': 324,       '[title]:not([title!=""])': 13,
+		// ':not([class]):not([class!=""])': 324, ':not([title]):not([title!=""])': 13,
+		// ':not([class!=""])':324,               ':not([title!=""])': 1825,
 		
 		'body div': 59,
 		'div p': 140,
 		'div > p': 134,
 		'div + p': 22,
 		'div ~ p': 183,
+		'div & p': 0,
 		
 		'div[class^=exa][class$=mple]': 43,
 		'div p a': 12,
@@ -343,24 +406,24 @@ var s,f,kid,template;
 			}
 			return count;
 		})(),
-		':contains(Selectors)': 
-		(function(){
-			var count = 0;
-			var elements = template.getElementsByTagName('*');
-			for (var i=0; i < elements.length; i++) {
-				if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
-			}
-			return count;
-		})(),
-		':contains("Selectors")': 
-		(function(){
-			var count = 0;
-			var elements = template.getElementsByTagName('*');
-			for (var i=0; i < elements.length; i++) {
-				if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
-			}
-			return count;
-		})(),
+		':contains(Selectors)': 58,
+		// (function(){
+		// 	var count = 0;
+		// 	var elements = template.getElementsByTagName('*');
+		// 	for (var i=0; i < elements.length; i++) {
+		// 		if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
+		// 	}
+		// 	return count;
+		// })(),
+		':contains("Selectors")': 58,
+		// (function(){
+		// 	var count = 0;
+		// 	var elements = template.getElementsByTagName('*');
+		// 	for (var i=0; i < elements.length; i++) {
+		// 		if (/Selectors/.test(elements[i].innerText || elements[i].textContent)) count++;
+		// 	}
+		// 	return count;
+		// })(),
 		'p:contains(selectors)': 
 		(function(){
 			var count = 0;
@@ -393,7 +456,7 @@ var s,f,kid,template;
 		})(),
 		'[class=example]': 43,
 		'[class^=exa]': 43,
-		'[class$=mple]': 43,
+		'[class$=mple]': 44,
 		'[class*=e]': 
 		(function(){
 			var count = 0;
@@ -404,7 +467,7 @@ var s,f,kid,template;
 			return count;
 		})(),
 		'[lang|=tr]': 1,
-		'[class!=made_up]': 59,
+		'[class][class!=made_up]': 324,
 		'[class~=example]': 43,
 		
 		// pseudos
@@ -430,6 +493,7 @@ var s,f,kid,template;
 		
 	};
 	
+/*
 	SlickFindingSpecs['Get QSA Results'] = function(){
 		var qsa_results = ['{\n'], count;
 		for (selector in selectors) {
@@ -447,10 +511,13 @@ var s,f,kid,template;
 		qsa_results.push('\t"":0\n}');
 		// console&&console.log&&console.log(qsa_results.join(''));
 	};
+*/
 	
 	for (selector in selectors) {
 		
-		SlickFindingSpecs['should find '+selectors[selector]+' "'+selector+'"' ] = makeSlickTestSearch(selector, selectors[selector]);
+		if (document.querySelectorAll)
+			SlickFindingSpecs['should find '+selectors[selector]+' "'+selector+'" with QSA' ] = makeSlickTestSearch(selector, selectors[selector], false);
+		SlickFindingSpecs['should find '+selectors[selector]+' "'+selector+'" without QSA' ] = makeSlickTestSearch(selector, selectors[selector], true);
 		
 	};
 	
