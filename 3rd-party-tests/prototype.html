@@ -98,7 +98,7 @@
         match: function(element, selector) {
           return !Object.isString(selector) && Object.isFunction(selector.match) ?
             selector.match($(element)) :
-            slick.match(selector, element);
+            Slick.match(selector, element);
         }
       });
 
@@ -491,7 +491,7 @@
           new Selector('[id=myTD]').findElements(wrapper);
           this.assertNotNullOrUndefined(wrapper.select('[id=myTD]')[0], "[id=myTD]");
           this.assertNotNullOrUndefined(wrapper.select('td')[0], "td");
-          this.assertNotNullOrUndefined(slick.match('#myTD', wrapper)[0], "#myTD");
+          this.assertNotNullOrUndefined(Slick.match('#myTD', wrapper)[0], "#myTD");
         }
       });
     </script>

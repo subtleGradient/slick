@@ -79,7 +79,7 @@ Authors:
 	var matchers = {
 		
 		node: function(node, selector){
-			var parsed = this.slick.parse(selector).expressions[0][0];
+			var parsed = this.Slick.parse(selector).expressions[0][0];
 			if (!parsed) return true;
 			return this['match:selector'](node, parsed.tag, parsed.id, parsed.parts);
 		},
@@ -312,9 +312,9 @@ Authors:
 	
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	// slick
+	// Slick
 	
-	this.slick = function(context, expression, append){
+	this.Slick = function(context, expression, append){
 		
 		if (!append) append = [];
 		
@@ -323,8 +323,8 @@ Authors:
 		if (expression == null){
 			return append;
 		} else if (typeof expression == 'string'){
-			parsed = slick.parse(expression);
-		} else if (expression.slick){
+			parsed = Slick.parse(expression);
+		} else if (expression.Slick){
 			parsed = expression;
 		} else if (local.contains(context, expression)){
 			append.push(expression);
@@ -339,10 +339,10 @@ Authors:
 		
 		// querySelectorAll for simple selectors
 		
-		if (parsed.simple && context.querySelectorAll && !slick.disableQSA){
+		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
 			var nodes;
 			try{ nodes = context.querySelectorAll(expression); }
-			catch(error){ if (slick.debug) slick.debug('QSA Fail ' + expression, error); };
+			catch(error){ if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			
 			if (nodes && nodes.length) {
 				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
@@ -388,7 +388,7 @@ Authors:
 					if (local[combinator])
 						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
 					else
-						if (slick.debug) slick.debug("Tried calling non-existant combinator: '"+currentBit.combinator+"'", currentExpression);
+						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '"+currentBit.combinator+"'", currentExpression);
 				}
 				
 				current = local.found;
@@ -400,22 +400,22 @@ Authors:
 
 	};
 	
-	local.slick = slick;
+	local.Slick = Slick;
 	
-	// slick contains
+	// Slick contains
 	
-	slick.contains = local.contains;
+	Slick.contains = local.contains;
 	
 	// add pseudos
 	
-	slick.definePseudo = function(name, fn){
+	Slick.definePseudo = function(name, fn){
 		local['pseudo:' + name] = function(node, argument){
 			return fn.call(node, argument);
 		};
 		return this;
 	};
 	
-	slick.lookupPseudo = function(name){
+	Slick.lookupPseudo = function(name){
 		var pseudo = local['pseudo:' + name];
 		if (pseudo) return function(argument){
 			return pseudo.call(this, argument);
@@ -424,16 +424,16 @@ Authors:
 	
 	local.attributeMethods = {};
 	
-	slick.lookupAttribute = function(name){
+	Slick.lookupAttribute = function(name){
 		return local.attributeMethods[name] || null;
 	};
 	
-	slick.defineAttribute = function(name, fn){
+	Slick.defineAttribute = function(name, fn){
 		local.attributeMethods[name] = fn;
 		return this;
 	};
 	
-	slick.defineAttribute('class', function(){
+	Slick.defineAttribute('class', function(){
 		return this.className;
 	});
 	
@@ -444,20 +444,20 @@ Authors:
 	
 	// matcher
 	
-	slick.match = function(node, selector){
+	Slick.match = function(node, selector){
 		if (!selector || selector === node) return true;
 		local.positions = {};
 		return local['match:node'](node, selector);
 	};
 	
-	// slick.reverseMatch = function(node, selector){
+	// Slick.reverseMatch = function(node, selector){
 		
-		// var selector = slick.reverse(selector);
+		// var selector = Slick.reverse(selector);
 		
-		// return slick(node, );
+		// return Slick(node, );
 	// };
 	
-	slick.uniques = function(nodes, append){
+	Slick.uniques = function(nodes, append){
 		var uniques = {};
 		if (!append) append = [];
 		for (var i = 0, l = nodes.length; i < l; i++){
@@ -476,11 +476,11 @@ Authors:
 
 (function(){
 	
-	slick.parse = function(expression){
+	Slick.parse = function(expression){
 		return parse(expression);
 	};
 	
-	slick.reverse = function(expression){
+	Slick.reverse = function(expression){
 		return parse((typeof expression == 'string') ? expression : expression.raw, true);
 	};
 	
@@ -491,7 +491,7 @@ Authors:
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
 		var exp = expression;
-		parsed = {slick: true, simple: true, expressions: [[]], raw: expression, reverse: function(){
+		parsed = {Slick: true, simple: true, expressions: [[]], raw: expression, reverse: function(){
 			return parse(this.raw, true);
 		}};
 		separatorIndex = -1;
@@ -529,13 +529,13 @@ Authors:
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
-	slick.parse.escapeRegExp = escapeRegExp;
+	Slick.parse.escapeRegExp = escapeRegExp;
 	
-	slick.parse.getCombinators = function(){
+	Slick.parse.getCombinators = function(){
 		return combinatorChars.split('');
 	};
 	
-	slick.parse.setCombinators = function(combinators){
+	Slick.parse.setCombinators = function(combinators){
 		combinatorChars = escapeRegExp(combinators.join(''));
 		regexp = new RegExp(("(?x)\
 			^(?:\n\
@@ -550,7 +550,7 @@ Authors:
 			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
 		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
 		
-		return slick.parse;
+		return Slick.parse;
 	};
 	
 	var qsaCombinators = (/^(\s|[~+>])$/);
@@ -558,7 +558,7 @@ Authors:
 	var combinatorChars = ">+~" + "`!@$%^&={}\\;</";
 	
 	var regexp;
-	slick.parse.setCombinators(combinatorChars.split(''));
+	Slick.parse.setCombinators(combinatorChars.split(''));
 	
 	var map = {
 		rawMatch: 0,
@@ -718,5 +718,5 @@ Authors:
 })();
 
 document.search = function(expression){
-	return slick(document, expression);
+	return Slick(document, expression);
 };
