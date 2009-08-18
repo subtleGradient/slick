@@ -324,6 +324,7 @@ Authors:
 			return append;
 		} else if (typeof expression == 'string'){
 			parsed = Slick.parse(expression);
+			if (!parsed.length) return append;
 		} else if (expression.Slick){
 			parsed = expression;
 		} else if (local.contains(context, expression)){
@@ -486,12 +487,12 @@ Authors:
 	
 	var parsed, separatorIndex, combinatorIndex, partIndex, reversed, cache = {}, reverseCache = {};
 	
-	var parse = function(expression, isReversed){
+	var parse = function(expression, isReversed){		
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
 		var exp = expression;
-		parsed = {Slick: true, simple: true, expressions: [[]], raw: expression, reverse: function(){
+		parsed = {Slick: true, simple: true, expressions: [], raw: expression, reverse: function(){
 			return parse(this.raw, true);
 		}};
 		separatorIndex = -1;
@@ -538,7 +539,9 @@ Authors:
 	Slick.parse.setCombinators = function(combinators){
 		combinatorChars = escapeRegExp(combinators.join(''));
 		regexp = new RegExp(("(?x)\
-			^ \\s* ( , ) \\s*                               # Separator              \n\
+			^(?:\n\
+			  \\s+ $                                        # End                    \n\
+			| \\s* ( , ) \\s*                               # Separator              \n\
 			| \\s* ( [" + combinatorChars + "]+ ) \\s*      # Combinator             \n\
 			|      ( \\s+ )                                 # CombinatorChildren     \n\
 			|      ( [a-z0-9_-]+ | \\* )                    # Tag                    \n\
@@ -546,7 +549,7 @@ Authors:
 			| \\.  ( [a-z0-9_-]+       )                    # ClassName              \n\
 			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
 			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-		").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
 		
 		return Slick.parse;
 	};
