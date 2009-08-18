@@ -345,7 +345,7 @@ Authors:
 			try{ nodes = context.querySelectorAll(expression); }
 			catch(error){ if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			
-			if (nodes && nodes.length){
+			if (nodes){
 				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
 				return append;
 			}
