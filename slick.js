@@ -538,17 +538,15 @@ Authors:
 	Slick.parse.setCombinators = function(combinators){
 		combinatorChars = escapeRegExp(combinators.join(''));
 		regexp = new RegExp(("(?x)\
-			^(?:\n\
-			       \\s+ (?=[" + combinatorChars + "] | $) # Meaningless Whitespace \n\
-			|      ( , ) \\s*                         # Separator              \n\
-			|      ( \\s  (?=[^" + combinatorChars + "])) # CombinatorChildren     \n\
-			|      ( [" + combinatorChars + "]{1,2}) \\s* # Combinator             \n\
-			|      ( [a-z0-9_-]+ | \\* )              # Tag                    \n\
-			| \\#  ( [a-z0-9_-]+       )              # ID                     \n\
-			| \\.  ( [a-z0-9_-]+       )              # ClassName              \n\
+			^ \\s* ( , ) \\s*                               # Separator              \n\
+			| \\s* ( [" + combinatorChars + "]+ ) \\s*      # Combinator             \n\
+			|      ( \\s+ )                                 # CombinatorChildren     \n\
+			|      ( [a-z0-9_-]+ | \\* )                    # Tag                    \n\
+			| \\#  ( [a-z0-9_-]+       )                    # ID                     \n\
+			| \\.  ( [a-z0-9_-]+       )                    # ClassName              \n\
 			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
 			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+		").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
 		
 		return Slick.parse;
 	};
@@ -612,7 +610,7 @@ Authors:
 		var isCombinator = (selectorBitName == 'combinator') || (selectorBitName == 'combinatorChildren');
 	
 		if (isCombinator || combinatorIndex == -1){
-			var combinator = a[map.combinatorChildren] || ' ';
+			var combinator = a[map.combinator] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
 			if (reversed){
