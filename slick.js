@@ -146,11 +146,9 @@ Authors:
 		},
 
 		'>': function(node, tag, id, parts){ // direct children
-			var children = node.getElementsByTagName(tag);
-			for (var i = 0, l = children.length; i < l; i++){
-				var child = children[i];
-				if (child.parentNode === node) this.push(child, null, id, parts);
-			}
+			if ((node = node.firstChild)) do {
+				if (node.nodeType == 1) this.push(node, tag, id, parts);
+			} while ((node = node.nextSibling));
 		},
 		
 		'!>': function(node, tag, id, parts){ // direct parent (one level)
@@ -160,14 +158,14 @@ Authors:
 
 		'+': function(node, tag, id, parts){ // next sibling
 			while ((node = node.nextSibling)){
-				if (node.nodeType === 1){
+				if (node.nodeType == 1){
 					this.push(node, tag, id, parts);
 					break;
 				}
 			}
 		},
 
-		'!+': function(node, tag, id, parts){  // previous sibling
+		'!+': function(node, tag, id, parts){ // previous sibling
 			while ((node = node.previousSibling)){
 				if (node.nodeType == 1){
 					this.push(node, tag, id, parts);
@@ -184,7 +182,7 @@ Authors:
 			}
 		},
 
-		'!^': function(node, tag, id, parts){  // last child
+		'!^': function(node, tag, id, parts){ // last child
 			node = node.lastChild;
 			if (node){
 				if (node.nodeType == 1) this.push(node, tag, id, parts);
@@ -192,7 +190,7 @@ Authors:
 			}
 		},
 
-		'~': function(node, tag, id, parts){  // next siblings
+		'~': function(node, tag, id, parts){ // next siblings
 			while ((node = node.nextSibling)){
 				if (node.nodeType != 1) continue;
 				var uid = this.uidOf(node);
@@ -342,8 +340,8 @@ Authors:
 		
 		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
 			var nodes;
-			try{ nodes = context.querySelectorAll(expression); }
-			catch(error){ if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
+			try { nodes = context.querySelectorAll(expression); }
+			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			
 			if (nodes){
 				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
