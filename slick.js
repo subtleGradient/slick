@@ -81,7 +81,7 @@ Authors:
 		node: function(node, selector){
 			var parsed = this.Slick.parse(selector).expressions[0][0];
 			if (!parsed) return true;
-			return this['match:selector'](node, parsed.tag, parsed.id, parsed.parts);
+			return this['match:selector'](node, parsed.tag.toUpperCase(), parsed.id, parsed.parts);
 		},
 
 		pseudo: function(node, name, argument){
@@ -92,7 +92,7 @@ Authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if (tag && tag != '*' && (!node.tagName || node.tagName.toLowerCase() != tag)) return false;
+			if (tag && tag != '*' && (!node.tagName || node.tagName != tag)) return false;
 			if (id && node.id != id) return false;
 
 			for (var i = 0, l = parts.length; i < l; i++){
@@ -344,7 +344,7 @@ Authors:
 			try{ nodes = context.querySelectorAll(expression); }
 			catch(error){ if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			
-			if (nodes && nodes.length) {
+			if (nodes && nodes.length){
 				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
 				return append;
 			}
@@ -364,7 +364,7 @@ Authors:
 				
 				var combinator = 'combinator:' + currentBit.combinator;
 
-				var tag = currentBit.tag;
+				var tag = currentBit.tag.toUpperCase();
 				var id = currentBit.id;
 				var parts = currentBit.parts;
 				var classes = currentBit.classes;

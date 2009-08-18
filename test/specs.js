@@ -372,7 +372,7 @@ var s,f,kid,template;
 		'div p a': 12,
 		'div, p, a': 683,
 		
-		'div.example': 43,
+		'DIV.example': 43,	// test casing
 		'ul .tocline2': 12,
 		'div.example, div.note': 44,
 		
