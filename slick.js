@@ -11,69 +11,69 @@ Authors:
 
 (function(){
 	
-	var local = {};
-	
-	local.cacheNTH = {};
-	
-	local.uidx = 1;
-
-	local.uidOf = (window.ActiveXObject) ? function(node){
-		return (node._slickUID || (node._slickUID = [this.uidx++]))[0];
-	} : function(node){
-		return node._slickUID || (node._slickUID = this.uidx++);
-	};
-	
-	local.contains = (document.documentElement.contains) ? function(context, node){
-		return (context !== node && context.contains(node));
-	} : (document.documentElement.compareDocumentPosition) ? function(context, node){
-		return !!(context.compareDocumentPosition(node) & 16);
-	} : function(context, node){
-		if (node){
-			while ((node = node.parentNode)){
+	var local = {
+		
+		uidx: 1,
+		
+		uidOf: (window.ActiveXObject) ? function(node){
+			return (node._slickUID || (node._slickUID = [this.uidx++]))[0];
+		} : function(node){
+			return node._slickUID || (node._slickUID = this.uidx++);
+		},
+		
+		contains: (document.documentElement.contains) ? function(context, node){
+			return (context !== node && context.contains(node));
+		} : (document.documentElement.compareDocumentPosition) ? function(context, node){
+			return !!(context.compareDocumentPosition(node) & 16);
+		} : function(context, node){
+			if (node) while ((node = node.parentNode)){
 				if (node === context) return true;
 			}
-		}
-		return false;
-	};
-	
-	local.parseNTHArgument = function(argument){
-		var parsed = argument.match(/^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/);
-		if (!parsed) return false;
-		var inta = parseInt(parsed[1], 10);
-		var a = (inta || inta === 0) ? inta : 1;
-		var special = parsed[2] || false;
-		var b = parseInt(parsed[3], 10) || 0;
-		if (a != 0){
-			b--;
-			while (b < 1) b += a;
-			while (b >= a) b -= a;
-		} else {
-			a = b;
-			special = 'index';
-		}
-		switch (special){
-			case 'n': parsed = {a: a, b: b, special: 'n'}; break;
-			case 'odd': parsed = {a: 2, b: 0, special: 'n'}; break;
-			case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
-			case 'first': parsed = {a: 0, special: 'index'}; break;
-			case 'last': parsed = {special: 'last-child'}; break;
-			case 'only': parsed = {special: 'only-child'}; break;
-			default: parsed = {a: (a - 1), special: 'index'};
-		}
+			return false;
+		},
+		
+		cacheNTH: {},
+		
+		parseNTHArgument: function(argument){
+			var parsed = argument.match(/^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/);
+			if (!parsed) return false;
+			var inta = parseInt(parsed[1], 10);
+			var a = (inta || inta === 0) ? inta : 1;
+			var special = parsed[2] || false;
+			var b = parseInt(parsed[3], 10) || 0;
+			if (a != 0){
+				b--;
+				while (b < 1) b += a;
+				while (b >= a) b -= a;
+			} else {
+				a = b;
+				special = 'index';
+			}
+			switch (special){
+				case 'n': parsed = {a: a, b: b, special: 'n'}; break;
+				case 'odd': parsed = {a: 2, b: 0, special: 'n'}; break;
+				case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
+				case 'first': parsed = {a: 0, special: 'index'}; break;
+				case 'last': parsed = {special: 'last-child'}; break;
+				case 'only': parsed = {special: 'only-child'}; break;
+				default: parsed = {a: (a - 1), special: 'index'};
+			}
 
-		return this.cacheNTH[argument] = parsed;
-	};
-	
-	local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
-		if (this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
-	};
-	
-	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
-		var uid = this.uidOf(node);
-		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
-			this.uniques[uid] = true;
-			this.found.push(node);
+			return this.cacheNTH[argument] = parsed;
+		},
+		
+		pushArray: function(node, tag, id, selector, classes, attributes, pseudos){
+			if (this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
+		},
+		
+		pushUID: function(node, tag, id, selector, classes, attributes, pseudos){
+			var uid = this.uidOf(node);
+			if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
+				this.uniques[uid] = true;
+				this.found.push(node);
+			}
 		}
+		
 	};
 	
 	var matchers = {
@@ -537,9 +537,8 @@ Authors:
 	Slick.parse.setCombinators = function(combinators){
 		combinatorChars = escapeRegExp(combinators.join(''));
 		regexp = new RegExp(("(?x)\
-			^(?:\n\
-			  \\s+ $                                        # End                    \n\
-			| \\s* ( , ) \\s*                               # Separator              \n\
+			^(?:\
+			  \\s* ( , | $ ) \\s*                           # Separator              \n\
 			| \\s* ( [" + combinatorChars + "]+ ) \\s*      # Combinator             \n\
 			|      ( \\s+ )                                 # CombinatorChildren     \n\
 			|      ( [a-z0-9_-]+ | \\* )                    # Tag                    \n\
