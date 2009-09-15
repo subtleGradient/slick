@@ -43,9 +43,9 @@ function makeSlickTestCombinator(tag, combinator, tag2) {
 	var functionString = '\n';
 	functionString += "var s = Slick.parse('"+String.escapeSingle(tag + combinator + tag2)+"');\n";
 	
-	functionString+="value_of( s[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
-					"value_of( s[0][1].tag ).should_be( '"+String.escapeSingle(tag2)+"' );\n" +
-					"value_of( s[0][1].combinator ).should_be( '"+String.escapeSingle(combinator)+"' );\n";
+	functionString+="value_of( s.expressions[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
+					"value_of( s.expressions[0][1].tag ).should_be( '"+String.escapeSingle(tag2)+"' );\n" +
+					"value_of( s.expressions[0][1].combinator ).should_be( '"+String.escapeSingle(combinator)+"' );\n";
 	return new Function(functionString);
 }
 
@@ -138,24 +138,24 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		,
 		'should parse multiple selectors': function(){
 			var s = Slick.parse('a, b, c');
-			value_of( s[0][0].tag ).should_be( 'a' );
-			value_of( s[1][0].tag ).should_be( 'b' );
-			value_of( s[2][0].tag ).should_be( 'c' );
+			value_of( s.expressions[0][0].tag ).should_be( 'a' );
+			value_of( s.expressions[1][0].tag ).should_be( 'b' );
+			value_of( s.expressions[2][0].tag ).should_be( 'c' );
 		}
 		,
 		'should parse multiple selectors with class': function(){
 			var s = Slick.parse('a.class, b.class, c.class');
-			value_of( s[0][0].tag ).should_be( 'a' );
-			value_of( s[1][0].tag ).should_be( 'b' );
-			value_of( s[2][0].tag ).should_be( 'c' );
-			value_of( s[0][0].classes[0] ).should_be( 'class' );
-			value_of( s[1][0].classes[0] ).should_be( 'class' );
-			value_of( s[2][0].classes[0] ).should_be( 'class' );
+			value_of( s.expressions[0][0].tag ).should_be( 'a' );
+			value_of( s.expressions[1][0].tag ).should_be( 'b' );
+			value_of( s.expressions[2][0].tag ).should_be( 'c' );
+			value_of( s.expressions[0][0].classes[0] ).should_be( 'class' );
+			value_of( s.expressions[1][0].classes[0] ).should_be( 'class' );
+			value_of( s.expressions[2][0].classes[0] ).should_be( 'class' );
 		}
 		,
 		'should parse tag names': function(){
 			for (var i=0; i < tags.length; i++) {var tag = tags[i];
-				value_of( Slick.parse(tag)[0][0].tag ).should_be( tag );
+				value_of( Slick.parse(tag).expressions[0][0].tag ).should_be( tag );
 			}
 		}
 		,
