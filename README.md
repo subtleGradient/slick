@@ -35,7 +35,7 @@ Object format
 				{
 					parts: [
 						{ type: "class",                    value: "class", regexp: /regexp/ },
-						{ type: "attribute", key: "attrib", value: "", test: function(){} },
+						{ type: "attribute", key: "attrib",                                      test: function(){} },
 						{ type: "attribute", key: "attrib", value: "attribvalue", operator: "=", test: function(){} },
 						{ type: "pseudo",    key: "pseudo" },
 						{ type: "pseudo",    key: "pseudo", value: "pseudovalue" },
@@ -47,7 +47,7 @@ Object format
 						"class"
 					],
 					attributes: [
-						{ type: "attribute", key: "attrib", value: "", test: function(){} },
+						{ type: "attribute", key: "attrib", value: "",                           test: function(){} },
 						{ type: "attribute", key: "attrib", value: "attribvalue", operator: "=", test: function(){} }
 					],
 					pseudos: [
