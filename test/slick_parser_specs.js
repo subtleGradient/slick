@@ -51,9 +51,9 @@ function makeSlickTestCombinator(tag, combinator, tag2) {
 
 function makeSlickTestAttrib(attr, op, val) {
 	var functionString = '\n';
-	functionString += "var s = Slick.parse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
+	functionString += "var s = Slick.parse('["+String.escapeSingle(attr + op + (op&&val))+"]').expressions[0][0];\n\
 	value_of( s.attributes.length ).should_be( 1 );\n\
-	value_of( s.attributes[0].name ).should_be( '"+String.escapeSingle(attr)+"' );\n\
+	value_of( s.attributes[0].key ).should_be( '"+String.escapeSingle(attr)+"' );\n\
 	";
 	if (!op) {
 		functionString += "\
@@ -172,84 +172,84 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		,
 		'should transform odd to 2n+1 in pseudos nth arguments': function(){
 			var nths = [
-				{raw:        ":nth-child(odd)", name:       "nth-child", argument:"2n+1"},
-				{raw:   ":nth-last-child(odd)", name:  "nth-last-child", argument:"2n+1"},
-				{raw: ":nth-last-of-type(odd)", name:"nth-last-of-type", argument:"2n+1"},
-				{raw:      ":nth-of-type(odd)", name:     "nth-of-type", argument:"2n+1"},
+				{raw:        ":nth-child(odd)", key:       "nth-child", value:"2n+1"},
+				{raw:   ":nth-last-child(odd)", key:  "nth-last-child", value:"2n+1"},
+				{raw: ":nth-last-of-type(odd)", key:"nth-last-of-type", value:"2n+1"},
+				{raw:      ":nth-of-type(odd)", key:     "nth-of-type", value:"2n+1"},
 				
-				{raw:        ":nth-child(odd)", name:'nth-child', argument:"2n+1"},
-				{raw:       ":nth-child(2n+1)", name:'nth-child', argument:"2n+1"},
-				{raw:          ":nth-child(n)", name:'nth-child', argument:"n"   }
+				{raw:        ":nth-child(odd)", key:'nth-child', value:"2n+1"},
+				{raw:       ":nth-child(2n+1)", key:'nth-child', value:"2n+1"},
+				{raw:          ":nth-child(n)", key:'nth-child', value:"n"   }
 			];
 			for (var i=0,s, N; N = nths[i]; i++){
 				
 				s = Slick.parse(N.raw);
 				
-				value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.name );
-				value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.argument );
+				value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
+				value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
 				
-				value_of( s.expressions[0][0].parts[0].key ).should_be( N.name );
-				value_of( s.expressions[0][0].parts[0].value ).should_be( N.argument );
+				value_of( s.expressions[0][0].parts[0].key ).should_be( N.key );
+				value_of( s.expressions[0][0].parts[0].value ).should_be( N.value );
 				
 			}
 		}
 		,
 		'should transform even to 2n in pseudo nth arguments': function(){
 			var nths = [
-				{raw:        ":nth-child(even)", name:       "nth-child", argument:"2n"},
-				{raw:   ":nth-last-child(even)", name:  "nth-last-child", argument:"2n"},
-				{raw: ":nth-last-of-type(even)", name:"nth-last-of-type", argument:"2n"},
-				{raw:      ":nth-of-type(even)", name:     "nth-of-type", argument:"2n"},
+				{raw:        ":nth-child(even)", key:       "nth-child", value:"2n"},
+				{raw:   ":nth-last-child(even)", key:  "nth-last-child", value:"2n"},
+				{raw: ":nth-last-of-type(even)", key:"nth-last-of-type", value:"2n"},
+				{raw:      ":nth-of-type(even)", key:     "nth-of-type", value:"2n"},
 				
-				{raw:":nth-child(even)", name:'nth-child', argument:"2n" },
-				{raw:":nth-child(2n)"  , name:'nth-child', argument:"2n" },
-				{raw:":nth-child(n)"   , name:'nth-child', argument:"n"  }
+				{raw:":nth-child(even)", key:'nth-child', value:"2n" },
+				{raw:":nth-child(2n)"  , key:'nth-child', value:"2n" },
+				{raw:":nth-child(n)"   , key:'nth-child', value:"n"  }
 			];
 			for (var i=0,s, N; N = nths[i]; i++){
 				
 				s = Slick.parse(N.raw);
 				
-				value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.name );
-				value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.argument );
+				value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
+				value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
 				
-				value_of( s.expressions[0][0].parts[0].key ).should_be( N.name );
-				value_of( s.expressions[0][0].parts[0].value ).should_be( N.argument );
+				value_of( s.expressions[0][0].parts[0].key ).should_be( N.key );
+				value_of( s.expressions[0][0].parts[0].value ).should_be( N.value );
 				
 			}
 		}
 		,
 		'should parse :not(with quoted innards)': function(){
-			var s = Slick.parse(":not()")[0][0];
+			var s = Slick.parse(":not()").expressions[0][0];
 			value_of( s.pseudos.length ).should_be(1);
-			value_of( s.pseudos[0].name ).should_be('not');
-			value_of( s.pseudos[0].argument ).should_be("");
+			value_of( s.pseudos[0].key ).should_be('not');
+			value_of( s.pseudos[0].value ).should_be("");
 			
-			s = Slick.parse(':not([attr])')[0][0];
-			value_of( s.pseudos[0].argument ).should_be('[attr]');
+			s = Slick.parse(':not([attr])').expressions[0][0];
+			value_of( s.pseudos[0].value ).should_be('[attr]');
 			
-			s = Slick.parse(':not([attr=])')[0][0];
-			value_of( s.pseudos[0].argument ).should_be('[attr=]');
+			s = Slick.parse(':not([attr=])').expressions[0][0];
+			value_of( s.pseudos[0].value ).should_be('[attr=]');
 			
-			s = Slick.parse(":not([attr=''])")[0][0];
-			value_of( s.pseudos[0].argument ).should_be("[attr='']");
+			s = Slick.parse(":not([attr=''])").expressions[0][0];
+			value_of( s.pseudos[0].value ).should_be("[attr='']");
 			
-			s = Slick.parse(':not([attr=""])')[0][0];
-			value_of( s.pseudos[0].argument ).should_be('[attr=""]');
+			s = Slick.parse(':not([attr=""])').expressions[0][0];
+			value_of( s.pseudos[0].value ).should_be('[attr=""]');
 		}
 		,
 		'should parse :pseudo arguments as null': function(){
-			var s = Slick.parse(":pseudo")[0][0];
+			var s = Slick.parse(":pseudo").expressions[0][0];
 			value_of( s.pseudos.length ).should_be(1);
-			value_of( s.pseudos[0].name ).should_be('pseudo');
-			value_of( s.pseudos[0].argument ).should_be_null();
+			value_of( s.pseudos[0].key ).should_be('pseudo');
+			value_of( s.pseudos[0].value ).should_be_null();
 		}
 		,
 		'should parse :pseudo() arguments as ""': function(){
-			var s = Slick.parse(":pseudo()")[0][0];
+			var s = Slick.parse(":pseudo()").expressions[0][0];
 			value_of( s.pseudos.length ).should_be(1);
-			value_of( s.pseudos[0].name ).should_be('pseudo');
-			value_of( s.pseudos[0].argument ).should_not_be_null();
-			value_of( s.pseudos[0].argument ).should_be("");
+			value_of( s.pseudos[0].key ).should_be('pseudo');
+			value_of( s.pseudos[0].value ).should_not_be_null();
+			value_of( s.pseudos[0].value ).should_be("");
 		}
 	};
 	
