@@ -252,12 +252,12 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		}
 	}
 	
-	// describe('Slick.parse', Slick_parse_Specs);
-	describe('Slick.parse', {
-		'should finalize the Slick.parse object': function(){
-			throw new Error('fix these tests!');
-		}
-	});
+	describe('Slick.parse', Slick_parse_Specs);
+	// describe('Slick.parse', {
+	// 	'should finalize the Slick.parse object': function(){
+	// 		throw new Error('fix these tests!');
+	// 	}
+	// });
 })();
 
 // Verify attribute selector regex
