@@ -312,24 +312,22 @@ Authors:
 	
 	// Slick
 	
-	this.Slick = function(context, expression, append){
+	local.Slick = this.Slick = function(context, expression, append){
 		
-		if (!append) append = [];
-		
-		var parsed;
+		var parsed, found = append || [];
 		
 		if (expression == null){
-			return append;
+			return found;
 		} else if (typeof expression == 'string'){
 			parsed = Slick.parse(expression);
-			if (!parsed.length) return append;
+			if (!parsed.length) return found;
 		} else if (expression.Slick){
 			parsed = expression;
 		} else if (local.contains(context, expression)){
-			append.push(expression);
-			return append;
+			found.push(expression);
+			return found;
 		} else {
-			return append;
+			return found;
 		}
 		
 		local.positions = {};
@@ -344,8 +342,10 @@ Authors:
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			
 			if (nodes){
-				for (var e = 0, l = nodes.length; e < l; e++) append.push(nodes[e]);
-				return append;
+				nodes = Array.prototype.slice.call(nodes);
+				if (!append) return nodes;
+				found.push.apply(found, nodes);
+				return found;
 			}
 		}
 		
@@ -374,7 +374,7 @@ Authors:
 				
 				if (j === (currentExpression.length - 1)){
 					local.uniques = tempUniques;
-					local.found = append;
+					local.found = found;
 				} else {
 					local.uniques = {};
 					local.found = [];
@@ -387,7 +387,7 @@ Authors:
 					if (local[combinator])
 						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
 					else
-						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '"+currentBit.combinator+"'", currentExpression);
+						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
 				}
 				
 				current = local.found;
@@ -395,11 +395,9 @@ Authors:
 			}
 		}
 
-		return append;
+		return found;
 
 	};
-	
-	local.Slick = Slick;
 	
 	// Slick contains
 	
@@ -460,7 +458,7 @@ Authors:
 		var uniques = {};
 		if (!append) append = [];
 		for (var i = 0, l = nodes.length; i < l; i++){
-			var node = nodes[i], uid = uidOf(node);
+			var node = nodes[i], uid = local.uidOf(node);
 			if (!uniques[uid]){
 				uniques[uid] = true;
 				append.push(node);
