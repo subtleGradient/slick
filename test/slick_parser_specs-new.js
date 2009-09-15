@@ -44,6 +44,14 @@ it['should always have a parts array'] = function(){
 	s = PARSE('tag#id.class[attrib][attrib=attribvalue]:pseudo:pseudo(pseudovalue):not(pseudovalue)');
 	value_of( s.expressions[0][0].parts.length ).should_be( 6 );
 };
+its['parts array items should have a type property'] = function(){
+	s = PARSE('tag#id.class[attrib][attrib=attribvalue]:pseudo:pseudo(pseudovalue):not(pseudovalue)');
+	
+	for (var i=0, part; part = s.expressions[0][0].parts[i]; i++){
+		
+		value_of( part.type ).should_not_be_undefined();
+	}
+};
 
 
 // tags
@@ -110,23 +118,70 @@ its['classes array items should have a regexp property'] = function(){
 it['should parse attributes into the attributes array'] = function(){
 	s = PARSE('[attrib]');
 	value_of( s.expressions[0][0].parts[0].type ).should_be( 'attribute' );
-	value_of( s.expressions[0][0].parts[0].key ).should_be( 'attrib' );
 	
 	s = PARSE('[attrib1][attrib2][attrib3]');
 	value_of( s.expressions[0][0].parts[0].type ).should_be( 'attribute' );
+};
+
+its['attributes array items should have a key property'] = function(){
+	s = PARSE('[attrib]');
+	value_of( s.expressions[0][0].parts[0].key ).should_be( 'attrib' );
+	
+	s = PARSE('[attrib1][attrib2][attrib3]');
 	value_of( s.expressions[0][0].parts[0].key ).should_be( 'attrib1' );
 	value_of( s.expressions[0][0].parts[1].key ).should_be( 'attrib2' );
 	value_of( s.expressions[0][0].parts[2].key ).should_be( 'attrib3' );
 	
 };
-
-its['attributes array items should have a test method'] = function(){ };
-its['attributes array items should have a key property'] = function(){ };
-its['attributes array items should have a value property'] = function(){ };
+its['attributes array items should have a value property'] = function(){
+	s = PARSE('[attrib=attribvalue]');
+	value_of( s.expressions[0][0].parts[0].value ).should_be( 'attribvalue' );
+	
+	s = PARSE('[attrib1=attribvalue1][attrib2=attribvalue2][attrib3=attribvalue3]');
+	value_of( s.expressions[0][0].parts[0].value ).should_be( 'attribvalue1' );
+	value_of( s.expressions[0][0].parts[1].value ).should_be( 'attribvalue2' );
+	value_of( s.expressions[0][0].parts[2].value ).should_be( 'attribvalue3' );
+	
+};
+its['attributes array items should have a operator property'] = function(){
+	s = PARSE('[attrib=attribvalue]');
+	value_of( s.expressions[0][0].parts[0].operator ).should_be( '=' );
+	
+};
+its['attributes array items should have a test method'] = function(){
+	s = PARSE('[attrib=attribvalue]');
+	value_of( s.expressions[0][0].parts[0].test._type ).should_be( 'Function' );
+	
+};
 
 
 
 // pseudos
+it['should parse pseudos into the pseudos array'] = function(){
+	s = PARSE(':pseudo');
+	value_of( s.expressions[0][0].parts[0].type ).should_be( 'pseudo' );
+	
+	s = PARSE(':pseudo1:pseudo2:pseudo3');
+	value_of( s.expressions[0][0].parts[0].type ).should_be( 'pseudo' );
+};
+
+its['pseudos array items should have a key property'] = function(){
+	s = PARSE(':pseudo');
+	value_of( s.expressions[0][0].parts[0].key ).should_be( 'pseudo' );
+	
+	s = PARSE(':pseudo1:pseudo2:pseudo3');
+	value_of( s.expressions[0][0].parts[0].key ).should_be( 'pseudo1' );
+	value_of( s.expressions[0][0].parts[1].key ).should_be( 'pseudo2' );
+	value_of( s.expressions[0][0].parts[2].key ).should_be( 'pseudo3' );
+	
+};
+its['pseudos array items should have a value property'] = function(){
+	s = PARSE(':pseudo(pseudoValue)');
+	value_of( s.expressions[0][0].parts[0].value ).should_be( 'pseudoValue' );
+	
+};
+
+
 // combinators
 // reverse combinators
 
@@ -144,4 +199,5 @@ var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
 var ATTRS            = 'attr lang fred-rocks'.split(' ');
 var VALS             = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\'thing[]\';"thing[]"'.split(';');
 
+Function.prototype._type = "Function";
 
