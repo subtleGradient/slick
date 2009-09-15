@@ -6,7 +6,8 @@ this.PARSE = this.PARSE || Slick.parse;
 var s;
 var it;
 var its;
-var specs = it = its = {};
+var specs;
+specs = it = its = {};
 
 
 it['should exist'] = function(){
@@ -188,16 +189,45 @@ its['pseudos array items should have a value property'] = function(){
 
 
 describe('Slick Parser', specs);
+specs = it = its = {};
+
+// tag
+var TAGS = 'normal UPCASE'.split(' ');
+it['should support all tag syntaxes'] = function(){};
+
+
+// id
+var IDS = "normal with-dash with_underscore 123number".split(' ');
+it['should support all id syntaxes'] = function(){};
+
+
+// classes
+var CLASSES = "normal with-dash with_underscore 123number".split(' ');
+it['should support all class syntaxes'] = function(){};
+
+
+// attributes
+var ATTRIB_KEYS = 'normal with-dash with_underscore 123number'.split(' ');
+var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
+var ATTRIB_VALUES = 'normal,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
+it['should support all attribute syntaxes'] = function(){};
+
+
+// pseudos
+var PSEUDO_KEYS = 'normal with-dash with_underscore'.split(' ');
+var PSEUDO_VALUES = ATTRIB_VALUES;
+it['should support all pseudo syntaxes'] = function(){};
+
+
+// combinators
+var COMBINATORS = ' ,>,+,~,   , > , + , ~ '.split(',');
+it['should support all combinator syntaxes'] = function(){};
+
+
+describe('Slick Parser Syntax', specs);
 
 
 // Helpers
-
-var COMBINATORS      = ' ,>,+,~,   , > , + , ~ '.split(',');
-// var TAGS             = 'a abbr acronym address applet area b base basefont bdo big blockquote br button caption center cite code col colgroup dd del dfn dir div dl dt em fieldset font form frame frameset h1 h2 h3 h4 h5 h6 head hr html i iframe img input ins isindex kbd label legend li link map menu meta noframes noscript object ol optgroup option p param pre q s samp script select small span strike strong style sub sup table tbody td textarea tfoot th thead title tr tt u ul var'.split(' ');
-var TAGS             = 'a abbr div A ABBR DIV'.split(' ');
-var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
-var ATTRS            = 'attr lang fred-rocks'.split(' ');
-var VALS             = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\'thing[]\';"thing[]"'.split(';');
 
 Function.prototype._type = "Function";
 
