@@ -138,19 +138,30 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		,
 		'should parse multiple selectors': function(){
 			var s = Slick.parse('a, b, c');
+			
+			value_of( s.expressions.length ).should_be(3);
+			
 			value_of( s.expressions[0][0].tag ).should_be( 'a' );
 			value_of( s.expressions[1][0].tag ).should_be( 'b' );
 			value_of( s.expressions[2][0].tag ).should_be( 'c' );
 		}
 		,
 		'should parse multiple selectors with class': function(){
-			var s = Slick.parse('a.class, b.class, c.class');
+			var s = Slick.parse('a.class-a, b.class-b, c.class-c');
+			
+			value_of( s.expressions.length ).should_be(3);
+			
 			value_of( s.expressions[0][0].tag ).should_be( 'a' );
 			value_of( s.expressions[1][0].tag ).should_be( 'b' );
 			value_of( s.expressions[2][0].tag ).should_be( 'c' );
-			value_of( s.expressions[0][0].classes[0] ).should_be( 'class' );
-			value_of( s.expressions[1][0].classes[0] ).should_be( 'class' );
-			value_of( s.expressions[2][0].classes[0] ).should_be( 'class' );
+			
+			value_of( s.expressions[0][0].classes[0] ).should_be( 'class-a' );
+			value_of( s.expressions[1][0].classes[0] ).should_be( 'class-b' );
+			value_of( s.expressions[2][0].classes[0] ).should_be( 'class-c' );
+			
+			value_of( s.expressions[0][0].parts[0].value ).should_be( 'class-a' );
+			value_of( s.expressions[1][0].parts[0].value ).should_be( 'class-b' );
+			value_of( s.expressions[2][0].parts[0].value ).should_be( 'class-c' );
 		}
 		,
 		'should parse tag names': function(){
