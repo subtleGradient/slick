@@ -226,10 +226,6 @@ Authors:
 	
 	var pseudos = {
 
-		'checked': function(node){
-			return node.checked;
-		},
-
 		'empty': function(node){
 			return !(node.innerText || node.textContent || '').length;
 		},
@@ -432,6 +428,8 @@ Authors:
 	
 	Slick.defineAttribute('class', function(){
 		return this.className;
+	}).defineAttribute('for', function(){
+		return this.htmlFor;
 	});
 	
 	local.getAttribute = function(node, name){
