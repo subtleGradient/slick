@@ -182,9 +182,15 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 				{raw:          ":nth-child(n)", name:'nth-child', argument:"n"   }
 			];
 			for (var i=0,s, N; N = nths[i]; i++){
+				
 				s = Slick.parse(N.raw);
-				value_of( s[0][0].pseudos[0].name ).should_be( N.name );
-				value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
+				
+				value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.name );
+				value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.argument );
+				
+				value_of( s.expressions[0][0].parts[0].key ).should_be( N.name );
+				value_of( s.expressions[0][0].parts[0].value ).should_be( N.argument );
+				
 			}
 		}
 		,
@@ -200,9 +206,15 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 				{raw:":nth-child(n)"   , name:'nth-child', argument:"n"  }
 			];
 			for (var i=0,s, N; N = nths[i]; i++){
+				
 				s = Slick.parse(N.raw);
-				value_of( s[0][0].pseudos[0].name ).should_be( N.name );
-				value_of( s[0][0].pseudos[0].argument ).should_be( N.argument );
+				
+				value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.name );
+				value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.argument );
+				
+				value_of( s.expressions[0][0].parts[0].key ).should_be( N.name );
+				value_of( s.expressions[0][0].parts[0].value ).should_be( N.argument );
+				
 			}
 		}
 		,
