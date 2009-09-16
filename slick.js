@@ -679,12 +679,12 @@ Authors:
 						return attribute != value;
 					}; break;
 					case '*=': test = function(value){
-						return value.indexOf(attribute) > -1;
+						return value && value.indexOf(attribute) > -1;
 					}; break;
 					case '^=': regexp = new RegExp('^' + escapeRegExp(attribute)); break;
 					case '$=': regexp = new RegExp(escapeRegExp(attribute) + '$'); break;
 					case '~=': regexp = new RegExp('(^|\\s)' + escapeRegExp(attribute) + '(\\s|$)'); break;
-					case '|=': regexp = new RegExp('(^|\\|)' + escapeRegExp(attribute) + '(\\||$)'); break;
+					case '|=': regexp = new RegExp('^' + escapeRegExp(attribute) + '(-|$)'); break;
 
 					default: test = function(value){
 						return !!value;
@@ -692,7 +692,7 @@ Authors:
 				}
 				
 				if (!test) test = function(value){
-					return regexp.test(value);
+					return value && regexp.test(value);
 				};
 
 				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
