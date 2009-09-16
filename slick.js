@@ -36,8 +36,10 @@ Authors:
 		
 		cacheNTH: {},
 		
+		matchNTH: /^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/,
+		
 		parseNTHArgument: function(argument){
-			var parsed = argument.match(/^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/);
+			var parsed = argument.match(this.matchNTH);
 			if (!parsed) return false;
 			var inta = parseInt(parsed[1], 10);
 			var a = (inta || inta === 0) ? inta : 1;
@@ -52,16 +54,13 @@ Authors:
 				special = 'index';
 			}
 			switch (special){
-				case 'n': parsed = {a: a, b: b, special: 'n'}; break;
-				case 'odd': parsed = {a: 2, b: 0, special: 'n'}; break;
+				case 'n':    parsed = {a: a, b: b, special: 'n'}; break;
+				case 'odd':  parsed = {a: 2, b: 0, special: 'n'}; break;
 				case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
-				case 'first': parsed = {a: 0, special: 'index'}; break;
-				case 'last': parsed = {special: 'last-child'}; break;
-				case 'only': parsed = {special: 'only-child'}; break;
-				default: parsed = {a: (a - 1), special: 'index'};
+				default:     parsed = {a: (a - 1), special: 'index'};
 			}
 
-			return this.cacheNTH[argument] = parsed;
+			return (this.cacheNTH[argument] = parsed);
 		},
 		
 		pushArray: function(node, tag, id, selector, classes, attributes, pseudos){
