@@ -164,6 +164,35 @@ its['attributes array items should have a test method'] = function(){
 	
 };
 
+// its attributes array item test method should match string
+var AttributeTests = [
+	{ operator:'=',  value:'test you!', matchAgainst:'test you!', shouldBeTrue:true },
+	{ operator:'=',  value:'test you!', matchAgainst:'test me!', shouldBeTrue:false },
+	
+	{ operator:'^=', value:'test', matchAgainst:'test you!', shouldBeTrue:true },
+	{ operator:'^=', value:'test', matchAgainst:' test you!', shouldBeTrue:false },
+	
+	{ operator:'$=', value:'you!', matchAgainst:'test you!', shouldBeTrue:true },
+	{ operator:'$=', value:'you!', matchAgainst:'test you! ', shouldBeTrue:false },
+	
+	{ operator:'!=', value:'test you!', matchAgainst:'test you?', shouldBeTrue:true },
+	{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false },
+];
+function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
+	return function(){
+		
+		s = PARSE('[attrib'+ operator + value +']');
+		var result = s.expressions[0][0].attributes[0].test(matchAgainst);
+		value_of( result )[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
+		
+	};
+}
+for (var t=0,J; J=AttributeTests[t]; t++){
+	
+	its['attributes array item test method should match string: `[attrib'+ J.operator + J.value +']` should '+ (J.shouldBeTrue?'':'NOT') +' match `'+J.matchAgainst+'`'] =
+		makeAttributeRegexTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
+}
+
 
 
 // pseudos
