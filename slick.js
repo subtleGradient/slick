@@ -11,6 +11,8 @@ Authors:
 
 (function(){
 	
+	var window = this, document = this.document, root = document.documentElement;
+	
 	var local = {
 		
 		uidx: 1,
@@ -21,9 +23,9 @@ Authors:
 			return node._slickUID || (node._slickUID = this.uidx++);
 		},
 		
-		contains: (document.documentElement.contains) ? function(context, node){
+		contains: (root.contains) ? function(context, node){
 			return (context !== node && context.contains(node));
-		} : (document.documentElement.compareDocumentPosition) ? function(context, node){
+		} : (root.compareDocumentPosition) ? function(context, node){
 			return !!(context.compareDocumentPosition(node) & 16);
 		} : function(context, node){
 			if (node) while ((node = node.parentNode)){
@@ -120,7 +122,7 @@ Authors:
 					item = node.getElementById(id);
 					if (item) this.push(item, tag, null, parts);
 					return;
-				} else if ((node === document.documentElement) || this.contains(document.documentElement, node)){
+				} else if ((node === root) || this.contains(root, node)){
 					item = document.getElementById(id);
 					if (item && this.contains(node, item)) this.push(item, tag, null, parts);
 					return;
@@ -418,7 +420,7 @@ Authors:
 	local.attributeMethods = {};
 	
 	Slick.lookupAttribute = function(name){
-		return local.attributeMethods[name] || null;
+		return local.attributeMethods[name];
 	};
 	
 	Slick.defineAttribute = function(name, fn){
