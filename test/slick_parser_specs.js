@@ -6,6 +6,10 @@ String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
+Slick.debug = function(message){
+	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
+	throw new Error(message);
+};
 
 
 /*
