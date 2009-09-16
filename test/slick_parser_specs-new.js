@@ -191,6 +191,53 @@ its['pseudos array items should have a value property'] = function(){
 	
 };
 
+its['pseudos nth value should transform odd to 2n+1'] = function(){
+	var nths = [
+		{raw:        ":nth-child(odd)", key:       "nth-child", value:"2n+1"},
+		{raw:   ":nth-last-child(odd)", key:  "nth-last-child", value:"2n+1"},
+		{raw: ":nth-last-of-type(odd)", key:"nth-last-of-type", value:"2n+1"},
+		{raw:      ":nth-of-type(odd)", key:     "nth-of-type", value:"2n+1"},
+		
+		{raw:        ":nth-child(odd)", key:'nth-child', value:"2n+1"},
+		{raw:       ":nth-child(2n+1)", key:'nth-child', value:"2n+1"},
+		{raw:          ":nth-child(n)", key:'nth-child', value:"n"   }
+	];
+	for (var i=0,s, N; N = nths[i]; i++){
+		
+		s = Slick.parse(N.raw);
+		
+		value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
+		value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
+		
+		value_of( s.expressions[0][0].parts[0].key ).should_be( N.key );
+		value_of( s.expressions[0][0].parts[0].value ).should_be( N.value );
+		
+	}
+};
+its['pseudos nth value should transform even to 2n'] = function(){
+	var nths = [
+		{raw:        ":nth-child(even)", key:       "nth-child", value:"2n"},
+		{raw:   ":nth-last-child(even)", key:  "nth-last-child", value:"2n"},
+		{raw: ":nth-last-of-type(even)", key:"nth-last-of-type", value:"2n"},
+		{raw:      ":nth-of-type(even)", key:     "nth-of-type", value:"2n"},
+		
+		{raw:":nth-child(even)", key:'nth-child', value:"2n" },
+		{raw:":nth-child(2n)"  , key:'nth-child', value:"2n" },
+		{raw:":nth-child(n)"   , key:'nth-child', value:"n"  }
+	];
+	for (var i=0,s, N; N = nths[i]; i++){
+		
+		s = Slick.parse(N.raw);
+		
+		value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
+		value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
+		
+		value_of( s.expressions[0][0].parts[0].key ).should_be( N.key );
+		value_of( s.expressions[0][0].parts[0].value ).should_be( N.value );
+		
+	}
+}
+
 
 // combinators
 // reverse combinators
