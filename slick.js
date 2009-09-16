@@ -536,14 +536,16 @@ Authors:
 		regexp = new RegExp(("(?x)\
 			^(?:\
 			  \\s* ( , | $ ) \\s*                           # Separator              \n\
-			| \\s* ( [" + combinatorChars + "]+ ) \\s*      # Combinator             \n\
+			| \\s* ( <combinator>+ ) \\s*      				# Combinator             \n\
 			|      ( \\s+ )                                 # CombinatorChildren     \n\
-			|      ( [a-z0-9_-]+ | \\* )                    # Tag                    \n\
-			| \\#  ( [a-z0-9_-]+       )                    # ID                     \n\
-			| \\.  ( [a-z0-9_-]+       )                    # ClassName              \n\
-			| \\[  ( [a-z0-9_-]+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-			|   :+ ( [a-z0-9_-]+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, ''), 'i');
+			|      ( <unicode>+ | \\* )                     # Tag                    \n\
+			| \\#  ( <unicode>+       )                     # ID                     \n\
+			| \\.  ( <unicode>+       )                     # ClassName              \n\
+			| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"([^\"]*)\" | '([^']*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+			|   :+ ( <unicode>+       )(            \\( (?: \"([^\"]*)\" | '([^']*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
+		   .replace(/<combinator>/, '[' + combinatorChars + ']')
+		   .replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])'), 'i');
 		
 		return Slick.parse;
 	};
