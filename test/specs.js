@@ -18,7 +18,7 @@ Slick.parse.attribValueToFn = function(operator, attribute){
 		case '^=': regexp = new RegExp('^' + Slick.parse.escapeRegExp(attribute)); break;
 		case '$=': regexp = new RegExp(Slick.parse.escapeRegExp(attribute) + '$'); break;
 		case '~=': regexp = new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(attribute) + '(\\s|$)'); break;
-		case '|=': regexp = new RegExp('^' + Slick.parse.escapeRegExp(attribute) + '(-|$)'); break;
+		case '|=': regexp = new RegExp('(^|\\|)' + Slick.parse.escapeRegExp(attribute) + '(\\||$)'); break;
 		
 		default: test = function(value){
 			return !!value;
@@ -295,10 +295,6 @@ var vals = 'myValueOfDoom;"double";\'single\';"dou\\"ble";\'sin\\\'gle\';();{};\
 		
 		{ operator:'!=', value:'test you!', matchAgainst:'test you?', shouldBeTrue:true },
 		{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false },
-		
-		{ operator:'|=', value:'en', matchAgainst:'en-US', shouldBeTrue:true },
-		{ operator:'|=', value:'en', matchAgainst:'en', shouldBeTrue:true },
-		{ operator:'|=', value:'en', matchAgainst:'en|fr', shouldBeTrue:false },
 	];
 	
 	for (var t=0,J; J=junk[t]; t++){
