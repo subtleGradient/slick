@@ -16,10 +16,7 @@ Slick.debug = function(message){
 	Slick Parser Specs
 */
 this.PARSE = this.PARSE || Slick.parse;
-var s;
-var it;
-var its;
-var specs;
+var s, it, its, specs;
 specs = it = its = {};
 
 
