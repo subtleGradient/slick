@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<title>template_test</title>
+</head>
+<body>
+
+<iframe src="template.html" frameborder="0" scrolling="auto">
+	<a href="template.html">template</a>
+</iframe>
+
+<script type="text/javascript" charset="utf-8">
+function searchThem(){
+	var selector = document.getElementById('search').value;
+	var results = $$$(selector);
+	var resultsBox = document.getElementById('results');
+	var resultHTML = [];
+	resultHTML.push('<p>');
+	resultHTML.push(' <code>');
+	resultHTML.push(selector);
+	resultHTML.push('</code> ');
+	for (var libName in results) {
+		resultHTML.push(' <strong>');
+		resultHTML.push(libName);
+		resultHTML.push('</strong> ');
+		resultHTML.push(' <ins>');
+		resultHTML.push(results[libName]);
+		resultHTML.push('</ins> ');
+	}
+	resultHTML.push('</p>');
+	resultsBox.innerHTML += resultHTML.join('');
+};
+</script>
+
+<form onsubmit="searchThem(); return false;">
+<label for="search">Search</label>
+<input type="text" name="search" value="body > *" id="search" />
+</form>
+
+<div id="results"></div>
+
+</body>
+</html>
