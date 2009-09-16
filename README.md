@@ -1,6 +1,5 @@
 MooTools Slick Selector Engine
 ==============================
-
 A new standalone selector engine that is totally slick!
 -------------------------------------------------------
 
@@ -15,4 +14,50 @@ Want to support XPATH selectors? JSONPath selectors? Pre-cached JS Object selcto
 
 ### Use the parser by itself!
 Want to integrate a CSS3 Selector parser into your own app somehow? Use the slick selector CSS3 parser by itself and get a JS Object representation of your selector.
+
+
+
+MooTools Slick CSS Selector Parser
+==================================
+Parse a CSS selector string into a JavaScript object
+----------------------------------------------------
+
+Object format
+
+	{
+		Slick: true,
+		reverse: function(){},
+		simple: false,
+		length: 1,
+		raw: "tag#id.class[attrib][attrib=attribvalue]:pseudo:pseudo(pseudovalue):not(pseudovalue)",
+		expressions: [
+			[
+				{
+					parts: [
+						{ type: "class",                    value: "class", regexp: /regexp/ },
+						{ type: "attribute", key: "attrib",                                      test: function(){} },
+						{ type: "attribute", key: "attrib", value: "attribvalue", operator: "=", test: function(){} },
+						{ type: "pseudo",    key: "pseudo" },
+						{ type: "pseudo",    key: "pseudo", value: "pseudovalue" },
+						{ type: "pseudo",    key: "not"   , value: "pseudovalue" }
+					],
+					tag: "tag",
+					id: "id",
+					classes: [
+						"class"
+					],
+					attributes: [
+						{ type: "attribute", key: "attrib", value: "",                           test: function(){} },
+						{ type: "attribute", key: "attrib", value: "attribvalue", operator: "=", test: function(){} }
+					],
+					pseudos: [
+						{ type: "pseudo", key: "pseudo" },
+						{ type: "pseudo", key: "pseudo", value: "pseudovalue" },
+						{ type: "pseudo", key: "not",    value: "pseudovalue" }
+					],
+					combinator: " "
+				}
+			]
+		]
+	}
 
