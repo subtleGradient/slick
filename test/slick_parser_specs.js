@@ -18,7 +18,6 @@ Slick.debug = function(message){
 this.PARSE = this.PARSE || Slick.parse;
 var s, it, its, specs;
 specs = it = its = {};
-
 var TODO = function(){ throw "TODO"; };
 
 it['should exist'] = function(){
@@ -45,6 +44,7 @@ it['should always have an expressions array property'] = function(){
 };
 
 
+
 // parts
 it['should always have a parts array'] = function(){
 	s = PARSE('a');
@@ -64,6 +64,7 @@ its['parts array items should have a type property'] = function(){
 		value_of( part.type ).should_not_be_undefined();
 	}
 };
+
 
 
 // tags
@@ -99,6 +100,7 @@ it['should throw away all but the last id'] = function(){
 };
 
 
+
 // classes
 it['should parse classes into the parts array'] = function(){
 	s = PARSE('.class');
@@ -129,6 +131,7 @@ its['classes array items should have a regexp property'] = function(){
 	value_of( s.expressions[0][0].parts[0].regexp.source ).should_match( 'class' );
 	
 };
+
 
 
 // attributes
@@ -293,9 +296,15 @@ its['combinator property should be null when not in the selector'] = function(){
 
 
 describe('Slick Parser', specs);
-specs = it = its = {};
 
 
+
+/*
+	Slick Parser Syntax
+*/
+
+
+/*Slick Parser Syntax: TAG*/specs = it = its = {};
 
 // TAG
 var TAGS = 'normal UPCASE'.split(' ');
@@ -312,8 +321,10 @@ for (var TAG_I=0, TAG; TAG = TAGS[TAG_I]; TAG_I++){
 	it['should support TAG: `'+TAG+'`'] = newTAG(TAG);
 }
 
+describe('Slick Parser Syntax: TAG', specs);
 
 
+/*Slick Parser Syntax: ID*/specs = it = its = {};
 // ID
 var IDS = "normal with-dash with_underscore 123number".split(' ');
 var newID = function(ID){
@@ -328,9 +339,11 @@ var newID = function(ID){
 for (var ID_I=0, ID; ID = IDS[ID_I]; ID_I++){
 	it['should support id: `#'+ID+'`'] = newID(ID);
 }
+describe('Slick Parser Syntax: ID', specs);
 
 
 
+/*Slick Parser Syntax: CLASS*/specs = it = its = {};
 // CLASS
 var CLASSES = "normal with-dash with_underscore 123number".split(' ');
 var newCLASS = function(CLASS){
@@ -355,11 +368,13 @@ it['should support all CLASSES: `.'+CLASSES.join('.')+'`'] = function(){
 		
 	}
 };
+describe('Slick Parser Syntax: CLASS', specs);
 
 
 
 
 
+/*Slick Parser Syntax: ATTRIBUTE*/specs = it = its = {};
 // ATTRIBUTE
 var ATTRIB_KEYS = 'normal with-dash with_underscore 123number'.split(' ');
 var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
@@ -392,9 +407,11 @@ for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VAL
 		}
 	}
 }
+describe('Slick Parser Syntax: ATTRIBUTE', specs);
 
 
 
+/*Slick Parser Syntax: PSEUDO*/specs = it = its = {};
 // PSEUDO
 var PSEUDO_KEYS = 'normal with-dash with_underscore'.split(' ');
 var PSEUDO_VALUES = ATTRIB_VALUES;
@@ -423,9 +440,11 @@ for (var PSEUDO_VALUE_I=0, PSEUDO_VALUE; PSEUDO_VALUE = PSEUDO_VALUES[PSEUDO_VAL
 		
 	}
 }
+describe('Slick Parser Syntax: PSEUDO', specs);
 
 
 
+/*Slick Parser Syntax: COMBINATOR*/specs = it = its = {};
 // COMBINATOR
 var COMBINATORS = " >+~" + "`!@$%^&={}\\;</".split('');
 var newCOMBINATOR = function(COMBINATOR){
@@ -446,6 +465,10 @@ var newCOMBINATOR = function(COMBINATOR){
 for (var COMBINATOR_I=0, COMBINATOR; COMBINATOR = COMBINATORS[COMBINATOR_I]; COMBINATOR_I++){
 	it['should support COMBINATOR: ‘'+COMBINATOR+'’'] = newCOMBINATOR(COMBINATOR);
 }
+describe('Slick Parser Syntax: COMBINATOR', specs);
+
+
+
 
 
 describe('Slick Parser Syntax', specs);
