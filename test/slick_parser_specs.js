@@ -279,20 +279,6 @@ its['pseudos nth value should transform even to 2n'] = function(){
 
 
 
-// combinators
-it['should parse all possible combinators'] = TODO;
-it['should fail when given a bad combinator'] = TODO;
-its['combinator property should be null when not in the selector'] = function(){
-	
-	s = PARSE('a');
-	s = s.expressions[0][0];
-	value_of( s.combinator ).should_be_null();
-	
-	s = PARSE('a b');
-	value_of( s.expressions[0][0].combinator ).should_be(' ');
-	value_of( s.expressions[0][1].combinator ).should_be_null();
-	
-};
 
 
 describe('Slick Parser', specs);
@@ -444,27 +430,49 @@ describe('Slick Parser Syntax: PSEUDO', specs);
 
 
 
-/*Slick Parser Syntax: COMBINATOR*/specs = it = its = {};
-// COMBINATOR
+/*Slick Parser Syntax: COMBINATOR*/
 var COMBINATORS = " >+~" + "`!@$%^&={}\\;</".split('');
-var newCOMBINATOR = function(COMBINATOR){
-	return function(){
+Describe('Slick Parser Syntax: COMBINATOR',function(){
+	
+	// combinators
+	it['should parse all possible combinators'] = TODO;
+	
+	it['should fail when given a bad combinator'] = TODO;
+	
+	its['combinator property should be null when not in the selector'] = function(){
 		
-		s = PARSE('a' + COMBINATOR + 'b');
-		s = s.expressions[0];
-		value_of( s[0].combinator ).should_be( COMBINATOR );
-		// value_of( s[1].combinator ).should_be( COMBINATOR );
+		s = PARSE('a');
+		s = s.expressions[0][0];
+		value_of( s.combinator ).should_be_null();
 		
-		s = PARSE('a ' + COMBINATOR + ' b');
-		s = s.expressions[0];
-		value_of( s[0].combinator ).should_be( COMBINATOR );
-		// value_of( s[1].combinator ).should_be( COMBINATOR );
+		s = PARSE('a b');
+		value_of( s.expressions[0][0].combinator ).should_be(' ');
+		value_of( s.expressions[0][1].combinator ).should_be_null();
 		
 	};
-};
-for (var COMBINATOR_I=0, COMBINATOR; COMBINATOR = COMBINATORS[COMBINATOR_I]; COMBINATOR_I++){
-	it['should support COMBINATOR: ‘'+COMBINATOR+'’'] = newCOMBINATOR(COMBINATOR);
-}
+	
+	// COMBINATOR
+	var newCOMBINATOR = function(COMBINATOR){
+		return function(){
+			
+			s = PARSE('a' + COMBINATOR + 'b');
+			s = s.expressions[0];
+			value_of( s[0].combinator ).should_be( COMBINATOR );
+			// value_of( s[1].combinator ).should_be( COMBINATOR );
+			
+			s = PARSE('a ' + COMBINATOR + ' b');
+			s = s.expressions[0];
+			value_of( s[0].combinator ).should_be( COMBINATOR );
+			// value_of( s[1].combinator ).should_be( COMBINATOR );
+			
+		};
+	};
+	
+	for (var COMBINATOR_I=0, COMBINATOR; COMBINATOR = COMBINATORS[COMBINATOR_I]; COMBINATOR_I++){
+		it['should support COMBINATOR: ‘'+COMBINATOR+'’'] = newCOMBINATOR(COMBINATOR);
+	}
+	
+});
 describe('Slick Parser Syntax: COMBINATOR', specs);
 
 
