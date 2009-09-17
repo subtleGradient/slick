@@ -18,7 +18,6 @@ Slick.debug = function(message){
 this.PARSE = this.PARSE || Slick.parse;
 var s, it, its, specs;
 specs = it = its = {};
-var TODO = function(){ throw "TODO"; };
 
 it['should exist'] = function(){
 	value_of(PARSE).should_not_be_undefined();
