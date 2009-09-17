@@ -454,14 +454,10 @@ Describe('COMBINATOR',function(){
 		return function(){
 			
 			s = PARSE('a' + COMBINATOR + 'b');
-			s = s.expressions[0];
-			value_of( s[0].combinator ).should_be( COMBINATOR );
-			// value_of( s[1].combinator ).should_be( COMBINATOR );
+			value_of( s.expressions[0][0].combinator ).should_be( COMBINATOR );
 			
 			s = PARSE('a ' + COMBINATOR + ' b');
-			s = s.expressions[0];
-			value_of( s[0].combinator ).should_be( COMBINATOR );
-			// value_of( s[1].combinator ).should_be( COMBINATOR );
+			value_of( s.expressions[0][0].combinator ).should_be( COMBINATOR );
 			
 		};
 	};
