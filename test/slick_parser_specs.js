@@ -16,8 +16,7 @@ Slick.debug = function(message){
 	Slick Parser Specs
 */
 this.PARSE = this.PARSE || Slick.parse;
-var s, it, its, specs;
-specs = it = its = {};
+Describe('Slick Parser',function(){
 
 it['should exist'] = function(){
 	value_of(PARSE).should_not_be_undefined();
@@ -280,7 +279,7 @@ its['pseudos nth value should transform even to 2n'] = function(){
 
 
 
-describe('Slick Parser', specs);
+});
 
 
 
@@ -289,10 +288,11 @@ describe('Slick Parser', specs);
 */
 
 
-/*Slick Parser Syntax: TAG*/specs = it = its = {};
+var TAGS = 'normal UPCASE'.split(' ');
+Describe('Slick Parser Syntax: TAG',function(){
+
 
 // TAG
-var TAGS = 'normal UPCASE'.split(' ');
 var newTAG = function(TAG){
 	return function(){
 		
@@ -306,12 +306,15 @@ for (var TAG_I=0, TAG; TAG = TAGS[TAG_I]; TAG_I++){
 	it['should support TAG: `'+TAG+'`'] = newTAG(TAG);
 }
 
-describe('Slick Parser Syntax: TAG', specs);
+
+});
 
 
-/*Slick Parser Syntax: ID*/specs = it = its = {};
-// ID
+
 var IDS = "normal with-dash with_underscore 123number".split(' ');
+Describe('Slick Parser Syntax: ID',function(){
+
+// ID
 var newID = function(ID){
 	return function(){
 		
@@ -324,13 +327,16 @@ var newID = function(ID){
 for (var ID_I=0, ID; ID = IDS[ID_I]; ID_I++){
 	it['should support id: `#'+ID+'`'] = newID(ID);
 }
-describe('Slick Parser Syntax: ID', specs);
+
+});
 
 
 
-/*Slick Parser Syntax: CLASS*/specs = it = its = {};
-// CLASS
+
 var CLASSES = "normal with-dash with_underscore 123number".split(' ');
+Describe('Slick Parser Syntax: CLASS',function(){
+
+// CLASS
 var newCLASS = function(CLASS){
 	return function(){
 		
@@ -353,17 +359,20 @@ it['should support all CLASSES: `.'+CLASSES.join('.')+'`'] = function(){
 		
 	}
 };
-describe('Slick Parser Syntax: CLASS', specs);
+
+});
 
 
 
 
 
-/*Slick Parser Syntax: ATTRIBUTE*/specs = it = its = {};
-// ATTRIBUTE
+
 var ATTRIB_KEYS = 'normal with-dash with_underscore 123number'.split(' ');
 var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
 var ATTRIB_VALUES = 'normal,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
+Describe('Slick Parser Syntax: ATTRIBUTE',function(){
+
+// ATTRIBUTE
 var newATTRIB = function(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE){
 	return function(){
 		
@@ -392,14 +401,17 @@ for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VAL
 		}
 	}
 }
-describe('Slick Parser Syntax: ATTRIBUTE', specs);
+
+});
 
 
 
-/*Slick Parser Syntax: PSEUDO*/specs = it = its = {};
-// PSEUDO
+
 var PSEUDO_KEYS = 'normal with-dash with_underscore'.split(' ');
 var PSEUDO_VALUES = ATTRIB_VALUES;
+Describe('Slick Parser Syntax: PSEUDO',function(){
+
+// PSEUDO
 var newPSEUDO = function(PSEUDO_KEY, PSEUDO_VALUE){
 	return function(){
 		
@@ -425,7 +437,9 @@ for (var PSEUDO_VALUE_I=0, PSEUDO_VALUE; PSEUDO_VALUE = PSEUDO_VALUES[PSEUDO_VAL
 		
 	}
 }
-describe('Slick Parser Syntax: PSEUDO', specs);
+
+});
+
 
 
 
@@ -472,11 +486,10 @@ Describe('Slick Parser Syntax: COMBINATOR',function(){
 	}
 	
 });
-describe('Slick Parser Syntax: COMBINATOR', specs);
 
 
 
 
 
-describe('Slick Parser Syntax', specs);
+// describe('Slick Parser Syntax', specs);
 
