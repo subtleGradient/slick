@@ -409,7 +409,25 @@ for (var PSEUDO_VALUE_I=0, PSEUDO_VALUE; PSEUDO_VALUE = PSEUDO_VALUES[PSEUDO_VAL
 
 
 // COMBINATOR
-var COMBINATORS = ' ,>,+,~,   , > , + , ~ '.split(',');
+var COMBINATORS = " >+~" + "`!@$%^&={}\\;</".split('');
+var newCOMBINATOR = function(COMBINATOR){
+	return function(){
+		
+		s = PARSE('a' + COMBINATOR + 'b');
+		s = s.expressions[0];
+		value_of( s[0].combinator ).should_be( COMBINATOR );
+		// value_of( s[1].combinator ).should_be( COMBINATOR );
+		
+		s = PARSE('a ' + COMBINATOR + ' b');
+		s = s.expressions[0];
+		value_of( s[0].combinator ).should_be( COMBINATOR );
+		// value_of( s[1].combinator ).should_be( COMBINATOR );
+		
+	};
+};
+for (var COMBINATOR_I=0, COMBINATOR; COMBINATOR = COMBINATORS[COMBINATOR_I]; COMBINATOR_I++){
+	it['should support COMBINATOR: ‘'+COMBINATOR+'’'] = newCOMBINATOR(COMBINATOR);
+}
 
 
 describe('Slick Parser Syntax', specs);
