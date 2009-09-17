@@ -7,3 +7,6 @@ function Describe(description,specBuilder){
 	
 	return describe(description, specs);
 };
+
+
+var TODO = function(){ throw "TODO"; };
