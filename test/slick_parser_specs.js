@@ -79,6 +79,11 @@ it['should always have a tag property'] = function(){
 	}
 };
 
+// tag namespaces
+it['should parse the namespace'] = TODO;
+it['should parse the namespace from an escaped tagname'] = TODO;
+
+
 
 // ids
 it['should always have an id property'] = function(){
