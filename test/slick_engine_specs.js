@@ -2,74 +2,11 @@ String.escapeSingle = function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
-Slick.parse.attribValueToFn = function(operator, attribute){
-	var test, regexp;
-	
-	switch (operator){
-		case '=': test = function(value){
-			return attribute == value;
-		}; break;
-		case '!=': test = function(value){
-			return attribute != value;
-		}; break;
-		case '*=': test = function(value){
-			return value.indexOf(attribute) > -1;
-		}; break;
-		case '^=': regexp = new RegExp('^' + Slick.parse.escapeRegExp(attribute)); break;
-		case '$=': regexp = new RegExp(Slick.parse.escapeRegExp(attribute) + '$'); break;
-		case '~=': regexp = new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(attribute) + '(\\s|$)'); break;
-		case '|=': regexp = new RegExp('(^|\\|)' + Slick.parse.escapeRegExp(attribute) + '(\\||$)'); break;
-		
-		default: test = function(value){
-			return !!value;
-		};
-	}
-	
-	if (!test) test = function(value){
-		return regexp.test(value);
-	};
-	
-	return regexp || { test:test, toString: function(){return String(test);} };
-};
-
 Slick.debug = function(message){
 	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
 	throw new Error(message);
 };
 // Slick.debug = false;
-
-function makeSlickTestCombinator(tag, combinator, tag2) {
-	if (combinator.split('').length===3) combinator = combinator.split('')[2];
-	var functionString = '\n';
-	functionString += "var s = Slick.parse('"+String.escapeSingle(tag + combinator + tag2)+"');\n";
-	
-	functionString+="value_of( s[0][0].tag ).should_be( '"+String.escapeSingle(tag)+"' );\n" +
-					"value_of( s[0][1].tag ).should_be( '"+String.escapeSingle(tag2)+"' );\n" +
-					"value_of( s[0][1].combinator ).should_be( '"+String.escapeSingle(combinator)+"' );\n";
-	return new Function(functionString);
-}
-
-function makeSlickTestAttrib(attr, op, val) {
-	var functionString = '\n';
-	functionString += "var s = Slick.parse('["+String.escapeSingle(attr + op + (op&&val))+"]')[0][0];\n\
-	value_of( s.attributes.length ).should_be( 1 );\n\
-	value_of( s.attributes[0].name ).should_be( '"+String.escapeSingle(attr)+"' );\n\
-	";
-	if (!op) {
-		functionString += "\
-		value_of( s.attributes[0].operator ).should_be_null();\n\
-		value_of( s.attributes[0].value ).should_be_null();\n\
-		value_of( s.attributes[0].regexp ).should_be_null();\n\
-		";
-	} else {
-		functionString += "\
-		value_of( s.attributes[0].operator ).should_be( '"+String.escapeSingle( op )+"' );\n\
-		value_of( s.attributes[0].value ).should_be( '"+String.escapeSingle( val.replace(/^[\"']|['\"]$/g,'') )+"' );\n\
-		value_of( s.attributes[0].regexp.toString() ).should_be( '"+String.escapeSingle( Slick.parse.attribValueToFn(op, op&&val.replace(/^[\"']|['\"]$/g,'')).toString() )+"' );\n\
-		";
-	}
-	return new Function(functionString);
-}
 
 function makeSlickTestSearch(selector, count, disableQSA) {
 	// if (document.querySelectorAll)
