@@ -275,9 +275,21 @@ its['pseudos nth value should transform even to 2n'] = function(){
 }
 
 
-// combinators
-// reverse combinators
 
+// combinators
+it['should parse all possible combinators'] = TODO;
+it['should fail when given a bad combinator'] = TODO;
+its['combinator property should be null when not in the selector'] = function(){
+	
+	s = PARSE('a');
+	s = s.expressions[0][0];
+	value_of( s.combinator ).should_be_null();
+	
+	s = PARSE('a b');
+	value_of( s.expressions[0][0].combinator ).should_be(' ');
+	value_of( s.expressions[0][1].combinator ).should_be_null();
+	
+};
 
 
 describe('Slick Parser', specs);
