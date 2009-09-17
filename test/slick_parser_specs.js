@@ -240,7 +240,7 @@ its['pseudos nth value should transform odd to 2n+1'] = function(){
 	];
 	for (var i=0,s, N; N = nths[i]; i++){
 		
-		s = Slick.parse(N.raw);
+		s = PARSE(N.raw);
 		
 		value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
 		value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
@@ -263,7 +263,7 @@ its['pseudos nth value should transform even to 2n'] = function(){
 	];
 	for (var i=0,s, N; N = nths[i]; i++){
 		
-		s = Slick.parse(N.raw);
+		s = PARSE(N.raw);
 		
 		value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
 		value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
