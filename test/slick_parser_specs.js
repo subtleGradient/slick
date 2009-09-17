@@ -1,20 +1,3 @@
-// Helpers
-
-Function.prototype._type = "Function";
-
-String.escapeSingle = function escapeSingle(string){
-	return (''+string).replace(/(?=[\\\n'])/g,'\\');
-};
-
-Slick.debug = function(message){
-	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
-	throw new Error(message);
-};
-
-
-
-
-this.PARSE = this.PARSE || Slick.parse;
 Describe('Slick Parser',function(){
 	
 	it['should exist'] = function(){

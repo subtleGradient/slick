@@ -1,3 +1,10 @@
+Function.prototype._type = "Function";
+
+String.escapeSingle = function escapeSingle(string){
+	return (''+string).replace(/(?=[\\\n'])/g,'\\');
+};
+
+
 var specs, spec, it, its;
 var descriptionParent = '';
 
