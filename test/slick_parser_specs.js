@@ -22,7 +22,6 @@ Describe('Slick Parser',function(){
 	};
 	
 	
-	
 	// expressions
 	it['should convert multiple comma-separated selector expressions into separate entries in the expressions array'] = function(){
 		s = PARSE('a,b,c');
@@ -41,7 +40,6 @@ Describe('Slick Parser',function(){
 	};
 	
 	
-	
 	// parts
 	it['should always have a parts array'] = function(){
 		s = PARSE('a');
@@ -53,6 +51,7 @@ Describe('Slick Parser',function(){
 		s = PARSE('tag#id.class[attrib][attrib=attribvalue]:pseudo:pseudo(pseudovalue):not(pseudovalue)');
 		value_of( s.expressions[0][0].parts.length ).should_be( 6 );
 	};
+	
 	its['parts array items should have a type property'] = function(){
 		s = PARSE('tag#id.class[attrib][attrib=attribvalue]:pseudo:pseudo(pseudovalue):not(pseudovalue)');
 		
@@ -62,6 +61,13 @@ Describe('Slick Parser',function(){
 		}
 	};
 	
+});
+
+Describe('Slick Parser Syntax',function(){
+
+
+var TAGS = 'normal UPCASE'.split(' ');
+Describe('TAG',function(){
 	
 	
 	// tags
@@ -83,6 +89,28 @@ Describe('Slick Parser',function(){
 	
 	
 	
+	// TAG
+	var newTAG = function(TAG){
+		return function(){
+			
+			s = PARSE(TAG);
+			s = s.expressions[0][0];
+			value_of( s.tag ).should_be( TAG );
+			
+		};
+	};
+	for (var TAG_I=0, TAG; TAG = TAGS[TAG_I]; TAG_I++){
+		it['should support TAG: `'+TAG+'`'] = newTAG(TAG);
+	}
+	
+	
+});
+
+
+
+var IDS = "normal with-dash with_underscore 123number".split(' ');
+Describe('ID',function(){
+	
 	// ids
 	it['should always have an id property'] = function(){
 		s = PARSE('#id');
@@ -97,6 +125,27 @@ Describe('Slick Parser',function(){
 	};
 	
 	
+	
+	// ID
+	var newID = function(ID){
+		return function(){
+			
+			s = PARSE('#' + ID);
+			s = s.expressions[0][0];
+			value_of( s.id ).should_be( ID );
+			
+		};
+	};
+	for (var ID_I=0, ID; ID = IDS[ID_I]; ID_I++){
+		it['should support id: `#'+ID+'`'] = newID(ID);
+	}
+	
+});
+
+
+
+var CLASSES = "normal with-dash with_underscore 123number".split(' ');
+Describe('CLASS',function(){
 	
 	// classes
 	it['should parse classes into the parts array'] = function(){
@@ -131,7 +180,40 @@ Describe('Slick Parser',function(){
 	
 	
 	
-	// attributes
+	// CLASS
+	var newCLASS = function(CLASS){
+		return function(){
+			
+			s = PARSE('.' + CLASS);
+			s = s.expressions[0][0];
+			value_of( s.classes[0] ).should_be( CLASS );
+			
+		};
+	};
+	for (var CLASS_I=0, CLASS; CLASS = CLASSES[CLASS_I]; CLASS_I++){
+		it['should support CLASS: `.'+CLASS+'`'] = newCLASS(CLASS);
+	}
+	it['should support all CLASSES: `.'+CLASSES.join('.')+'`'] = function(){
+		s = PARSE('.' + CLASSES.join('.'));
+		s = s.expressions[0][0];
+		
+		for (var CLASS_I=0, CLASS; CLASS = CLASSES[CLASS_I]; CLASS_I++){
+			
+			value_of( s.classes[CLASS_I] ).should_be( CLASS );
+			
+		}
+	};
+	
+});
+
+
+
+var ATTRIB_KEYS = 'normal with-dash with_underscore 123number'.split(' ');
+var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
+var ATTRIB_VALUES = 'normal,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
+Describe('ATTRIBUTE',function(){
+	
+	
 	it['should parse attributes into the attributes array'] = function(){
 		s = PARSE('[attrib]');
 		value_of( s.expressions[0][0].parts[0].type ).should_be( 'attribute' );
@@ -150,6 +232,7 @@ Describe('Slick Parser',function(){
 		value_of( s.expressions[0][0].parts[2].key ).should_be( 'attrib3' );
 		
 	};
+	
 	its['attributes array items should have a value property'] = function(){
 		s = PARSE('[attrib=attribvalue]');
 		value_of( s.expressions[0][0].parts[0].value ).should_be( 'attribvalue' );
@@ -160,16 +243,20 @@ Describe('Slick Parser',function(){
 		value_of( s.expressions[0][0].parts[2].value ).should_be( 'attribvalue3' );
 		
 	};
+	
 	its['attributes array items should have a operator property'] = function(){
 		s = PARSE('[attrib=attribvalue]');
 		value_of( s.expressions[0][0].parts[0].operator ).should_be( '=' );
 		
 	};
+	
 	its['attributes array items should have a test method'] = function(){
 		s = PARSE('[attrib=attribvalue]');
 		value_of( s.expressions[0][0].parts[0].test._type ).should_be( 'Function' );
 		
 	};
+	
+	
 	
 	// its attributes array item test method should match string
 	var AttributeTests = [
@@ -202,7 +289,44 @@ Describe('Slick Parser',function(){
 	
 	
 	
-	// pseudos
+	// ATTRIBUTE
+	var newATTRIB = function(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE){
+		return function(){
+			
+			s = PARSE('[' + ATTRIB_KEY + ']');
+			value_of( s.expressions.length ).should_be( 1 );
+			value_of( s.expressions[0].length ).should_be( 1 );
+			s = s.expressions[0][0];
+			value_of( s.attributes[0].key ).should_be( ATTRIB_KEY );
+			
+			s = PARSE('[' + ATTRIB_KEY + ATTRIB_OPERATOR + ATTRIB_VALUE + ']');
+			value_of( s.expressions.length ).should_be( 1 );
+			value_of( s.expressions[0].length ).should_be( 1 );
+			s = s.expressions[0][0];
+			value_of( s.attributes[0].key ).should_be( ATTRIB_KEY );
+			value_of( s.attributes[0].operator ).should_be( ATTRIB_OPERATOR );
+			value_of( s.attributes[0].value ).should_be( ATTRIB_VALUE.replace(/^["']/g,'').replace(/["']$/g,'') );
+			
+		};
+	};
+	for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VALUE_I]; ATTRIB_VALUE_I++){
+		for (var ATTRIB_OPERATOR_I=0, ATTRIB_OPERATOR; ATTRIB_OPERATOR = ATTRIB_OPERATORS[ATTRIB_OPERATOR_I]; ATTRIB_OPERATOR_I++){
+			for (var ATTRIB_KEY_I=0, ATTRIB_KEY; ATTRIB_KEY = ATTRIB_KEYS[ATTRIB_KEY_I]; ATTRIB_KEY_I++){
+				
+				it['should support ATTRIB: `'+ '[' + ATTRIB_KEY + ATTRIB_OPERATOR + ATTRIB_VALUE + ']' +'`'] = newATTRIB(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE);
+				
+			}
+		}
+	}
+	
+});
+
+
+
+var PSEUDO_KEYS = 'normal with-dash with_underscore'.split(' ');
+var PSEUDO_VALUES = ATTRIB_VALUES;
+Describe('PSEUDO',function(){
+	
 	it['should parse pseudos into the pseudos array'] = function(){
 		s = PARSE(':pseudo');
 		value_of( s.expressions[0][0].parts[0].type ).should_be( 'pseudo' );
@@ -274,132 +398,6 @@ Describe('Slick Parser',function(){
 		}
 	}
 	
-	
-	
-	
-	
-});
-
-
-
-var TAGS = 'normal UPCASE'.split(' ');
-Describe('Slick Parser Syntax: TAG',function(){
-	
-	
-	// TAG
-	var newTAG = function(TAG){
-		return function(){
-			
-			s = PARSE(TAG);
-			s = s.expressions[0][0];
-			value_of( s.tag ).should_be( TAG );
-			
-		};
-	};
-	for (var TAG_I=0, TAG; TAG = TAGS[TAG_I]; TAG_I++){
-		it['should support TAG: `'+TAG+'`'] = newTAG(TAG);
-	}
-	
-	
-});
-
-
-
-var IDS = "normal with-dash with_underscore 123number".split(' ');
-Describe('Slick Parser Syntax: ID',function(){
-	
-	// ID
-	var newID = function(ID){
-		return function(){
-			
-			s = PARSE('#' + ID);
-			s = s.expressions[0][0];
-			value_of( s.id ).should_be( ID );
-			
-		};
-	};
-	for (var ID_I=0, ID; ID = IDS[ID_I]; ID_I++){
-		it['should support id: `#'+ID+'`'] = newID(ID);
-	}
-	
-});
-
-
-
-var CLASSES = "normal with-dash with_underscore 123number".split(' ');
-Describe('Slick Parser Syntax: CLASS',function(){
-	
-	// CLASS
-	var newCLASS = function(CLASS){
-		return function(){
-			
-			s = PARSE('.' + CLASS);
-			s = s.expressions[0][0];
-			value_of( s.classes[0] ).should_be( CLASS );
-			
-		};
-	};
-	for (var CLASS_I=0, CLASS; CLASS = CLASSES[CLASS_I]; CLASS_I++){
-		it['should support CLASS: `.'+CLASS+'`'] = newCLASS(CLASS);
-	}
-	it['should support all CLASSES: `.'+CLASSES.join('.')+'`'] = function(){
-		s = PARSE('.' + CLASSES.join('.'));
-		s = s.expressions[0][0];
-		
-		for (var CLASS_I=0, CLASS; CLASS = CLASSES[CLASS_I]; CLASS_I++){
-			
-			value_of( s.classes[CLASS_I] ).should_be( CLASS );
-			
-		}
-	};
-	
-});
-
-
-
-var ATTRIB_KEYS = 'normal with-dash with_underscore 123number'.split(' ');
-var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
-var ATTRIB_VALUES = 'normal,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
-Describe('Slick Parser Syntax: ATTRIBUTE',function(){
-	
-	// ATTRIBUTE
-	var newATTRIB = function(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE){
-		return function(){
-			
-			s = PARSE('[' + ATTRIB_KEY + ']');
-			value_of( s.expressions.length ).should_be( 1 );
-			value_of( s.expressions[0].length ).should_be( 1 );
-			s = s.expressions[0][0];
-			value_of( s.attributes[0].key ).should_be( ATTRIB_KEY );
-			
-			s = PARSE('[' + ATTRIB_KEY + ATTRIB_OPERATOR + ATTRIB_VALUE + ']');
-			value_of( s.expressions.length ).should_be( 1 );
-			value_of( s.expressions[0].length ).should_be( 1 );
-			s = s.expressions[0][0];
-			value_of( s.attributes[0].key ).should_be( ATTRIB_KEY );
-			value_of( s.attributes[0].operator ).should_be( ATTRIB_OPERATOR );
-			value_of( s.attributes[0].value ).should_be( ATTRIB_VALUE.replace(/^["']/g,'').replace(/["']$/g,'') );
-			
-		};
-	};
-	for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VALUE_I]; ATTRIB_VALUE_I++){
-		for (var ATTRIB_OPERATOR_I=0, ATTRIB_OPERATOR; ATTRIB_OPERATOR = ATTRIB_OPERATORS[ATTRIB_OPERATOR_I]; ATTRIB_OPERATOR_I++){
-			for (var ATTRIB_KEY_I=0, ATTRIB_KEY; ATTRIB_KEY = ATTRIB_KEYS[ATTRIB_KEY_I]; ATTRIB_KEY_I++){
-				
-				it['should support ATTRIB: `'+ '[' + ATTRIB_KEY + ATTRIB_OPERATOR + ATTRIB_VALUE + ']' +'`'] = newATTRIB(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE);
-				
-			}
-		}
-	}
-	
-});
-
-
-
-var PSEUDO_KEYS = 'normal with-dash with_underscore'.split(' ');
-var PSEUDO_VALUES = ATTRIB_VALUES;
-Describe('Slick Parser Syntax: PSEUDO',function(){
-	
 	// PSEUDO
 	var newPSEUDO = function(PSEUDO_KEY, PSEUDO_VALUE){
 		return function(){
@@ -432,7 +430,7 @@ Describe('Slick Parser Syntax: PSEUDO',function(){
 
 
 var COMBINATORS = " >+~" + "`!@$%^&={}\\;</".split('');
-Describe('Slick Parser Syntax: COMBINATOR',function(){
+Describe('COMBINATOR',function(){
 	
 	// combinators
 	it['should parse all possible combinators'] = TODO;
@@ -472,4 +470,6 @@ Describe('Slick Parser Syntax: COMBINATOR',function(){
 		it['should support COMBINATOR: ‘'+COMBINATOR+'’'] = newCOMBINATOR(COMBINATOR);
 	}
 	
+});
+
 });
