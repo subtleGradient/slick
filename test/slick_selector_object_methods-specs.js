@@ -11,23 +11,20 @@ Slick.debug = function(message){
 	throw new Error(message);
 };
 
-
-/*
-	Slick Parser Specs
-*/
 this.PARSE = this.PARSE || Slick.parse;
 var s, it, its, specs;
+
+
+
+/*
+	Slick Selector Object Methods
+*/
 specs = it = its = {};
 
 
-it['should exist'] = function(){
-	value_of(PARSE).should_not_be_undefined();
-};
+// reverse
+it['should have a reverse method'] = TODO;
 
 
 
-// reverse combinators
-// TODO: reverse combinator specs
-
-
-describe('Slick Selector Object Reverse', specs);
+describe('Slick Selector Object Methods', specs);
