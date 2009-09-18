@@ -12,14 +12,14 @@ Describe('Slick Match',function(){
 		}
 	};
 	
-	it['should match node to another node'] = function(){
+	its['node should match another node'] = function(){
 		
 		value_of( Slick.match(nodes.basic, nodes.basic) ).should_be_true();
 		value_of( Slick.match(nodes.basic, document.createElement('div')) ).should_be_false();
 		
 	};
 	
-	it['should NOT match node to nothing'] = function(){
+	its['node should NOT match nothing'] = function(){
 		
 		value_of( Slick.match(nodes.basic) ).should_be_false();
 		value_of( Slick.match(nodes.basic, null) ).should_be_false();
