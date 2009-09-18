@@ -68,7 +68,10 @@ Describe('Slick Deep Match',function(){
 		
 		nodes.basic = document.createElement('div');
 		nodes.basic.innerHTML = '\
-			<b class="b">\
+			<b class="b b1" id="b2">\
+				<a class="a"> lorem </a>\
+			</b>\
+			<b class="b b2" id="b2">\
 				<a id="nodes.basicID" class="a">\
 					lorem\
 				</a>\
@@ -111,12 +114,19 @@ Describe('Slick Deep Match',function(){
 		
 	};
 	
-	it['should match a selector with a combinator'] = function(){
+	it['should match a selector with combinators'] = function(){
 		
+		value_of( deepMatch(nodes.nested_a, '* *') ).should_be_true();
 		value_of( deepMatch(nodes.nested_a, '* > *') ).should_be_true();
 		value_of( deepMatch(nodes.nested_a, '* ~ *') ).should_be_false(); // has no previous siblings
 		value_of( deepMatch(nodes.nested_a, '* + *') ).should_be_false(); // has no previous siblings
 		
+		value_of( deepMatch(nodes.nested_a, 'b a') ).should_be_true();
+		value_of( deepMatch(nodes.nested_a, 'b > a') ).should_be_true();
+		value_of( deepMatch(nodes.nested_a, 'div > b > a') ).should_be_true();
+		value_of( deepMatch(nodes.nested_a, 'div > b + b > a') ).should_be_true();
+		value_of( deepMatch(nodes.nested_a, 'div > b ~ b > a') ).should_be_true();
+		value_of( deepMatch(nodes.nested_a, 'div a') ).should_be_true();
 	};
 	
 });
