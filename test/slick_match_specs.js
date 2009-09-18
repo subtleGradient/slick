@@ -1,7 +1,14 @@
 Describe('Slick Match',function(){
 	
-	specs.before_all = function(){ window.testNode = document.createElement('div'); };
-	specs.after_all = function(){ window.testNode = undefined; };
+	specs.before_all = function() {
+		window.testNode = document.createElement('div');
+	};
+	specs.after_all = function() {
+		if (window.testNode && window.testNode.parentNode) {
+			window.testNode.parentNode.removeChild(window.testNode);
+		}
+		window.testNode = undefined;
+	};
 	
 	
 	
