@@ -415,12 +415,7 @@ Describe('PSEUDO',function(){
 var COMBINATORS = (" >+~" + "`!@$%^&={}\\;</").split('');
 Describe('COMBINATOR',function(){
 	
-	// combinators
-	it['should parse all possible combinators'] = TODO;
-	
-	it['should fail when given a bad combinator'] = TODO;
-	
-	its['combinator property should be " " when not something else'] = function(){
+	it['should give each simple selector in each selector expression a combinator'] = function(){
 		
 		s = PARSE('a');
 		s = s.expressions[0][0];
