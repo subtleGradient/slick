@@ -13,68 +13,66 @@ Authors:
 	
 	var window = this, document = this.document, root = document.documentElement;
 	
-	var local = {
-		
-		uidx: 1,
-		
-		uidOf: (window.ActiveXObject) ? function(node){
-			return (node._slickUID || (node._slickUID = [this.uidx++]))[0];
-		} : function(node){
-			return node._slickUID || (node._slickUID = this.uidx++);
-		},
-		
-		contains: (root.contains) ? function(context, node){
-			return (context !== node && context.contains(node));
-		} : (root.compareDocumentPosition) ? function(context, node){
-			return !!(context.compareDocumentPosition(node) & 16);
-		} : function(context, node){
-			if (node) while ((node = node.parentNode)){
-				if (node === context) return true;
-			}
-			return false;
-		},
-		
-		cacheNTH: {},
-		
-		matchNTH: /^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/,
-		
-		parseNTHArgument: function(argument){
-			var parsed = argument.match(this.matchNTH);
-			if (!parsed) return false;
-			var inta = parseInt(parsed[1], 10);
-			var a = (inta || inta === 0) ? inta : 1;
-			var special = parsed[2] || false;
-			var b = parseInt(parsed[3], 10) || 0;
-			if (a != 0){
-				b--;
-				while (b < 1) b += a;
-				while (b >= a) b -= a;
-			} else {
-				a = b;
-				special = 'index';
-			}
-			switch (special){
-				case 'n':    parsed = {a: a, b: b, special: 'n'}; break;
-				case 'odd':  parsed = {a: 2, b: 0, special: 'n'}; break;
-				case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
-				default:     parsed = {a: (a - 1), special: 'index'};
-			}
-
-			return (this.cacheNTH[argument] = parsed);
-		},
-		
-		pushArray: function(node, tag, id, selector, classes, attributes, pseudos){
-			if (this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
-		},
-		
-		pushUID: function(node, tag, id, selector, classes, attributes, pseudos){
-			var uid = this.uidOf(node);
-			if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
-				this.uniques[uid] = true;
-				this.found.push(node);
-			}
+	var local = {};
+	
+	local.uidx = 1;
+	
+	local.uidOf = (window.ActiveXObject) ? function(node){
+		return (node._slickUID || (node._slickUID = [this.uidx++]))[0];
+	} : function(node){
+		return node._slickUID || (node._slickUID = this.uidx++);
+	};
+	
+	local.contains = (root.contains) ? function(context, node){
+		return (context !== node && context.contains(node));
+	} : (root.compareDocumentPosition) ? function(context, node){
+		return !!(context.compareDocumentPosition(node) & 16);
+	} : function(context, node){
+		if (node) while ((node = node.parentNode)){
+			if (node === context) return true;
+		}
+		return false;
+	};
+	
+	local.cacheNTH = {};
+	
+	local.matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/;
+	
+	local.parseNTHArgument = function(argument){
+		var parsed = argument.match(this.matchNTH);
+		if (!parsed) return false;
+		var inta = parseInt(parsed[1], 10);
+		var a = (inta || inta === 0) ? inta : 1;
+		var special = parsed[2] || false;
+		var b = parseInt(parsed[3], 10) || 0;
+		if (a != 0){
+			b--;
+			while (b < 1) b += a;
+			while (b >= a) b -= a;
+		} else {
+			a = b;
+			special = 'index';
+		}
+		switch (special){
+			case 'n':    parsed = {a: a, b: b, special: 'n'}; break;
+			case 'odd':  parsed = {a: 2, b: 0, special: 'n'}; break;
+			case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
+			default:     parsed = {a: (a - 1), special: 'index'};
 		}
 		
+		return (this.cacheNTH[argument] = parsed);
+	};
+	
+	local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
+		if (this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
+	};
+	
+	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
+		var uid = this.uidOf(node);
+		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
+			this.uniques[uid] = true;
+			this.found.push(node);
+		}
 	};
 	
 	var matchers = {
