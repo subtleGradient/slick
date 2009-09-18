@@ -1,6 +1,6 @@
 Function.prototype._type = "Function";
 
-String.escapeSingle = function escapeSingle(string){
+String.escapeSingle = String.escapeSingle || function escapeSingle(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
