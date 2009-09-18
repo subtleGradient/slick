@@ -49,7 +49,7 @@ Describe('Slick Parser',function(){
 Describe('Slick Parser Syntax',function(){
 
 
-var TAGS = 'normal UPCASE'.split(' ');
+var TAGS = 'normal UPCASE escaped\\,character ǝpoɔıun'.split(' ');
 Describe('TAG',function(){
 	
 	
@@ -91,7 +91,7 @@ Describe('TAG',function(){
 
 
 
-var IDS = "normal with-dash with_underscore 123number".split(' ');
+var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number".split(' ');
 Describe('ID',function(){
 	
 	// ids
@@ -127,7 +127,7 @@ Describe('ID',function(){
 
 
 
-var CLASSES = "normal with-dash with_underscore 123number".split(' ');
+var CLASSES = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number".split(' ');
 Describe('CLASS',function(){
 	
 	// classes
