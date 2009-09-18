@@ -57,6 +57,19 @@ Describe('Slick Match',function(){
 				makeAttributeTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
 	});
 	
+	Describe('classes',function(){
+		
+		it['should match all possible classes'] = TODO;
+		
+	});
+	
+	Describe('pseudos',function(){
+		
+		it['should match all standard pseudos'] = TODO;
+		
+	});
+	
+	
 	
 });
 
@@ -128,5 +141,9 @@ Describe('Slick Deep Match',function(){
 		value_of( deepMatch(nodes.nested_a, 'div > b ~ b > a') ).should_be_true();
 		value_of( deepMatch(nodes.nested_a, 'div a') ).should_be_true();
 	};
+	
+	it['should match a node outside the DOM'] = TODO;
+	
+	it['should match a node on a different window/iframe'] = TODO;
 	
 });
