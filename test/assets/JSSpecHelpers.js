@@ -5,24 +5,29 @@ String.escapeSingle = function escapeSingle(string){
 };
 
 
+
 var specs, spec, it, its;
 var descriptionParent = '';
 
 function Describe(description,specBuilder){
 	
+	// Backup existing object so we don't override it
 	var old_specs = specs;
 	specs = spec = it = its = {};
 	
+	// Inherit the description of your forefathers
 	description = descriptionParent + (descriptionParent ? ': ' : '') + String(description);
 	var old_descriptionParent = descriptionParent;
 	descriptionParent = description;
 	
+	// Build the spec object
 	specBuilder(specs);
 	
-	descriptionParent = old_descriptionParent;
-	
+	// Create the tests and go!
 	describe(description, specs);
 	
+	// Reset
+	descriptionParent = old_descriptionParent;
 	specs = spec = it = its = old_specs;
 };
 
