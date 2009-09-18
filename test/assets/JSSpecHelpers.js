@@ -15,6 +15,12 @@ function Describe(description,specBuilder){
 	var old_specs = specs;
 	specs = spec = it = its = {};
 	
+	// Inherit the before and afters of your forefathers
+	specs.before = old_specs.before;
+	specs.before_all = old_specs.before_all;
+	specs.after = old_specs.after;
+	specs.after_all = old_specs.after_all;
+	
 	// Inherit the description of your forefathers
 	description = descriptionParent + (descriptionParent ? ': ' : '') + String(description);
 	var old_descriptionParent = descriptionParent;
