@@ -412,7 +412,7 @@ Describe('PSEUDO',function(){
 
 
 
-var COMBINATORS = " >+~" + "`!@$%^&={}\\;</".split('');
+var COMBINATORS = (" >+~" + "`!@$%^&={}\\;</").split('');
 Describe('COMBINATOR',function(){
 	
 	// combinators
@@ -420,15 +420,15 @@ Describe('COMBINATOR',function(){
 	
 	it['should fail when given a bad combinator'] = TODO;
 	
-	its['combinator property should be null when not in the selector'] = function(){
+	its['combinator property should be " " when not something else'] = function(){
 		
 		s = PARSE('a');
 		s = s.expressions[0][0];
-		value_of( s.combinator ).should_be_null();
+		value_of( s.combinator ).should_be(' ');
 		
-		s = PARSE('a b');
+		s = PARSE('a+b');
 		value_of( s.expressions[0][0].combinator ).should_be(' ');
-		value_of( s.expressions[0][1].combinator ).should_be_null();
+		value_of( s.expressions[0][1].combinator ).should_be('+');
 		
 	};
 	
@@ -436,11 +436,15 @@ Describe('COMBINATOR',function(){
 	var newCOMBINATOR = function(COMBINATOR){
 		return function(){
 			
-			s = PARSE('a' + COMBINATOR + 'b');
+			s = PARSE(COMBINATOR + 'b');
 			value_of( s.expressions[0][0].combinator ).should_be( COMBINATOR );
 			
-			s = PARSE('a ' + COMBINATOR + ' b');
+			s = PARSE(COMBINATOR + ' b');
 			value_of( s.expressions[0][0].combinator ).should_be( COMBINATOR );
+			
+			s = PARSE('a' + COMBINATOR + 'b');
+			value_of( s.expressions[0][0].combinator ).should_be( ' ' );
+			value_of( s.expressions[0][1].combinator ).should_be( COMBINATOR );
 			
 		};
 	};
