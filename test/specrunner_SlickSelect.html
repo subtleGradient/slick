@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <title>JSSpec results</title>
 <link rel="stylesheet" type="text/css" href="assets/JSSpec.css" />
-<script src="../slick.js" type="text/javascript" charset="utf-8"></script>
+<!-- <script src="../slick.js" type="text/javascript" charset="utf-8"></script> -->
 
 <script type="text/javascript" src="assets/diff_match_patch.js"></script>
 <script type="text/javascript" src="assets/JSSpec.js"></script>
@@ -12,6 +12,24 @@
 
 <script type="text/javascript" src="assets/template.js"></script>
 <script type="text/javascript" src="slick_engine_specs.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+var old_onload = window.onload;
+window.onload = function(){
+	var templateIframe = document.createElement('iframe');
+	templateIframe.setAttribute('src','tools/template.html');
+	document.body.appendChild(templateIframe);
+	var iframe_window = frames[frames.length - 1];
+	iframe_window.onload = iframe_window_onload;
+};
+function iframe_window_onload(){
+	old_onload();
+};
+
+</script>
 </head>
-<body></body>
+<body>
+
+
+</body>
 </html>
