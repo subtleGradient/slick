@@ -1,20 +1,3 @@
-// Helpers
-
-Function.prototype._type = "Function";
-
-String.escapeSingle = function escapeSingle(string){
-	return (''+string).replace(/(?=[\\\n'])/g,'\\');
-};
-
-Slick.debug = function(message){
-	try{console.log(Array.prototype.slice.call(arguments));}catch(e){};
-	throw new Error(message);
-};
-
-
-
-
-this.PARSE = this.PARSE || Slick.parse;
 Describe('Slick Parser',function(){
 	
 	it['should exist'] = function(){
@@ -454,14 +437,10 @@ Describe('COMBINATOR',function(){
 		return function(){
 			
 			s = PARSE('a' + COMBINATOR + 'b');
-			s = s.expressions[0];
-			value_of( s[0].combinator ).should_be( COMBINATOR );
-			// value_of( s[1].combinator ).should_be( COMBINATOR );
+			value_of( s.expressions[0][0].combinator ).should_be( COMBINATOR );
 			
 			s = PARSE('a ' + COMBINATOR + ' b');
-			s = s.expressions[0];
-			value_of( s[0].combinator ).should_be( COMBINATOR );
-			// value_of( s[1].combinator ).should_be( COMBINATOR );
+			value_of( s.expressions[0][0].combinator ).should_be( COMBINATOR );
 			
 		};
 	};
