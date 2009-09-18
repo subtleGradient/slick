@@ -4,36 +4,34 @@
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 	<title>template xhtml as html</title>
+	<script src="../../slick.js" type="text/javascript" charset="utf-8"> </script>
+	<script src="../../speed/frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../speed/frameworks/sly.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../speed/frameworks/dojo-acme.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../speed/frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../assets/template.js" type="text/javascript" charset="utf-8"> </script>
+	<script type="text/javascript" charset="utf-8">
+
+	window.top.$$$ = function(selector, context, isXML){
+		context = context || document;
+		var o = {};
+		try{ o.QSA = context.querySelectorAll(selector).length }catch(e){}
+		try{ o.Slick = Slick(context,selector).length }catch(e){}
+		try{ o.Sizzle = Sizzle(selector, context).length }catch(e){}
+		try{ o.Sly = Sly(selector, context).length }catch(e){}
+		try{ o.Acme = acme.query(selector, context).length }catch(e){}
+		return o;
+	}
+	
+	window.top.Slick = window.Slick;
+	window.top.document.search = window.document.search;
+	
+	
+	</script>
 </head>
-<body>
-<div>
-<script src="../assets/template.js" type="text/javascript" charset="utf-8"> </script>
+<body onload="window.top.iframe_window_onload && window.top.iframe_window_onload();">
 <script type="text/javascript" charset="utf-8">
 	document.write(TEMPLATE);
-</script>
-</div>
-<script src="../../slick.js" type="text/javascript" charset="utf-8"> </script>
-<script src="../../speed/frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
-<script src="../../speed/frameworks/sly.js" type="text/javascript" charset="utf-8"></script>
-<script src="../../speed/frameworks/dojo-acme.js" type="text/javascript" charset="utf-8"></script>
-<script src="../../speed/frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>
-<script type="text/javascript" charset="utf-8">
-
-window.top.$$$ = function(selector, context, isXML){
-	context = context || document;
-	var qsa = 0;
-	try{
-		qsa = context.querySelectorAll(selector).length;
-	}catch(e){};
-	var o = {};
-	o.QSA = qsa
-	try{ o.Slick = slick(context,selector).length }catch(e){}
-	try{ o.Sizzle = Sizzle(selector, context).length }catch(e){}
-	try{ o.Sly = Sly(selector, context).length }catch(e){}
-	try{ o.Acme = acme.query(selector, context).length }catch(e){}
-	return o;
-}
-
 </script>
 </body>
 </html>
