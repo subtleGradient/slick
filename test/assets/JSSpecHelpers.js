@@ -17,10 +17,10 @@ function Describe(description,specBuilder){
 	
 	// Inherit the before and afters of your forefathers
 	if (old_specs) {
-		specs.before     = old_specs.before;
-		specs.before_all = old_specs.before_all;
-		specs.after      = old_specs.after;
-		specs.after_all  = old_specs.after_all;
+		if (old_specs.before)     specs.before     = old_specs.before;
+		if (old_specs.before_all) specs.before_all = old_specs.before_all;
+		if (old_specs.after)      specs.after      = old_specs.after;
+		if (old_specs.after_all)  specs.after_all  = old_specs.after_all;
 	}
 	
 	// Inherit the description of your forefathers
