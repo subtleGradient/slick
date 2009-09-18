@@ -5,7 +5,7 @@ String.escapeSingle = String.escapeSingle || function escapeSingle(string){
 };
 
 
-
+var global = this;
 var specs, spec, it, its;
 var descriptionParent = '';
 
