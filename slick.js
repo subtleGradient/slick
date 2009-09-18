@@ -444,6 +444,16 @@ Authors:
 		return local['match:node'](node, selector);
 	};
 	
+	Slick.deepMatch = function(node, expression, context){
+		var nodes = Slick(context||document, expression);
+		for (var i=0; i < nodes.length; i++) {
+			if (nodes[i] === node) {
+				return true;
+			}
+		}
+		return false;
+	};
+	
 	// Slick.reverseMatch = function(node, selector){
 		
 		// var selector = Slick.reverse(selector);
