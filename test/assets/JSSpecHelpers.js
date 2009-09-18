@@ -27,4 +27,4 @@ function Describe(description,specBuilder){
 };
 
 
-var TODO = function(){ throw "TODO"; };
+var TODO = function(){ throw "TODO: This test has not be written yet"; };
