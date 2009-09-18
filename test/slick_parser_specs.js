@@ -191,9 +191,9 @@ Describe('CLASS',function(){
 
 
 
-var ATTRIB_KEYS = 'normal with-dash with_underscore 123number'.split(' ');
+var ATTRIB_KEYS = 'normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number'.split(' ');
 var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
-var ATTRIB_VALUES = 'normal,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
+var ATTRIB_VALUES = 'normal,ǝpoɔıun,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
 Describe('ATTRIBUTE',function(){
 	
 	
@@ -306,8 +306,8 @@ Describe('ATTRIBUTE',function(){
 
 
 
-var PSEUDO_KEYS = 'normal with-dash with_underscore'.split(' ');
-var PSEUDO_VALUES = ATTRIB_VALUES;
+var PSEUDO_KEYS = 'normal escaped\\,character ǝpoɔıun with-dash with_underscore'.split(' ');
+var PSEUDO_VALUES = 'normal,ǝpoɔıun,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');;
 Describe('PSEUDO',function(){
 	
 	it['should parse pseudos into the pseudos array'] = function(){
