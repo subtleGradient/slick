@@ -43,3 +43,7 @@ function Describe(description,specBuilder){
 
 
 var TODO = function(){ throw "TODO: This test has not be written yet"; };
+
+
+JSSpec.Browser.NativeConsole = !!(this.console && console.log && console.log.toString().match(/\[native code\]/));
+JSSpec.Browser.Trident = (JSSpec.Browser.Trident && !JSSpec.Browser.NativeConsole);
