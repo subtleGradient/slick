@@ -59,7 +59,7 @@ var JSSpec = {
 		Safari: navigator.userAgent.indexOf('Safari') !== -1,
 		
 		// By Bugs
-		NativeConsole: !!console.log.toString().match(/\[native code\]/)
+		NativeConsole: !!(this.console && console.log && console.log.toString().match(/\[native code\]/))
 	}
 };
 
