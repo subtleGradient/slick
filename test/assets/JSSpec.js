@@ -57,9 +57,6 @@ var JSSpec = {
 		FF2: navigator.userAgent.indexOf('Firefox/2') !== -1,
 		FF3: navigator.userAgent.indexOf('Firefox/3') !== -1,
 		Safari: navigator.userAgent.indexOf('Safari') !== -1,
-		
-		// By Bugs
-		NativeConsole: !!(this.console && console.log && console.log.toString().match(/\[native code\]/))
 	}
 };
 
@@ -73,7 +70,7 @@ JSSpec.Executor = function(target, onSuccess, onException) {
 	this.onSuccess = typeof onSuccess == 'function' ? onSuccess : JSSpec.EMPTY_FUNCTION;
 	this.onException = typeof onException == 'function' ? onException : JSSpec.EMPTY_FUNCTION;
 	
-	if(JSSpec.Browser.Trident && !JSSpec.Browser.NativeConsole) {
+	if(JSSpec.Browser.Trident) {
 		// Exception handler for Trident. It helps to collect exact line number where exception occured.
 		window.onerror = function(message, fileName, lineNumber) {
 			var self = window._curExecutor;
@@ -116,7 +113,7 @@ JSSpec.Executor.prototype.run = function() {
 	window.setTimeout(
 		function() {
 			var result;
-			if(JSSpec.Browser.Trident && !JSSpec.Browser.NativeConsole) {
+			if(JSSpec.Browser.Trident) {
 				window._curExecutor = self;
 				
 				result = self.target();
