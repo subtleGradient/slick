@@ -28,8 +28,10 @@ Authors:
 	} : (root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
 	} : function(context, node){
-		if (node) while ((node = node.parentNode)){
-			if (node === context) return true;
+		if (node) {
+		    while ((node = node.parentNode)){
+    			if (node === context) return true;
+    		}
 		}
 		return false;
 	};
@@ -145,9 +147,11 @@ Authors:
 		},
 
 		'>': function(node, tag, id, parts){ // direct children
-			if ((node = node.firstChild)) do {
-				if (node.nodeType == 1) this.push(node, tag, id, parts);
-			} while ((node = node.nextSibling));
+			if ((node = node.firstChild)) {
+			    do {
+    				if (node.nodeType == 1) this.push(node, tag, id, parts);
+    			} while ((node = node.nextSibling));
+			}
 		},
 		
 		'!>': function(node, tag, id, parts){ // direct parent (one level)
@@ -379,10 +383,12 @@ Authors:
 					local[combinator](context, tag, id, parts, classes, attributes, pseudos);
 				} else {
 					var items = current;
-					if (local[combinator])
-						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
-					else
-						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
+					if (local[combinator]){
+					    for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+					}
+					else {
+					    if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
+					}
 				}
 				
 				current = local.found;
