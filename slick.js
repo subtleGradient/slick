@@ -36,6 +36,20 @@ Authors:
 		return false;
 	};
 	
+	local.collectionToArray = function(node){
+	   return Array.prototype.slice.call(node);
+	};
+	try{
+	    local.collectionToArray(root.childNodes);
+	}
+	catch(e){
+	    local.collectionToArray = function(item){
+    		var i = item.length, array = new Array(i);
+    		while (i--) array[i] = item[i];
+    		return array;
+    	};
+	}
+	
 	local.cacheNTH = {};
 	
 	local.matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/;
@@ -328,26 +342,24 @@ Authors:
 		} else {
 			return found;
 		}
-		
+
 		local.positions = {};
 
 		var current;
 		
 		// querySelectorAll for simple selectors
-		
 		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
-			
 			if (nodes){
-				nodes = Array.prototype.slice.call(nodes);
+				nodes = local.collectionToArray(nodes);
 				if (!append) return nodes;
 				found.push.apply(found, nodes);
 				return found;
 			}
 		}
-		
+
 		var tempUniques = {};
 		var expressions = parsed.expressions;
 
