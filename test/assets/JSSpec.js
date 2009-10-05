@@ -56,7 +56,7 @@ var JSSpec = {
 		FF: navigator.userAgent.indexOf('Firefox') !== -1,
 		FF2: navigator.userAgent.indexOf('Firefox/2') !== -1,
 		FF3: navigator.userAgent.indexOf('Firefox/3') !== -1,
-		Safari: navigator.userAgent.indexOf('Safari') !== -1,
+		Safari: navigator.userAgent.indexOf('Safari') !== -1
 	}
 };
 
