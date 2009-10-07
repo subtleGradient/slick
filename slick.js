@@ -8,7 +8,7 @@ License:
 Authors:
 	Thomas Aylott, Valerio Proietti
 */
-
+ 
 (function(){
 	
 	var window = this, document = this.document, root = document.documentElement;
