@@ -75,6 +75,14 @@ Authors:
 		}
 	};
 	
+	local.caseSensitive = function(element){
+	    var ownerDocument = element.ownerDocument || element;
+	    return (!!ownerDocument.xmlVersion)
+	        || (!!ownerDocument.xml)
+	        || (ownerDocument.toString && ownerDocument.toString() == '[object XMLDocument]')
+    	    || (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
+	};
+	
 	var matchers = {
 		
 		node: function(node, selector){
