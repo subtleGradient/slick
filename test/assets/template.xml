@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<HTML>
+	<datael>tes</datael>
+	<datael>
+		<test>html</test>
+	</datael>
+	<idnode id="id_idnode"></idnode>
+	<datael>tes</datael>
+	<classnode class="class_classNode"></classnode>
+	<classnode class="class_classNode"></classnode>
+	<classnode class="class_classNode"></classnode>
+</HTML>

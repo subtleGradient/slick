@@ -75,7 +75,7 @@ Authors:
 		}
 	};
 	
-	local.caseSensitive = function(element){
+	local.isXml = function(element){
 	    var ownerDocument = element.ownerDocument || element;
 	    return (!!ownerDocument.xmlVersion)
 	        || (!!ownerDocument.xml)
@@ -365,8 +365,9 @@ Authors:
 				var currentBit = currentExpression[j];
 				
 				var combinator = 'combinator:' + currentBit.combinator;
-
-				var tag = currentBit.tag.toUpperCase();
+                
+                var isXml = local.isXml(context);
+				var tag = isXml? currentBit.tag: currentBit.tag.toUpperCase();
 				var id = currentBit.id;
 				var parts = currentBit.parts;
 				var classes = currentBit.classes;

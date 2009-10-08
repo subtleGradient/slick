@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>JSSpec results</title>
+<link rel="stylesheet" type="text/css" href="assets/JSSpec.css" />
+
+<link rel="stylesheet" type="text/css" href="../../../js-plugins/assets/firebug/firebug-lite.css" />
+<script src="../../../js-plugins/assets/firebug/firebug-lite-compressed.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="../slick.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" src="assets/diff_match_patch.js"></script>
+<script type="text/javascript" src="assets/JSSpec.js"></script>
+<script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
+<script type="text/javascript" src="assets/simple_request.js"></script>
+
+<script type="text/javascript" src="slick_xml_specs.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+var old_onload = window.onload;
+var xmlDocument = null;
+window.onload = function(){
+	SimpleRequest.initialize();
+	SimpleRequest.send('assets/template.xml', function(html, xml){
+		xmlDocument = xml;
+		old_onload();
+	});
+};
+</script>
+</head>
+<body>
+
+
+</body>
+</html>
