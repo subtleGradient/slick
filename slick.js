@@ -12,8 +12,36 @@ Authors:
 (function(){
 	
 	var window = this, document = this.document, root = document.documentElement;
-	
+
 	var local = {};
+    
+	// Checks similar to Sly, NWMatcher, Sizzle
+    (function() {
+
+    	// Our guinea pig
+    	var testee = document.createElement('div'), id = 'id' + (new Date()).getTime();
+    	testee.innerHTML = '<a name="' + id + '" class="€ b"></a>';
+    	testee.appendChild(document.createComment(''));
+
+    	// IE returns comment nodes for getElementsByTagName('*')
+    	local.byTagAddsComments = (testee.getElementsByTagName('*').length > 1);
+        
+        /*
+    	// Safari can't handle uppercase or unicode characters when in quirks mode.
+    	local.hasQsa = !!(testee.querySelectorAll && testee.querySelectorAll('.€').length);
+
+    	local.hasByClass = (function() {
+    		if (!testee.getElementsByClassName || !testee.getElementsByClassName('b').length) return false;
+    		testee.firstChild.className = 'c';
+    		return (testee.getElementsByClassName('c').length == 1);
+    	})();
+
+        // IE returns named nodes for getElementById(name)
+    	root.insertBefore(testee, root.firstChild);
+    	local.byIdAddsName = !!(document.getElementById(id));
+    	root.removeChild(testee);
+        */
+    })();
 	
 	local.uidx = 1;
 	
@@ -41,9 +69,10 @@ Authors:
 	    local.collectionToArray(root.childNodes);
 	}
 	catch(e){
-	    local.collectionToArray = function(item){
-    		var i = item.length, array = new Array(i);
-    		while (i--) array[i] = item[i];
+	    local.collectionToArray = function(node){
+	        if (node instanceof Array) return node;
+    		var i = node.length, array = new Array(i);
+    		while (i--) array[i] = node[i];
     		return array;
     	};
 	}
@@ -87,6 +116,18 @@ Authors:
 			this.uniques[uid] = true;
 			this.found.push(node);
 		}
+	};
+	
+	local.getByTagName = (local.byTagAddsComments) ? function(context, tag){
+	    var found = context.getElementsByTagName(tag);
+	    if(tag != '*') return found;
+	    var nodes = [];
+		for (var i = found.length, node; i--;) {
+			if (found[i].nodeType == 1) nodes.unshift(found[i]);
+		}
+		return nodes;
+	} : function(context, tag){
+	    return context.getElementsByTagName(tag);
 	};
 	
 	var matchers = {
@@ -148,7 +189,7 @@ Authors:
 				return;
 			}
 
-			children = node.getElementsByTagName(tag);
+			children = local.getByTagName(node, tag);
 			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
 		},
 		
