@@ -2,6 +2,11 @@ Describe('Slick Selector Engine',function(){
 	// var template = document.getElementsByTagName('iframe')[0].contentWindow.document.body;
 	
 	
+	if (document.querySelectorAll)
+	it['should not fail when using QSA is enabled'] = function(){
+		value_of( document.search('body').length ).should_be( 1 );
+	};
+	
 	it['should get Slick from the iframe'] = function(){
 		value_of( document.search('body *').length ).should_be( 1816 );
 	};
