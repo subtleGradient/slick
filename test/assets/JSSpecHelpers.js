@@ -45,6 +45,6 @@ function Describe(description,specBuilder){
 var TODO = function(){ throw "TODO: This test has not be written yet"; };
 
 if(typeof JSSpec == 'undefined') var JSSpec = {};
-JSSpec.Browser = {};
+if(!JSSpec.Browser) JSSpec.Browser = {};
 JSSpec.Browser.NativeConsole = !!(('console' in this) && ('log' in console) && ('toString' in console.log) && console.log.toString().match(/\[native code\]/));
 JSSpec.Browser.Trident = (JSSpec.Browser.Trident && !JSSpec.Browser.NativeConsole);
