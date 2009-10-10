@@ -29,7 +29,7 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
 	
-	it_should_find(1825, '*');
+	it_should_find(1828, '*');
 	it_should_find(1816, 'body *');
 	
 	it_should_find(1, 'html');
@@ -65,8 +65,8 @@ Describe('Slick Selector Engine',function(){
 	
 	it_should_find(324      , 'body [class]');
 	it_should_find(13       , 'body [title]');
-	it_should_find(1825-324 , 'body :not([class])');
-	it_should_find(1825-13  , 'body :not([title])');
+	it_should_find(1492 , 'body :not([class])');
+	it_should_find(1803 , 'body :not([title])');
 	;
 	it_should_find(59  , 'body div');
 	it_should_find(140 , 'div p');
@@ -103,15 +103,14 @@ Describe('Slick Selector Engine',function(){
 	
 	// pseudos
 	it_should_find(16,  'div:not(.example)');
-	it_should_find(158, 'p:nth-child(even)');
-	it_should_find(158, 'p:nth-child(2n)');
-	it_should_find(166, 'p:nth-child(odd)');
-	it_should_find(166, 'p:nth-child(2n+1)');
+	it_should_find(169, 'p:nth-child(even)');
+	it_should_find(169, 'p:nth-child(2n)');
+	it_should_find(155, 'p:nth-child(odd)');
+	it_should_find(155, 'p:nth-child(2n+1)');
 	it_should_find(324, 'p:nth-child(n)');
 	it_should_find(3,   'p:only-child');
 	it_should_find(19,  'p:last-child');
 	it_should_find(54,  'p:first-child');
-	
 	
 	// specs['":contains()" elements should actually contain the word'] = function(){
 	// 	var els = document.search(':contains(selectors)');
