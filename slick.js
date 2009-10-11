@@ -40,9 +40,10 @@ Authors:
     	root.insertBefore(testee, root.firstChild);
     	local.byIdAddsName = !!(document.getElementById(id));
     	root.removeChild(testee);
+    	*/
     	
     	testee = null;
-        */
+
     })();
 	
 	local.uidx = 1;
