@@ -18,6 +18,13 @@ Describe('Slick Selector Engine Bugs',function(){
 		}
 	};
 	
+	it['should not return comment nodes'] = function(){
+		var results = context.document.getElementsByTagName('*');
+		
+		for (var i=0; i < results.length; i++) {
+			value_of( results[i].nodeName ).should_not_match(/^#/);
+		}
+	};
 	
 });
 
