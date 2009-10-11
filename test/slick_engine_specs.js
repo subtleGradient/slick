@@ -17,6 +17,13 @@ Describe('Slick Selector Engine Bugs',function(){
 			value_of( results[i].nodeName ).should_not_match(/^\//);
 		}
 	};
+
+    it['should not return closed nodes2'] = function(){
+    	var div = document.createElement('div');
+    	div.innerHTML = '<span><div></div></span></ br></abbr>';
+    	var results = Slick(div, '*');
+    	value_of( results.length ).should_be(2);
+    };
 	
 	it['should not return comment nodes'] = function(){
 		var results = context.document.search('*');
