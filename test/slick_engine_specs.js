@@ -33,11 +33,19 @@ Describe('Slick Selector Engine Bugs',function(){
 		}
 	};
 	
-	it['should return element the second class defined to it'] = function(){
+	it['should return an element with the second class defined to it'] = function(){
 		var div = document.createElement('div');
     	div.innerHTML = '<span class="class1 class2"></span>';
     	var results = Slick(div, '.class2');
     	value_of( results.length ).should_be(1);
+	};
+	
+	it['should return the elements with passed class'] = function(){
+		var div = document.createElement('div');
+    	div.innerHTML = '<span class="f"></span><span class="b"></span>';
+    	div.firstChild.className = 'b';
+    	var results = Slick(div, '.b');
+    	value_of( results.length ).should_be(2);
 	};
 	
 });
