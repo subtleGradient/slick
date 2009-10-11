@@ -10,20 +10,22 @@
 <script type="text/javascript" src="assets/JSSpec.js"></script>
 <script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
 
-<script type="text/javascript" src="assets/template.js"></script>
 <script type="text/javascript" src="slick_engine_specs.js"></script>
 <script type="text/javascript" charset="utf-8">
 
 var old_onload = window.onload;
+var context;
 window.onload = function(){
 	var templateIframe = document.createElement('iframe');
 	templateIframe.setAttribute('src','tools/template.html');
 	document.body.appendChild(templateIframe);
-	var iframe_window = frames[frames.length - 1];
-	iframe_window.onload = iframe_window_onload;
+	context = frames[frames.length - 1];
+	setTimeout(context_onload,1000);
 };
-function iframe_window_onload(){
+var context_onload = function(){
+	if (context_onload.ran) return;
 	old_onload();
+	context_onload.ran = true;
 };
 
 </script>
