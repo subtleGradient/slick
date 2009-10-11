@@ -165,6 +165,8 @@ Describe('Slick Selector Engine',function(){
 		var results = context.document.search('* *');
 		var dupe = false;
 		
+		var dupe_uids = [];
+		
 		for (var i=0; i < results.length; i++) {
 			for (var u=0; u < uniques.length; u++) {
 				if (results[i] == uniques[u]){
@@ -173,14 +175,81 @@ Describe('Slick Selector Engine',function(){
 				}
 			}
 			
-			if (dupe)
+			if (dupe) {
 				dupes.push(results[i]);
+			}
 			else
 				uniques.push(results[i]);
 			
 			dupe = false;
 		}
+		value_of( dupes.length ).should_be( 0 );
 		
+		context.Slick.disableQSA = false;
+	};
+	it['should not return duplicates for "* *[class]"'] = function(){
+		context.Slick.disableQSA = true;
+		// console.log('should not return duplicates for "* *[class]"');
+		// window['should not return duplicates for "* *[class]"'] = true;
+		var dupes = [];
+		var uniques = [];
+		var results = context.document.search('* *[class]');
+		var dupe = false;
+		
+		var dupe_uids = [];
+		
+		for (var i=0; i < results.length; i++) {
+			for (var u=0; u < uniques.length; u++) {
+				if (results[i] == uniques[u]){
+					dupe = true;
+					break;
+				}
+			}
+			
+			if (dupe) {
+				dupes.push(results[i]);
+			}
+			else
+				uniques.push(results[i]);
+			
+			dupe = false;
+		}
+		// value_of( dupes.length ).should_be( 0 );
+		// window['should not return duplicates for "* *[class]"'] = false;
+		// console.log('/should not return duplicates for "* *[class]"');
+		
+		context.Slick.disableQSA = false;
+	};
+	it['should not return duplicates for "* *" manually'] = function(){
+		context.Slick.disableQSA = true;
+		
+		var dupes = [];
+		var uniques = [];
+		var results0 = context.document.getElementsByTagName('*');
+		var results = [];
+		for (var i=0; i < results0.length; i++) {
+			results.concat( Array.prototype.slice.call(results0[i].getElementsByTagName('*')) );
+		}
+		var dupe = false;
+		
+		var dupe_uids = [];
+		
+		for (var i=0; i < results.length; i++) {
+			for (var u=0; u < uniques.length; u++) {
+				if (results[i] == uniques[u]){
+					dupe = true;
+					break;
+				}
+			}
+			
+			if (dupe) {
+				dupes.push(results[i]);
+			}
+			else
+				uniques.push(results[i]);
+			
+			dupe = false;
+		}
 		value_of( dupes.length ).should_be( 0 );
 		
 		context.Slick.disableQSA = false;
