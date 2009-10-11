@@ -78,6 +78,24 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(6, '.a1 ~ *');
 	
 	it_should_find(6, '.a1 !  *');
+	it["should count '.a1 !  *'"] = function(){
+		
+		var ancestors = [];
+		var ancestors_length = 0;
+		var things = document.search('.a1');
+		var dad;
+		for (var i=0; i < things.length; i++) {
+			ancestors[i] = [];
+			dad = things[i];
+			while ((dad = dad.parentNode) && dad != context.document) ancestors[i].push(dad);
+			console.log(ancestors[i].length);
+			ancestors_length += ancestors[i].length;
+		}
+		
+		console.log( ancestors );
+		console.log(ancestors_length);
+		
+	};
 	it_should_find(4, '.a1 !> *');
 	it_should_find(2, '.a4 !+ *');
 	it_should_find(4, '.a4 !~ *');
