@@ -77,7 +77,6 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(2, '.a1 + *');
 	it_should_find(6, '.a1 ~ *');
 	
-	it_should_find(6, '.a1 !  *');
 /*
 	it["should count '.a1 !  *'"] = function(){
 		
@@ -99,6 +98,7 @@ Describe('Slick Selector Engine',function(){
 	};
 */
 	
+	it_should_find(18, '.a1 !  *');
 	it_should_find(4, '.a1 !> *');
 	it_should_find(2, '.a4 !+ *');
 	it_should_find(4, '.a4 !~ *');
@@ -149,10 +149,10 @@ Describe('Slick Selector Engine',function(){
 	
 	// pseudos
 	it_should_find(16,  'div:not(.example)');
-	it_should_find(169, 'p:nth-child(even)');
-	it_should_find(169, 'p:nth-child(2n)');
-	it_should_find(155, 'p:nth-child(odd)');
-	it_should_find(155, 'p:nth-child(2n+1)');
+	it_should_find(158, 'p:nth-child(even)');
+	it_should_find(158, 'p:nth-child(2n)');
+	it_should_find(166, 'p:nth-child(odd)');
+	it_should_find(166, 'p:nth-child(2n+1)');
 	it_should_find(324, 'p:nth-child(n)');
 	it_should_find(3,   'p:only-child');
 	it_should_find(19,  'p:last-child');
