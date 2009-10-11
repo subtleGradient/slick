@@ -404,8 +404,9 @@ Authors:
 
 		var tempUniques = {};
 		var expressions = parsed.expressions;
-
-		local.push = (parsed.length == 1 && expressions[0].length == 1) ? local.pushArray : local.pushUID;
+		
+		if (parsed.length == 1 && expressions[0].length == 1) local.push = local.pushArray;
+		else local.push = local.pushUID;
 		
 		for (var i = 0; i < expressions.length; i++){
 			
