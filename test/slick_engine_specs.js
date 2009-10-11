@@ -120,7 +120,66 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(1803 , 'body :not([title])');
 	;
 	it_should_find(59  , 'body div');
+	it['should not return duplicates for "* *"'] = function(){
+		context.Slick.disableQSA = true;
+		
+		var dupes = [];
+		var uniques = [];
+		var results = context.document.search('* *');
+		var dupe = false;
+		
+		for (var i=0; i < results.length; i++) {
+			for (var u=0; u < uniques.length; u++) {
+				if (results[i] == uniques[u]){
+					dupe = true;
+					break;
+				}
+			}
+			
+			if (dupe)
+				dupes.push(results[i]);
+			else
+				uniques.push(results[i]);
+			
+			dupe = false;
+		}
+		
+		value_of( dupes.length ).should_be( 0 );
+		
+		context.Slick.disableQSA = false;
+	};
+	it['should not return duplicates for "div p"'] = function(){
+		context.Slick.disableQSA = true;
+		
+		var dupes = [];
+		var uniques = [];
+		var results = context.document.search('div p');
+		var dupe = false;
+		
+		for (var i=0; i < results.length; i++) {
+			for (var u=0; u < uniques.length; u++) {
+				if (results[i] == uniques[u]){
+					dupe = true;
+					break;
+				}
+			}
+			
+			if (dupe)
+				dupes.push(results[i]);
+			else
+				uniques.push(results[i]);
+			
+			dupe = false;
+		}
+		
+		value_of( dupes.length ).should_be( 0 );
+		value_of( uniques.length ).should_be( 140 );
+		
+		context.Slick.disableQSA = false;
+	};
 	it_should_find(140 , 'div p');
+	it_should_find(140 , 'div  p');
+	
 	it_should_find(134 , 'div > p');
 	it_should_find(22  , 'div + p');
 	it_should_find(183 , 'div ~ p');
