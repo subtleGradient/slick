@@ -123,7 +123,9 @@ Authors:
         if(tag != '*') return found;
         var nodes = [];
     	for (var i = 0, node; (node = found[i]); i++) {
-    		if (node.nodeType == 1) nodes.push(node);
+    		if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+    		    nodes.push(node);
+    		}
     	}
     	return nodes;
     } : function(context, tag){
