@@ -58,8 +58,9 @@ Describe('Slick Selector Engine Bugs',function(){
 	it['should not return an element without the id equals to the passed id'] = function(){
 		var div = document.createElement('div');
     	div.innerHTML = '<input name="f" type="text" /><input id="f" name="e" type="password" />';
-    	document.documentElement.appendChild(div);
+    	document.body.appendChild(div);
     	var results = Slick(document, '#f');
+    	value_of( results.length ).should_be( 1 );
     	value_of( results[0].type ).should_be('password');
 	};
 	
