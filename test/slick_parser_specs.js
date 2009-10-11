@@ -334,6 +334,7 @@ Describe('PSEUDO',function(){
 		
 	};
 	
+/*
 	its['pseudos nth value should transform odd to 2n+1'] = function(){
 		var nths = [
 			{raw:        ":nth-child(odd)", key:       "nth-child", value:"2n+1"},
@@ -380,6 +381,7 @@ Describe('PSEUDO',function(){
 			
 		}
 	}
+*/
 	
 	// PSEUDO
 	var newPSEUDO = function(PSEUDO_KEY, PSEUDO_VALUE){
