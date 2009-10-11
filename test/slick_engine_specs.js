@@ -80,6 +80,8 @@ Describe('Slick Selector Engine',function(){
 /*
 	it["should count '.a1 !  *'"] = function(){
 		
+		var result = {};
+		
 		var ancestors = [];
 		var ancestors_length = 0;
 		var things = document.search('.a1');
@@ -88,12 +90,15 @@ Describe('Slick Selector Engine',function(){
 			ancestors[i] = [];
 			dad = things[i];
 			while ((dad = dad.parentNode) && dad != context.document) ancestors[i].push(dad);
-			console.log(ancestors[i].length);
+			
+			// console.log(ancestors[i].length);
 			ancestors_length += ancestors[i].length;
 		}
 		
-		console.log( ancestors );
-		console.log(ancestors_length);
+		result.ancestors_length = ancestors_length;
+		value_of( result ).should_be( {} );
+		// console.log( ancestors );
+		// console.log(ancestors_length);
 		
 	};
 */
