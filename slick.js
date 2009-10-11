@@ -40,7 +40,10 @@ Authors:
     	root.insertBefore(testee, root.firstChild);
     	local.byIdAddsName = !!(document.getElementById(id));
     	root.removeChild(testee);
-        */
+    	*/
+    	
+    	testee = null;
+
     })();
 	
 	local.uidx = 1;
@@ -118,17 +121,19 @@ Authors:
 		}
 	};
 	
-	local.getByTagName = (local.byTagAddsComments) ? function(context, tag){
-	    var found = context.getElementsByTagName(tag);
-	    if(tag != '*') return found;
-	    var nodes = [];
-		for (var i = found.length, node; i--;) {
-			if (found[i].nodeType == 1) nodes.unshift(found[i]);
-		}
-		return nodes;
-	} : function(context, tag){
-	    return context.getElementsByTagName(tag);
-	};
+    local.getByTagName = (local.byTagAddsComments) ? function(context, tag){
+        var found = context.getElementsByTagName(tag);
+        if(tag != '*') return found;
+        var nodes = [];
+    	for (var i = 0, node; (node = found[i]); i++) {
+    		if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+    		    nodes.push(node);
+    		}
+    	}
+    	return nodes;
+    } : function(context, tag){
+        return context.getElementsByTagName(tag);
+    };
 	
 	var matchers = {
 		

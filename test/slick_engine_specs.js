@@ -17,6 +17,13 @@ Describe('Slick Selector Engine Bugs',function(){
 			value_of( results[i].nodeName ).should_not_match(/^\//);
 		}
 	};
+
+    it['should not return closed nodes2'] = function(){
+    	var div = document.createElement('div');
+    	div.innerHTML = '<span><div></div></span></ br></abbr>';
+    	var results = Slick(div, '*');
+    	value_of( results.length ).should_be(2);
+    };
 	
 	it['should not return comment nodes'] = function(){
 		var results = context.document.search('*');
@@ -24,6 +31,36 @@ Describe('Slick Selector Engine Bugs',function(){
 		for (var i=0; i < results.length; i++) {
 			value_of( results[i].nodeName ).should_not_match(/^#/);
 		}
+	};
+	
+	it['should return an element with the second class defined to it'] = function(){
+		var div = document.createElement('div');
+    	div.innerHTML = '<span class="class1 class2"></span>';
+    	var results = Slick(div, '.class2');
+    	value_of( results.length ).should_be(1);
+	};
+	
+	it['should return the elements with passed class'] = function(){
+		var div = document.createElement('div');
+    	div.innerHTML = '<span class="f"></span><span class="b"></span>';
+    	div.firstChild.className = 'b';
+    	var results = Slick(div, '.b');
+    	value_of( results.length ).should_be(2);
+	};
+	
+	it['should return the element with passed id even if the context is not in the DOM'] = function(){
+		var div = document.createElement('div');
+    	div.innerHTML = '<input id="f" type="text" />';
+    	var results = Slick(div, '#f');
+    	value_of( results.length ).should_be(1);
+	};
+	
+	it['should not return an element without the id equals to the passed id'] = function(){
+		var div = document.createElement('div');
+    	div.innerHTML = '<input name="f" type="text" /><input id="f" name="e" type="password" />';
+    	document.documentElement.appendChild(div);
+    	var results = Slick(document, '#f');
+    	value_of( results[0].type ).should_be('password');
 	};
 	
 });
