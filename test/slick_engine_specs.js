@@ -78,6 +78,7 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(6, '.a1 ~ *');
 	
 	it_should_find(6, '.a1 !  *');
+/*
 	it["should count '.a1 !  *'"] = function(){
 		
 		var ancestors = [];
@@ -96,6 +97,8 @@ Describe('Slick Selector Engine',function(){
 		console.log(ancestors_length);
 		
 	};
+*/
+	
 	it_should_find(4, '.a1 !> *');
 	it_should_find(2, '.a4 !+ *');
 	it_should_find(4, '.a4 !~ *');
