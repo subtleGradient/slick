@@ -121,22 +121,38 @@ Describe('Slick Selector Engine',function(){
 		
 		var ancestors = [];
 		var ancestors_length = 0;
-		var things = document.search('.a1');
+		var things = context.document.search('.a1');
 		var dad;
 		for (var i=0; i < things.length; i++) {
-			ancestors[i] = [];
 			dad = things[i];
-			while ((dad = dad.parentNode) && dad != context.document) ancestors[i].push(dad);
-			
-			// console.log(ancestors[i].length);
-			ancestors_length += ancestors[i].length;
+			while ((dad = dad.parentNode) && dad != context.document) ancestors.push(dad);
 		}
 		
-		result.ancestors_length = ancestors_length;
-		value_of( result ).should_be( {} );
-		// console.log( ancestors );
-		// console.log(ancestors_length);
+		// 
+		var dupes = [];
+		var uniques = [];
+		var results = ancestors;
+		var dupe = false;
 		
+		for (var i=0; i < results.length; i++) {
+			for (var u=0; u < uniques.length; u++) {
+				if (results[i] == uniques[u]){
+					dupe = true;
+					break;
+				}
+			}
+			
+			if (dupe)
+				dupes.push(results[i]);
+			else
+				uniques.push(results[i]);
+			
+			dupe = false;
+		}
+		
+		value_of( uniques.length ).should_be( 7 );
+		// value_of( dupes.length ).should_be( 0 );
+		// 
 	};
 */
 	
