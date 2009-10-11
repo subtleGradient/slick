@@ -91,8 +91,8 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
 	
-	it_should_find(1828, '*');
-	it_should_find(1816, 'body *');
+	it_should_find(1825, '*');
+	it_should_find(1814, 'body *');
 	
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
@@ -156,7 +156,7 @@ Describe('Slick Selector Engine',function(){
 	};
 */
 	
-	it_should_find(18, '.a1 !  *');
+	it_should_find(6, '.a1 !  *');
 	it_should_find(4, '.a1 !> *');
 	it_should_find(2, '.a4 !+ *');
 	it_should_find(4, '.a4 !~ *');
@@ -169,8 +169,8 @@ Describe('Slick Selector Engine',function(){
 	
 	it_should_find(324      , 'body [class]');
 	it_should_find(13       , 'body [title]');
-	it_should_find(1492 , 'body :not([class])');
-	it_should_find(1803 , 'body :not([title])');
+	it_should_find(1490 , 'body :not([class])');
+	it_should_find(1801 , 'body :not([title])');
 	;
 	it_should_find(59  , 'body div');
 	it['should not return duplicates for "* *"'] = function(){
