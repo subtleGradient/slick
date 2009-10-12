@@ -254,6 +254,7 @@ Describe('Slick Selector Engine',function(){
 		
 		context.Slick.disableQSA = false;
 	};
+/*
 	it['should not return duplicates for "* *" manually'] = function(){
 		context.Slick.disableQSA = true;
 		
@@ -288,6 +289,7 @@ Describe('Slick Selector Engine',function(){
 		
 		context.Slick.disableQSA = false;
 	};
+*/
 	it['should not return duplicates for "div p"'] = function(){
 		context.Slick.disableQSA = true;
 		
