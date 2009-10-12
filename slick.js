@@ -148,11 +148,15 @@ Authors:
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
 			if (tag && tag != '*' && (!node.tagName || node.tagName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
-
 			for (var i = 0, l = parts.length; i < l; i++){
 				var part = parts[i];
 				switch (part.type){
-					case 'class': if (classes !== false && (!node.className || !part.regexp.test(node.className))) return false; break;
+					case 'class':
+					    if (classes !== false){
+					        var cls = local.getAttribute(node, 'class');
+					        if (!cls || !part.regexp.test(cls)) return false;
+					    }
+					break;
 					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
 					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
 				}
@@ -167,7 +171,7 @@ Authors:
 	
 	var combinators = {
 
-		' ': function(node, tag, id, parts, classes){ // all child nodes, any level
+		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXml){ // all child nodes, any level
 			if (id){
 				var item;
 				if (node.getElementById){
@@ -185,7 +189,7 @@ Authors:
 			
 			var children;
 			
-			if (node.getElementsByClassName && classes){
+			if (node.getElementsByClassName && classes && !isXml){
 				children = node.getElementsByClassName(classes.join(' '));
 				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, parts, false);
 				return;
@@ -441,11 +445,11 @@ Authors:
 				}
 				
 				if (j == 0){
-					local[combinator](context, tag, id, parts, classes, attributes, pseudos);
+					local[combinator](context, tag, id, parts, classes, attributes, pseudos, isXml);
 				} else {
 					var items = current;
 					if (local[combinator])
-						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos, isXml);
 					else
 						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
 				}
