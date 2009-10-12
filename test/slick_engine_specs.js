@@ -109,8 +109,8 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
 	
-	it_should_find(1825, '*');
-	it_should_find(1814, 'body *');
+	it_should_find(1825, '*:not([href^=tel:])');
+	it_should_find(1814, 'body *:not([href^=tel:])');
 	
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
@@ -185,10 +185,10 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(0, '.a4 + .a4');
 	
 	
-	it_should_find(324      , 'body [class]');
-	it_should_find(13       , 'body [title]');
-	it_should_find(1490 , 'body :not([class])');
-	it_should_find(1801 , 'body :not([title])');
+	it_should_find(324  , 'body [class]:not([href^=tel:])');
+	it_should_find(13   , 'body [title]:not([href^=tel:])');
+	it_should_find(1490 , 'body :not([class]):not([href^=tel:])');
+	it_should_find(1801 , 'body :not([title]):not([href^=tel:])');
 	;
 	it_should_find(59  , 'body div');
 	it['should not return duplicates for "* *"'] = function(){
@@ -326,8 +326,8 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(0   , 'div & p');
 	;
 	it_should_find(43  , 'div[class^=exa][class$=mple]');
-	it_should_find(12  , 'div p a');
-	it_should_find(683 , 'div,p,a');
+	it_should_find(12  , 'div p a:not([href^=tel:])');
+	it_should_find(683 , 'div,p,a:not([href^=tel:])');
 	;
 	it_should_find(43 , 'DIV.example');
 	it_should_find(12 , 'ul .tocline2');
