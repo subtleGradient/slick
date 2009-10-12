@@ -109,7 +109,7 @@ Authors:
 		}
 	};
 	
-    local.getByTagName = (local.byTagAddsComments) ? function(context, tag){
+    local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
         var found = context.getElementsByTagName(tag);
         if(tag != '*') return found;
         var nodes = [];
