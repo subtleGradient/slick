@@ -147,7 +147,7 @@ Authors:
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
 			if (tag && tag != '*' && (!node.tagName || node.tagName != tag)) return false;
-			if (id && node.id != id) return false;
+			if (id && node.getAttribute('id') != id) return false;
 
 			for (var i = 0, l = parts.length; i < l; i++){
 				var part = parts[i];
@@ -172,8 +172,10 @@ Authors:
 				var item;
 				if (node.getElementById){
 					item = node.getElementById(id);
-					if (item) this.push(item, tag, null, parts);
-					return;
+					if (item){
+					    this.push(item, tag, null, parts);
+    					return;
+					}
 				} else if ((node === root) || this.contains(root, node)){
 					item = document.getElementById(id);
 					if (item && this.contains(node, item)) this.push(item, tag, null, parts);
