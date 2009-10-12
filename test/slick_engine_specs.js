@@ -71,6 +71,21 @@ Describe('Slick Selector Engine Bugs',function(){
 
 Describe('Slick Selector Engine',function(){
 	
+	it['should append results to an existing array if passed in'] = function(){
+		var append = [];
+		value_of( Slick(document, '*', append) ).should_be( append );
+	};
+	
+	it['should append results to an existing array-like-thing if passed in'] = function(){
+		var append = {
+			length: 0,
+			push: function(item){
+				this[this.length++] = item;
+			}
+		};
+		value_of( Slick(document, '*', append) ).should_be( append );
+	};
+	
 	if (document.querySelectorAll)
 	it['should not fail when using QSA is enabled'] = function(){
 		value_of( document.search('body').length ).should_be( 1 );
