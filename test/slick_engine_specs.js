@@ -2,6 +2,16 @@ this.context = this.context || this;
 
 Describe('Slick Selector Engine Bugs',function(){
 	
+	var testNode;
+	specs.before_all = function(){
+		testNode = document.createElement('div');
+		document.body.appendChild(testNode);
+	};
+	specs.after_all = function(){
+		testNode.parentNode.removeChild(testNode);
+		testNode = null;
+	};
+	
 	it['should not return not-nodes'] = function(){
 		var results = context.document.search('*');
 		
