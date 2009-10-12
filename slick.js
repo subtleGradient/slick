@@ -171,7 +171,7 @@ Authors:
 	var combinators = {
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXml){ // all child nodes, any level
-			if (id){
+			if (id && !isXml){
 				var item;
 				if (node.getElementById){
 					item = node.getElementById(id);
@@ -497,11 +497,14 @@ Authors:
 		return ('className'in this) ? this.className : this.getAttribute('class');
 	}).defineAttribute('for', function(){
 		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
-	});
+	}).defineAttribute('href', function(){
+        return this.getAttribute('href', 2);
+    });
+	
 	
 	local.getAttribute = function(node, name){
 		var method = this.attributeMethods[name];
-		return (method) ? method.call(node) : node.getAttribute(name, 2);
+		return (method) ? method.call(node) : node.getAttribute(name);
 	};
 	
 	// matcher
