@@ -43,6 +43,8 @@ Describe('Slick Selector Engine Bugs',function(){
 	it['should return the elements with passed class'] = function(){
 		var div = document.createElement('div');
     	div.innerHTML = '<span class="f"></span><span class="b"></span>';
+    	var results = Slick(div, '.b');
+    	value_of( results.length ).should_be(1);
     	div.firstChild.className = 'b';
     	var results = Slick(div, '.b');
     	value_of( results.length ).should_be(2);
