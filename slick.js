@@ -14,37 +14,25 @@ Authors:
 	var window = this, document = this.document, root = document.documentElement;
 
 	var local = {};
-    
-	// Checks similar to Sly, NWMatcher, Sizzle
-    (function() {
-
-    	// Our guinea pig
-    	var testee = document.createElement('div'), id = 'id' + (new Date()).getTime();
-    	testee.innerHTML = '<a name="' + id + '" class="€ b"></a>';
-    	testee.appendChild(document.createComment(''));
-
-    	// IE returns comment nodes for getElementsByTagName('*')
-    	local.byTagAddsComments = (testee.getElementsByTagName('*').length > 1);
-        
-        /*
-    	// Safari can't handle uppercase or unicode characters when in quirks mode.
-    	local.hasQsa = !!(testee.querySelectorAll && testee.querySelectorAll('.€').length);
-
-    	local.hasByClass = (function() {
-    		if (!testee.getElementsByClassName || !testee.getElementsByClassName('b').length) return false;
-    		testee.firstChild.className = 'c';
-    		return (testee.getElementsByClassName('c').length == 1);
-    	})();
-
-        // IE returns named nodes for getElementById(name)
-    	root.insertBefore(testee, root.firstChild);
-    	local.byIdAddsName = !!(document.getElementById(id));
-    	root.removeChild(testee);
-    	*/
-    	
-    	testee = null;
-
-    })();
+	
+	// Feature / Bug detection
+	(function() {
+		
+		// Our guinea pig
+		var testNode = document.createElement('div');
+		var id = 'id' + (new Date()).getTime();
+		testNode.appendChild(document.createComment(''));
+		
+		// IE returns comment nodes for getElementsByTagName('*')
+		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 1);
+		
+		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+		testNode.innerHTML = 'foo</foo>';
+		try{ local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		
+		testNode = null;
+	})();
 	
 	local.uidx = 1;
 	
@@ -121,7 +109,7 @@ Authors:
 		}
 	};
 	
-    local.getByTagName = (local.byTagAddsComments) ? function(context, tag){
+    local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
         var found = context.getElementsByTagName(tag);
         if(tag != '*') return found;
         var nodes = [];
@@ -388,6 +376,14 @@ Authors:
 		local.positions = {};
 
 		var current;
+		
+		// disable querySelectorAll for star tags if it's buggy
+		if (local.starSelectsClosedQSA && parsed.simple) parsed.simple = (function(){
+			for (var i = 0; i < parsed.expressions.length; i++)
+				for (var j = 0; j < parsed.expressions[i].length; j++)
+					if (parsed.expressions[i][j].tag == '*') return false;
+			return true;
+		})();
 		
 		// querySelectorAll for simple selectors
 		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
