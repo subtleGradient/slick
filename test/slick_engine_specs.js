@@ -78,11 +78,14 @@ Describe('Slick Selector Engine Bugs',function(){
     	var results = context.Slick(testNode, '.b');
     	value_of( results.length ).should_be(2);
 	};
-	
+
 	it['should return the element with passed id even if the context is not in the DOM'] = function(){
-    	testNode.innerHTML = '<input id="f" type="text" />';
-    	var results = context.Slick(testNode, '#f');
+    	var div = document.createElement('div');
+    	div.innerHTML = '<input id="someuniqueid" type="text" />';
+    	var results = context.Slick(div, '#someuniqueid');
     	value_of( results.length ).should_be(1);
+    	value_of( results[0].tagName ).should_be('INPUT');
+        value_of( results[0].type ).should_be('text');
 	};
 	
 	it['should not return an element without the id equals to the passed id'] = function(){
