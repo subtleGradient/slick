@@ -377,6 +377,14 @@ Authors:
 
 		var current;
 		
+		// disable querySelectorAll for star tags if it's buggy
+		if (local.starSelectsClosedQSA && parsed.simple) parsed.simple = (function(){
+			for (var i = 0; i < parsed.expressions.length; i++)
+				for (var j = 0; j < parsed.expressions[i].length; j++)
+					if (parsed.expressions[i][j].tag == '*') return false;
+			return true;
+		})();
+		
 		// querySelectorAll for simple selectors
 		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
 			var nodes;
