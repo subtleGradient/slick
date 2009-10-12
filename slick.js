@@ -489,9 +489,9 @@ Authors:
 	};
 	
 	Slick.defineAttribute('class', function(){
-		return this.className;
+		return ('className'in this) ? this.className : this.getAttribute('class');
 	}).defineAttribute('for', function(){
-		return this.htmlFor;
+		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	});
 	
 	local.getAttribute = function(node, name){
