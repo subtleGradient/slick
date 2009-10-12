@@ -19,5 +19,6 @@ Describe('Slick Selector Engine on Xml file',function(){
 	it_should_find(3, '.class_classNode');
 	it_should_find(3, '[class=class_classNode]');
 	it_should_find(0, '[className=class_classNode]');
+	it_should_find(3, 'camelCasedTag');
 	
 });

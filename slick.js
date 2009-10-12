@@ -146,7 +146,7 @@ Authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if (tag && tag != '*' && (!node.tagName || node.tagName != tag)) return false;
+			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
 			for (var i = 0, l = parts.length; i < l; i++){
 				var part = parts[i];
@@ -161,7 +161,6 @@ Authors:
 					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
 				}
 			}
-
 			return true;
 		}
 
@@ -387,11 +386,12 @@ Authors:
 		}
 
 		local.positions = {};
-
+		
+        var isXml = local.isXml(context);
 		var current;
 		
 		// disable querySelectorAll for star tags if it's buggy
-		if (local.starSelectsClosedQSA && parsed.simple) parsed.simple = (function(){
+		if (local.starSelectsClosedQSA && parsed.simple && !isXml) parsed.simple = (function(){
 			for (var i = 0; i < parsed.expressions.length; i++)
 				for (var j = 0; j < parsed.expressions[i].length; j++)
 					if (parsed.expressions[i][j].tag == '*') return false;
@@ -399,7 +399,7 @@ Authors:
 		})();
 		
 		// querySelectorAll for simple selectors
-		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
+		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA && !isXml){
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
@@ -426,7 +426,6 @@ Authors:
 				
 				var combinator = 'combinator:' + currentBit.combinator;
                 
-                var isXml = local.isXml(context);
 				var tag = isXml? currentBit.tag: currentBit.tag.toUpperCase();
 				var id = currentBit.id;
 				var parts = currentBit.parts;
