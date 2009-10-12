@@ -12,8 +12,26 @@ Authors:
 (function(){
 	
 	var window = this, document = this.document, root = document.documentElement;
-	
+
 	var local = {};
+	
+	// Feature / Bug detection
+	(function() {
+		
+		// Our guinea pig
+		var testNode = document.createElement('div');
+		testNode.appendChild(document.createComment(''));
+		
+		// IE returns comment nodes for getElementsByTagName('*')
+		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+		
+		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+		testNode.innerHTML = 'foo</foo>';
+		try{ local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		
+		testNode = null;
+	})();
 	
 	local.uidx = 1;
 	
@@ -33,6 +51,21 @@ Authors:
 		}
 		return false;
 	};
+	
+	local.collectionToArray = function(node){
+	   return Array.prototype.slice.call(node);
+	};
+	try{
+	    local.collectionToArray(root.childNodes);
+	}
+	catch(e){
+	    local.collectionToArray = function(node){
+	        if (node instanceof Array) return node;
+    		var i = node.length, array = new Array(i);
+    		while (i--) array[i] = node[i];
+    		return array;
+    	};
+	}
 	
 	local.cacheNTH = {};
 	
@@ -82,6 +115,20 @@ Authors:
 	        || (ownerDocument.toString && ownerDocument.toString() == '[object XMLDocument]')
     	    || (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
+
+    local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
+        var found = context.getElementsByTagName(tag);
+        if(tag != '*') return found;
+        var nodes = [];
+    	for (var i = 0, node; (node = found[i]); i++) {
+    		if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+    		    nodes.push(node);
+    		}
+    	}
+    	return nodes;
+    } : function(context, tag){
+        return context.getElementsByTagName(tag);
+    };
 	
 	var matchers = {
 		
@@ -142,7 +189,7 @@ Authors:
 				return;
 			}
 
-			children = node.getElementsByTagName(tag);
+			children = local.getByTagName(node, tag);
 			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
 		},
 		
@@ -332,30 +379,37 @@ Authors:
 		} else {
 			return found;
 		}
-		
+
 		local.positions = {};
 
 		var current;
 		
-		// querySelectorAll for simple selectors
+		// disable querySelectorAll for star tags if it's buggy
+		if (local.starSelectsClosedQSA && parsed.simple) parsed.simple = (function(){
+			for (var i = 0; i < parsed.expressions.length; i++)
+				for (var j = 0; j < parsed.expressions[i].length; j++)
+					if (parsed.expressions[i][j].tag == '*') return false;
+			return true;
+		})();
 		
+		// querySelectorAll for simple selectors
 		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
-			
 			if (nodes){
-				nodes = Array.prototype.slice.call(nodes);
+				nodes = local.collectionToArray(nodes);
 				if (!append) return nodes;
 				found.push.apply(found, nodes);
 				return found;
 			}
 		}
-		
+
 		var tempUniques = {};
 		var expressions = parsed.expressions;
-
-		local.push = (parsed.length == 1 && expressions[0].length == 1) ? local.pushArray : local.pushUID;
+		
+		if (parsed.length == 1 && expressions[0].length == 1) local.push = local.pushArray;
+		else local.push = local.pushUID;
 		
 		for (var i = 0; i < expressions.length; i++){
 			
