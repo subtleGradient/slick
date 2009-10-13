@@ -1,12 +1,15 @@
 /*
-Script: Slick.js
-	The new, superfast css selector engine.
+---
+provides: Slick
 
-License:
-	MIT-style license.
-	
-Authors:
-	Thomas Aylott, Valerio Proietti
+description: The new, superfast css selector engine.
+
+license: MIT-style
+
+authors:
+- Thomas Aylott
+- Valerio Proietti
+...
 */
 
 (function(){
