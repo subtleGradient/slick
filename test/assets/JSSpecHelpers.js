@@ -6,11 +6,11 @@ String.escapeSingle = String.escapeSingle || function escapeSingle(string){
 
 
 var global = this;
+global.context = this;
 var specs, spec, it, its;
 var descriptionParent = '';
 
 function Describe(description,specBuilder){
-	
 	// Backup existing object so we don't override it
 	var old_specs = specs;
 	specs = spec = it = its = {};
@@ -31,7 +31,7 @@ function Describe(description,specBuilder){
 	descriptionParent = description;
 	
 	// Build the spec object
-	specBuilder(specs);
+	specBuilder(specs,global.context);
 	
 	// Create the tests and go!
 	describe(description, specs);
