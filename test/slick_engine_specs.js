@@ -1,4 +1,10 @@
-this.context = this.context || this;
+
+for (var name in contexts) {
+	
+	global.context = contexts[name];
+	Describe('Slick Selector Engine ' + name, SlickSelectorEngineSpecs);
+
+}
 function SlickSelectorEngineSpecs(specs,context){
 
 Describe('Bugs',function(specs){
