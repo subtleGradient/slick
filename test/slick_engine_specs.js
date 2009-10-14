@@ -1,6 +1,6 @@
 this.context = this.context || this;
 
-Describe('Slick Selector Engine Bugs',function(){
+Describe('Bugs',function(specs){
 	
 	var testNode;
 	specs.before_all = function(){
@@ -97,7 +97,7 @@ Describe('Slick Selector Engine Bugs',function(){
 });
 
 
-Describe('Slick Selector Engine',function(){
+Describe('Selecting Template Mock',function(specs){
 	
 	it['should append results to an existing array if passed in'] = function(){
 		var append = [];
@@ -442,7 +442,8 @@ Describe('Slick Selector Engine',function(){
 	
 });
 
-Describe('Slick Selector Engine Exhaustive',function(){
+
+Describe('Exhaustive',function(specs){
 	
 	var CLASSES = "normal escaped\\,character ǝpoɔıun 瀡 with-dash with_underscore 123number MiXeDcAsE".split(' ');
 	Describe('CLASS',function(){
