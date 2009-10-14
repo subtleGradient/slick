@@ -101,7 +101,7 @@ Describe('Slick Selector Engine',function(){
 	
 	it['should append results to an existing array if passed in'] = function(){
 		var append = [];
-		value_of( Slick(document, '*', append) ).should_be( append );
+		value_of( context.Slick(document, '*', append) ).should_be( append );
 	};
 	
 	it['should append results to an existing array-like-thing if passed in'] = function(){
@@ -111,21 +111,21 @@ Describe('Slick Selector Engine',function(){
 				this[this.length++] = item;
 			}
 		};
-		value_of( Slick(document, '*', append) ).should_be( append );
+		value_of( context.Slick(document, '*', append) ).should_be( append );
 	};
 	
 	if (document.querySelectorAll)
 	it['should not fail when using QSA is enabled'] = function(){
-		value_of( document.search('body').length ).should_be( 1 );
+		value_of( context.document.search('body').length ).should_be( 1 );
 	};
 	
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		// if (document.querySelectorAll)
-		// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
+		// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( context.Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
 		return new Function("\
-			Slick.disableQSA = "+!!disableQSA+";\n\
-			value_of( document.search('"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );\n\
-			delete Slick.disableQSA;\
+			context.Slick.disableQSA = "+!!disableQSA+";\n\
+			value_of( context.document.search('"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );\n\
+			delete context.Slick.disableQSA;\
 		");
 	}
 	function it_should_find(count,selector){
@@ -393,10 +393,10 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(54,  'p:first-child');
 	
 	// specs['":contains()" elements should actually contain the word'] = function(){
-	// 	var els = document.search(':contains(selectors)');
+	// 	var els = context.document.search(':contains(selectors)');
 	// 	for (var i=0,el; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'selectors' );
 	// 	
-	// 	els = document.search(':contains(Selectors)');
+	// 	els = context.document.search(':contains(Selectors)');
 	// 	for (i=0; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'Selectors' );
 	// };
 	// 
