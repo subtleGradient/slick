@@ -501,3 +501,4 @@ Describe('Slick Selector Engine Exhaustive',function(){
 	
 });
 
+runSpecs();
