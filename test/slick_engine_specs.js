@@ -1,4 +1,5 @@
 this.context = this.context || this;
+function SlickSelectorEngineSpecs(specs,context){
 
 Describe('Bugs',function(specs){
 	
@@ -501,5 +502,7 @@ Describe('Exhaustive',function(specs){
 	});
 	
 });
+
+};
 
 runSpecs();
