@@ -10,11 +10,11 @@ function SlickSelectorEngineSpecs(specs,context){
 Describe('Bugs',function(specs){
 	
 	var testNode;
-	specs.before_all = function(){
+	specs.before_each = function(){
 		testNode = context.document.createElement('div');
 		context.document.body.appendChild(testNode);
 	};
-	specs.after_all = function(){
+	specs.after_each = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 		testNode = null;
 	};
@@ -456,12 +456,12 @@ Describe('Exhaustive',function(specs){
 	Describe('CLASS',function(){
 		
 		var testNode;
-		specs.before_all = function(){
+		specs.before_each = function(){
 			testNodeOrphaned = context.document.createElement('div');
 			testNode = context.document.createElement('div');
 			context.document.body.appendChild(testNode);
 		};
-		specs.after_all = function(){
+		specs.after_each = function(){
 			testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 			testNode = null;
 		};
