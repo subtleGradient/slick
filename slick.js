@@ -1,12 +1,15 @@
 /*
-Script: Slick.js
-	The new, superfast css selector engine.
+---
+provides: Slick
 
-License:
-	MIT-style license.
-	
-Authors:
-	Thomas Aylott, Valerio Proietti
+description: The new, superfast css selector engine.
+
+license: MIT-style
+
+authors:
+- Thomas Aylott
+- Valerio Proietti
+...
 */
 
 (function(){
@@ -26,9 +29,8 @@ Authors:
 		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 		
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-		testNode.innerHTML = 'foo</foo>';
-		try{ local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
-		try{ local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
 		
 		testNode = null;
 	})();

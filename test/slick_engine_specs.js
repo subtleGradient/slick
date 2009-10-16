@@ -1,13 +1,19 @@
-this.context = this.context || this;
 
-Describe('Slick Selector Engine Bugs',function(){
+for (var name in contexts) {
 	
-	var testNode;
-	specs.before_all = function(){
+	global.context = contexts[name];
+	Describe('Slick Selector Engine ' + name, SlickSelectorEngineSpecs);
+
+}
+function SlickSelectorEngineSpecs(specs,context){
+
+Describe('Bugs',function(specs){
+	
+	specs.before_each = function(){
 		testNode = context.document.createElement('div');
 		context.document.body.appendChild(testNode);
 	};
-	specs.after_all = function(){
+	specs.after_each = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 		testNode = null;
 	};
@@ -98,11 +104,11 @@ Describe('Slick Selector Engine Bugs',function(){
 });
 
 
-Describe('Slick Selector Engine',function(){
+Describe('Selecting Template Mock',function(specs){
 	
 	it['should append results to an existing array if passed in'] = function(){
 		var append = [];
-		value_of( Slick(document, '*', append) ).should_be( append );
+		value_of( context.Slick(document, '*', append) ).should_be( append );
 	};
 	
 	it['should append results to an existing array-like-thing if passed in'] = function(){
@@ -112,21 +118,21 @@ Describe('Slick Selector Engine',function(){
 				this[this.length++] = item;
 			}
 		};
-		value_of( Slick(document, '*', append) ).should_be( append );
+		value_of( context.Slick(document, '*', append) ).should_be( append );
 	};
 	
 	if (document.querySelectorAll)
 	it['should not fail when using QSA is enabled'] = function(){
-		value_of( document.search('body').length ).should_be( 1 );
+		value_of( context.document.search('body').length ).should_be( 1 );
 	};
 	
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		// if (document.querySelectorAll)
-		// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
+		// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( context.Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
 		return new Function("\
-			Slick.disableQSA = "+!!disableQSA+";\n\
-			value_of( document.search('"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );\n\
-			delete Slick.disableQSA;\
+			context.Slick.disableQSA = "+!!disableQSA+";\n\
+			value_of( context.document.search('"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );\n\
+			delete context.Slick.disableQSA;\
 		");
 	}
 	function it_should_find(count,selector){
@@ -394,10 +400,10 @@ Describe('Slick Selector Engine',function(){
 	it_should_find(54,  'p:first-child');
 	
 	// specs['":contains()" elements should actually contain the word'] = function(){
-	// 	var els = document.search(':contains(selectors)');
+	// 	var els = context.document.search(':contains(selectors)');
 	// 	for (var i=0,el; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'selectors' );
 	// 	
-	// 	els = document.search(':contains(Selectors)');
+	// 	els = context.document.search(':contains(Selectors)');
 	// 	for (i=0; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'Selectors' );
 	// };
 	// 
@@ -443,20 +449,20 @@ Describe('Slick Selector Engine',function(){
 	
 });
 
-Describe('Slick Selector Engine Exhaustive',function(){
+Describe('Exhaustive',function(specs){
 	
 	var CLASSES = "normal escaped\\,character ǝpoɔıun 瀡 with-dash with_underscore 123number MiXeDcAsE".split(' ');
-	Describe('CLASS',function(){
+	Describe('CLASS',function(specs){
 		
-		var testNode;
-		specs.before_all = function(){
+		specs.before_each = function(){
 			testNodeOrphaned = context.document.createElement('div');
 			testNode = context.document.createElement('div');
 			context.document.body.appendChild(testNode);
 		};
-		specs.after_all = function(){
+		specs.after_each = function(){
 			testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 			testNode = null;
+			testNodeOrphaned = null;
 		};
 		
 		var it_should_select_classes = function(CLASSES){
@@ -465,26 +471,22 @@ Describe('Slick Selector Engine Exhaustive',function(){
 			var className = CLASSES.join(' ');
 			if (className.indexOf('\\')+1) className += ' ' + CLASSES.join(' ').replace('\\','');
 			
-			function build(){
-				testNodeOrphaned.innerHTML = testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
-			};
-			
 			it[testName + ' from the document root'] = function(){
-				build();
+				testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
 				result = context.Slick(testNode.ownerDocument, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( result[0].className ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' from the parent'] = function(){
-				build();
+				testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
 				var result = context.Slick(testNode, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( result[0].className ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' orphaned'] = function(){
-				build();
+				testNodeOrphaned.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
 				result = context.Slick(testNodeOrphaned, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( result[0].className ).should_match( CLASSES.join(' ') );
@@ -502,3 +504,6 @@ Describe('Slick Selector Engine Exhaustive',function(){
 	
 });
 
+};
+
+runSpecs();

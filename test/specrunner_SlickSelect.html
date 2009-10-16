@@ -10,28 +10,40 @@
 <script type="text/javascript" src="assets/JSSpec.js"></script>
 <script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
 
-<script type="text/javascript" src="slick_engine_specs.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-var old_onload = window.onload;
-var context;
-window.onload = function(){
-	var templateIframe = document.createElement('iframe');
-	templateIframe.setAttribute('src','tools/template.html');
-	document.body.appendChild(templateIframe);
-	context = frames[frames.length - 1];
-	setTimeout(context_onload,1000);
+// Handle multiple contexts
+var contexts = {};
+function registerWindow(name, window){
+	clearTimeout(registerWindow.delay);
+	contexts[name] = window;
+
+	registerWindow.delay = setTimeout(registerWindow_done, 1000);
 };
-var context_onload = function(){
-	if (context_onload.ran) return;
-	old_onload();
-	context_onload.ran = true;
+function registerWindow_done(){
+	loadScript('slick_engine_specs.js');
+};
+
+
+function loadScript(url){
+	
+	var script = document.createElement('script');
+	script.setAttribute('type','text/javascript')
+	script.setAttribute('src',url)
+	document.body.appendChild(script);
+	
 };
 
 </script>
 </head>
 <body>
 
+<!-- contexts -->
+
+<iframe onload="registerWindow('default',this.contentWindow)" src="tools/template.html"></iframe>
+<iframe onload="registerWindow('almost',this.contentWindow)" src="tools/template-almost.html"></iframe>
+<iframe onload="registerWindow('standard',this.contentWindow)" src="tools/template-standard.html"></iframe>
+<iframe onload="registerWindow('quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
 
 </body>
 </html>

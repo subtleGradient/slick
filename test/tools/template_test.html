@@ -2,16 +2,54 @@
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-	<title>template_test</title>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<title>template_test</title>
+<script type="text/javascript" charset="utf-8">
+var contexts = {};
+function registerWindow(name, window){
+	contexts[name] = window;
+};
+</script>
 </head>
 <body>
+<form onsubmit="searchThem(); return false;">
+<label for="search">Search</label>
+<input type="text" name="search" value="body > *" id="search" />
+</form>
 
-<iframe src="template.html" frameborder="0" scrolling="auto">
-	<a href="template.html">template</a>
-</iframe>
+<div id="results"></div>
+
+<iframe onload="registerWindow('default',this.contentWindow)" src="template.html"></iframe>
+<iframe onload="registerWindow('almost',this.contentWindow)" src="template-almost.html"></iframe>
+<iframe onload="registerWindow('standard',this.contentWindow)" src="template-standard.html"></iframe>
+<iframe onload="registerWindow('quirks',this.contentWindow)" src="template-quirks.html"></iframe>
+
+<!--[if IE]>
+<iframe onload="registerWindow('ie7',this.contentWindow)" src="template-ie7.html"></iframe>
+<iframe onload="registerWindow('chromeframe',this.contentWindow)" src="template-chromeframe.html"></iframe>
+<![endif]-->
+
+<!--[if gt IE 8]><!-->
+<iframe onload="registerWindow('xhtml',this.contentWindow)" src="template.xhtml"></iframe>
+<iframe onload="registerWindow('xml',this.contentWindow)" src="template.xml"></iframe>
+<!-- <![endif]-->
 
 <script type="text/javascript" charset="utf-8">
+function $$$(selector){
+	var results = {};
+	var context;
+	for (var src in contexts) {
+		context = contexts[src];
+		try{
+			results[src] = context.Slick(context.document, selector).length;
+		}catch(e){
+			results[src] = e;
+		}
+	}
+	return results;
+};
+
+
 function searchThem(){
 	var selector = document.getElementById('search').value;
 	var results = $$$(selector);
@@ -21,25 +59,30 @@ function searchThem(){
 	resultHTML.push(' <code>');
 	resultHTML.push(selector);
 	resultHTML.push('</code> ');
+	resultHTML.push('<br /> ');
 	for (var libName in results) {
 		resultHTML.push(' <strong>');
 		resultHTML.push(libName);
 		resultHTML.push('</strong> ');
 		resultHTML.push(' <ins>');
-		resultHTML.push(results[libName]);
+		if (Object.prototype.toString.call(results[libName]) == "[object Error]"){
+			resultHTML.push('<b');
+			resultHTML.push(' title="');
+			resultHTML.push(results[libName].message);
+			resultHTML.push('"');
+			resultHTML.push('>');
+			resultHTML.push('error');
+			resultHTML.push('</b>');
+		}
+		else
+			resultHTML.push(results[libName]);
 		resultHTML.push('</ins> ');
+		// resultHTML.push('<br /> ');
 	}
 	resultHTML.push('</p>');
-	resultsBox.innerHTML += resultHTML.join('');
+	var old = resultsBox.innerHTML;
+	resultsBox.innerHTML = resultHTML.join('') + old;
 };
 </script>
-
-<form onsubmit="searchThem(); return false;">
-<label for="search">Search</label>
-<input type="text" name="search" value="body > *" id="search" />
-</form>
-
-<div id="results"></div>
-
 </body>
 </html>
