@@ -35,6 +35,13 @@ authors:
 		// Safari 3.2 QSA doenst work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
 		
+        try{
+		    testNode.innerHTML = '<span class="f"></span><span class="b"></span>';
+		    testNode.getElementsByClassName('b').length;
+		    testNode.firstChild.className = 'b';
+		    local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+		}catch(e){};
+        
 		testNode = null;
 	})();
 	
@@ -179,8 +186,7 @@ authors:
 			}
 			
 			var children;
-			
-			if (node.getElementsByClassName && classes){
+			if (node.getElementsByClassName && classes && !local.cachedGetElementsByClassName){
 				children = node.getElementsByClassName(classes.join(' '));
 				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, parts, false);
 				return;
