@@ -32,6 +32,9 @@ authors:
 		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
 		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
 		
+		// Safari 3.2 QSA doenst work with mixedcase on quirksmode
+		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
+		
 		testNode = null;
 	})();
 	
@@ -387,7 +390,7 @@ authors:
 		})();
 		
 		// querySelectorAll for simple selectors
-		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
+		if (parsed.simple && context.querySelectorAll && !local.brokenMixedCaseQSA && !Slick.disableQSA){
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
