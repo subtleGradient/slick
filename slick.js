@@ -618,7 +618,7 @@ authors:
 			|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
 		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		   .replace(/<combinator>/, '[' + combinatorChars + ']')
-		   .replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])'), 'i');
+		   .replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])'));
 		
 		return Slick.parse;
 	};

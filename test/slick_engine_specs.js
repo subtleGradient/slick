@@ -367,6 +367,7 @@ Describe('Selecting Template Mock',function(specs){
 	it_should_find(683 , 'div,p,a:not([href^=tel:])');
 	;
 	it_should_find(43 , 'DIV.example');
+	it_should_find(43 , 'DiV.example');
 	it_should_find(12 , 'ul .tocline2');
 	it_should_find(44 , 'div.example,div.note');
 	;
