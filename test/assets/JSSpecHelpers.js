@@ -34,7 +34,9 @@ function Describe(description,specBuilder){
 	specBuilder(specs,global.context);
 	
 	// Create the tests and go!
-	describe(description, specs);
+	var spec_count = 0;
+	for (var specname in specs) spec_count++;
+	if (spec_count) describe(description, specs);
 	
 	// Reset
 	descriptionParent = old_descriptionParent;
