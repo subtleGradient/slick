@@ -41,6 +41,52 @@ function Describe(description,specBuilder){
 	specs = spec = it = its = old_specs;
 };
 
+
+global.mocks = {};
+var Mock = (function(){
+	
+	function Mock(mockName, testBuilder){
+		if (Object.prototype.toString.call(mockName) != '[object RegExp]')
+			mockName = new RegExp(mockName);
+		
+		this.mockName = mockName;
+		this.testBuilder = testBuilder;
+		Mock.mocks.push(this);
+	};
+	
+	Mock.mocks = [];
+	
+	Mock.prototype.run = function(){
+		
+		var globalContextOld = global.context;
+		for (var name in global.mocks) if (this.mockName.test(name)) {
+			
+			global.context = global.mocks[name];
+			this.testBuilder(name);
+			
+		}
+		global.context = globalContextOld;
+		
+	};
+	
+	Mock.register = function(name, window){
+		clearTimeout(Mock.register.delay);
+		global.mocks[name] = window;
+		Mock.register.delay = setTimeout(Mock.register.done, 1000);
+	};
+
+	Mock.register.done = function(){
+		for (var i=0; i < Mock.mocks.length; i++)
+			Mock.mocks[i].run();
+		
+		setTimeout(runSpecs, 100);
+	};
+	
+	
+	return Mock;
+})();
+
+
 var TODO = function(){ throw "TODO: This test has not be written yet"; };
 
 if(typeof JSSpec == 'undefined') var JSSpec = {};
