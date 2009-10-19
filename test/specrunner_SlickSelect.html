@@ -12,20 +12,29 @@
 
 <!-- Specs -->
 <script type="text/javascript" src="specs-engine_bugs.js"></script>
+<script type="text/javascript" src="specs-select_exhaustive.js" charset="utf-8"></script>
+<script type="text/javascript" src="specs-mock_template.js" charset="utf-8"></script>
 
 <!-- Runner -->
 <script type="text/javascript" charset="utf-8">
 
 
-new Mock('template', function(mockName){
-	
-	Describe('Selector Engine Bugs ' + mockName, specsSelectorEngineBugs);
-	
+new Mock('template', function(){
+	Describe('Selector Engine',function(){
+		
+		Describe('Bugs', specsSelectorEngineBugs);
+		Describe('Exhaustive', specsSelectorExhaustive);
+		Describe('Template Mock', specsMockTemplate);
+		
+	});
 });
-new Mock('svg', function(mockName){
-	
-	Describe('Selector Engine Bugs ' + mockName, specsSelectorEngineBugs);
-	
+new Mock('svg', function(){
+	Describe('Selector Engine',function(){
+		
+		Describe('Bugs', specsSelectorEngineBugs);
+		Describe('Exhaustive', specsSelectorExhaustive);
+		
+	});
 });
 
 
