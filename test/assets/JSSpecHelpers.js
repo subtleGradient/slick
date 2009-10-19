@@ -6,11 +6,11 @@ String.escapeSingle = String.escapeSingle || function escapeSingle(string){
 
 
 var global = this;
+global.context = this;
 var specs, spec, it, its;
 var descriptionParent = '';
 
 function Describe(description,specBuilder){
-	
 	// Backup existing object so we don't override it
 	var old_specs = specs;
 	specs = spec = it = its = {};
@@ -31,15 +31,60 @@ function Describe(description,specBuilder){
 	descriptionParent = description;
 	
 	// Build the spec object
-	specBuilder(specs);
+	specBuilder(specs,global.context);
 	
 	// Create the tests and go!
-	describe(description, specs);
+	var spec_count = 0;
+	for (var specname in specs) spec_count++;
+	if (spec_count) describe(description, specs);
 	
 	// Reset
 	descriptionParent = old_descriptionParent;
 	specs = spec = it = its = old_specs;
 };
+
+
+global.mocks = {};
+var Mock = (function(){
+	
+	function Mock(mockName, testBuilder){
+		if (Object.prototype.toString.call(mockName) != '[object RegExp]')
+			mockName = new RegExp(mockName);
+		
+		this.mockName = mockName;
+		this.testBuilder = testBuilder;
+		Mock.mocks.push(this);
+	};
+	
+	Mock.mocks = [];
+	
+	Mock.prototype.run = function(){
+		var globalContextOld = global.context;
+		for (var mockName in global.mocks) if (this.mockName.test(mockName)) {
+			
+			global.context = global.mocks[mockName];
+			Describe(mockName,this.testBuilder);
+			
+		}
+		global.context = globalContextOld;
+	};
+	
+	Mock.register = function(name, window){
+		clearTimeout(Mock.register.delay);
+		global.mocks[name] = window;
+		Mock.register.delay = setTimeout(Mock.register.done, 1000);
+	};
+
+	Mock.register.done = function(){
+		for (var i=0; i < Mock.mocks.length; i++)
+			Mock.mocks[i].run();
+		
+		setTimeout(runSpecs, 100);
+	};
+	
+	
+	return Mock;
+})();
 
 
 var TODO = function(){ throw "TODO: This test has not be written yet"; };
@@ -48,3 +93,9 @@ if(typeof JSSpec == 'undefined') var JSSpec = {};
 if(!JSSpec.Browser) JSSpec.Browser = {};
 JSSpec.Browser.NativeConsole = !!(('console' in this) && ('log' in console) && ('toString' in console.log) && console.log.toString().match(/\[native code\]/));
 JSSpec.Browser.Trident = (JSSpec.Browser.Trident && !JSSpec.Browser.NativeConsole);
+
+// Stop the normal JSSpec onload from firing yet
+var runSpecs = window.onload;
+window.onload = function(){
+	window.loaded = true;
+};
