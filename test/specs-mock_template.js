@@ -1,110 +1,4 @@
-
-for (var name in contexts) {
-	
-	global.context = contexts[name];
-	Describe('Slick Selector Engine ' + name, SlickSelectorEngineSpecs);
-
-}
-function SlickSelectorEngineSpecs(specs,context){
-
-Describe('Bugs',function(specs){
-	
-	specs.before_each = function(){
-		testNode = context.document.createElement('div');
-		context.document.body.appendChild(testNode);
-	};
-	specs.after_each = function(){
-		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
-		testNode = null;
-	};
-	
-	it['should not return not-nodes'] = function(){
-		var results = context.document.search('*');
-		
-		for (var i=0; i < results.length; i++) {
-			value_of( results[i].nodeName ).should_not_be_undefined();
-		}
-	};
-	
-	it['should not return close nodes'] = function(){
-		var results = context.document.search('*');
-		
-		for (var i=0; i < results.length; i++) {
-			value_of( results[i].nodeName ).should_not_match(/^\//);
-		}
-	};
-	
-	if (context.document.querySelectorAll)
-	it['should not return closed nodes with QSA'] = function(){
-		testNode.innerHTML = 'foo</foo>';
-		var results = context.Slick(testNode,'*');
-		
-		for (var i=0; i < results.length; i++) {
-			value_of( results[i].nodeName ).should_match(/^\w+$/);
-		}
-	};
-	
-	it['should not return closed nodes without QSA'] = function(){
-		context.Slick.disableQSA = true;
-		testNode.innerHTML = 'foo</foo>';
-		var results = context.Slick(testNode,'*');
-		
-		for (var i=0; i < results.length; i++) {
-			value_of( results[i].nodeName ).should_match(/^\w+$/);
-		}
-		context.Slick.disableQSA = false;
-	};
-	
-	// it['should not return closed nodes2'] = function(){
-	// 	testNode.innerHTML = '<foo>foo</foo> <bar>bar</bar> <baz>baz</baz>';
-	// 	
-	// 	var results = context.Slick(testNode, '*');
-	// 	value_of( results.length ).should_be(3);
-	// };
-	
-	it['should not return comment nodes'] = function(){
-		var results = context.document.search('*');
-		
-		for (var i=0; i < results.length; i++) {
-			value_of( results[i].nodeName ).should_not_match(/^#/);
-		}
-	};
-	
-	it['should return an element with the second class defined to it'] = function(){
-    	testNode.innerHTML = '<span class="class1 class2"></span>';
-    	var results = context.Slick(testNode, '.class2');
-    	value_of( results.length ).should_be(1);
-	};
-	
-	it['should return the elements with passed class'] = function(){
-    	testNode.innerHTML = '<span class="f"></span><span class="b"></span>';
-    	var results = context.Slick(testNode, '.b');
-    	value_of( results.length ).should_be(1);
-    	testNode.firstChild.className = 'b';
-    	var results = context.Slick(testNode, '.b');
-    	value_of( results.length ).should_be(2);
-	};
-
-	it['should return the element with passed id even if the context is not in the DOM'] = function(){
-    	var div = document.createElement('div');
-    	div.innerHTML = '<input id="someuniqueid" type="text" />';
-    	var results = context.Slick(div, '#someuniqueid');
-    	value_of( results.length ).should_be(1);
-    	value_of( results[0].tagName ).should_be('INPUT');
-        value_of( results[0].type ).should_be('text');
-	};
-	
-	it['should not return an element without the id equals to the passed id'] = function(){
-    	testNode.innerHTML = '<input name="f" type="text" /><input id="f" name="e" type="password" />';
-    	var results = context.Slick(context.document ,'#f');
-    	value_of( results.length ).should_be( 1 );
-    	value_of( results[0].type ).should_be('password');
-	};
-	
-});
-
-
-Describe('Selecting Template Mock',function(specs){
+function specsMockTemplate(specs,context){
 	
 	it['should append results to an existing array if passed in'] = function(){
 		var append = [];
@@ -127,13 +21,11 @@ Describe('Selecting Template Mock',function(specs){
 	};
 	
 	function makeSlickTestSearch(selector, count, disableQSA) {
-		// if (document.querySelectorAll)
-		// return new Function(" var count; try{ count = document.querySelectorAll('"+String.escapeSingle(selector)+"').length; console.log('"+String.escapeSingle(selector)+"', count); }catch(e){ \ncount="+count+" }; value_of( context.Slick(document, '"+String.escapeSingle(selector)+"').length ).should_be( count );");
-		return new Function("\
-			context.Slick.disableQSA = "+!!disableQSA+";\n\
-			value_of( context.document.search('"+String.escapeSingle(selector)+"').length ).should_be( "+count+" );\n\
-			delete context.Slick.disableQSA;\
-		");
+		return function(){
+			context.Slick.disableQSA = !!disableQSA;
+			value_of( context.document.search(selector).length ).should_be( count );
+			delete context.Slick.disableQSA;
+		};
 	}
 	function it_should_find(count,selector){
 		if (global.document.querySelectorAll)
@@ -448,63 +340,4 @@ Describe('Selecting Template Mock',function(specs){
 	it_should_find(324,'[class][class!=made_up]');
 	it_should_find(43,'[class~=example]');
 	
-});
-
-Describe('Exhaustive',function(specs){
-	
-	var CLASSES = "normal escaped\\,character ǝpoɔıun 瀡 with-dash with_underscore 123number MiXeDcAsE".split(' ');
-	Describe('CLASS',function(specs){
-		
-		specs.before_each = function(){
-			testNodeOrphaned = context.document.createElement('div');
-			testNode = context.document.createElement('div');
-			context.document.body.appendChild(testNode);
-		};
-		specs.after_each = function(){
-			testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
-			testNode = null;
-			testNodeOrphaned = null;
-		};
-		
-		var it_should_select_classes = function(CLASSES){
-			
-			var testName = 'Should select "'+ CLASSES.join(' ') +'"';
-			var className = CLASSES.join(' ');
-			if (className.indexOf('\\')+1) className += ' ' + CLASSES.join(' ').replace('\\','');
-			
-			it[testName + ' from the document root'] = function(){
-				testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
-				result = context.Slick(testNode.ownerDocument, '.' + CLASSES.join('.'));
-				value_of( result.length ).should_be( 1 );
-				value_of( result[0].className ).should_match( CLASSES.join(' ') );
-			};
-			
-			it[testName + ' from the parent'] = function(){
-				testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
-				var result = context.Slick(testNode, '.' + CLASSES.join('.'));
-				value_of( result.length ).should_be( 1 );
-				value_of( result[0].className ).should_match( CLASSES.join(' ') );
-			};
-			
-			it[testName + ' orphaned'] = function(){
-				testNodeOrphaned.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
-				result = context.Slick(testNodeOrphaned, '.' + CLASSES.join('.'));
-				value_of( result.length ).should_be( 1 );
-				value_of( result[0].className ).should_match( CLASSES.join(' ') );
-			};
-			
-			// it should match this class as a second class
-			if (CLASSES.length == 1) it_should_select_classes(['foo',CLASSES[0]]);
-		};
-		
-		it_should_select_classes(CLASSES);
-		for (var i=0; i < CLASSES.length; i++)
-			it_should_select_classes([CLASSES[i]]);
-		
-	});
-	
-});
-
 };
-
-runSpecs();

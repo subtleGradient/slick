@@ -1,19 +1,49 @@
 /*
-Script: Slick.js
-	The new, superfast css selector engine.
+---
+provides: Slick
 
-License:
-	MIT-style license.
-	
-Authors:
-	Thomas Aylott, Valerio Proietti
+description: The new, superfast css selector engine.
+
+license: MIT-style
+
+authors:
+- Thomas Aylott
+- Valerio Proietti
+...
 */
 
 (function(){
 	
 	var window = this, document = this.document, root = document.documentElement;
-	
+
 	var local = {};
+	
+	// Feature / Bug detection
+	(function() {
+		
+		// Our guinea pig
+		var testNode = document.createElement('div');
+		testNode.appendChild(document.createComment(''));
+		
+		// IE returns comment nodes for getElementsByTagName('*')
+		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+		
+		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		
+		// Safari 3.2 QSA doenst work with mixedcase on quirksmode
+		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
+		
+        try{
+		    testNode.innerHTML = '<span class="f"></span><span class="b"></span>';
+		    testNode.getElementsByClassName('b').length;
+		    testNode.firstChild.className = 'b';
+		    local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+		}catch(e){};
+        
+		testNode = null;
+	})();
 	
 	local.uidx = 1;
 	
@@ -41,9 +71,10 @@ Authors:
 	    local.collectionToArray(root.childNodes);
 	}
 	catch(e){
-	    local.collectionToArray = function(item){
-    		var i = item.length, array = new Array(i);
-    		while (i--) array[i] = item[i];
+	    local.collectionToArray = function(node){
+	        if (node instanceof Array) return node;
+    		var i = node.length, array = new Array(i);
+    		while (i--) array[i] = node[i];
     		return array;
     	};
 	}
@@ -88,6 +119,20 @@ Authors:
 			this.found.push(node);
 		}
 	};
+	
+    local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
+        var found = context.getElementsByTagName(tag);
+        if(tag != '*') return found;
+        var nodes = [];
+    	for (var i = 0, node; (node = found[i]); i++) {
+    		if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+    		    nodes.push(node);
+    		}
+    	}
+    	return nodes;
+    } : function(context, tag){
+        return context.getElementsByTagName(tag);
+    };
 	
 	var matchers = {
 		
@@ -141,14 +186,13 @@ Authors:
 			}
 			
 			var children;
-			
-			if (node.getElementsByClassName && classes){
+			if (node.getElementsByClassName && classes && !local.cachedGetElementsByClassName){
 				children = node.getElementsByClassName(classes.join(' '));
 				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, parts, false);
 				return;
 			}
 
-			children = node.getElementsByTagName(tag);
+			children = local.getByTagName(node, tag);
 			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
 		},
 		
@@ -343,8 +387,16 @@ Authors:
 
 		var current;
 		
+		// disable querySelectorAll for star tags if it's buggy
+		if (local.starSelectsClosedQSA && parsed.simple) parsed.simple = (function(){
+			for (var i = 0; i < parsed.expressions.length; i++)
+				for (var j = 0; j < parsed.expressions[i].length; j++)
+					if (parsed.expressions[i][j].tag == '*') return false;
+			return true;
+		})();
+		
 		// querySelectorAll for simple selectors
-		if (parsed.simple && context.querySelectorAll && !Slick.disableQSA){
+		if (parsed.simple && context.querySelectorAll && !local.brokenMixedCaseQSA && !Slick.disableQSA){
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
@@ -358,8 +410,9 @@ Authors:
 
 		var tempUniques = {};
 		var expressions = parsed.expressions;
-
-		local.push = (parsed.length == 1 && expressions[0].length == 1) ? local.pushArray : local.pushUID;
+		
+		if (parsed.length == 1 && expressions[0].length == 1) local.push = local.pushArray;
+		else local.push = local.pushUID;
 		
 		for (var i = 0; i < expressions.length; i++){
 			
@@ -565,7 +618,7 @@ Authors:
 			|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
 		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		   .replace(/<combinator>/, '[' + combinatorChars + ']')
-		   .replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])'), 'i');
+		   .replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])'));
 		
 		return Slick.parse;
 	};

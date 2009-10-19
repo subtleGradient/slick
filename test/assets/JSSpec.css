@@ -53,6 +53,16 @@ body, #jsspec_container {
   _width:expression(document.body.clientWidth-250);
 }
 
+/*iPhone*/
+@media only screen and (max-device-width: 480px) {
+	#list {
+		overflow: visible;
+	}
+	
+	#log {
+		overflow: visible;
+	}
+}
 
 
 /* --------------------
@@ -144,6 +154,15 @@ ul.examples li div {
 div.success, div.success a {
 	color: #FFFFFF;
 	background-color: #65C400;
+}
+
+li.ongoing li.success pre.examples-code,
+li pre.examples-code {
+	display:none !important;
+}
+li.exception pre.examples-code,
+li.ongoing pre.examples-code {
+	display:block !important;
 }
 
 ul.specs li.success h3, ul.specs li.success h3 a {
