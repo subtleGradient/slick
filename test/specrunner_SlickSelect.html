@@ -3,47 +3,48 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <title>JSSpec results</title>
-<link rel="stylesheet" type="text/css" href="assets/JSSpec.css" />
-<!-- <script src="../slick.js" type="text/javascript" charset="utf-8"></script> -->
 
+<!-- JSSpec -->
+<link rel="stylesheet" type="text/css" href="assets/JSSpec.css" />
 <script type="text/javascript" src="assets/diff_match_patch.js"></script>
 <script type="text/javascript" src="assets/JSSpec.js"></script>
 <script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
 
+<!-- Specs -->
+<script type="text/javascript" src="specs-engine_bugs.js"></script>
+
+<!-- Runner -->
 <script type="text/javascript" charset="utf-8">
 
-// Handle multiple contexts
-var contexts = {};
-function registerWindow(name, window){
-	clearTimeout(registerWindow.delay);
-	contexts[name] = window;
 
-	registerWindow.delay = setTimeout(registerWindow_done, 1000);
-};
-function registerWindow_done(){
-	loadScript('slick_engine_specs.js');
-};
-
-
-function loadScript(url){
+new Mock('template', function(mockName){
 	
-	var script = document.createElement('script');
-	script.setAttribute('type','text/javascript')
-	script.setAttribute('src',url)
-	document.body.appendChild(script);
+	Describe('Selector Engine Bugs ' + mockName, specsSelectorEngineBugs);
 	
-};
+});
+new Mock('svg', function(mockName){
+	
+	Describe('Selector Engine Bugs ' + mockName, specsSelectorEngineBugs);
+	
+});
+
 
 </script>
 </head>
 <body>
 
-<!-- contexts -->
 
-<iframe onload="registerWindow('default',this.contentWindow)" src="tools/template.html"></iframe>
-<iframe onload="registerWindow('almost',this.contentWindow)" src="tools/template-almost.html"></iframe>
-<iframe onload="registerWindow('standard',this.contentWindow)" src="tools/template-standard.html"></iframe>
-<iframe onload="registerWindow('quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
+<!-- mocks -->
+<iframe onload="Mock.register('template standard',this.contentWindow)" src="tools/template-standard.html"></iframe>
+<iframe onload="Mock.register('template almost standard',this.contentWindow)" src="tools/template-almost.html"></iframe>
+<iframe onload="Mock.register('template quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
+
+<!--[if gt IE 8]><!-->
+<iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe>
+<!-- <![endif]-->
+<!--[if gte IE 8]>
+<iframe onload="Mock.register('template IE8 as IE7',this.contentWindow)" src="tools/template-ie7.html"></iframe>
+<![endif]-->
 
 </body>
 </html>
