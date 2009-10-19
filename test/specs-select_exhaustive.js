@@ -6,7 +6,9 @@ function specsSelectorExhaustive(specs,context){
 		specs.before_each = function(){
 			testNodeOrphaned = context.document.createElement('div');
 			testNode = context.document.createElement('div');
-			context.document.body.appendChild(testNode);
+			bodyElement = context.document.getElementsByTagName('body')[0];
+			bodyElement = bodyElement || context.document.documentElement;
+			bodyElement.appendChild(testNode);
 		};
 		specs.after_each = function(){
 			testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
@@ -21,21 +23,33 @@ function specsSelectorExhaustive(specs,context){
 			if (className.indexOf('\\')+1) className += ' ' + CLASSES.join(' ').replace('\\','');
 			
 			it[testName + ' from the document root'] = function(){
-				testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
+				var tmpNode;
+				tmpNode = context.document.createElement('div');tmpNode.className = className;testNode.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
+				
 				result = context.Slick(testNode.ownerDocument, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( result[0].className ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' from the parent'] = function(){
-				testNode.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
+				var tmpNode;
+				tmpNode = context.document.createElement('div');tmpNode.className = className;testNode.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
+				
 				var result = context.Slick(testNode, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( result[0].className ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' orphaned'] = function(){
-				testNodeOrphaned.innerHTML = '<div></div><div class="'+ className +'"><div></div></div><div></div>';
+				var tmpNode;
+				tmpNode = context.document.createElement('div');tmpNode.className = className;testNodeOrphaned.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
+				
 				result = context.Slick(testNodeOrphaned, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( result[0].className ).should_match( CLASSES.join(' ') );

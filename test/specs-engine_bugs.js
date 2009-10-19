@@ -1,8 +1,11 @@
 function specsSelectorEngineBugs(specs,context){
 	
+	var bodyElement;
 	specs.before_each = function(){
 		testNode = context.document.createElement('div');
-		context.document.lastChild.appendChild(testNode);
+		bodyElement = context.document.getElementsByTagName('body')[0];
+		bodyElement = bodyElement || context.document.documentElement;
+		bodyElement.appendChild(testNode);
 	};
 	specs.after_each = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
@@ -62,34 +65,47 @@ function specsSelectorEngineBugs(specs,context){
 	};
 	
 	it['should return an element with the second class defined to it'] = function(){
-    	testNode.innerHTML = '<span class="class1 class2"></span>';
-    	var results = context.Slick(testNode, '.class2');
-    	value_of( results.length ).should_be(1);
+		var tmpNode;
+		tmpNode = context.document.createElement('span');tmpNode.className = 'class1 class2';testNode.appendChild(tmpNode);
+		
+		var results = context.Slick(testNode, '.class2');
+		value_of( results.length ).should_be(1);
 	};
 	
 	it['should return the elements with passed class'] = function(){
-    	testNode.innerHTML = '<span class="f"></span><span class="b"></span>';
-    	var results = context.Slick(testNode, '.b');
-    	value_of( results.length ).should_be(1);
-    	testNode.firstChild.className = 'b';
-    	var results = context.Slick(testNode, '.b');
-    	value_of( results.length ).should_be(2);
+		var tmpNode;
+		tmpNode = context.document.createElement('span');tmpNode.className = 'f';testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.className = 'b';testNode.appendChild(tmpNode);
+		
+		var results = context.Slick(testNode, '.b');
+		value_of( results.length ).should_be(1);
+		
+		testNode.firstChild.className = 'b';
+		var results = context.Slick(testNode, '.b');
+		value_of( results.length ).should_be(2);
 	};
-
+	
 	it['should return the element with passed id even if the context is not in the DOM'] = function(){
-    	var div = document.createElement('div');
-    	div.innerHTML = '<input id="someuniqueid" type="text" />';
-    	var results = context.Slick(div, '#someuniqueid');
-    	value_of( results.length ).should_be(1);
-    	value_of( results[0].tagName ).should_be('INPUT');
-        value_of( results[0].type ).should_be('text');
+		testNode.parentNode.removeChild(testNode);
+		tmpNode = context.document.createElement('input');tmpNode.setAttribute('id', 'someuniqueid');tmpNode.setAttribute('type','text');testNode.appendChild(tmpNode);
+		
+		var results = context.Slick(testNode, '#someuniqueid');
+		value_of( results.length ).should_be(1);
+		value_of( results[0].tagName ).should_be('INPUT');
+		value_of( results[0].type ).should_be('text');
 	};
 	
 	it['should not return an element without the id equals to the passed id'] = function(){
-    	testNode.innerHTML = '<input name="f" type="text" /><input id="f" name="e" type="password" />';
-    	var results = context.Slick(context.document ,'#f');
-    	value_of( results.length ).should_be( 1 );
-    	value_of( results[0].type ).should_be('password');
+		var tmpNode;
+		tmpNode = context.document.createElement('input');tmpNode.setAttribute('name','f');tmpNode.setAttribute('type','text');testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('input');tmpNode.setAttribute('id',  'f');tmpNode.setAttribute('type','password');testNode.appendChild(tmpNode);
+		
+		var results = context.Slick(testNode, '#f');
+		value_of( results.length ).should_be( 1 );
+		
+		var results = context.Slick(context.document, '#f');
+		value_of( results.length ).should_be( 1 );
+		value_of( results[0].type ).should_be('password');
 	};
 	
 };
