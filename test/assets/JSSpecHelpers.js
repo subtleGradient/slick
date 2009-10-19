@@ -59,16 +59,14 @@ var Mock = (function(){
 	Mock.mocks = [];
 	
 	Mock.prototype.run = function(){
-		
 		var globalContextOld = global.context;
-		for (var name in global.mocks) if (this.mockName.test(name)) {
+		for (var mockName in global.mocks) if (this.mockName.test(mockName)) {
 			
-			global.context = global.mocks[name];
-			this.testBuilder(name);
+			global.context = global.mocks[mockName];
+			Describe(mockName,this.testBuilder);
 			
 		}
 		global.context = globalContextOld;
-		
 	};
 	
 	Mock.register = function(name, window){
