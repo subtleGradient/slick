@@ -30,7 +30,6 @@ Describe('Slick Selector Engine Bugs',function(){
 	
 	if (context.document.querySelectorAll)
 	it['should not return closed nodes with QSA'] = function(){
-		testNode.parentNode.removeChild(testNode);
 		testNode.innerHTML = 'foo</foo>';
 		var results = context.Slick(testNode,'*');
 		
@@ -41,7 +40,6 @@ Describe('Slick Selector Engine Bugs',function(){
 	
 	it['should not return closed nodes without QSA'] = function(){
 		context.Slick.disableQSA = true;
-		testNode.parentNode && testNode.parentNode.removeChild(testNode);
 		testNode.innerHTML = 'foo</foo>';
 		var results = context.Slick(testNode,'*');
 		
@@ -92,7 +90,7 @@ Describe('Slick Selector Engine Bugs',function(){
 	
 	it['should not return an element without the id equals to the passed id'] = function(){
     	testNode.innerHTML = '<input name="f" type="text" /><input id="f" name="e" type="password" />';
-    	var results = context.Slick(testNode,'#f');
+    	var results = context.Slick(context.document ,'#f');
     	value_of( results.length ).should_be( 1 );
     	value_of( results[0].type ).should_be('password');
 	};

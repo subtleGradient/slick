@@ -20,11 +20,10 @@ Authors:
 		
 		// Our guinea pig
 		var testNode = document.createElement('div');
-		var id = 'id' + (new Date()).getTime();
 		testNode.appendChild(document.createComment(''));
 		
 		// IE returns comment nodes for getElementsByTagName('*')
-		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 1);
+		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 		
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
 		testNode.innerHTML = 'foo</foo>';
