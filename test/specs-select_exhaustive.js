@@ -24,35 +24,35 @@ function specsSelectorExhaustive(specs,context){
 			
 			it[testName + ' from the document root'] = function(){
 				var tmpNode;
-				tmpNode = context.document.createElement('div');tmpNode.className = className;testNode.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				
 				result = context.Slick(testNode.ownerDocument, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
-				value_of( result[0].className ).should_match( CLASSES.join(' ') );
+				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' from the parent'] = function(){
 				var tmpNode;
-				tmpNode = context.document.createElement('div');tmpNode.className = className;testNode.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				
 				var result = context.Slick(testNode, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
-				value_of( result[0].className ).should_match( CLASSES.join(' ') );
+				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' orphaned'] = function(){
 				var tmpNode;
-				tmpNode = context.document.createElement('div');tmpNode.className = className;testNodeOrphaned.appendChild(tmpNode);
+				tmpNode = context.document.createElement('div');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNodeOrphaned.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
 				
 				result = context.Slick(testNodeOrphaned, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
-				value_of( result[0].className ).should_match( CLASSES.join(' ') );
+				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
 			
 			// it should match this class as a second class

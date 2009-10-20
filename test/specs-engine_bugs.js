@@ -26,6 +26,7 @@ function specsSelectorEngineBugs(specs,context){
 		var results = context.Slick(context.document,'*');
 		
 		for (var i=0; i < results.length; i++) {
+			value_of( results[i] ).should_not_be_undefined();
 			value_of( results[i].nodeName ).should_not_be_undefined();
 		}
 	};
@@ -79,8 +80,30 @@ function specsSelectorEngineBugs(specs,context){
 	};
 	
 	it['should return an element with the second class defined to it'] = function(){
+		var className = 'class1 class2';
 		var tmpNode;
-		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','class1 class2');testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
+		
+		value_of( tmpNode.getAttribute('class') ).should_be( className );
+		value_of( testNode.childNodes.length ).should_be( 1 );
+		value_of( testNode.firstChild ).should_be( tmpNode );
+		
+		value_of( testNode.className || tmpNode.getAttribute('class') ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[0]) + '(\\s|$)') );
+		value_of( testNode.className || tmpNode.getAttribute('class') ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[1]) + '(\\s|$)') );
+		
+		// if (!tmpNode.className){
+		// 	for (var mockName in global.mocks) {
+		// 		if (context == global.mocks[mockName]) alert(mockName);
+		// 	}
+		// }
+		
+		// value_of( tmpNode.className ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[0]) + '(\\s|$)') );
+		// value_of( tmpNode.className ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[1]) + '(\\s|$)') );
+		
+		// if (!test) test = function(value){
+		// 	return value && regexp.test(value);
+		// };
+		// new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className) + '(\\s|$)')
 		
 		var results = context.Slick(testNode, '.class2');
 		value_of( results.length ).should_be(1);
@@ -88,13 +111,13 @@ function specsSelectorEngineBugs(specs,context){
 	
 	it['should return the elements with passed class'] = function(){
 		var tmpNode;
-		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','f');testNode.appendChild(tmpNode);
-		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','b');testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','f');tmpNode.setAttribute('className','f');testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','b');tmpNode.setAttribute('className','b');testNode.appendChild(tmpNode);
 		
 		var results = context.Slick(testNode, '.b');
 		value_of( results.length ).should_be(1);
 		
-		testNode.firstChild.setAttribute('class','b');
+		testNode.firstChild.setAttribute('class','b');testNode.firstChild.setAttribute('className','b');
 		var results = context.Slick(testNode, '.b');
 		value_of( results.length ).should_be(2);
 	};
