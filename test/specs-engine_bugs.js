@@ -5,15 +5,25 @@ function specsSelectorEngineBugs(specs,context){
 		testNode = context.document.createElement('div');
 		bodyElement = context.document.getElementsByTagName('body')[0];
 		bodyElement = bodyElement || context.document.documentElement;
-		bodyElement.appendChild(testNode);
+		if (bodyElement)
+			bodyElement.appendChild(testNode);
 	};
 	specs.after_each = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 		testNode = null;
 	};
 	
+	it['document should have a documentElement'] = function(){
+		value_of( context.document.documentElement ).should_not_be_undefined();
+		value_of( context.document.documentElement.childNodes.length ).should_not_be_undefined();
+	};
+	
+	it['document should have nodes'] = function(){
+		value_of( context.document.getElementsByTagName('*').length ).should_not_be( 0 );
+	};
+	
 	it['should not return not-nodes'] = function(){
-		var results = context.document.search('*');
+		var results = context.Slick(context.document,'*');
 		
 		for (var i=0; i < results.length; i++) {
 			value_of( results[i].nodeName ).should_not_be_undefined();
@@ -21,14 +31,14 @@ function specsSelectorEngineBugs(specs,context){
 	};
 	
 	it['should not return close nodes'] = function(){
-		var results = context.document.search('*');
+		var results = context.Slick(context.document,'*');
 		
 		for (var i=0; i < results.length; i++) {
 			value_of( results[i].nodeName ).should_not_match(/^\//);
 		}
 	};
 	
-	if (context.document.querySelectorAll)
+	if (context.document && context.document.querySelectorAll)
 	it['should not return closed nodes with QSA'] = function(){
 		testNode.innerHTML = 'foo</foo>';
 		var results = context.Slick(testNode,'*');
@@ -38,15 +48,19 @@ function specsSelectorEngineBugs(specs,context){
 		}
 	};
 	
+	if ($try(function(){ return context.document.createElement('/foo').nodeName.substring(0,1)=='/'; }))
 	it['should not return closed nodes without QSA'] = function(){
+		var tmpNode;
+		tmpNode = context.document.createElement('/foo');testNode.appendChild(tmpNode);
+		value_of( tmpNode.nodeName ).should_be('/foo');
+		
 		context.Slick.disableQSA = true;
-		testNode.innerHTML = 'foo</foo>';
 		var results = context.Slick(testNode,'*');
+		context.Slick.disableQSA = false;
 		
 		for (var i=0; i < results.length; i++) {
 			value_of( results[i].nodeName ).should_match(/^\w+$/);
 		}
-		context.Slick.disableQSA = false;
 	};
 	
 	// it['should not return closed nodes2'] = function(){
@@ -57,7 +71,7 @@ function specsSelectorEngineBugs(specs,context){
 	// };
 	
 	it['should not return comment nodes'] = function(){
-		var results = context.document.search('*');
+		var results = context.Slick(context.document,'*');
 		
 		for (var i=0; i < results.length; i++) {
 			value_of( results[i].nodeName ).should_not_match(/^#/);
@@ -66,7 +80,7 @@ function specsSelectorEngineBugs(specs,context){
 	
 	it['should return an element with the second class defined to it'] = function(){
 		var tmpNode;
-		tmpNode = context.document.createElement('span');tmpNode.className = 'class1 class2';testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','class1 class2');testNode.appendChild(tmpNode);
 		
 		var results = context.Slick(testNode, '.class2');
 		value_of( results.length ).should_be(1);
@@ -74,13 +88,13 @@ function specsSelectorEngineBugs(specs,context){
 	
 	it['should return the elements with passed class'] = function(){
 		var tmpNode;
-		tmpNode = context.document.createElement('span');tmpNode.className = 'f';testNode.appendChild(tmpNode);
-		tmpNode = context.document.createElement('span');tmpNode.className = 'b';testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','f');testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','b');testNode.appendChild(tmpNode);
 		
 		var results = context.Slick(testNode, '.b');
 		value_of( results.length ).should_be(1);
 		
-		testNode.firstChild.className = 'b';
+		testNode.firstChild.setAttribute('class','b');
 		var results = context.Slick(testNode, '.b');
 		value_of( results.length ).should_be(2);
 	};
@@ -91,8 +105,8 @@ function specsSelectorEngineBugs(specs,context){
 		
 		var results = context.Slick(testNode, '#someuniqueid');
 		value_of( results.length ).should_be(1);
-		value_of( results[0].tagName ).should_be('INPUT');
-		value_of( results[0].type ).should_be('text');
+		value_of( results[0].tagName ).should_match(/INPUT/i);
+		value_of( results[0].getAttribute('type') ).should_be('text');
 	};
 	
 	it['should not return an element without the id equals to the passed id'] = function(){
@@ -105,7 +119,7 @@ function specsSelectorEngineBugs(specs,context){
 		
 		var results = context.Slick(context.document, '#f');
 		value_of( results.length ).should_be( 1 );
-		value_of( results[0].type ).should_be('password');
+		value_of( results[0].getAttribute('type') ).should_be('password');
 	};
 	
 };
