@@ -10,14 +10,19 @@
 <script type="text/javascript" src="assets/JSSpec.js"></script>
 <script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
 
+<!-- Slick -->
+<script type="text/javascript" src="../slick.js"></script>
+<script type="text/javascript" src="assets/JSSpecHelpers_slick.js" charset="utf-8"></script>
+
 <!-- Specs -->
 <script type="text/javascript" src="specs-engine_bugs.js"></script>
 <script type="text/javascript" src="specs-select_exhaustive.js" charset="utf-8"></script>
 <script type="text/javascript" src="specs-mock_template.js" charset="utf-8"></script>
+<script src="slick_xml_specs.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- Runner -->
+<script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
-
 
 new Mock('template', function(){
 	Describe('Selector Engine',function(){
@@ -28,15 +33,14 @@ new Mock('template', function(){
 		
 	});
 });
-new Mock('svg', function(){
+new Mock(/xml|svg/, function(){
 	Describe('Selector Engine',function(){
 		
 		Describe('Bugs', specsSelectorEngineBugs);
-		Describe('Exhaustive', specsSelectorExhaustive);
 		
 	});
 });
-
+new Mock('xmlmock1', specsAssetsTemplateXml);
 
 </script>
 </head>
@@ -44,16 +48,46 @@ new Mock('svg', function(){
 
 
 <!-- mocks -->
-<iframe onload="Mock.register('template standard',this.contentWindow)" src="tools/template-standard.html"></iframe>
-<iframe onload="Mock.register('template almost standard',this.contentWindow)" src="tools/template-almost.html"></iframe>
-<iframe onload="Mock.register('template quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
+<!-- <iframe onload="Mock.register('template standard',this.contentWindow)" src="tools/template-standard.html"></iframe> -->
+<!-- <iframe onload="Mock.register('template almost standard',this.contentWindow)" src="tools/template-almost.html"></iframe> -->
+<!-- <iframe onload="Mock.register('template quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe> -->
 
 <!--[if gt IE 8]><!-->
-<iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe>
+<!-- <iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe> -->
+<!-- <iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe> -->
+<!-- <iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe> -->
 <!-- <![endif]-->
+
+<!-- <iframe onload="Mock.register('template IE8 as IE7',this.contentWindow)" src="tools/template-ie7.html"></iframe> -->
 <!--[if gte IE 8]>
-<iframe onload="Mock.register('template IE8 as IE7',this.contentWindow)" src="tools/template-ie7.html"></iframe>
 <![endif]-->
 
+<!-- <script type="text/javascript" charset="utf-8">
+Mock.register('svg logo xml js',{ document:loadXML('tools/MooTools_Logo.svg') });
+</script> -->
+
+<script type="text/javascript" charset="utf-8">
+
+new SimpleRequest().send('tools/xmlmock1.xml', function(html, xml){
+	Mock.register('responseXML: xmlmock1.xml', newSlickWinFromDoc(xml));
+});
+new SimpleRequest().send('tools/MooTools_Logo.svg', function(html, xml){
+	Mock.register('responseXML: xml svg logo', newSlickWinFromDoc(xml));
+});
+
+
+// var xml = document.createElement("xml");
+// xml.src = "assets/template.xml";
+// document.body.appendChild(xml);
+// var xmlDocument = xml.XMLDocument;
+// document.body.removeChild(xml);
+// Mock.register('xml data island', xmlDocument);
+
+// console.log(loadXML('assets/template.xml'))
+// console.log(loadXML('assets/template.xml').document)
+// console.log(loadXML('assets/template.xml').XMLDocument)
+
+
+</script>
 </body>
 </html>
