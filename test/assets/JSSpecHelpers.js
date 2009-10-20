@@ -1,3 +1,12 @@
+function $try(){
+	for (var i = 0, l = arguments.length; i < l; i++){
+		try {
+			return arguments[i]();
+		} catch(e){}
+	}
+	return null;
+};
+
 Function.prototype._type = "Function";
 
 String.escapeSingle = String.escapeSingle || function escapeSingle(string){
@@ -99,3 +108,131 @@ var runSpecs = window.onload;
 window.onload = function(){
 	window.loaded = true;
 };
+
+
+// XML
+// from http://www.webreference.com/programming/javascript/definitive2/
+/**
+ * Create a new Document object. If no arguments are specified,
+ * the document will be empty. If a root tag is specified, the document
+ * will contain that single root tag. If the root tag has a namespace
+ * prefix, the second argument must specify the URL that identifies the
+ * namespace.
+ */ 
+var newXMLDocument = (document.implementation && document.implementation.createDocument)
+? function(rootTagName, namespaceURL){
+	return document.implementation.createDocument(namespaceURL||'', rootTagName||'', null); 
+}
+: function(rootTagName, namespaceURL){
+	if (!rootTagName) rootTagName = ""; 
+	if (!namespaceURL) namespaceURL = ""; 
+	// This is the IE way to do it 
+	// Create an empty document as an ActiveX object 
+	// If there is no root element, this is all we have to do 
+	var doc = new ActiveXObject("MSXML2.DOMDocument"); 
+	// If there is a root tag, initialize the document 
+	if (rootTagName) { 
+		// Look for a namespace prefix 
+		var prefix = ""; 
+		var tagname = rootTagName; 
+		var p = rootTagName.indexOf(':'); 
+		if (p != -1) { 
+			prefix = rootTagName.substring(0, p); 
+			tagname = rootTagName.substring(p+1); 
+		} 
+		// If we have a namespace, we must have a namespace prefix 
+		// If we don't have a namespace, we discard any prefix 
+		if (namespaceURL) { 
+			if (!prefix) prefix = "a0"; // What Firefox uses 
+		} 
+		else prefix = ""; 
+		// Create the root element (with optional namespace) as a 
+		// string of text 
+		var text = "<" + (prefix?(prefix+":"):"") +	 tagname + 
+		(namespaceURL 
+			?(" xmlns:" + prefix + '="' + namespaceURL +'"') 
+		:"") + 
+		"/>"; 
+		// And parse that text into the empty document 
+		doc.loadXML(text); 
+	} 
+	return doc; 
+}; 
+
+/**
+ * Synchronously load the XML document at the specified URL and
+ * return it as a Document object
+ */
+var loadXML = function(url) {
+	// Create a new document with the previously defined function
+	var xmldoc = newXMLDocument();
+	xmldoc.async = false;  // We want to load synchronously
+	xmldoc.load(url);	   // Load and parse
+	return xmldoc;		   // Return the document
+};
+
+/**
+ * Parse the XML document contained in the string argument and return
+ * a Document object that represents it.
+ */
+var parseXML = (function(){
+	
+	// Mozilla, Firefox, and related browsers
+	if (typeof DOMParser != "undefined")
+	return function(rawXML){
+		return (new DOMParser()).parseFromString(rawXML, "application/xml");
+	};
+	
+	// Internet Explorer.
+	if (typeof ActiveXObject != "undefined")
+	return function(rawXML){
+		var xmlDocument = new ActiveXObject("Microsoft.XMLDOM");
+		xmlDocument.async = false;
+		xmlDocument.loadXML(rawXML);
+		
+		if (xmlDocument.parseError && xmlDocument.parseError.errorCode)
+			xmlDocument.loadXML(rawXML.replace(/<!DOCTYPE[^>]*?>/i,''));
+		
+		if (xmlDocument.parseError && xmlDocument.parseError.errorCode)
+		throw new Error([''
+			,("Error code: " + xmlDocument.parseError.errorCode)
+			,("Error reason: " + xmlDocument.parseError.reason)
+			,("Error line: " + xmlDocument.parseError.line)
+			,rawXML
+		].join('\n'));
+		
+		return xmlDocument;
+	};
+	
+	// As a last resort, try loading the document from a data: URL
+	// This is supposed to work in Safari. Thanks to Manos Batsis and
+	// his Sarissa library (sarissa.sourceforge.net) for this technique.
+	return function(rawXML){
+		var url = "data:text/xml;charset=utf-8," + encodeURIComponent(rawXML);
+		var request = new XMLHttpRequest();
+		request.open("GET", url, false);
+		request.send(null);
+		return request.responseXML;
+	};
+	
+})();
+
+
+function getXML(url,mime){
+	if (!mime && url && /\.(svg|xml|xhtml)/i.test(url))
+		mime = 'text/xml';
+	
+	var request;
+	if (XMLHttpRequest != undefined)
+		request = new XMLHttpRequest();
+	else
+		request = new ActiveXObject("Microsoft.XMLHTTP");
+	
+	request.open("GET", url, false);
+	if (mime && request.overrideMimeType) request.overrideMimeType(mime);
+	request.send(null);
+	return request;
+	return request.responseXML || parseXML(request.responseText);
+	
+};
+
