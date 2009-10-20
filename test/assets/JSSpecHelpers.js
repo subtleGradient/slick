@@ -95,6 +95,20 @@ var Mock = (function(){
 	return Mock;
 })();
 
+Mock.Request = function(mockName, url){
+	if (!this instanceof Mock.Request) throw new Error('Mock.Request is not callable directly. Must use `new Mock.Request`');
+	
+	this.mockName = mockName;
+	this.url = url;
+	
+	var self = this;
+	this.callback = function(html, xml){
+		Mock.register(self.mockName +': '+ self.url, newSlickWinFromDoc(xml));
+	};
+	this.rq = new SimpleRequest();
+	this.rq.send(this.url, this.callback);
+};
+
 
 var TODO = function(){ throw "TODO: This test has not be written yet"; };
 

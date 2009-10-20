@@ -68,25 +68,8 @@ Mock.register('svg logo xml js',{ document:loadXML('tools/MooTools_Logo.svg') })
 
 <script type="text/javascript" charset="utf-8">
 
-new SimpleRequest().send('tools/xmlmock1.xml', function(html, xml){
-	Mock.register('responseXML: xmlmock1.xml', newSlickWinFromDoc(xml));
-});
-new SimpleRequest().send('tools/MooTools_Logo.svg', function(html, xml){
-	Mock.register('responseXML: xml svg logo', newSlickWinFromDoc(xml));
-});
-
-
-// var xml = document.createElement("xml");
-// xml.src = "assets/template.xml";
-// document.body.appendChild(xml);
-// var xmlDocument = xml.XMLDocument;
-// document.body.removeChild(xml);
-// Mock.register('xml data island', xmlDocument);
-
-// console.log(loadXML('assets/template.xml'))
-// console.log(loadXML('assets/template.xml').document)
-// console.log(loadXML('assets/template.xml').XMLDocument)
-
+new Mock.Request('responseXML','tools/xmlmock1.xml');
+new Mock.Request('responseXML','tools/MooTools_Logo.svg');
 
 </script>
 </body>
