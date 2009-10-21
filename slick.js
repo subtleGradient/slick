@@ -71,12 +71,12 @@ authors:
 	    local.collectionToArray(root.childNodes);
 	}
 	catch(e){
-	    local.collectionToArray = function(node){
-	        if (node instanceof Array) return node;
-    		var i = node.length, array = new Array(i);
-    		while (i--) array[i] = node[i];
-    		return array;
-    	};
+		local.collectionToArray = function(node){
+			if (node instanceof Array) return node;
+			var i = node.length, array = new Array(i);
+			while (i--) array[i] = node[i];
+			return array;
+		};
 	}
 	
 	local.cacheNTH = {};
@@ -121,26 +121,26 @@ authors:
 	};
 	
 	local.isXML = function(element){
-	    var ownerDocument = element.ownerDocument || element;
-	    return (!!ownerDocument.xmlVersion)
-	        || (!!ownerDocument.xml)
-	        || (ownerDocument.toString && ownerDocument.toString() == '[object XMLDocument]')
-    	    || (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
+		var ownerDocument = element.ownerDocument || element;
+		return (!!ownerDocument.xmlVersion)
+			|| (!!ownerDocument.xml)
+			|| (ownerDocument.toString && ownerDocument.toString() == '[object XMLDocument]')
+			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 
-    local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
-        var found = context.getElementsByTagName(tag);
-        if(tag != '*') return found;
-        var nodes = [];
-    	for (var i = 0, node; (node = found[i]); i++) {
-    		if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
-    		    nodes.push(node);
-    		}
-    	}
-    	return nodes;
-    } : function(context, tag){
-        return context.getElementsByTagName(tag);
-    };
+	local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
+		var found = context.getElementsByTagName(tag);
+		if(tag != '*') return found;
+		var nodes = [];
+		for (var i = 0, node; (node = found[i]); i++) {
+			if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+				nodes.push(node);
+			}
+		}
+		return nodes;
+	} : function(context, tag){
+		return context.getElementsByTagName(tag);
+	};
 	
 	var matchers = {
 		
@@ -188,8 +188,8 @@ authors:
 				if (node.getElementById){
 					item = node.getElementById(id);
 					if (item){
-					    this.push(item, tag, null, parts);
-    					return;
+						this.push(item, tag, null, parts);
+						return;
 					}
 				} else if ((node === root) || this.contains(root, node)){
 					item = document.getElementById(id);
@@ -626,7 +626,7 @@ authors:
 		regexp = new RegExp(("(?x)\
 			^(?:\
 			  \\s* ( , | $ ) \\s*                           # Separator              \n\
-			| \\s* ( <combinator>+ ) \\s*      				# Combinator             \n\
+			| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
 			|      ( \\s+ )                                 # CombinatorChildren     \n\
 			|      ( <unicode>+ | \\* )                     # Tag                    \n\
 			| \\#  ( <unicode>+       )                     # ID                     \n\
