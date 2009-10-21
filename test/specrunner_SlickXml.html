@@ -25,6 +25,11 @@
 <script type="text/javascript" charset="utf-8">
 
 new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
+	
+	it['should be XML'] = function(){
+		value_of(context.Slick.isXML(context.document)).should_be_true();
+	};
+	
 	Describe('Selector Engine',function(){
 		
 		Describe('Bugs', specsSelectorEngineBugs);

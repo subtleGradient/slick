@@ -124,7 +124,7 @@ authors:
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
-			|| (ownerDocument.toString && ownerDocument.toString() == '[object XMLDocument]')
+			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 
@@ -555,7 +555,11 @@ authors:
 		}
 		return append;
 	};
-
+	
+	// utils
+	
+	Slick.isXML = local.isXML;
+	
 })();
 
 // parser
