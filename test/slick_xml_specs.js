@@ -1,6 +1,6 @@
-function specsAssetsTemplateXml(specs,context){
+function specsAssetsTemplateXML(specs,context){
 	
-	Describe('Slick Selector Engine on Xml file',function(){
+	Describe('Slick Selector Engine on XML file',function(){
 		
 		function makeSlickTestSearch(selector, count, disableQSA) {
 			return function(){

@@ -120,7 +120,7 @@ authors:
 		}
 	};
 	
-	local.isXml = function(element){
+	local.isXML = function(element){
 	    var ownerDocument = element.ownerDocument || element;
 	    return (!!ownerDocument.xmlVersion)
 	        || (!!ownerDocument.xml)
@@ -182,8 +182,8 @@ authors:
 	
 	var combinators = {
 
-		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXml){ // all child nodes, any level
-			if (id && !isXml){
+		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXML){ // all child nodes, any level
+			if (id && !isXML){
 				var item;
 				if (node.getElementById){
 					item = node.getElementById(id);
@@ -199,7 +199,7 @@ authors:
 			}
 			
 			var children;
-			if (node.getElementsByClassName && classes && !isXml && !local.cachedGetElementsByClassName){
+			if (node.getElementsByClassName && classes && !isXML && !local.cachedGetElementsByClassName){
 				children = node.getElementsByClassName(classes.join(' '));
 				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, parts, false);
 				return;
@@ -398,11 +398,11 @@ authors:
 
 		local.positions = {};
 		
-        var isXml = local.isXml(context);
+        var isXML = local.isXML(context);
 		var current;
 		
 		// disable querySelectorAll for star tags if it's buggy
-		if (local.starSelectsClosedQSA && parsed.simple && !isXml) parsed.simple = (function(){
+		if (local.starSelectsClosedQSA && parsed.simple && !isXML) parsed.simple = (function(){
 			for (var i = 0; i < parsed.expressions.length; i++)
 				for (var j = 0; j < parsed.expressions[i].length; j++)
 					if (parsed.expressions[i][j].tag == '*') return false;
@@ -410,7 +410,7 @@ authors:
 		})();
 		
 		// querySelectorAll for simple selectors
-		if (parsed.simple && context.querySelectorAll && !isXml && !local.brokenMixedCaseQSA && !Slick.disableQSA){
+		if (parsed.simple && context.querySelectorAll && !isXML && !local.brokenMixedCaseQSA && !Slick.disableQSA){
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
@@ -437,7 +437,7 @@ authors:
 				
 				var combinator = 'combinator:' + currentBit.combinator;
                 
-				var tag = isXml? currentBit.tag: currentBit.tag.toUpperCase();
+				var tag = isXML? currentBit.tag: currentBit.tag.toUpperCase();
 				var id = currentBit.id;
 				var parts = currentBit.parts;
 				var classes = currentBit.classes;
@@ -455,11 +455,11 @@ authors:
 				}
 				
 				if (j == 0){
-					local[combinator](context, tag, id, parts, classes, attributes, pseudos, isXml);
+					local[combinator](context, tag, id, parts, classes, attributes, pseudos, isXML);
 				} else {
 					var items = current;
 					if (local[combinator])
-						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos, isXml);
+						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos, isXML);
 					else
 						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
 				}
