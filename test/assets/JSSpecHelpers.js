@@ -44,7 +44,10 @@ function Describe(description,specBuilder){
 	
 	// Create the tests and go!
 	var spec_count = 0;
-	for (var specname in specs) spec_count++;
+	for (var specname in specs){
+		if (/^(before|after)[_ ](all|each)$/.test(specname)) continue;
+		if (specs[specname]) spec_count++;
+	}
 	if (spec_count) describe(description, specs);
 	
 	// Reset
