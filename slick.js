@@ -191,30 +191,37 @@ authors:
 	var combinators = {
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXML){ // all child nodes, any level
-			if (id && !isXML){
-				var item;
-				if (node.getElementById){
-					item = node.getElementById(id);
-					if (item){
-						this.push(item, tag, null, parts);
-						return;
-					}
-				} else if ((node === root) || this.contains(root, node)){
-					item = document.getElementById(id);
-					if (item && this.contains(node, item)) this.push(item, tag, null, parts);
-					return;
-				}
-			}
+			var i,l,item,children;
 			
-			var children;
-			if (node.getElementsByClassName && classes && !isXML && !local.cachedGetElementsByClassName){
-				children = node.getElementsByClassName(classes.join(' '));
-				for (var j = 0, k = children.length; j < k; j++) this.push(children[j], tag, id, parts, false);
+			getById: if (id) {
+				if (!node.getElementById) break getById;
+				item = node.getElementById(id);
+				if (!item) break getById;
+				if (item.getAttribute('id') != id) break getById;
+				this.push(item, tag, null, parts);
 				return;
 			}
-
-			children = local.getByTagName(node, tag);
-			for (var i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
+			getById: if (id) {
+				var document = node.ownerDocument || node;
+				if (!document.getElementById) break getById;
+				item = document.getElementById(id);
+				if (!item) break getById;
+				if (item.getAttribute('id') != id) break getById;
+				if (!this.contains(node, item)) break getById;
+				this.push(item, tag, null, parts);
+				return;
+			}
+			getByClass: if (node.getElementsByClassName && classes && !local.cachedGetElementsByClassName) {
+				children = node.getElementsByClassName(classes.join(' '));
+				if (!(children && children.length)) break getByClass;
+				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
+				return;
+			}
+			getByTag: {
+				children = local.getByTagName(node, tag);
+				if (!(children && children.length)) break getByTag;
+				for (i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
+			}
 		},
 		
 		'!': function(node, tag, id, parts){  // all parent nodes up to document
