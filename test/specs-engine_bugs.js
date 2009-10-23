@@ -84,16 +84,21 @@ function specsSelectorEngineBugs(specs,context){
 	};
 	
 	it['should return an element with the second class defined to it'] = function(){
+		teardown();setup();
+			
 		var className = 'class1 class2';
 		var tmpNode;
-		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
+		tmpNode = context.document.createElement('span');
+		tmpNode.setAttribute('class',className);
+		tmpNode.setAttribute('className',className);
+		testNode.appendChild(tmpNode);
 		
-		value_of( tmpNode.getAttribute('class') ).should_be( className );
-		value_of( testNode.childNodes.length ).should_be( 1 );
-		value_of( testNode.firstChild ).should_be( tmpNode );
-		
-		value_of( testNode.className || tmpNode.getAttribute('class') ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[0]) + '(\\s|$)') );
-		value_of( testNode.className || tmpNode.getAttribute('class') ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[1]) + '(\\s|$)') );
+		// value_of( tmpNode.getAttribute('class') ).should_be( className );
+		// value_of( testNode.childNodes.length ).should_be( 1 );
+		// value_of( testNode.firstChild ).should_be( tmpNode );
+		// 
+		// value_of( testNode.className || tmpNode.getAttribute('class') ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[0]) + '(\\s|$)') );
+		// value_of( testNode.className || tmpNode.getAttribute('class') ).should_match( new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className.split(' ')[1]) + '(\\s|$)') );
 		
 		// if (!tmpNode.className){
 		// 	for (var mockName in global.mocks) {
@@ -110,19 +115,51 @@ function specsSelectorEngineBugs(specs,context){
 		// new RegExp('(^|\\s)' + Slick.parse.escapeRegExp(className) + '(\\s|$)')
 		
 		var results = context.Slick(testNode, '.class2');
-		value_of( results.length ).should_be(1);
+		value_of( results[0] ).should_be(tmpNode);
 	};
 	
 	it['should return the elements with passed class'] = function(){
-		var tmpNode;
-		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','f');tmpNode.setAttribute('className','f');testNode.appendChild(tmpNode);
-		tmpNode = context.document.createElement('span');tmpNode.setAttribute('class','b');tmpNode.setAttribute('className','b');testNode.appendChild(tmpNode);
+		teardown();setup();
+		var results;
 		
-		var results = context.Slick(testNode, '.b');
+		var tmpNode1;tmpNode1 = context.document.createElement('span');tmpNode1.setAttribute('class','b');tmpNode1.setAttribute('className','b');testNode.appendChild(tmpNode1);
+		var tmpNode2;tmpNode2 = context.document.createElement('span');tmpNode2.setAttribute('class','b');tmpNode2.setAttribute('className','b');testNode.appendChild(tmpNode2);
+		
+		value_of( Slick.match(tmpNode1, '[class|=b]') ).should_be_true();
+		value_of( Slick.match(tmpNode1, '[class=b]') ).should_be_true();
+		value_of( Slick.match(tmpNode1, '.b') ).should_be_true();
+		value_of( Slick.match(tmpNode1, '.f') ).should_be_false();
+		
+		value_of( Slick.match(tmpNode2, '.b') ).should_be_true();
+		value_of( Slick.match(tmpNode2, '.f') ).should_be_false();
+		
+		results = context.Slick(testNode, '.b');
+		value_of( results.length ).should_be(2);
+		
+		value_of( tmpNode1.getAttribute('class') ).should_be('b');
+		
+		tmpNode1.removeAttribute('class');
+		tmpNode1.removeAttribute('className');
+		value_of( tmpNode1.getAttribute('class') ).should_be_null();
+		
+		tmpNode1.setAttribute('class','f');
+		tmpNode1.setAttribute('className','f');
+		value_of( tmpNode1.getAttribute('class') ).should_be('f');
+		value_of( Slick.match(tmpNode1, '.b') ).should_be_false();
+		value_of( Slick.match(tmpNode1, '.f') ).should_be_true();
+		
+		value_of( Slick.match(tmpNode2, '.b') ).should_be_true();
+		value_of( Slick.match(tmpNode2, '.f') ).should_be_false();
+		
+		results = context.Slick(testNode, '.b');
 		value_of( results.length ).should_be(1);
 		
-		testNode.firstChild.setAttribute('class','b');testNode.firstChild.setAttribute('className','b');
-		var results = context.Slick(testNode, '.b');
+		tmpNode1.removeAttribute('class');
+		tmpNode1.removeAttribute('className');
+		tmpNode1.setAttribute('class','b');
+		tmpNode1.setAttribute('className','b');
+		
+		results = context.Slick(testNode, '.b');
 		value_of( results.length ).should_be(2);
 	};
 	
@@ -144,8 +181,7 @@ function specsBrowserBugsFixed(specs,context){
 	var rootElement;
 	var testNode, tmpNode, tmpNode1, tmpNode2, tmpNode3, tmpNode4, tmpNode5, tmpNode6, tmpNode7, tmpNode8, tmpNode9;
 	var results, resultsArray;
-	var setup = 
-	specs.before_each = function(){
+	var setup = function(){
 		testNode = context.document.createElement('div');
 		rootElement = context.document.getElementsByTagName('body')[0];
 		rootElement = rootElement || context.document.documentElement;
@@ -154,10 +190,6 @@ function specsBrowserBugsFixed(specs,context){
 	var teardown = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 		testNode = null;
-	};
-	
-	context.Slick.debug = function(){
-		alert(Array.prototype.slice.call(arguments));
 	};
 	
 	Describe('Slick [name]',function(){
