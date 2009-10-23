@@ -143,7 +143,7 @@ window.onload = function load(){
 				});
 			}
 			cell.title = cell.firstChild.innerHTML;
-			cell.firstChild.innerHTML = (Math.round(cell.speed / avg * 10) / 10) + 'x'
+			cell.firstChild.innerHTML += " <u>" + (Math.round(cell.speed / avg * 10) / 10) + 'x' + "</u>";
 			if (cell.found && cell.speed == max) cell.className += ' good';
 			else if (!cell.found) cell.className += ' zero';
 			else if (cell.speed == min) cell.className += ' bad';
