@@ -95,7 +95,6 @@
 		function test(selector){
 			try {
 				var times = [];
-				var start = new Date();
 				var i = 0;
 
 <?php	if (isset($_GET['initialize'])): ?>
@@ -109,16 +108,18 @@
 				var once = function() {
 					return <?php echo sprintf($_GET['function'], 'selector', 'context') ?>;
 				}
-				
-				var start = (new Date()).getTime(), distance = 0, comps = 0, elements;
-
 				var elements = once();
-					
+				var start = (new Date()).getTime(), distance = 0, comps = 0, elements;
+				
 				do {
 					comps++;
 					once();
-				} while ((distance = (new Date()).getTime() - start) < 1000);
-
+				} while (!(
+					comps > 100
+					&&
+					(distance = (new Date()).getTime() - start) > 250
+				));
+				
 				var end = new Date();
 				var data = { time:0, found:get_length(elements) };
 
