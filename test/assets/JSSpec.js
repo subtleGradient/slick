@@ -1534,7 +1534,9 @@ window.onload = function() {
 			}
 		}
 	} else {
-		var links = document.getElementById('list').getElementsByTagName('A');
+		var links = document.getElementById('list');
+		if (links) links = links.getElementsByTagName('A');
+		else return;
 		var frameContainer = document.createElement('DIV');
 		frameContainer.style.display = 'none';
 		document.body.appendChild(frameContainer);
