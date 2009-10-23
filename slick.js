@@ -42,7 +42,12 @@ authors:
 		    testNode.firstChild.className = 'b';
 		    local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 		}catch(e){};
-        
+		
+		// getElementById selects name attribute?
+		try{
+			testNode.innerHTML = '<input name=idgetsname>';
+			local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+		}catch(e){}
 		
 		root.removeChild(testNode);
 		testNode = null;
