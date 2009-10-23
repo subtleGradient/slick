@@ -23,6 +23,7 @@ authors:
 		
 		// Our guinea pig
 		var testNode = document.createElement('div');
+		root.appendChild(testNode);
 		testNode.appendChild(document.createComment(''));
 		
 		// IE returns comment nodes for getElementsByTagName('*')
@@ -42,6 +43,8 @@ authors:
 		    local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 		}catch(e){};
         
+		
+		root.removeChild(testNode);
 		testNode = null;
 	})();
 	
