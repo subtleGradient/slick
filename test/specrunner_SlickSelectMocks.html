@@ -23,10 +23,12 @@
 <script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
-	Describe('Bugs', specsSelectorEngineBugs);
-	Describe('Bugs Fixed', specsBrowserBugsFixed);
+new Mock('template', function(){
+	Describe('Template Mock', specsMockTemplate);
 });
+// new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
+// });
+new Mock('xmlmock1', specsAssetsTemplateXML);
 
 </script>
 </head>
