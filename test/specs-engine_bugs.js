@@ -1,18 +1,20 @@
 function specsSelectorEngineBugs(specs,context){
 	
-	var bodyElement;
+	var rootElement;
+	var testNode;
+	var setup = 
 	specs.before_each = function(){
 		testNode = context.document.createElement('div');
-		bodyElement = context.document.getElementsByTagName('body')[0];
-		bodyElement = bodyElement || context.document.documentElement;
-		if (bodyElement)
-			bodyElement.appendChild(testNode);
+		rootElement = context.document.getElementsByTagName('body')[0];
+		rootElement = rootElement || context.document.documentElement;
+		if (rootElement)
+			rootElement.appendChild(testNode);
 	};
+	var teardown = 
 	specs.after_each = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
 		testNode = null;
 	};
-	
 	it['document should have a documentElement'] = function(){
 		value_of( context.document.documentElement ).should_not_be_undefined();
 		value_of( context.document.documentElement.childNodes.length ).should_not_be_undefined();
@@ -39,7 +41,9 @@ function specsSelectorEngineBugs(specs,context){
 		}
 	};
 	
-	if (context.document && context.document.querySelectorAll)
+	var starIncludesClosedNodes = !!$try(function(){ return context.document.createElement('/foo').nodeName.substring(0,1)=='/'; });
+	
+	if (starIncludesClosedNodes && context.document && context.document.querySelectorAll)
 	it['should not return closed nodes with QSA'] = function(){
 		testNode.innerHTML = 'foo</foo>';
 		var results = context.Slick(testNode,'*');
@@ -49,7 +53,7 @@ function specsSelectorEngineBugs(specs,context){
 		}
 	};
 	
-	if ($try(function(){ return context.document.createElement('/foo').nodeName.substring(0,1)=='/'; }))
+	if (starIncludesClosedNodes)
 	it['should not return closed nodes without QSA'] = function(){
 		var tmpNode;
 		tmpNode = context.document.createElement('/foo');testNode.appendChild(tmpNode);
@@ -132,17 +136,109 @@ function specsSelectorEngineBugs(specs,context){
 		value_of( results[0].getAttribute('type') ).should_be('text');
 	};
 	
-	it['should not return an element without the id equals to the passed id'] = function(){
-		var tmpNode;
-		tmpNode = context.document.createElement('input');tmpNode.setAttribute('name','f');tmpNode.setAttribute('type','text');testNode.appendChild(tmpNode);
-		tmpNode = context.document.createElement('input');tmpNode.setAttribute('id',  'f');tmpNode.setAttribute('type','password');testNode.appendChild(tmpNode);
-		
-		var results = context.Slick(testNode, '#f');
-		value_of( results.length ).should_be( 1 );
-		
-		var results = context.Slick(context.document, '#f');
-		value_of( results.length ).should_be( 1 );
-		value_of( results[0].getAttribute('type') ).should_be('password');
+};
+
+
+function specsBrowserBugsFixed(specs,context){
+	
+	var rootElement;
+	var testNode, tmpNode, tmpNode1, tmpNode2, tmpNode3, tmpNode4, tmpNode5, tmpNode6, tmpNode7, tmpNode8, tmpNode9;
+	var results, resultsArray;
+	var setup = 
+	specs.before_each = function(){
+		testNode = context.document.createElement('div');
+		rootElement = context.document.getElementsByTagName('body')[0];
+		rootElement = rootElement || context.document.documentElement;
+		rootElement.appendChild(testNode);
 	};
+	var teardown = function(){
+		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
+		testNode = null;
+	};
+	
+	context.Slick.debug = function(){
+		alert(Array.prototype.slice.call(arguments));
+	};
+	
+	Describe('Slick [name]',function(){
+		
+		specs.before_each = setup;
+		specs.after_each = teardown;
+		
+		it['Should match name attribute'] = function(){
+			teardown();setup();
+			
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			results = context.Slick(testNode,'[name=getelementsbyname]',[]);
+			value_of( results ).should_include(tmpNode1);
+			
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			
+			results = context.Slick(testNode,'[name=getelementsbyname]',[]);
+			value_of( results ).should_include(tmpNode1);
+		};
+		
+		it['Should NOT match id attribute'] = function(){
+			teardown();setup();
+			
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			results = context.Slick(testNode,'[name=getelementsbyname]');
+			for (var i=0; i < results.length; i++) {
+				// value_of( results[i] ).should_not_be( tmpNode2 );
+				value_of( results[i] == tmpNode2 ).should_be_false();
+			}
+			
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			
+			results = context.Slick(testNode,'[name=getelementsbyname]');
+			for (var i=0; i < results.length; i++) {
+				// value_of( results[i] ).should_not_be( tmpNode2 );
+				value_of( results[i] == tmpNode2 ).should_be_false();
+			}
+		};
+		
+	});
+	
+	Describe('Slick #',function(){
+		
+		specs.before_each = setup;
+		specs.after_each = teardown;
+		
+		it['Should NOT match name attribute'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			
+			results = context.Slick(testNode,'#getelementbyid',[]);
+			value_of( results[0] == tmpNode1).should_be_false();
+			// value_of( results ).should_not_be([tmpNode1]);
+			// value_of( results[0] ).should_not_be(tmpNode1);
+		};
+		
+		it['Should match id attribute, even when another element has that [name]'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode3 = context.document.createElement('input');tmpNode3.setAttribute('name','getelementbyid');tmpNode3.setAttribute('type','text');testNode.appendChild(tmpNode3);
+			
+			results = context.Slick(testNode,'#getelementbyid',[]);
+			// value_of( results ).should_be([tmpNode2]);
+			// value_of( results[0] ).should_be(tmpNode2);
+			value_of( results[0] == tmpNode2).should_be_true();
+		};
+		
+	});
 	
 };
