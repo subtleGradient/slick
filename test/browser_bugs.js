@@ -8,8 +8,7 @@ function specsBrowserBugs(specs,context){
 		testNode = context.document.createElement('div');
 		rootElement = context.document.getElementsByTagName('body')[0];
 		rootElement = rootElement || context.document.documentElement;
-		if (rootElement)
-			rootElement.appendChild(testNode);
+		rootElement.appendChild(testNode);
 	};
 	var teardown = function(){
 		testNode && testNode.parentNode && testNode.parentNode.removeChild(testNode);
@@ -24,38 +23,38 @@ function specsBrowserBugs(specs,context){
 		it['getElementsByName Should match name attribute'] = function(){
 			teardown();setup();
 			
-			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getElementsByName');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
-			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getElementsByName');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
 			
-			results = tmpNode1.ownerDocument.getElementsByName('getElementsByName');
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
 			value_of( results ).should_include(tmpNode1);
 			
 			teardown();setup();
 			
-			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getElementsByName');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
-			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getElementsByName');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
 			
-			results = tmpNode1.ownerDocument.getElementsByName('getElementsByName');
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
 			value_of( results ).should_include(tmpNode1);
 		};
 		
 		it['getElementsByName Should NOT match id attribute'] = function(){
 			teardown();setup();
 			
-			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getElementsByName');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
-			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getElementsByName');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
 			
-			results = tmpNode1.ownerDocument.getElementsByName('getElementsByName');
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
 			for (var i=0; i < results.length; i++) {
 				value_of( results[i] ).should_not_be( tmpNode2 );
 			}
 			
 			teardown();setup();
 			
-			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getElementsByName');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
-			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getElementsByName');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementsbyname');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementsbyname');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
 			
-			results = tmpNode1.ownerDocument.getElementsByName('getElementsByName');
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
 			for (var i=0; i < results.length; i++) {
 				value_of( results[i] ).should_not_be( tmpNode2 );
 			}
@@ -71,20 +70,21 @@ function specsBrowserBugs(specs,context){
 		it['getElementById Should NOT match name attribute'] = function(){
 			teardown();setup();
 			
-			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getElementById');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
-			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getElementById');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
 			
-			results = tmpNode1.ownerDocument.getElementById('getElementById');
+			results = tmpNode1.ownerDocument.getElementById('getelementbyid');
 			value_of( results ).should_not_be(tmpNode1);
 		};
 		
+		it['getElementById Should NOT mask element[id] with element[name]'] =
 		it['getElementById Should match id attribute'] = function(){
 			teardown();setup();
 			
-			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getElementById');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
-			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getElementById');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
 			
-			results = tmpNode1.ownerDocument.getElementById('getElementById');
+			results = tmpNode1.ownerDocument.getElementById('getelementbyid');
 			value_of( results ).should_be(tmpNode2);
 		};
 		
