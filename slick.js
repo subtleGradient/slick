@@ -211,7 +211,7 @@ authors:
 				this.push(item, tag, null, parts);
 				return;
 			}
-			getByClass: if (node.getElementsByClassName && classes && !local.cachedGetElementsByClassName) {
+			getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName) {
 				children = node.getElementsByClassName(classes.join(' '));
 				if (!(children && children.length)) break getByClass;
 				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
@@ -547,6 +547,7 @@ authors:
 	};
 	
 	Slick.deepMatch = function(node, expression, context){
+		// FIXME: FPO code only
 		var nodes = Slick(context||document, expression);
 		for (var i=0; i < nodes.length; i++) {
 			if (nodes[i] === node) {
