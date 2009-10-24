@@ -192,30 +192,30 @@ authors:
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXML){ // all child nodes, any level
 			var i,l,item,children;
-			
-			getById: if (id) {
-				if (!node.getElementById) break getById;
-				item = node.getElementById(id);
-				if (!item) break getById;
-				if (item.getAttribute('id') != id) break getById;
-				this.push(item, tag, null, parts);
-				return;
-			}
-			getById: if (id) {
-				var document = node.ownerDocument || node;
-				if (!document.getElementById) break getById;
-				item = document.getElementById(id);
-				if (!item) break getById;
-				if (item.getAttribute('id') != id) break getById;
-				if (!this.contains(node, item)) break getById;
-				this.push(item, tag, null, parts);
-				return;
-			}
-			getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName) {
-				children = node.getElementsByClassName(classes.join(' '));
-				if (!(children && children.length)) break getByClass;
-				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
-				return;
+
+			if(!isXML){
+				getById: if (id) {
+					if (!node.getElementById) break getById;
+					item = node.getElementById(id);
+					if (!item || item.id != id) break getById;
+					this.push(item, tag, null, parts);
+					return;
+				}
+				getById: if (id) {
+					var document = node.ownerDocument || node;
+					if (!document.getElementById) break getById;
+					item = document.getElementById(id);
+					if (!item || item.id != id) break getById;
+					if (!this.contains(node, item)) break getById;
+					this.push(item, tag, null, parts);
+					return;
+				}
+				getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName) {
+					children = node.getElementsByClassName(classes.join(' '));
+					if (!(children && children.length)) break getByClass;
+					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
+					return;
+				}
 			}
 			getByTag: {
 				children = local.getByTagName(node, tag);

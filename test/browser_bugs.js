@@ -73,6 +73,8 @@ function specsBrowserBugs(specs,context){
 			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
 			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
 			
+			console.log(tmpNode1.ownerDocument.getElementById);
+			
 			results = tmpNode1.ownerDocument.getElementById('getelementbyid');
 			value_of( results ).should_not_be(tmpNode1);
 		};
