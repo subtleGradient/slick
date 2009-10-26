@@ -24,10 +24,10 @@
 <script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
+new Mock(/\b(xml|svg|xhtml|html)\b/i, function(specs, context){
 	
 	it['should be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_true();
+		value_of(Slick.isXML(context.document)).should_be_true();
 	};
 	
 	Describe('Selector Engine',function(){
