@@ -60,6 +60,26 @@ function specsBrowserBugs(specs,context){
 			}
 		};
 		
+		it['getElementsByName Should match name attribute, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input id="getelementsbyname" type="password" /><input name="getelementsbyname" type="text" />';
+			tmpNode2 = testNode.firstChild;
+			tmpNode1 = testNode.lastChild;
+			
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
+			value_of( results ).should_include(tmpNode1);
+			
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementsbyname" type="password" /><input id="getelementsbyname" type="text" />';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = testNode.lastChild;
+			
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
+			value_of( results ).should_include(tmpNode1);
+		};
+		
 	});
 	
 	Describe('getElementById',function(){
@@ -83,6 +103,17 @@ function specsBrowserBugs(specs,context){
 			
 			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
 			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');testNode.appendChild(tmpNode2);
+			
+			results = tmpNode1.ownerDocument.getElementById('getelementbyid');
+			value_of( results ).should_be(tmpNode2);
+		};
+		
+		it['getElementsById Should match id attribute, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementbyid" type="password" /><input id="getelementbyid" type="text" />';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = testNode.lastChild;
 			
 			results = tmpNode1.ownerDocument.getElementById('getelementbyid');
 			value_of( results ).should_be(tmpNode2);
