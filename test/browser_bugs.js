@@ -121,7 +121,40 @@ function specsBrowserBugs(specs,context){
 		
 	});
 	
-	Describe('getElementsByClassName',function(){});
+	if(context.document.getElementsByClassName && context.document.documentElement.getElementsByClassName)
+	Describe('getElementsByClassName',function(){
+		
+		it['getElementsByClassName Should match second class name'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.className = 'getelementsbyclassname secondclass';tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			results = testNode.getElementsByClassName('secondclass');
+			value_of( results ).should_include(tmpNode1);
+		};
+		
+		it['getElementsByClassName Should match second class name, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<a class="getelementsbyclassname secondclass"></a>';
+			tmpNode1 = testNode.firstChild;
+			
+			results = testNode.getElementsByClassName('secondclass');
+			value_of( results ).should_include(tmpNode1);
+		};
+		
+		it['getElementsByClassName Should not cache results'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+			testNode.getElementsByClassName('b').length; //accessing a property is important here
+			testNode.firstChild.className = 'b';
+			
+			results = testNode.getElementsByClassName('b');
+			value_of( results.length ).should_be(2);
+		};
+		
+	});
 	
 	Describe('querySelectorAll',function(){});
 	
