@@ -156,7 +156,21 @@ function specsBrowserBugs(specs,context){
 		
 	});
 	
-	Describe('querySelectorAll',function(){});
+	if(context.document.querySelectorAll)
+	Describe('querySelectorAll',function(){
+		
+		it['querySelectorAll Should start finding nodes from the passed context'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('id', 'queryselectorall');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			results = testNode.querySelectorAll('div #queryselectorall');
+			for (var i=0; i < results.length; i++) {
+				value_of( results[i] ).should_not_be( tmpNode1 );
+			}
+		};
+		
+	});
 	
 	Describe('xpath',function(){});
 	
