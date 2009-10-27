@@ -33,11 +33,11 @@ authors:
 		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
 		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
 		
-		// Safari 3.2 QSA doenst work with mixedcase on quirksmode
+		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
 		
 		try{
-			testNode.innerHTML = '<span class="f"></span><span class="b"></span>';
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
 			testNode.firstChild.className = 'b';
 			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
@@ -45,7 +45,7 @@ authors:
 		
 		// getElementById selects name attribute?
 		try{
-			testNode.innerHTML = '<input name=idgetsname>';
+			testNode.innerHTML = '<a name=idgetsname>';
 			local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 		}catch(e){}
 		
