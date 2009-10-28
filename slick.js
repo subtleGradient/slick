@@ -30,8 +30,8 @@ authors:
 		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 		
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
 		
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
@@ -141,7 +141,7 @@ authors:
 		if(tag != '*') return found;
 		var nodes = [];
 		for (var i = 0, node; (node = found[i]); i++) {
-			if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+			if (node.nodeType == 1 && node.nodeName.charAt(0) != '/'){
 				nodes.push(node);
 			}
 		}
