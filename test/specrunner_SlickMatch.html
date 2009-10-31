@@ -16,5 +16,14 @@ function deepMatch(node, expression){
 </script>
 <script type="text/javascript" src="slick_match_specs.js"></script>
 </head>
-<body></body>
+<body>
+<script type="text/javascript" charset="utf-8">
+(function(){try{
+	
+	var result = window.location.search.match(/\bscript=(.*?\.js)/i);
+	if (result) document.write('<scr'+'ipt src="'+ result[1] +'" type="text/javascript"><\/script>');
+	
+}catch(e){}})();
+</script>	
+</body>
 </html>
