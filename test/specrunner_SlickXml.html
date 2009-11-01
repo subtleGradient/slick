@@ -30,15 +30,13 @@
 
 new Mock(/\b(xml|svg|xhtml|html)\b/i, function(specs, context){
 	
-	it['should be XML'] = function(){
-		value_of(Slick.isXML(context.document)).should_be_true();
-	};
-	
-	Describe('Selector Engine',function(){
-		
-		Describe('Bugs', specsSelectorEngineBugs);
-		
+	Describe('XML',function(){
+		it['should be XML'] = function(){
+			value_of(Slick.isXML(context.document)).should_be_true();
+		};
 	});
+	
+	Describe('Bugs', specsSelectorEngineBugs);
 });
 new Mock('xmlmock1', specsAssetsTemplateXML);
 
