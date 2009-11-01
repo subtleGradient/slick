@@ -17,6 +17,8 @@ iframe{display:none;}
 <script type="text/javascript"> var SlickLast = Slick; </script>
 <script> document.write('<scr'+'ipt src="../../test/../slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
 <script type="text/javascript"> var SlickThis = Slick; </script>
+<script src="../frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>
+<script src="../frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
 
 <script type="text/javascript" src="../../test/assets/JSSpecHelpers_slick.js" charset="utf-8"></script>
 
@@ -24,119 +26,14 @@ iframe{display:none;}
 <script src="JSLitmus.js" type="text/javascript" charset="utf-8"></script>
 <script src="JSLitmusHelpers.js" type="text/javascript" charset="utf-8"></script>
 
+<!-- benchmarks -->
+<script src="bench_select.js" type="text/javascript" charset="utf-8"></script>
+
 <!-- Runner -->
 <script type="text/javascript" src="../../test/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-Slick.disableQSA = true;
-SlickLast.disableQSA = true;
-
-new Mock(/\b(html)\b/i, function(){
-	
-	it['Slick this'] = function(count){
-		var Slick = global.SlickThis;
-		var document = context.document;
-		var i=0, node;
-		var elements = Slick(document,'*');
-		
-		while(count--){
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'body'                        );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div'                         );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'body div'                    );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div p'                       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div > p'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div + p'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div ~ p'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class^=exa][class$=mple]');
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div p a'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div, p, a'                   );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'.note'                       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div.example'                 );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'ul .tocline2'                );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div.example, div.note'       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'#title'                      );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'h1#title'                    );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div #title'                  );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'ul.toc li.tocline2'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'ul.toc > li.tocline2'        );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'h1#title + div > p'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'h1[id]:contains(Selectors)'  );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'a[href][lang][class]'        );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class]'                  );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class=example]'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class^=exa]'             );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class$=mple]'            );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class*=e]'               );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class|=dialog]'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class!=made_up]'         );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class~=example]'         );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div:not(.example)'           );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:contains(selectors)'       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(even)'           );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(2n)'             );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(odd)'            );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(2n+1)'           );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(n)'              );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:only-child'                );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:last-child'                );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:first-child'               );
-		}
-	};
-	
-// });
-// new Mock(/\b(html)\b/i, function(){
-	
-	it['Slick LAST'] = function(count){
-		var Slick = global.SlickLast;
-		var document = context.document;
-		var i=0, node;
-		var elements = Slick(document,'*');
-		
-		while(count--){
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'body'                        );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div'                         );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'body div'                    );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div p'                       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div > p'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div + p'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div ~ p'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class^=exa][class$=mple]');
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div p a'                     );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div, p, a'                   );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'.note'                       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div.example'                 );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'ul .tocline2'                );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div.example, div.note'       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'#title'                      );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'h1#title'                    );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div #title'                  );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'ul.toc li.tocline2'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'ul.toc > li.tocline2'        );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'h1#title + div > p'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'h1[id]:contains(Selectors)'  );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'a[href][lang][class]'        );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class]'                  );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class=example]'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class^=exa]'             );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class$=mple]'            );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class*=e]'               );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class|=dialog]'          );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class!=made_up]'         );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div[class~=example]'         );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'div:not(.example)'           );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:contains(selectors)'       );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(even)'           );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(2n)'             );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(odd)'            );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(2n+1)'           );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:nth-child(n)'              );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:only-child'                );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:last-child'                );
-			for (i=0; node = elements[i++];) { node._slickUID = null; };Slick(document,'p:first-child'               );
-		}
-	};
-	
-});
+new Mock(/\b(html)\b/i, benchmarkSelectors);
 
 </script>
 </head>
