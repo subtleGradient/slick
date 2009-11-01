@@ -172,7 +172,46 @@ function specsBrowserBugs(specs,context){
 		
 	});
 	
-	Describe('xpath',function(){});
+	Describe('xpath',function(){
+		
+		it['should implement selectNodes'] = function(){
+			teardown();setup();
+			
+			context.document.setProperty("SelectionLanguage","XPath");
+			
+			value_of( testNode.selectNodes('//*').length ).should_not_be(0);
+			value_of( testNode.selectNodes('./*').length ).should_be(0);
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('name','getelementbyid');tmpNode1.setAttribute('type','text'    );tmpNode1.setAttribute('class','tmpNode1class bar');testNode.appendChild(tmpNode1);
+			tmpNode2 = context.document.createElement('input');tmpNode2.setAttribute('id',  'getelementbyid');tmpNode2.setAttribute('type','password');tmpNode2.setAttribute('class','tmpNode2class foo bar');testNode.appendChild(tmpNode2);
+			tmpNode3 = context.document.createElement('input');tmpNode3.setAttribute('id',  'getelementbyid');tmpNode3.setAttribute('type','password');tmpNode3.setAttribute('class','tmpNode3class foo baz');testNode.appendChild(tmpNode3);
+			tmpNode4 = context.document.createElement('input');tmpNode4.setAttribute('id',  'getelementbyid');tmpNode4.setAttribute('type','password');tmpNode4.setAttribute('class','tmpNode4class baz');testNode.appendChild(tmpNode4);
+			
+			value_of( testNode.selectNodes('./*').length ).should_be(4);
+			
+			var classes,children;
+			
+			classes = ['foo'];
+			children = testNode.selectNodes(['./','input','[@class]'].join(''));
+			value_of( children.length ).should_be( 4 );
+			
+			classes = ['foo','bar'];
+			children = testNode.selectNodes(['./','input','[contains(concat(" ", @class, " "), " ',classes.join(' ")]'+'[contains(concat(" ", @class, " "), " '),' ")]'].join(''));
+			value_of( children.length ).should_be( 1 );
+			
+			classes = ['baz','bar'];
+			children = testNode.selectNodes(['./','input','[contains(concat(" ", @class, " "), " ',classes.join(' ")]'+'[contains(concat(" ", @class, " "), " '),' ")]'].join(''));
+			value_of( children.length ).should_be( 0 );
+			
+			classes = ['baz','tmpNode3class','foo'];
+			children = testNode.selectNodes(['./','input','[contains(concat(" ", @class, " "), " ',classes.join(' ")]'+'[contains(concat(" ", @class, " "), " '),' ")]'].join(''));
+			value_of( children.length ).should_be( 1 );
+			
+			value_of( context.document.documentElement.selectNodes('//*') ).should_not_be_undefined();
+			value_of( context.document.selectNodes('//*') ).should_not_be_undefined();
+		};
+		
+	});
 	
 	Describe('matchesSelector',function(){});
 	
