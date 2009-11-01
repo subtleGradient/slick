@@ -561,6 +561,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
 
       // Render the new test
       this.renderTest(test);
+      return test;
     },
 
     /**
