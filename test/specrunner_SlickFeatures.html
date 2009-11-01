@@ -24,15 +24,19 @@
 <script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml)\b/i, function(specs, context){
-	it['should be XML'] = function(){
+new Mock(/\b(xml|svg|xhtml)\b/i, function(specs,context){
+	Describe('XML',function(){
+		it['should be XML'] = function(){
 		value_of(Slick.isXML(context.document)).should_be_true();
-	};
+		};
+	});
 });
-new Mock(/\b(html)\b/i, function(specs, context){
-	it['should not be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_false();
-	};
+new Mock(/\b(html)\b/i, function(specs,context){
+	Describe('HTML',function(){
+		it['should not be XML'] = function(){
+			value_of(context.Slick.isXML(context.document)).should_be_false();
+		};
+	});
 });
 
 </script>
