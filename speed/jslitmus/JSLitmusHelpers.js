@@ -1,11 +1,13 @@
 var describe = function(description, specs){
+	var test;
 	for (var name in specs) {
-		JSLitmus.test(description+': '+name, specs[name]);
+		test = JSLitmus.test(description+': '+name, specs[name]);
+		JSLitmus._queueTest(test);
 	}
 };
 
 function runSpecs(){
-	setTimeout(function(){
-		JSLitmus.runAll();
-	}, 1000);
+  // setTimeout(function(){
+  //  JSLitmus.runAll();
+  // }, 1000);
 };
