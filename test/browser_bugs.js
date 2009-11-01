@@ -60,6 +60,26 @@ function specsBrowserBugs(specs,context){
 			}
 		};
 		
+		it['getElementsByName Should match name attribute, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input id="getelementsbyname" type="password" /><input name="getelementsbyname" type="text" />';
+			tmpNode2 = testNode.firstChild;
+			tmpNode1 = testNode.lastChild;
+			
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
+			value_of( results ).should_include(tmpNode1);
+			
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementsbyname" type="password" /><input id="getelementsbyname" type="text" />';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = testNode.lastChild;
+			
+			results = tmpNode1.ownerDocument.getElementsByName('getelementsbyname');
+			value_of( results ).should_include(tmpNode1);
+		};
+		
 	});
 	
 	Describe('getElementById',function(){
@@ -88,11 +108,69 @@ function specsBrowserBugs(specs,context){
 			value_of( results ).should_be(tmpNode2);
 		};
 		
+		it['getElementsById Should match id attribute, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementbyid" type="password" /><input id="getelementbyid" type="text" />';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = testNode.lastChild;
+			
+			results = tmpNode1.ownerDocument.getElementById('getelementbyid');
+			value_of( results ).should_be(tmpNode2);
+		};
+		
 	});
 	
-	Describe('getElementsByClassName',function(){});
+	if(context.document.getElementsByClassName && context.document.documentElement.getElementsByClassName)
+	Describe('getElementsByClassName',function(){
+		
+		it['getElementsByClassName Should match second class name'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.className = 'getelementsbyclassname secondclass';tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			results = testNode.getElementsByClassName('secondclass');
+			value_of( results ).should_include(tmpNode1);
+		};
+		
+		it['getElementsByClassName Should match second class name, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<a class="getelementsbyclassname secondclass"></a>';
+			tmpNode1 = testNode.firstChild;
+			
+			results = testNode.getElementsByClassName('secondclass');
+			value_of( results ).should_include(tmpNode1);
+		};
+		
+		it['getElementsByClassName Should not cache results'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+			testNode.getElementsByClassName('b').length; //accessing a property is important here
+			testNode.firstChild.className = 'b';
+			
+			results = testNode.getElementsByClassName('b');
+			value_of( results.length ).should_be(2);
+		};
+		
+	});
 	
-	Describe('querySelectorAll',function(){});
+	if(context.document.querySelectorAll)
+	Describe('querySelectorAll',function(){
+		
+		it['querySelectorAll Should start finding nodes from the passed context'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('id', 'queryselectorall');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			results = testNode.querySelectorAll('div #queryselectorall');
+			for (var i=0; i < results.length; i++) {
+				value_of( results[i] ).should_not_be( tmpNode1 );
+			}
+		};
+		
+	});
 	
 	Describe('xpath',function(){});
 	
