@@ -289,7 +289,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
         p = p < cal.period*1.2 ? 0 : p - cal.period;
       }
 
-      return Math.round(1/p);
+      return Math.round(1/p*1000)/1000;
     },
 
     /**
