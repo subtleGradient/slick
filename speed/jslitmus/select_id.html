@@ -37,21 +37,15 @@ div #title\n\
 * #title\n\
 * #title\n\
 ".split("\n");
-
+	
+	var testNode = global.SlickThis(context.document, '#title !> * !> *')[0];
+	
 	for (var i=0, l=selectors.length; i < l; i++) {
 		if (!selectors[i]) continue;
 		
 		it['THIS '+selectors[i]] = function(count){
 			var Slick=global.SlickThis;var document=context.document;var i=0,node;
 			Slick.disableQSA = true;
-			while(count--){
-				Slick(document,selectors[i]);
-			}
-		};
-		if (context.document.querySelectorAll)
-		it['THIS qsa '+selectors[i]] = function(count){
-			var Slick=global.SlickThis;var document=context.document;var i=0,node;
-			Slick.disableQSA = false;
 			while(count--){
 				Slick(document,selectors[i]);
 			}
@@ -63,14 +57,44 @@ div #title\n\
 				Slick(document,selectors[i]);
 			}
 		};
-		if (context.document.querySelectorAll)
-		it['LAST qsa '+selectors[i]] = function(count){
-			var Slick=global.SlickLast;var document=context.document;var i=0,node;		
-			Slick.disableQSA = false;
-			while(count--){
-				Slick(document,selectors[i]);
-			}
-		};
+/*
+		if (context.document.querySelectorAll){
+			
+			it['THIS qsa '+selectors[i]] = function(count){
+				var Slick=global.SlickThis;var document=context.document;var i=0,node;
+				Slick.disableQSA = false;
+				while(count--){
+					Slick(document,selectors[i]);
+				}
+			};
+			it['LAST qsa '+selectors[i]] = function(count){
+				var Slick=global.SlickLast;var document=context.document;var i=0,node;		
+				Slick.disableQSA = false;
+				while(count--){
+					Slick(document,selectors[i]);
+				}
+			};
+			
+		}
+*/
+		if (testNode){
+			
+			it['THIS testNode '+selectors[i]] = function(count){
+				var Slick=global.SlickThis;var document=context.document;var i=0,node;
+				Slick.disableQSA = false;
+				while(count--){
+					Slick(testNode,selectors[i]);
+				}
+			};
+			it['LAST testNode '+selectors[i]] = function(count){
+				var Slick=global.SlickLast;var document=context.document;var i=0,node;		
+				Slick.disableQSA = false;
+				while(count--){
+					Slick(testNode,selectors[i]);
+				}
+			};
+			
+		}
 	}
 
 });
