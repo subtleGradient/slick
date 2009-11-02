@@ -14,9 +14,10 @@ authors:
 
 (function(){
 	
+	var local = {};
+	
 	var window = this, document = this.document, root = document.documentElement;
 
-	var local = {};
 	local.document = document;
 	
 	// Feature / Bug detection
@@ -62,6 +63,7 @@ authors:
 		return node._slickUID || (node._slickUID = this.uidx++);
 	};
 	
+	// FIXME: Add specs: local.contains should be different for xml and html documents?
 	local.contains = (root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root.compareDocumentPosition) ? function(context, node){
@@ -186,7 +188,6 @@ authors:
 		}
 
 	};
-	
 	for (var m in matchers) local['match:' + m] = matchers[m];
 	
 	var combinators = {
@@ -307,7 +308,6 @@ authors:
 		}
 
 	};
-	
 	for (var c in combinators) local['combinator:' + c] = combinators[c];
 	
 	var pseudos = {
@@ -389,12 +389,11 @@ authors:
 		}
 
 	};
-	
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
 	// Slick
 	
-	local.Slick = this.Slick = function(context, expression, append){
+	var Slick = local.Slick = function(context, expression, append){
 		
 		var paranoid = !(context == document || context.ownerDocument == document);
 		if (paranoid) {
@@ -497,7 +496,6 @@ authors:
 		}
 
 		return found;
-
 	};
 	
 	// Slick contains
@@ -588,7 +586,11 @@ authors:
 	
 	Slick.isXML = local.isXML;
 	
-})();
+	// public
+	
+	this.Slick = Slick;
+	
+}).apply(this);
 
 // parser
 
