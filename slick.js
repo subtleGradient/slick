@@ -195,6 +195,7 @@ authors:
 
 			if(!isXML){
 				getById: if (id) {
+					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
 					item = node.getElementById(id);
 					if (!item || item.id != id) break getById;
