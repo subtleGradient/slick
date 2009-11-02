@@ -34,6 +34,70 @@ iframe{display:none;}
 <script type="text/javascript" src="../../test/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
+global.disableQSA = true;
+global.selectors = [
+
+	// TAG
+	'body'                        ,
+	'div'                         ,
+	'body div'                    ,
+	'div p'                       ,
+
+	// ID
+	'#title'                      ,
+	'h1#title'                    ,
+	'div #title'                  ,
+
+	// CLASS
+	'.note'                       ,
+	'div.example'                 ,
+	'ul .tocline2'                ,
+	'div.example, div.note'       ,
+	'ul.toc li.tocline2'          ,
+	'ul.toc > li.tocline2'        ,
+
+	// ATTRIB
+	'div[class^=exa][class$=mple]',
+	'a[href][lang][class]'        ,
+	'div[class]'                  ,
+	'div[class=example]'          ,
+	'div[class^=exa]'             ,
+	'div[class$=mple]'            ,
+	'div[class*=e]'               ,
+	'div[class|=dialog]'          ,
+	'div[class!=made_up]'         ,
+	'div[class~=example]'         ,
+
+	// PSEUDO
+	'div:not(.example)'           ,
+	'p:contains(selectors)'       ,
+	'p:nth-child(even)'           ,
+	'p:nth-child(2n)'             ,
+	'p:nth-child(odd)'            ,
+	'p:nth-child(2n+1)'           ,
+	'p:nth-child(n)'              ,
+	'p:only-child'                ,
+	'p:last-child'                ,
+	'p:first-child'               ,
+
+	// COMBONATORS
+	'div > p'                     ,
+	'div + p'                     ,
+	'div ~ p'                     ,
+	'div p a'                     ,
+
+	// MULTIPLE
+	'div, p, a'                   ,
+
+	// COMPLEX
+	'h1#title + div > p'          ,
+	'h1[id]:contains(Selectors)'  ,
+
+
+	''
+];
+
+
 new Mock(/\b(xml|svg|xhtml)\b/i, benchmarkSelectors);
 
 </script>
