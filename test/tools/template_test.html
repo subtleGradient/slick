@@ -20,20 +20,6 @@
 <script type="text/javascript" src="../assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml)\b/i, function(){
-	it['should be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_true();
-	};
-});
-new Mock(/\b(html)\b/i, function(){
-	it['should not be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_false();
-	};
-});
-
-</script>
-<script type="text/javascript" charset="utf-8">
-
 var contexts = {};
 function registerWindow(name, window){
 	contexts[name] = window;
@@ -107,8 +93,8 @@ Mock.register = registerWindow;
 <iframe onload="Mock.register('template html quirks',this.contentWindow)" src="template-quirks.html"></iframe>
 
 <!--[if gt IE 8]><!-->
-<!-- <iframe onload="Mock.register('template xhtml',this.contentWindow)" src="template.xhtml"></iframe> -->
-<!-- <iframe onload="Mock.register('template xml',this.contentWindow)" src="template.xml"></iframe> -->
+<iframe onload="Mock.register('template xhtml',this.contentWindow)" src="template.xhtml"></iframe>
+<iframe onload="Mock.register('template xml',this.contentWindow)" src="template.xml"></iframe>
 <iframe onload="Mock.register('svg logo',this.contentWindow)" src="MooTools_Logo.svg"></iframe>
 <!-- <![endif]-->
 

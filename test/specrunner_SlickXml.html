@@ -4,6 +4,10 @@
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <title>JSSpec results</title>
 
+<!-- Debugger -->
+<script src="assets/moobugger/mootools.js" type="text/javascript" charset="utf-8"></script>
+<script src="assets/moobugger/debugger.js" type="text/javascript" charset="utf-8"></script>
+
 <!-- JSSpec -->
 <link rel="stylesheet" type="text/css" href="assets/JSSpec.css" />
 <script type="text/javascript" src="assets/diff_match_patch.js"></script>
@@ -24,17 +28,15 @@
 <script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
+new Mock(/\b(xml|svg|xhtml|html)\b/i, function(specs, context){
 	
-	it['should be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_true();
-	};
-	
-	Describe('Selector Engine',function(){
-		
-		Describe('Bugs', specsSelectorEngineBugs);
-		
+	Describe('XML',function(){
+		it['should be XML'] = function(){
+			value_of(Slick.isXML(context.document)).should_be_true();
+		};
 	});
+	
+	Describe('Bugs', specsSelectorEngineBugs);
 });
 new Mock('xmlmock1', specsAssetsTemplateXML);
 

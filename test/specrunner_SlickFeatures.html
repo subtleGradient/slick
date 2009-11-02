@@ -24,15 +24,19 @@
 <script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml)\b/i, function(){
-	it['should be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_true();
-	};
+new Mock(/\b(xml|svg|xhtml)\b/i, function(specs,context){
+	Describe('XML',function(){
+		it['should be XML'] = function(){
+		value_of(Slick.isXML(context.document)).should_be_true();
+		};
+	});
 });
-new Mock(/\b(html)\b/i, function(){
-	it['should not be XML'] = function(){
-		value_of(context.Slick.isXML(context.document)).should_be_false();
-	};
+new Mock(/\b(html)\b/i, function(specs,context){
+	Describe('HTML',function(){
+		it['should not be XML'] = function(){
+			value_of(context.Slick.isXML(context.document)).should_be_false();
+		};
+	});
 });
 
 </script>
@@ -46,8 +50,8 @@ new Mock(/\b(html)\b/i, function(){
 <iframe onload="Mock.register('template html quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
 
 <!--[if gt IE 8]><!-->
-<!-- <iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe> -->
-<!-- <iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe> -->
+<iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe>
+<iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe>
 <iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe>
 <!-- <![endif]-->
 

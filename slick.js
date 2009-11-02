@@ -14,9 +14,11 @@ authors:
 
 (function(){
 	
+	var local = {};
+	
 	var window = this, document = this.document, root = document.documentElement;
 
-	var local = {};
+	local.document = document;
 	
 	// Feature / Bug detection
 	(function() {
@@ -30,14 +32,14 @@ authors:
 		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 		
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.substring(0,1) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
 		
-		// Safari 3.2 QSA doenst work with mixedcase on quirksmode
+		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
 		
 		try{
-			testNode.innerHTML = '<span class="f"></span><span class="b"></span>';
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
 			testNode.firstChild.className = 'b';
 			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
@@ -45,13 +47,22 @@ authors:
 		
 		// getElementById selects name attribute?
 		try{
-			testNode.innerHTML = '<input name=idgetsname>';
+			testNode.innerHTML = '<a name=idgetsname>';
 			local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 		}catch(e){}
 		
 		root.removeChild(testNode);
 		testNode = null;
 	})();
+	
+	local.becomeParanoid = function(){
+		this.starSelectsComments = true;
+		this.starSelectsClosed = true;
+		this.starSelectsClosedQSA = true;
+		this.brokenMixedCaseQSA = true;
+		this.cachedGetElementsByClassName = true;
+		this.idGetsName = true;
+	};
 	
 	local.uidx = 1;
 	
@@ -61,6 +72,7 @@ authors:
 		return node._slickUID || (node._slickUID = this.uidx++);
 	};
 	
+	// FIXME: Add specs: local.contains should be different for xml and html documents?
 	local.contains = (root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root.compareDocumentPosition) ? function(context, node){
@@ -141,7 +153,7 @@ authors:
 		if(tag != '*') return found;
 		var nodes = [];
 		for (var i = 0, node; (node = found[i]); i++) {
-			if (node.nodeType == 1 && node.nodeName.substring(0,1) != '/'){
+			if (node.nodeType == 1 && node.nodeName.charAt(0) != '/'){
 				nodes.push(node);
 			}
 		}
@@ -185,37 +197,36 @@ authors:
 		}
 
 	};
-	
 	for (var m in matchers) local['match:' + m] = matchers[m];
 	
 	var combinators = {
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXML){ // all child nodes, any level
 			var i,l,item,children;
-			
-			getById: if (id) {
-				if (!node.getElementById) break getById;
-				item = node.getElementById(id);
-				if (!item) break getById;
-				if (item.getAttribute('id') != id) break getById;
-				this.push(item, tag, null, parts);
-				return;
-			}
-			getById: if (id) {
-				var document = node.ownerDocument || node;
-				if (!document.getElementById) break getById;
-				item = document.getElementById(id);
-				if (!item) break getById;
-				if (item.getAttribute('id') != id) break getById;
-				if (!this.contains(node, item)) break getById;
-				this.push(item, tag, null, parts);
-				return;
-			}
-			getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName) {
-				children = node.getElementsByClassName(classes.join(' '));
-				if (!(children && children.length)) break getByClass;
-				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
-				return;
+
+			if(!isXML){
+				getById: if (id) {
+					// if node == document then we don't need to use contains
+					if (!node.getElementById) break getById;
+					item = node.getElementById(id);
+					if (!item || item.id != id) break getById;
+					this.push(item, tag, null, parts);
+					return;
+				}
+				getById: if (id) {
+					if (!this.document.getElementById) break getById;
+					item = this.document.getElementById(id);
+					if (!item || item.id != id) break getById;
+					if (!this.contains(node.documentElement||node, item)) break getById;
+					this.push(item, tag, null, parts);
+					return;
+				}
+				getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName) {
+					children = node.getElementsByClassName(classes.join(' '));
+					if (!(children && children.length)) break getByClass;
+					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
+					return;
+				}
 			}
 			getByTag: {
 				children = local.getByTagName(node, tag);
@@ -306,7 +317,6 @@ authors:
 		}
 
 	};
-	
 	for (var c in combinators) local['combinator:' + c] = combinators[c];
 	
 	var pseudos = {
@@ -388,17 +398,14 @@ authors:
 		}
 
 	};
-	
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
 	// Slick
 	
-	local.Slick = this.Slick = function(context, expression, append){
+	var Slick = local.Slick = function(context, expression, append){
 		
-		var paranoid = !(context == document || context.ownerDocument == document);
-		if (paranoid) {
-			local.idGetsName = true;
-		}
+		var document = local.document = (context.ownerDocument || context);
+		local.paranoid = local.document != document;
 		
 		var parsed, found = append || [];
 		
@@ -418,16 +425,21 @@ authors:
 
 		local.positions = {};
 		
-        var isXML = local.isXML(context);
+		var isXML = (!!document.xmlVersion)
+			|| (!!document.xml)
+			|| (Object.prototype.toString.call(document) == '[object XMLDocument]')
+			|| (document.nodeType == 9 && document.documentElement.nodeName != 'HTML')
+		;
+		
 		var current;
 		
 		// disable querySelectorAll for star tags if it's buggy
-		if (local.starSelectsClosedQSA && parsed.simple && !isXML) parsed.simple = (function(){
+		if (local.starSelectsClosedQSA && parsed.simple && !isXML) {
+			parsed.simple = true;
 			for (var i = 0; i < parsed.expressions.length; i++)
 				for (var j = 0; j < parsed.expressions[i].length; j++)
-					if (parsed.expressions[i][j].tag == '*') return false;
-			return true;
-		})();
+					if (parsed.expressions[i][j].tag == '*') parsed.simple = false;
+		}
 		
 		// querySelectorAll for simple selectors
 		if (parsed.simple && context.querySelectorAll && !isXML && !local.brokenMixedCaseQSA && !Slick.disableQSA){
@@ -490,7 +502,6 @@ authors:
 		}
 
 		return found;
-
 	};
 	
 	// Slick contains
@@ -581,7 +592,11 @@ authors:
 	
 	Slick.isXML = local.isXML;
 	
-})();
+	// public
+	
+	this.Slick = Slick;
+	
+}).apply(this);
 
 // parser
 
