@@ -418,7 +418,12 @@ authors:
 
 		local.positions = {};
 		
-        var isXML = local.isXML(context);
+		var isXML = (!!document.xmlVersion)
+			|| (!!document.xml)
+			|| (Object.prototype.toString.call(document) == '[object XMLDocument]')
+			|| (document.nodeType == 9 && document.documentElement.nodeName != 'HTML')
+		;
+		
 		var current;
 		
 		// disable querySelectorAll for star tags if it's buggy
