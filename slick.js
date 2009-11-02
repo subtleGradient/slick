@@ -395,11 +395,8 @@ authors:
 	
 	var Slick = local.Slick = function(context, expression, append){
 		
-		var paranoid = !(context == document || context.ownerDocument == document);
-		if (paranoid) {
-			local.idGetsName = true;
-		}
 		var document = local.document = (context.ownerDocument || context);
+		local.paranoid = local.document != document;
 		
 		var parsed, found = append || [];
 		
