@@ -17,6 +17,7 @@ authors:
 	var window = this, document = this.document, root = document.documentElement;
 
 	var local = {};
+	local.document = document;
 	
 	// Feature / Bug detection
 	(function() {
