@@ -205,7 +205,7 @@ authors:
 					if (!this.document.getElementById) break getById;
 					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
-					if (!this.contains(node, item)) break getById;
+					if (!this.contains(node.documentElement||node, item)) break getById;
 					this.push(item, tag, null, parts);
 					return;
 				}
