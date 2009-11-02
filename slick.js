@@ -202,9 +202,8 @@ authors:
 					return;
 				}
 				getById: if (id) {
-					var document = node.ownerDocument || node;
-					if (!document.getElementById) break getById;
-					item = document.getElementById(id);
+					if (!this.document.getElementById) break getById;
+					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
 					if (!this.contains(node, item)) break getById;
 					this.push(item, tag, null, parts);
@@ -399,6 +398,7 @@ authors:
 		if (paranoid) {
 			local.idGetsName = true;
 		}
+		var document = local.document = (context.ownerDocument || context);
 		
 		var parsed, found = append || [];
 		
