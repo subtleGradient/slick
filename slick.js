@@ -55,6 +55,15 @@ authors:
 		testNode = null;
 	})();
 	
+	local.becomeParanoid = function(){
+		this.starSelectsComments = true;
+		this.starSelectsClosed = true;
+		this.starSelectsClosedQSA = true;
+		this.brokenMixedCaseQSA = true;
+		this.cachedGetElementsByClassName = true;
+		this.idGetsName = true;
+	};
+	
 	local.uidx = 1;
 	
 	local.uidOf = (window.ActiveXObject) ? function(node){
