@@ -434,12 +434,12 @@ authors:
 		var current;
 		
 		// disable querySelectorAll for star tags if it's buggy
-		if (local.starSelectsClosedQSA && parsed.simple && !isXML) parsed.simple = (function(){
+		if (local.starSelectsClosedQSA && parsed.simple && !isXML) {
+			parsed.simple = true;
 			for (var i = 0; i < parsed.expressions.length; i++)
 				for (var j = 0; j < parsed.expressions[i].length; j++)
-					if (parsed.expressions[i][j].tag == '*') return false;
-			return true;
-		})();
+					if (parsed.expressions[i][j].tag == '*') parsed.simple = false;
+		}
 		
 		// querySelectorAll for simple selectors
 		if (parsed.simple && context.querySelectorAll && !isXML && !local.brokenMixedCaseQSA && !Slick.disableQSA){
