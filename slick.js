@@ -513,13 +513,13 @@ authors:
 	
 	local.attributeMethods = {};
 	
-	Slick.lookupAttribute = function(name){
-		return local.attributeMethods[name];
-	};
-	
 	Slick.defineAttribute = function(name, fn){
 		local.attributeMethods[name] = fn;
 		return this;
+	};
+	
+	Slick.lookupAttribute = function(name){
+		return local.attributeMethods[name];
 	};
 	
 	Slick.defineAttribute('class', function(){
