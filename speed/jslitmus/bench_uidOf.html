@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+
+<!-- Provide a title.  This will be shown on the generated chart -->
+<title>Demo Test Suite</title>
+
+<script type="text/javascript" src="JSLitmus.js"></script>
+<script type="text/javascript">
+
+(function(){
+	var local0 = {
+		uidx0:0,
+		uidOf0: function(node){
+			return (node._slickUID || (node._slickUID = [this.uidx0++]))[0];
+		}
+	}
+	
+	JSLitmus.test('local0.uidOf0 IE', function(count) {
+		while (count--){
+			local0.uidOf0(document.documentElement); document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
+(function(){
+	var local1 = {
+		uidx1:0,
+		uidOf1: function(node){
+			return node._slickUID || (node._slickUID = this.uidx1++);
+		}
+	}
+	
+	JSLitmus.test('local.uidOf1', function(count) {
+		while (count--){
+			local1.uidOf1(document.documentElement); document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
+(function(){
+	var uidx2 = 0;
+	function uidOf2(node){
+		return node._slickUID || (node._slickUID = uidx2++);
+	}
+	JSLitmus.test('uidOf2', function(count) {
+		while (count--){
+			uidOf2(document.documentElement); document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
+(function(){
+	window.uidx3 = 0;
+	window.uidOf3 = function(node){
+		return node._slickUID || (node._slickUID = uidx3++);
+	}
+	JSLitmus.test('window.uidOf3', function(count) {
+		while (count--){
+			uidOf3(document.documentElement); document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
+(function(){
+	var uidx = 0;
+	var node, uid;
+	JSLitmus.test('no fn IE', function(count) {
+		while (count--){
+			node = document.documentElement;
+			uid = (node._slickUID || (node._slickUID = [uidx++]))[0];
+			
+			document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
+(function(){
+	var uidx = 0;
+	var node, uid;
+	JSLitmus.test('no fn', function(count) {
+		while (count--){
+			node = document.documentElement;
+			uid = node._slickUID || (node._slickUID = uidx++);
+			
+			document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
+
+
+</script>
+</head>
+<body onload="JSLitmus.runAll(event);">
+<p>Compare various ways of aborting the rest of the operations</p>
+  <div id="test_element" style="overflow:hidden; width: 1px; height:1px;"></div>
+</body>
+</html>
