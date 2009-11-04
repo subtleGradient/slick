@@ -498,9 +498,12 @@ authors:
 	// add pseudos
 	
 	Slick.definePseudo = function(name, fn){
-		local['pseudo:' + name] = function(node, argument){
+		fn.displayName = "Slick Pseudo:" + name;
+		name = 'pseudo:' + name;
+		local[name] = function(node, argument){
 			return fn.call(node, argument);
 		};
+		local[name].displayName = name;
 		return this;
 	};
 	
@@ -515,6 +518,7 @@ authors:
 	
 	Slick.defineAttribute = function(name, fn){
 		local.attributeMethods[name] = fn;
+		fn.displayName = "Slick Attribute:" + name;
 		return this;
 	};
 	
@@ -583,6 +587,13 @@ authors:
 	
 	this.Slick = Slick;
 	
+	
+	for (var displayName in local) {
+		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
+	}
+	for (var displayName in Slick) {
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+	}
 }).apply(this);
 
 // parser
@@ -700,7 +711,7 @@ authors:
 	var rmap = {};
 	for (var p in map) rmap[map[p]] = p;
 	
-	var parser = function(){
+	function parser(){
 		var a = arguments;
 
 		var selectorBitMap, selectorBitName;
@@ -829,6 +840,9 @@ authors:
 		return '';
 	};
 	
+	for (var displayName in Slick) {
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+	}
 })();
 
 document.search = function(expression){
