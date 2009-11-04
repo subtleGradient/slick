@@ -148,20 +148,6 @@ authors:
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 
-	local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
-		var found = context.getElementsByTagName(tag);
-		if(tag != '*') return found;
-		var nodes = [];
-		for (var i = 0, node; (node = found[i]); i++) {
-			if (node.nodeType == 1 && node.nodeName.charAt(0) != '/'){
-				nodes.push(node);
-			}
-		}
-		return nodes;
-	} : function(context, tag){
-		return context.getElementsByTagName(tag);
-	};
-	
 	var matchers = {
 		
 		node: function(node, selector){
@@ -178,6 +164,7 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
+			if (node.nodeType != 1 || node.nodeName.charAt(0) == '/') return false; // Fix for comment nodes and closed nodes
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
 			for (var i = 0, l = parts.length; i < l; i++){
@@ -229,7 +216,7 @@ authors:
 				}
 			}
 			getByTag: {
-				children = local.getByTagName(node, tag);
+				children = node.getElementsByTagName(tag);
 				if (!(children && children.length)) break getByTag;
 				for (i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
 			}
