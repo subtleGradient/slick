@@ -28,17 +28,27 @@ function benchmarkSelectors(specs,context){
 }
 
 function _benchmarkSelectors(SELECT,context,selectors,disableQSA){
-	return function(count){
+	function __benchmarkSelectors(count){
 		var document = context.document;
 		var i, ii, node, l;
 		var elements = SELECT(document,'*');
 		Slick.disableQSA = disableQSA;
 		
+		if (global.console && global.console.profile){
+			global.console.profile("disableQSA "+disableQSA);
+			for (ii=0; ii < selectors.length; ii++) {
+				// for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
+				SELECT(document, selectors[ii]);
+			}
+			global.console.profileEnd("disableQSA "+disableQSA);
+		}
+		
 		while(count--){
 			for (ii=0; ii < selectors.length; ii++) {
 				
 				
-				for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; }; SELECT(document, selectors[ii]);
+				for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
+				SELECT(document, selectors[ii]);
 				
 				
 			}
@@ -46,4 +56,5 @@ function _benchmarkSelectors(SELECT,context,selectors,disableQSA){
 		
 		Slick.disableQSA = false;
 	}
+	return __benchmarkSelectors;
 };
