@@ -387,7 +387,6 @@ authors:
 	};
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	local.customEngines = {};
 	
 	// Slick
 	
@@ -435,9 +434,9 @@ authors:
 		
 		// custom engines
 		
-		if (typeof local.customEngines[parsed.type] == 'function') {
+		if (typeof local['customEngine:'+parsed.type.join(':')] == 'function') {
 			local.found = found;
-			return local.customSelectors[parsed.type](context, parsed, append);
+			return local['customEngine:'+parsed.type.join(':')](context, parsed, append);
 		}
 		
 		// querySelectorAll
@@ -630,7 +629,7 @@ authors:
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
 		var exp = expression;
-		parsed = {Slick: true, simple: true, expressions: [], raw: expression, reverse: function(){
+		parsed = {Slick: true, simple: true, type: [], expressions: [], raw: expression, reverse: function(){
 			return parse(this.raw, true);
 		}};
 		separatorIndex = -1;
@@ -740,6 +739,8 @@ authors:
 		}
 	
 		if (!selectorBitName) return '';
+		
+		parsed.type.push(selectorBitName);
 	
 		var isSeparator = selectorBitName == 'separator';
 	
