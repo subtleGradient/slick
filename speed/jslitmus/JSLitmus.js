@@ -1,3 +1,4 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 /*
 curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
 // JSLitmus.js
@@ -206,7 +207,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
       jsl.status(this.name + ' x ' + count);
       this.running = true;
       var me = this;
-      setTimeout(function() {me._run(count);}, 200);
+      setTimeout(function() {me.result = me._run(count);},0);
     },
 
     /**
@@ -214,6 +215,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
      */
     _run: function(count) {
       var me = this;
+      var result;
 
       // Make sure calibration tests have run
       if (!me.isCalibration && Test.calibrate(function() {me.run(count);})) return;
@@ -228,10 +230,10 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
         // Now for the money shot.  If this is a looping function ...
         if (this.loopArg) {
           // ... let it do the iteration itself
-          f(count);
+          result = f(count);
         } else {
           // ... otherwise do the iteration for it
-          while (i--) f();
+          while (i--) result = f();
         }
 
         // Get time test took (in secs)
@@ -269,6 +271,8 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
       }
 
       // Finish up
+      this.result = result;
+      result = null;
       this.onChange(this);
     },
 
@@ -394,11 +398,12 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           <col /> \
           <col width="100" /> \
         </colgroup> \
-        <tr><th id="test_platform" colspan="2">' + platform + '</th></tr> \
-        <tr><th>Test</th><th>Ops/sec</th></tr> \
+        <tr><th id="test_platform" colspan="3">' + platform + '</th></tr> \
+        <tr><th>Test</th><th>Ops/sec</th><th>Result</th></tr> \
         <tr id="test_row_template" class="test_row" style="display:none"> \
           <td class="test_name"></td> \
           <td class="test_result">Ready</td> \
+          <td class="test_results"><i>undefined</i></td> \
         </tr> \
       </table> \
       <div id="jsl_status"></div> \
@@ -514,6 +519,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
       }
 
       var cell = test._row.cells[1];
+      var resultCell = test._row.cells[2];
       var cns = [test.loopArg ? 'test_looping' : 'test_nonlooping'];
 
       if (test.error) {
@@ -534,6 +540,34 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           cns.push('test_done');
           var hz = test.getHz(jsl.$('test_normalize').checked);
           cell.innerHTML = hz != Infinity ? hz : '&infin;';
+          var result = [];
+          
+          switch(Object.prototype.toString.call(test.result)){
+            
+          case "[object Object]":
+            result.push('<table cellpadding=0 callspacing=0>');
+            for (var key in test.result) {
+              result.push('<tr>');
+              result.push('<th>');
+              result.push(key);
+              result.push('</th>');
+              result.push('<td>');
+              result.push(String(test.result[key]));
+              result.push('</td>');
+              result.push('</tr>');
+            }
+            result.push('</table>');
+            result = result.join('');
+            break;
+            
+          case "[object Array]":
+            result = test.result.join(', ');
+            break;
+            
+          default:
+            result = String(test.result);
+          }
+          resultCell.innerHTML = " " + result;
         } else {
           cell.innerHTML = 'ready';
         }
