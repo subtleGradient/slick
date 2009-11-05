@@ -164,7 +164,7 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if (node.nodeType != 1 || node.nodeName.charAt(0) == '/') return false; // Fix for comment nodes and closed nodes
+			if (tag && tag ==='*' && (node.nodeType != 1 || node.nodeName.charAt(0) == '/')) return false; // Fix for comment nodes and closed nodes
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
 			for (var i = 0, l = parts.length; i < l; i++){
