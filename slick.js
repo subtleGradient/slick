@@ -387,7 +387,6 @@ authors:
 	};
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	
 	// Slick
 	
 	var Slick = local.Slick = function(context, expression, append){
@@ -417,7 +416,7 @@ authors:
 			} else {
 				return found;
 			}
-
+			
 			var document = local.document = (context.ownerDocument || context);
 			if (local.document != document) local.becomeParanoid();
 			
@@ -437,10 +436,10 @@ authors:
 		customEngine: {
 			var customEngineName = 'customEngine:' + parsed.type.join(':');
 			if (typeof local[customEngineName] != 'function') break customEngine;
-			if (typeof local[customEngineName+' check'] == 'function' && !local[customEngineName+' check']()) break customEngine;
+			if (typeof local[customEngineName+' check'] == 'function' && !local[customEngineName+' check'](context, parsed)) break customEngine;
 			
 			local.found = found;
-			local[customEngineName](context, parsed, append);
+			local[customEngineName](context, parsed);
 			return found;
 		}
 		
@@ -514,6 +513,53 @@ authors:
 	
 	// add pseudos
 	
+	Slick.defineEngine = function(name, fn, shouldDefine){
+		if (shouldDefine == null) shouldDefine = true;
+		if (typeof shouldDefine == 'function') shouldDefine = shouldDefine.call(local)
+		if (shouldDefine)
+			local['customEngine:' + name] = local['customEngine:' + fn] || fn;
+		return this;
+	};
+	
+	// Slick.lookupEngine = function(name){
+	// 	var engine = local['customEngine:' + name];
+	// 	if (engine) return function(context, parsed){
+	// 		return engine.call(this, context, parsed);
+	// 	};
+	// };
+	
+	Slick.defineEngine('className',function(context, parsed){
+		this.found.push.apply(this.found,
+			this.collectionToArray(
+				context.getElementsByClassName( parsed.expressions[0][0].classes.join(' ') )
+			)
+		);
+	},function(){
+		return this.cachedGetElementsByClassName === false;
+	});
+	
+	Slick.defineEngine('classNames','className');
+	
+	Slick.defineEngine('tagName',function(context, parsed){
+		this.found.push.apply(this.found,
+			this.collectionToArray(
+				context.getElementsByTagName( parsed.expressions[0][0].tag )
+			)
+		);
+	});
+	
+	Slick.defineEngine('tagName*','tagName', function(context, parsed){
+		return !(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA);
+	});
+	
+	Slick.defineEngine('id',function(context, parsed){
+		this.found.push( context.getElementById(parsed.expressions[0][0].id) );
+	},function(){
+		return !this.idGetsName;
+	});
+	
+	// add pseudos
+	
 	Slick.definePseudo = function(name, fn){
 		fn.displayName = "Slick Pseudo:" + name;
 		name = 'pseudo:' + name;
@@ -530,6 +576,8 @@ authors:
 			return pseudo.call(this, argument);
 		};
 	};
+	
+	// add attributes
 	
 	local.attributeMethods = {};
 	
