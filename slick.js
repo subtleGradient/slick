@@ -436,6 +436,8 @@ authors:
 		
 		customEngine: {
 			var customEngineName = 'customEngine:' + parsed.type.join(':');
+			if (typeof local[customEngineName] != 'function') break customEngine;
+			if (typeof local[customEngineName+' check'] == 'function' && !local[customEngineName+' check']()) break customEngine;
 			
 			local.found = found;
 			local[customEngineName](context, parsed, append);
