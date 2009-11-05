@@ -601,11 +601,12 @@ authors:
 	
 	this.Slick = Slick;
 	
-	
-	for (var displayName in local) {
+	// debugging
+	var displayName;
+	for (displayName in local) {
 		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
 	}
-	for (var displayName in Slick) {
+	for (displayName in Slick) {
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
 	}
 }).apply(this);
