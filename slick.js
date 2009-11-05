@@ -391,103 +391,109 @@ authors:
 	
 	var Slick = local.Slick = function(context, expression, append){
 		
-		var document = local.document = (context.ownerDocument || context);
-		local.paranoid = local.document != document;
+		// setup
 		
 		var parsed, found = append || [];
-		
-		if (expression == null){
-			return found;
-		} else if (typeof expression == 'string'){
-			parsed = Slick.parse(expression);
-			if (!parsed.length) return found;
-		} else if (expression.Slick){
-			parsed = expression;
-		} else if (local.contains(context, expression)){
-			found.push(expression);
-			return found;
-		} else {
-			return found;
-		}
-
 		local.positions = {};
 		
-		var isXML = (!!document.xmlVersion)
-			|| (!!document.xml)
-			|| (Object.prototype.toString.call(document) == '[object XMLDocument]')
-			|| (document.nodeType == 9 && document.documentElement.nodeName != 'HTML')
-		;
+		// handle input / context:
 		
-		var current;
+		{
+			if (expression == null){
+				return found;
+				
+			} else if (typeof expression == 'string'){
+				parsed = Slick.parse(expression);
+				if (!parsed.length) return found;
+				
+			} else if (expression.Slick){
+				parsed = expression;
+				
+			} else if (local.contains(context, expression)){
+				found.push(expression);
+				return found;
+				
+			} else {
+				return found;
+			}
+
+			var document = local.document = (context.ownerDocument || context);
+			if (local.document != document) local.becomeParanoid();
+			
+			var isXML = (!!document.xmlVersion)
+				|| (!!document.xml)
+				|| (Object.prototype.toString.call(document) == '[object XMLDocument]')
+				|| (document.nodeType == 9 && document.documentElement.nodeName != 'HTML')
+			;
+			
+			if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
+			else local.push = local.pushUID;
+			
 		
-		// disable querySelectorAll for star tags if it's buggy
-		if (local.starSelectsClosedQSA && parsed.simple && !isXML) {
-			parsed.simple = true;
-			for (var i = 0; i < parsed.expressions.length; i++)
-				for (var j = 0; j < parsed.expressions[i].length; j++)
-					if (parsed.expressions[i][j].tag == '*') parsed.simple = false;
 		}
 		
-		// querySelectorAll for simple selectors
-		if (parsed.simple && context.querySelectorAll && !isXML && !local.brokenMixedCaseQSA && !Slick.disableQSA){
+		// querySelectorAll
+		
+		if (context.querySelectorAll && !(!parsed.simple || isXML || local.brokenMixedCaseQSA || Slick.disableQSA)) {
+			
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			if (nodes){
+				
 				nodes = local.collectionToArray(nodes);
+				
 				if (!append) return nodes;
-				found.push.apply(found, nodes);
+				
+				if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
+				else found.push.apply(found, nodes);
 				return found;
 			}
+			
 		}
-
+		
+		// default engine
+		
+		var currentExpression, currentBit;
+		var i, j, m, n;
+		var combinator, tag, id, parts, classes, attributes, pseudos;
+		var current, items;
 		var tempUniques = {};
 		var expressions = parsed.expressions;
 		
-		if (parsed.length == 1 && expressions[0].length == 1) local.push = local.pushArray;
-		else local.push = local.pushUID;
-		
-		for (var i = 0; i < expressions.length; i++){
+		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
 			
-			var currentExpression = expressions[i];
+			combinator = 'combinator:' + currentBit.combinator;
+			tag        = isXML? currentBit.tag: currentBit.tag.toUpperCase();
+			id         = currentBit.id;
+			parts      = currentBit.parts;
+			classes    = currentBit.classes;
+			attributes = currentBit.attributes;
+			pseudos    = currentBit.pseudos;
 			
-			for (var j = 0; j < currentExpression.length; j++){
-				var currentBit = currentExpression[j];
-				
-				var combinator = 'combinator:' + currentBit.combinator;
-                
-				var tag = isXML? currentBit.tag: currentBit.tag.toUpperCase();
-				var id = currentBit.id;
-				var parts = currentBit.parts;
-				var classes = currentBit.classes;
-				var attributes = currentBit.attributes;
-				var pseudos = currentBit.pseudos;
-				
-				local.localUniques = {};
-				
-				if (j === (currentExpression.length - 1)){
-					local.uniques = tempUniques;
-					local.found = found;
-				} else {
-					local.uniques = {};
-					local.found = [];
-				}
-				
-				if (j == 0){
-					local[combinator](context, tag, id, parts, classes, attributes, pseudos, isXML);
-				} else {
-					var items = current;
-					if (local[combinator])
-						for (var m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos, isXML);
-					else
-						if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
-				}
-				
-				current = local.found;
-
+			local.localUniques = {};
+			
+			if (j === (currentExpression.length - 1)){
+				local.uniques = tempUniques;
+				local.found = found;
+			} else {
+				local.uniques = {};
+				local.found = [];
 			}
+	
+			if (j == 0){
+				local[combinator](context, tag, id, parts, classes, attributes, pseudos, isXML);
+			} else {
+				items = current;
+				if (local[combinator])
+					for (m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos, isXML);
+				else
+					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
+			}
+			
+			current = local.found;
 		}
-
+		
 		return found;
 	};
 	
