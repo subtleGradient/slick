@@ -34,6 +34,11 @@ iframe{display:none;}
 <script type="text/javascript" charset="utf-8">
 
 global.disableQSA = true;
+global.selectors = [];
+try{
+	global.selectors = global.selectors.concat(decodeURIComponent(document.location.search.match(/selectors=(.*?)(&|$)/)[1]).replace(/\+/g,' ').split(/\r?\n/));
+}catch(e){}
+if (global.selectors.length === 0)
 global.selectors = [
 
 	// TAG
@@ -41,11 +46,12 @@ global.selectors = [
 	'div'                         ,
 	'body div'                    ,
 	'div p'                       ,
-
+	
 	// ID
 	'#title'                      ,
 	'h1#title'                    ,
 	'div #title'                  ,
+	'* #title'                    ,
 
 	// CLASS
 	'.note'                       ,
@@ -66,7 +72,7 @@ global.selectors = [
 	'div[class|=dialog]'          ,
 	'div[class!=made_up]'         ,
 	'div[class~=example]'         ,
-
+	
 	// PSEUDO
 	'div:not(.example)'           ,
 	'p:contains(selectors)'       ,
@@ -78,16 +84,16 @@ global.selectors = [
 	'p:only-child'                ,
 	'p:last-child'                ,
 	'p:first-child'               ,
-
+	
 	// COMBONATORS
 	'div > p'                     ,
 	'div + p'                     ,
 	'div ~ p'                     ,
 	'div p a'                     ,
-
+	
 	// MULTIPLE
 	'div, p, a'                   ,
-
+	
 	// COMPLEX
 	'h1#title + div > p'          ,
 	'h1[id]:contains(Selectors)'  ,
@@ -99,10 +105,36 @@ global.selectors = [
 new Mock(/\b(html)\b/i, benchmarkSelectors);
 
 </script>
+<style type="text/css" media="screen">
+
+textarea{
+	float:right;
+	width:200px;
+	height: 800px;
+}
+
+</style>
 </head>
 <body>
 
+<div>
+<ul>
+<li><a href="?">Reset Selectors</a></li>
+<li><a href="?selectors=.note%0D%0A.note.note%0D%0A.a1%0D%0A.a2%0D%0A.a3%0D%0A.a4%0D%0A.a5%0D%0A.a6%0D%0A">ClassNames</a></li>
+<li><a href="?selectors=html%0D%0Abody%0D%0Adiv%0D%0Aa%0D%0Aflarm">Tags</a></li>
+<li><a href="?selectors=%23title%0D%0Ah1%23title%0D%0Adiv+%23title%0D%0A*+%23title%0D%0A">IDs</a></li>
+</ul>
+<form action="" method="get">
+<script type="text/javascript" charset="utf-8">
 
+	document.write('<textarea name="selectors">');
+	document.write(global.selectors.join("\n"));
+	document.write('</textarea>');
+
+</script>
+<p><input type="submit" value="Update Selectors" /></p>
+</form>
+</div>
 <!-- mocks -->
 <iframe onload="Mock.register('tmpl html std',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
 <!-- <iframe onload="Mock.register('tmpl html almost std',this.contentWindow)" src="../../test/tools/template-almost.html"></iframe> -->
