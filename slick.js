@@ -387,6 +387,8 @@ authors:
 	};
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
+	local.customEngines = {};
+	
 	// Slick
 	
 	var Slick = local.Slick = function(context, expression, append){
@@ -429,7 +431,13 @@ authors:
 			if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 			else local.push = local.pushUID;
 			
+		}
 		
+		// custom engines
+		
+		if (typeof local.customEngines[parsed.type] == 'function') {
+			local.found = found;
+			return local.customSelectors[parsed.type](context, parsed, append);
 		}
 		
 		// querySelectorAll
