@@ -14,9 +14,11 @@ authors:
 
 (function(){
 	
+	var local = {};
+	
 	var window = this, document = this.document, root = document.documentElement;
 
-	var local = {};
+	local.document = document;
 	
 	// Feature / Bug detection
 	(function() {
@@ -53,6 +55,15 @@ authors:
 		testNode = null;
 	})();
 	
+	local.becomeParanoid = function(){
+		this.starSelectsComments = true;
+		this.starSelectsClosed = true;
+		this.starSelectsClosedQSA = true;
+		this.brokenMixedCaseQSA = true;
+		this.cachedGetElementsByClassName = true;
+		this.idGetsName = true;
+	};
+	
 	local.uidx = 1;
 	
 	local.uidOf = (window.ActiveXObject) ? function(node){
@@ -61,6 +72,7 @@ authors:
 		return node._slickUID || (node._slickUID = this.uidx++);
 	};
 	
+	// FIXME: Add specs: local.contains should be different for xml and html documents?
 	local.contains = (root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root.compareDocumentPosition) ? function(context, node){
@@ -136,20 +148,6 @@ authors:
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 
-	local.getByTagName = (local.starSelectsComments || local.starSelectsClosed) ? function(context, tag){
-		var found = context.getElementsByTagName(tag);
-		if(tag != '*') return found;
-		var nodes = [];
-		for (var i = 0, node; (node = found[i]); i++) {
-			if (node.nodeType == 1 && node.nodeName.charAt(0) != '/'){
-				nodes.push(node);
-			}
-		}
-		return nodes;
-	} : function(context, tag){
-		return context.getElementsByTagName(tag);
-	};
-	
 	var matchers = {
 		
 		node: function(node, selector){
@@ -166,16 +164,17 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
+			if (tag && tag ==='*' && (node.nodeType != 1 || node.nodeName.charAt(0) == '/')) return false; // Fix for comment nodes and closed nodes
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
 			for (var i = 0, l = parts.length; i < l; i++){
 				var part = parts[i];
 				switch (part.type){
 					case 'class':
-					    if (classes !== false){
-					        var cls = local.getAttribute(node, 'class');
-					        if (!cls || !part.regexp.test(cls)) return false;
-					    }
+						if (classes !== false){
+							var cls = local.getAttribute(node, 'class');
+							if (!cls || !part.regexp.test(cls)) return false;
+						}
 					break;
 					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
 					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
@@ -185,7 +184,6 @@ authors:
 		}
 
 	};
-	
 	for (var m in matchers) local['match:' + m] = matchers[m];
 	
 	var combinators = {
@@ -195,6 +193,7 @@ authors:
 
 			if(!isXML){
 				getById: if (id) {
+					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
 					item = node.getElementById(id);
 					if (!item || item.id != id) break getById;
@@ -202,11 +201,10 @@ authors:
 					return;
 				}
 				getById: if (id) {
-					var document = node.ownerDocument || node;
-					if (!document.getElementById) break getById;
-					item = document.getElementById(id);
+					if (!this.document.getElementById) break getById;
+					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
-					if (!this.contains(node, item)) break getById;
+					if (!this.contains(node.documentElement||node, item)) break getById;
 					this.push(item, tag, null, parts);
 					return;
 				}
@@ -218,7 +216,7 @@ authors:
 				}
 			}
 			getByTag: {
-				children = local.getByTagName(node, tag);
+				children = node.getElementsByTagName(tag);
 				if (!(children && children.length)) break getByTag;
 				for (i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
 			}
@@ -306,7 +304,6 @@ authors:
 		}
 
 	};
-	
 	for (var c in combinators) local['combinator:' + c] = combinators[c];
 	
 	var pseudos = {
@@ -388,17 +385,14 @@ authors:
 		}
 
 	};
-	
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
 	// Slick
 	
-	local.Slick = this.Slick = function(context, expression, append){
+	var Slick = local.Slick = function(context, expression, append){
 		
-		var paranoid = !(context == document || context.ownerDocument == document);
-		if (paranoid) {
-			local.idGetsName = true;
-		}
+		var document = local.document = (context.ownerDocument || context);
+		local.paranoid = local.document != document;
 		
 		var parsed, found = append || [];
 		
@@ -418,16 +412,21 @@ authors:
 
 		local.positions = {};
 		
-        var isXML = local.isXML(context);
+		var isXML = (!!document.xmlVersion)
+			|| (!!document.xml)
+			|| (Object.prototype.toString.call(document) == '[object XMLDocument]')
+			|| (document.nodeType == 9 && document.documentElement.nodeName != 'HTML')
+		;
+		
 		var current;
 		
 		// disable querySelectorAll for star tags if it's buggy
-		if (local.starSelectsClosedQSA && parsed.simple && !isXML) parsed.simple = (function(){
+		if (local.starSelectsClosedQSA && parsed.simple && !isXML) {
+			parsed.simple = true;
 			for (var i = 0; i < parsed.expressions.length; i++)
 				for (var j = 0; j < parsed.expressions[i].length; j++)
-					if (parsed.expressions[i][j].tag == '*') return false;
-			return true;
-		})();
+					if (parsed.expressions[i][j].tag == '*') parsed.simple = false;
+		}
 		
 		// querySelectorAll for simple selectors
 		if (parsed.simple && context.querySelectorAll && !isXML && !local.brokenMixedCaseQSA && !Slick.disableQSA){
@@ -490,7 +489,6 @@ authors:
 		}
 
 		return found;
-
 	};
 	
 	// Slick contains
@@ -500,9 +498,12 @@ authors:
 	// add pseudos
 	
 	Slick.definePseudo = function(name, fn){
-		local['pseudo:' + name] = function(node, argument){
+		fn.displayName = "Slick Pseudo:" + name;
+		name = 'pseudo:' + name;
+		local[name] = function(node, argument){
 			return fn.call(node, argument);
 		};
+		local[name].displayName = name;
 		return this;
 	};
 	
@@ -515,13 +516,14 @@ authors:
 	
 	local.attributeMethods = {};
 	
-	Slick.lookupAttribute = function(name){
-		return local.attributeMethods[name];
-	};
-	
 	Slick.defineAttribute = function(name, fn){
 		local.attributeMethods[name] = fn;
+		fn.displayName = "Slick Attribute:" + name;
 		return this;
+	};
+	
+	Slick.lookupAttribute = function(name){
+		return local.attributeMethods[name];
 	};
 	
 	Slick.defineAttribute('class', function(){
@@ -581,7 +583,18 @@ authors:
 	
 	Slick.isXML = local.isXML;
 	
-})();
+	// public
+	
+	this.Slick = Slick;
+	
+	
+	for (var displayName in local) {
+		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
+	}
+	for (var displayName in Slick) {
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+	}
+}).apply(this);
 
 // parser
 
@@ -698,7 +711,7 @@ authors:
 	var rmap = {};
 	for (var p in map) rmap[map[p]] = p;
 	
-	var parser = function(){
+	function parser(){
 		var a = arguments;
 
 		var selectorBitMap, selectorBitName;
@@ -827,6 +840,9 @@ authors:
 		return '';
 	};
 	
+	for (var displayName in Slick) {
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+	}
 })();
 
 document.search = function(expression){
