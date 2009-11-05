@@ -542,9 +542,15 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           cell.innerHTML = hz != Infinity ? hz : '&infin;';
           var result = [];
           
+          for (var i = test._row.childNodes.length - 1; i >= 0; i--){
+            if (test._row.childNodes[i] === resultCell) break;
+            test._row.removeChild(test._row.childNodes[i]);
+          }
+          
           switch(Object.prototype.toString.call(test.result)){
-            
+          case "[object Array]":
           case "[object Object]":
+            
             for (var key in test.result) {
               var resultCell = document.createElement('td');
               if (test.result[key] instanceof Error) {
@@ -557,15 +563,9 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
               }
               test._row.appendChild(resultCell);
             }
-            
             break;
             
-          case "[object Array]":
-            result = test.result.join(', ');
-            break;
-            
-          default:
-            result = String(test.result);
+          default: result = String(test.result);
           }
           // resultCell.innerHTML = " " + result;
         } else {
