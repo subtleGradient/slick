@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-<title>JSSpec results</title>
+<title>Selection benchmarks</title>
 
 <style type="text/css" media="screen">
 iframe{display:none;}
@@ -108,8 +108,11 @@ new Mock(/\b(html)\b/i, benchmarkSelectors);
 <style type="text/css" media="screen">
 
 textarea{
-	width:200px;
-	height: 600px;
+	width: 240px;
+/*	height: 320px;*/
+	font-family: consolas, monaco, monospace;
+	font-size: 10px;
+	line-height: 12px !important;
 }
 
 </style>
@@ -124,7 +127,6 @@ textarea{
 		<li><a href="?selectors=%23title%0D%0Ah1%23title%0D%0Adiv+%23title%0D%0A*+%23title%0D%0A">IDs</a></li>
 	</ul>
 	<form action="" method="get">
-		<p><input type="submit" value="Update Selectors" /></p>
 		<script type="text/javascript" charset="utf-8">
 
 document.write('<textarea name="selectors">');
@@ -132,8 +134,10 @@ document.write(global.selectors.join("\n"));
 document.write('</textarea>');
 
 		</script>
+		<p><input type="submit" value="Update Selectors" /></p>
 	</form>
 </div>
+
 <!-- mocks -->
 <iframe onload="Mock.register('tmpl html std',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
 <!-- <iframe onload="Mock.register('tmpl html almost std',this.contentWindow)" src="../../test/tools/template-almost.html"></iframe> -->
@@ -153,7 +157,10 @@ document.write('</textarea>');
 
 // new Mock.Request('responseXML','../../test/tools/xmlmock1.xml');
 // new Mock.Request('responseXML','../../test/tools/MooTools_Logo.svg');
-
+document.getElementsByTagName('textarea')[0].style.height = global.selectors.length * 12 + 24 + 'px';
 </script>
+
+<hr />
+
 </body>
 </html>
