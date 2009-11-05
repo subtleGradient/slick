@@ -1,3 +1,20 @@
+var local = {};
+local.collectionToArray = function(node){
+   return Array.prototype.slice.call(node);
+};
+try{
+    local.collectionToArray(root.childNodes);
+}
+catch(e){
+	local.collectionToArray = function(node){
+		if (node instanceof Array) return node;
+		var i = node.length, array = new Array(i);
+		while (i--) array[i] = node[i];
+		return array;
+	};
+}
+
+
 function benchmarkSelectors(specs,context){
 	var selectors = global.selectors;
 	if (global.disableQSA) {
@@ -10,39 +27,53 @@ function benchmarkSelectors(specs,context){
 	}
 	
 	
-	it['THIS'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
-	it['LAST'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = true;}); 
+	it['THIS'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
+	it['LAST'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;}); 
 	
-	if (document.querySelectorAll) {
-		it['THIS qsa'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
-		it['LAST qsa'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
+	if (context.document.querySelectorAll) {
+		it['THIS qsa'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
+		it['LAST qsa'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
+		
+		it['QSA'] = _benchmarkSelectors(function(searchContext,selector){
+			try{
+				return searchContext.querySelectorAll.call(searchContext,selector);
+			}catch(e){}
+		}, context, selectors);
+		
+		it['QSA Array'] = _benchmarkSelectors(function(searchContext,selector){
+			try{
+				return local.collectionToArray(searchContext.querySelectorAll.call(searchContext,selector));
+			}catch(e){}
+		}, context, selectors);
 	}
 	
-	if (global.Sizzle)
-	it['Sizzle'] = _benchmarkSelectors(function(selector,doc){ return global.Sizzle(doc,selector); }, context, selectors);
+	if (global.Sizzle) {
+		it['Sizzle'] = _benchmarkSelectors(function(searchContext,selector){ return global.Sizzle(selector,searchContext); }, context, selectors);
+	}
 	
 	if (global.NW) {
 		global.NW.Dom.setCache(false);
-		it['NWm'] = _benchmarkSelectors(function(doc,selector){ return global.NW.Dom.select(selector,doc); }, context, selectors);
+		it['NWm'] = _benchmarkSelectors(function(searchContext,selector){ return global.NW.Dom.select(selector,searchContext); }, context, selectors);
 	}
 	
 }
 
-function _benchmarkSelectors(SELECT,context,selectors,before){
+function _benchmarkSelectors(SELECT,context,selectors,before,after){
 	function __benchmarkSelectors(count){
 		var document = context.document;
 		var i, ii, node, l;
 		var elements = SELECT(document,'*');
 		before = before || function(){};
-		before();
+		after = after || function(){};
+		before(context);
 		
 		if (global.console && global.console.profile){
-			global.console.profile("disableQSA "+disableQSA);
+			global.console.profile(SELECT+disableQSA);
 			for (ii=0; ii < selectors.length; ii++) {
 				// for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
 				SELECT(document, selectors[ii]);
 			}
-			global.console.profileEnd("disableQSA "+disableQSA);
+			global.console.profileEnd(SELECT+disableQSA);
 		}
 		
 		while(count--){
@@ -55,6 +86,7 @@ function _benchmarkSelectors(SELECT,context,selectors,before){
 				
 			}
 		}
+		after(context);
 	}
 	return __benchmarkSelectors;
 };
