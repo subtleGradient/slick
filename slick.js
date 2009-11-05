@@ -446,21 +446,20 @@ authors:
 		
 		// querySelectorAll
 		
-		if (context.querySelectorAll && !(!parsed.simple || isXML || local.brokenMixedCaseQSA || Slick.disableQSA)) {
+		QSA: if (context.querySelectorAll && !(!parsed.simple || isXML || local.brokenMixedCaseQSA || Slick.disableQSA)) {
+			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
 			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
-			if (nodes){
-				
-				nodes = local.collectionToArray(nodes);
-				
-				if (!append) return nodes;
-				
-				if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
-				else found.push.apply(found, nodes);
-				return found;
-			}
+			
+			if (!nodes) break QSA;
+			nodes = local.collectionToArray(nodes);
+			if (!append) return nodes;
+			
+			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
+			else found.push.apply(found, nodes);
+			return found;
 			
 		}
 		
