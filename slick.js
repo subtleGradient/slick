@@ -475,7 +475,7 @@ authors:
 		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
 			
 			combinator = 'combinator:' + currentBit.combinator;
-			tag        = isXML? currentBit.tag: currentBit.tag.toUpperCase();
+			tag        = isXML ? currentBit.tag : currentBit.tag.toUpperCase();
 			id         = currentBit.id;
 			parts      = currentBit.parts;
 			classes    = currentBit.classes;
@@ -628,7 +628,7 @@ authors:
 	
 	var parsed, separatorIndex, combinatorIndex, partIndex, reversed, cache = {}, reverseCache = {};
 	
-	var parse = function(expression, isReversed){		
+	var parse = function(expression, isReversed){
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
