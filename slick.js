@@ -434,9 +434,12 @@ authors:
 		
 		// custom engines
 		
-		if (typeof local['customEngine:'+parsed.type.join(':')] == 'function') {
+		customEngine: {
+			var customEngineName = 'customEngine:' + parsed.type.join(':');
+			
 			local.found = found;
-			return local['customEngine:'+parsed.type.join(':')](context, parsed, append);
+			local[customEngineName](context, parsed, append);
+			return found;
 		}
 		
 		// querySelectorAll
