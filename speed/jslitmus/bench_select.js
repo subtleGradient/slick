@@ -9,16 +9,17 @@ function benchmarkSelectors(specs,context){
 		}catch(e){}
 	}
 	
-	it['THIS'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, true);
-	it['LAST'] = _benchmarkSelectors(function(selector,doc){ return global.SlickLast(selector,doc); }, context, selectors, true);
-	if (document.querySelectorAll)
-	it['THIS qsa'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, false);
-	if (document.querySelectorAll)
-	it['LAST qsa'] = _benchmarkSelectors(function(selector,doc){ return global.SlickLast(selector,doc); }, context, selectors, false);
 	
-	// if (global.disableQSA) global.SlickLast.disableQSA = true;
-	// if (global.Sizzle)
-	// it['Sizzle'] = _benchmarkSelectors(function(selector,doc){ return global.Sizzle(doc,selector); }, context, selectors);
+	it['THIS'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
+	it['LAST'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = true;}); 
+	
+	if (document.querySelectorAll) {
+		it['THIS qsa'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
+		it['LAST qsa'] = _benchmarkSelectors(function(selector,doc){ return global.SlickThis(selector,doc); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
+	}
+	
+	if (global.Sizzle)
+	it['Sizzle'] = _benchmarkSelectors(function(selector,doc){ return global.Sizzle(doc,selector); }, context, selectors);
 	
 	// if (global.NW) {
 	// 	global.NW.Dom.setCache(false);
@@ -27,12 +28,12 @@ function benchmarkSelectors(specs,context){
 	
 }
 
-function _benchmarkSelectors(SELECT,context,selectors,disableQSA){
+function _benchmarkSelectors(SELECT,context,selectors,before){
 	function __benchmarkSelectors(count){
 		var document = context.document;
 		var i, ii, node, l;
 		var elements = SELECT(document,'*');
-		Slick.disableQSA = disableQSA;
+		before && before();
 		
 		if (global.console && global.console.profile){
 			global.console.profile("disableQSA "+disableQSA);
@@ -53,8 +54,6 @@ function _benchmarkSelectors(SELECT,context,selectors,disableQSA){
 				
 			}
 		}
-		
-		Slick.disableQSA = false;
 	}
 	return __benchmarkSelectors;
 };
