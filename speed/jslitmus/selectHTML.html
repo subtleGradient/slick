@@ -108,9 +108,8 @@ new Mock(/\b(html)\b/i, benchmarkSelectors);
 <style type="text/css" media="screen">
 
 textarea{
-	float:right;
 	width:200px;
-	height: 800px;
+	height: 600px;
 }
 
 </style>
@@ -118,22 +117,22 @@ textarea{
 <body>
 
 <div>
-<ul>
-<li><a href="?">Reset Selectors</a></li>
-<li><a href="?selectors=.note%0D%0A.note.note%0D%0A.a1%0D%0A.a2%0D%0A.a3%0D%0A.a4%0D%0A.a5%0D%0A.a6%0D%0A">ClassNames</a></li>
-<li><a href="?selectors=html%0D%0Abody%0D%0Adiv%0D%0Aa%0D%0Aflarm">Tags</a></li>
-<li><a href="?selectors=%23title%0D%0Ah1%23title%0D%0Adiv+%23title%0D%0A*+%23title%0D%0A">IDs</a></li>
-</ul>
-<form action="" method="get">
-<script type="text/javascript" charset="utf-8">
+	<ul>
+		<li><a href="?">Reset Selectors</a></li>
+		<li><a href="?selectors=.note%0D%0A.note.note%0D%0A.a1%0D%0A.a2%0D%0A.a3%0D%0A.a4%0D%0A.a5%0D%0A.a6%0D%0A">ClassNames</a></li>
+		<li><a href="?selectors=html%0D%0Abody%0D%0Adiv%0D%0Aa%0D%0Aflarm">Tags</a></li>
+		<li><a href="?selectors=%23title%0D%0Ah1%23title%0D%0Adiv+%23title%0D%0A*+%23title%0D%0A">IDs</a></li>
+	</ul>
+	<form action="" method="get">
+		<p><input type="submit" value="Update Selectors" /></p>
+		<script type="text/javascript" charset="utf-8">
 
-	document.write('<textarea name="selectors">');
-	document.write(global.selectors.join("\n"));
-	document.write('</textarea>');
+document.write('<textarea name="selectors">');
+document.write(global.selectors.join("\n"));
+document.write('</textarea>');
 
-</script>
-<p><input type="submit" value="Update Selectors" /></p>
-</form>
+		</script>
+	</form>
 </div>
 <!-- mocks -->
 <iframe onload="Mock.register('tmpl html std',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
