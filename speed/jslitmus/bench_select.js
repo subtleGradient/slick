@@ -21,10 +21,10 @@ function benchmarkSelectors(specs,context){
 	if (global.Sizzle)
 	it['Sizzle'] = _benchmarkSelectors(function(selector,doc){ return global.Sizzle(doc,selector); }, context, selectors);
 	
-	// if (global.NW) {
-	// 	global.NW.Dom.setCache(false);
-	// 	it['NWm'] = _benchmarkSelectors(function(doc,selector){ return global.NW.Dom.select(selector,doc); }, context, selectors);
-	// }
+	if (global.NW) {
+		global.NW.Dom.setCache(false);
+		it['NWm'] = _benchmarkSelectors(function(doc,selector){ return global.NW.Dom.select(selector,doc); }, context, selectors);
+	}
 	
 }
 
@@ -33,7 +33,8 @@ function _benchmarkSelectors(SELECT,context,selectors,before){
 		var document = context.document;
 		var i, ii, node, l;
 		var elements = SELECT(document,'*');
-		before && before();
+		before = before || function(){};
+		before();
 		
 		if (global.console && global.console.profile){
 			global.console.profile("disableQSA "+disableQSA);
