@@ -1,4 +1,4 @@
-// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
+// -*- Mode: JavaScript with Spaces; tab-width: 2; indent-tabs-mode: nil; -*-
 /*
 curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
 // JSLitmus.js
@@ -398,12 +398,12 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           <col /> \
           <col width="100" /> \
         </colgroup> \
-        <tr><th id="test_platform" colspan="3">' + platform + '</th></tr> \
-        <tr><th>Test</th><th>Ops/sec</th><th>Result</th></tr> \
+        <tr><th id="test_platform" colspan="9999">' + platform + '</th></tr> \
+        <tr><th>Test</th><th>Ops/sec</th><th colspan="9999">Result</th></tr> \
         <tr id="test_row_template" class="test_row" style="display:none"> \
           <td class="test_name"></td> \
           <td class="test_result">Ready</td> \
-          <td class="test_results"><i>undefined</i></td> \
+          <td class="test_results"> </td> \
         </tr> \
       </table> \
       <div id="jsl_status"></div> \
@@ -545,19 +545,19 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           switch(Object.prototype.toString.call(test.result)){
             
           case "[object Object]":
-            result.push('<table cellpadding=0 callspacing=0>');
             for (var key in test.result) {
-              result.push('<tr>');
-              result.push('<th>');
-              result.push(key);
-              result.push('</th>');
-              result.push('<td>');
-              result.push(String(test.result[key]));
-              result.push('</td>');
-              result.push('</tr>');
+              var resultCell = document.createElement('td');
+              if (test.result[key] instanceof Error) {
+                resultCell.appendChild(document.createTextNode('Error'));
+                resultCell.setAttribute('title', test.result[key]);
+              }
+              else {
+                resultCell.appendChild(document.createTextNode(test.result[key]));
+                resultCell.setAttribute('title', key);
+              }
+              test._row.appendChild(resultCell);
             }
-            result.push('</table>');
-            result = result.join('');
+            
             break;
             
           case "[object Array]":
@@ -567,7 +567,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           default:
             result = String(test.result);
           }
-          resultCell.innerHTML = " " + result;
+          // resultCell.innerHTML = " " + result;
         } else {
           cell.innerHTML = 'ready';
         }
