@@ -744,7 +744,16 @@ authors:
 	
 		if (!selectorBitName) return '';
 		
-		parsed.type.push(selectorBitName);
+		
+		if (a[map.tagName]=='*') parsed.type.push('tagName*');
+		
+		else if (parsed.type[parsed.type.length-1] == selectorBitName && selectorBitName == 'className')
+			parsed.type[parsed.type.length-1] = 'classNames'
+		
+		else if (parsed.type[parsed.type.length-1] == 'classNames' && selectorBitName == 'className');
+		
+		else parsed.type.push(selectorBitName);
+		
 	
 		var isSeparator = selectorBitName == 'separator';
 	
