@@ -1,18 +1,18 @@
 /*
 ---
 provides: Slick
-
 description: The new, superfast css selector engine.
+requires: SlickParser
 
 license: MIT-style
 
 authors:
 - Thomas Aylott
 - Valerio Proietti
+- Fabio M Costa
 ...
 */
-
-(function(){
+(function(context){
 	
 	var local = {};
 	
@@ -20,21 +20,127 @@ authors:
 
 	local.document = document;
 	
-	// Feature / Bug detection
-	(function() {
+	// Slick
+	
+	var Slick = local.Slick = function(context, expression, append){
 		
-		// Our guinea pig
+		// setup
+		
+		var parsed, found = append || [];
+		local.positions = {};
+		
+		// handle input / context:
+		
+		{
+			if (expression == null){
+				return found;
+				
+			} else if (typeof expression == 'string'){
+				parsed = Slick.parse(expression);
+				if (!parsed.length) return found;
+				
+			} else if (expression.Slick){
+				parsed = expression;
+				
+			} else if (local.contains(context, expression)){
+				found.push(expression);
+				return found;
+				
+			} else {
+				return found;
+			}
+			
+			var document = (context.ownerDocument || context);
+			if (document != local.document) Slick.setDocument(document);
+			local.document = document;
+			
+			if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
+			else local.push = local.pushUID;
+			
+		}
+		
+		// custom engines
+		
+		customEngine: {
+			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + parsed.type.join(':');
+			if (typeof local[customEngineName] != 'function') break customEngine;
+			if (typeof local[customEngineName+' check'] == 'function' && !local[customEngineName+' check'](context, parsed)) break customEngine;
+			
+			local.found = found;
+			local[customEngineName](context, parsed);
+			return found;
+		}
+		
+		// querySelectorAll
+		
+		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)) {
+			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
+			
+			var nodes;
+			try { nodes = context.querySelectorAll(expression); }
+			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
+			
+			if (!nodes) break QSA;
+			nodes = local.collectionToArray(nodes);
+			if (!append) return nodes;
+			
+			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
+			else found.push.apply(found, nodes);
+			return found;
+			
+		}
+		
+		// default engine
+		
+		var currentExpression, currentBit;
+		var i, j, m, n;
+		var combinator, tag, id, parts, classes, attributes, pseudos;
+		var current, items;
+		var tempUniques = {};
+		var expressions = parsed.expressions;
+		
+		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
+			
+			combinator = 'combinator:' + currentBit.combinator;
+			tag        = local.isXMLDocument ? currentBit.tag : currentBit.tag.toUpperCase();
+			id         = currentBit.id;
+			parts      = currentBit.parts;
+			classes    = currentBit.classes;
+			attributes = currentBit.attributes;
+			pseudos    = currentBit.pseudos;
+			
+			local.localUniques = {};
+			
+			if (j === (currentExpression.length - 1)){
+				local.uniques = tempUniques;
+				local.found = found;
+			} else {
+				local.uniques = {};
+				local.found = [];
+			}
+	
+			if (j == 0){
+				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
+			} else {
+				items = current;
+				if (local[combinator])
+					for (m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+				else
+					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
+			}
+			
+			current = local.found;
+		}
+		
+		return found;
+	};
+	
+	// Feature / Bug detection
+	
+	Slick.setBrowser = function(document){
 		var testNode = document.createElement('div');
 		root.appendChild(testNode);
-		testNode.appendChild(document.createComment(''));
-		
-		// IE returns comment nodes for getElementsByTagName('*')
-		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
-		
-		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
-		
+
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
 		
@@ -44,25 +150,36 @@ authors:
 			testNode.firstChild.className = 'b';
 			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 		}catch(e){};
+
+		root.removeChild(testNode);
+		testNode = null;
+	};
+	
+	Slick.setDocument = function(document){
+		local.isXMLDocument = local.isXML(document);
+
+		var testNode = document.createElement('div');
+		root.appendChild(testNode);
+
+		// IE returns comment nodes for getElementsByTagName('*')
+		testNode.appendChild(document.createComment(''));
+		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+		
+		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
+		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
 		
 		// getElementById selects name attribute?
 		try{
 			testNode.innerHTML = '<a name=idgetsname>';
 			local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 		}catch(e){}
-		
+
 		root.removeChild(testNode);
 		testNode = null;
-	})();
-	
-	local.becomeParanoid = function(){
-		this.starSelectsComments = true;
-		this.starSelectsClosed = true;
-		this.starSelectsClosedQSA = true;
-		this.brokenMixedCaseQSA = true;
-		this.cachedGetElementsByClassName = true;
-		this.idGetsName = true;
 	};
+	
+	// Utils
 	
 	local.uidx = 1;
 	
@@ -147,7 +264,7 @@ authors:
 			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
-
+	
 	var matchers = {
 		
 		node: function(node, selector){
@@ -188,10 +305,10 @@ authors:
 	
 	var combinators = {
 
-		' ': function(node, tag, id, parts, classes, attributes, pseudos, isXML){ // all child nodes, any level
+		' ': function(node, tag, id, parts, classes, attributes, pseudos){ // all child nodes, any level
 			var i,l,item,children;
 
-			if(!isXML){
+			if(!this.isXMLDocument){
 				getById: if (id) {
 					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
@@ -387,126 +504,6 @@ authors:
 	};
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	// Slick
-	
-	var Slick = local.Slick = function(context, expression, append){
-		
-		// setup
-		
-		var parsed, found = append || [];
-		local.positions = {};
-		
-		// handle input / context:
-		
-		{
-			if (expression == null){
-				return found;
-				
-			} else if (typeof expression == 'string'){
-				parsed = Slick.parse(expression);
-				if (!parsed.length) return found;
-				
-			} else if (expression.Slick){
-				parsed = expression;
-				
-			} else if (local.contains(context, expression)){
-				found.push(expression);
-				return found;
-				
-			} else {
-				return found;
-			}
-			
-			var document = local.document = (context.ownerDocument || context);
-			if (local.document != document) local.becomeParanoid();
-			
-			var isXML = (!!document.xmlVersion)
-				|| (!!document.xml)
-				|| (Object.prototype.toString.call(document) == '[object XMLDocument]')
-				|| (document.nodeType == 9 && document.documentElement.nodeName != 'HTML')
-			;
-			
-			if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
-			else local.push = local.pushUID;
-			
-		}
-		
-		// custom engines
-		
-		customEngine: {
-			var customEngineName = 'customEngine:' + parsed.type.join(':');
-			if (typeof local[customEngineName] != 'function') break customEngine;
-			if (typeof local[customEngineName+' check'] == 'function' && !local[customEngineName+' check'](context, parsed)) break customEngine;
-			
-			local.found = found;
-			local[customEngineName](context, parsed);
-			return found;
-		}
-		
-		// querySelectorAll
-		
-		QSA: if (context.querySelectorAll && !(!parsed.simple || isXML || local.brokenMixedCaseQSA || Slick.disableQSA)) {
-			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
-			
-			var nodes;
-			try { nodes = context.querySelectorAll(expression); }
-			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
-			
-			if (!nodes) break QSA;
-			nodes = local.collectionToArray(nodes);
-			if (!append) return nodes;
-			
-			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
-			else found.push.apply(found, nodes);
-			return found;
-			
-		}
-		
-		// default engine
-		
-		var currentExpression, currentBit;
-		var i, j, m, n;
-		var combinator, tag, id, parts, classes, attributes, pseudos;
-		var current, items;
-		var tempUniques = {};
-		var expressions = parsed.expressions;
-		
-		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
-			
-			combinator = 'combinator:' + currentBit.combinator;
-			tag        = isXML ? currentBit.tag : currentBit.tag.toUpperCase();
-			id         = currentBit.id;
-			parts      = currentBit.parts;
-			classes    = currentBit.classes;
-			attributes = currentBit.attributes;
-			pseudos    = currentBit.pseudos;
-			
-			local.localUniques = {};
-			
-			if (j === (currentExpression.length - 1)){
-				local.uniques = tempUniques;
-				local.found = found;
-			} else {
-				local.uniques = {};
-				local.found = [];
-			}
-	
-			if (j == 0){
-				local[combinator](context, tag, id, parts, classes, attributes, pseudos, isXML);
-			} else {
-				items = current;
-				if (local[combinator])
-					for (m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos, isXML);
-				else
-					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
-			}
-			
-			current = local.found;
-		}
-		
-		return found;
-	};
-	
 	// Slick contains
 	
 	Slick.contains = local.contains;
@@ -552,11 +549,15 @@ authors:
 		return !(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA);
 	});
 	
-	Slick.defineEngine('id',function(context, parsed){
-		this.found.push( context.getElementById(parsed.expressions[0][0].id) );
-	},function(){
-		return !this.idGetsName;
-	});
+	Slick.defineEngine('XML:tagName','tagName');
+	
+	// Slick.defineEngine('id',function(context, parsed){
+	// 	context = context.ownerDocument || context;
+	// 	var el = context.getElementById(parsed.expressions[0][0].id)
+	// 	this.found.push(  );
+	// },function(){
+	// 	return !this.idGetsName;
+	// });
 	
 	// add pseudos
 	
@@ -599,7 +600,6 @@ authors:
         return this.getAttribute('href', 2);
     });
 	
-	
 	local.getAttribute = function(node, name){
 		var method = this.attributeMethods[name];
 		return (method) ? method.call(node) : node.getAttribute(name);
@@ -608,7 +608,9 @@ authors:
 	// matcher
 	
 	Slick.match = function(node, selector){
+		if (!(node && selector)) return false;
 		if (!selector || selector === node) return true;
+		if (typeof selector != 'string') return false;
 		local.positions = {};
 		return local['match:node'](node, selector);
 	};
@@ -648,10 +650,6 @@ authors:
 	
 	Slick.isXML = local.isXML;
 	
-	// public
-	
-	this.Slick = Slick;
-	
 	// debugging
 	var displayName;
 	for (displayName in local) {
@@ -660,23 +658,49 @@ authors:
 	for (displayName in Slick) {
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
 	}
-}).apply(this);
-
-// parser
-
-(function(){
 	
-	Slick.parse = function(expression){
+	// init
+	
+	Slick.setBrowser(document);
+	Slick.setDocument(document);
+	
+	// public
+	
+	this.Slick = Slick;
+	
+}).call(this,this);
+
+
+/*
+---
+provides: SlickParser
+description: Standalone CSS3 Selector parser
+
+license: MIT-style
+
+authors:
+- Thomas Aylott
+- Valerio Proietti
+- Fabio M Costa
+...
+*/
+(function(global){
+	
+	function SlickParser(expression){
 		return parse(expression);
 	};
 	
-	Slick.reverse = function(expression){
-		return parse((typeof expression == 'string') ? expression : expression.raw, true);
-	};
-	
-	var parsed, separatorIndex, combinatorIndex, partIndex, reversed, cache = {}, reverseCache = {};
+	var parsed,
+		separatorIndex,
+		combinatorIndex,
+		partIndex,
+		reversed,
+		cache = {},
+		reverseCache = {}
+	;
 	
 	var parse = function(expression, isReversed){
+		expression = String(expression);
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
@@ -702,7 +726,7 @@ authors:
 		for (var i = 0; i < expressions.length; i++){
 			var exp = expressions[i];
 			var last = {parts: [], tag: '*', combinator: reverseCombinator(exp[0].combinator)};
-
+			
 			for (var j = 0; j < exp.length; j++){
 				var cexp = exp[j];
 				if (!cexp.reverseCombinator) cexp.reverseCombinator = ' ';
@@ -715,58 +739,44 @@ authors:
 		return expression;
 	};
 	
-	var escapeRegExp = function(string){ // Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
+	var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
-	Slick.parse.escapeRegExp = escapeRegExp;
-	
-	Slick.parse.getCombinators = function(){
-		return combinatorChars.split('');
-	};
-	
-	Slick.parse.setCombinators = function(combinators){
-		combinatorChars = escapeRegExp(combinators.join(''));
-		regexp = new RegExp(("(?x)\
-			^(?:\
-			  \\s* ( , | $ ) \\s*                           # Separator              \n\
-			| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
-			|      ( \\s+ )                                 # CombinatorChildren     \n\
-			|      ( <unicode>+ | \\* )                     # Tag                    \n\
-			| \\#  ( <unicode>+       )                     # ID                     \n\
-			| \\.  ( <unicode>+       )                     # ClassName              \n\
-			| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-			|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-		)").replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
-		   .replace(/<combinator>/, '[' + combinatorChars + ']')
-		   .replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])'));
-		
-		return Slick.parse;
-	};
+	var regexp = new RegExp(
+		"(?x)^(?:\
+		  \\s* ( , | $ ) \\s*                           # Separator              \n\
+		| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
+		|      ( \\s+ )                                 # CombinatorChildren     \n\
+		|      ( <unicode>+ | \\* )                     # Tag                    \n\
+		| \\#  ( <unicode>+       )                     # ID                     \n\
+		| \\.  ( <unicode>+       )                     # ClassName              \n\
+		| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)"
+		.replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
+		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
+		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
+	);
 	
 	var qsaCombinators = (/^(\s|[~+>])$/);
-	
-	var combinatorChars = ">+~" + "`!@$%^&={}\\;</";
-	
-	var regexp;
-	Slick.parse.setCombinators(combinatorChars.split(''));
 	
 	var map = {
 		rawMatch: 0,
 		separator: 1,
 		combinator: 2,
 		combinatorChildren: 3,
-	
+		
 		tagName: 4,
 		id: 5,
 		className: 6,
-	
+		
 		attributeKey: 7,
 		attributeOperator: 8,
 		attributeValueDouble : 9,
 		attributeValueSingle : 10,
 		attributeValue: 11,
-
+		
 		pseudoClass: 12,
 		pseudoClassArgs: 13,
 		pseudoClassValueDouble : 14,
@@ -774,14 +784,13 @@ authors:
 		pseudoClassValue: 16
 	};
 	
-	var rmap = {};
-	for (var p in map) rmap[map[p]] = p;
+	var rmap = {}; for (var p in map) rmap[map[p]] = p;
 	
 	function parser(){
 		var a = arguments;
-
+		
 		var selectorBitMap, selectorBitName;
-	
+		
 		for (var aN = 1; aN < a.length; aN++){
 			if (a[aN]){
 				selectorBitMap = aN;
@@ -789,7 +798,7 @@ authors:
 				break;
 			}
 		}
-	
+		
 		if (!selectorBitName) return '';
 		
 		
@@ -802,17 +811,17 @@ authors:
 		
 		else parsed.type.push(selectorBitName);
 		
-	
+		
 		var isSeparator = selectorBitName == 'separator';
-	
+		
 		if (isSeparator || separatorIndex == -1){
 			parsed.expressions[++separatorIndex] = [];
 			combinatorIndex = -1;
 			if (isSeparator) return '';
 		}
-	
+		
 		var isCombinator = (selectorBitName == 'combinator') || (selectorBitName == 'combinatorChildren');
-	
+		
 		if (isCombinator || combinatorIndex == -1){
 			var combinator = a[map.combinator] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
@@ -824,95 +833,83 @@ authors:
 			partIndex = 0;
 			if (isCombinator) return '';
 		}
-	
+		
 		var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
-	
+		
 		switch (selectorBitName){
-			
-			case 'tagName':
-				currentParsed.tag = a[map.tagName];
+		
+		case 'tagName':
+			currentParsed.tag = a[map.tagName];
 			return '';
-		
-			case 'id':
-				currentParsed.id = a[map.id];
+			
+		case 'id':
+			currentParsed.id = a[map.id];
 			return '';
-		
-			case 'className':
 			
-				var className = a[map.className];
+		case 'className':
+			var className = a[map.className];
 			
-				if (!currentParsed.classes) currentParsed.classes = [className];
-				else currentParsed.classes.push(className);
-				
-				currentParsed.parts[partIndex] = {
-					type: 'class',
-					value: className,
-					regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
-				};
-
+			if (!currentParsed.classes) currentParsed.classes = [className];
+			else currentParsed.classes.push(className);
+			
+			currentParsed.parts[partIndex] = {
+				type: 'class',
+				value: className,
+				regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
+			};
+			
 			break;
-		
-			case 'pseudoClass':
 			
-				parsed.simple = false;
+		case 'pseudoClass':
+			parsed.simple = false;
 			
-				if (!currentParsed.pseudos) currentParsed.pseudos = [];
+			if (!currentParsed.pseudos) currentParsed.pseudos = [];
 			
-				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
-					type: 'pseudo',
-					key: a[map.pseudoClass],
-					value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
-				});
-
+			currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
+				type: 'pseudo',
+				key: a[map.pseudoClass],
+				value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
+			});
+			
 			break;
-		
-			case 'attributeKey':
-				parsed.simple = false;
 			
-				if (!currentParsed.attributes) currentParsed.attributes = [];
-				
-				var key = a[map.attributeKey];
-				var operator = a[map.attributeOperator];
-				var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
-				
-				var test, regexp;
-				
-				switch (operator){
-					case '=': test = function(value){
-						return attribute == value;
-					}; break;
-					case '!=': test = function(value){
-						return attribute != value;
-					}; break;
-					case '*=': test = function(value){
-						return value && value.indexOf(attribute) > -1;
-					}; break;
-					case '^=': regexp = new RegExp('^' + escapeRegExp(attribute)); break;
-					case '$=': regexp = new RegExp(escapeRegExp(attribute) + '$'); break;
-					case '~=': regexp = new RegExp('(^|\\s)' + escapeRegExp(attribute) + '(\\s|$)'); break;
-					case '|=': regexp = new RegExp('^' + escapeRegExp(attribute) + '(-|$)'); break;
-
-					default: test = function(value){
-						return !!value;
-					};
-				}
-				
-				if (!test) test = function(value){
-					return value && regexp.test(value);
-				};
-
-				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
-					type: 'attribute',
-					key: key,
-					operator: operator,
-					value: attribute,
-					test: test
-				});
-
+		case 'attributeKey':
+			parsed.simple = false;
+			
+			if (!currentParsed.attributes) currentParsed.attributes = [];
+			
+			var key = a[map.attributeKey];
+			var operator = a[map.attributeOperator];
+			var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
+			
+			var test, regexp;
+			
+			switch (operator){
+			case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
+			case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
+			case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attribute) +'(\\s|$)' ); break;
+			case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute) +'(-|$)'   ); break;
+			case  '=' : test = function(value){ return attribute == value; }; break;
+			case '*=' : test = function(value){ return value && value.indexOf(attribute) > -1; }; break;
+			case '!=' : test = function(value){ return attribute != value; }; break;
+			default   : test = function(value){ return !!value; };
+			}
+			
+			if (!test) test = function(value){
+				return value && regexp.test(value);
+			};
+			
+			currentParsed.attributes.push(currentParsed.parts[partIndex] = {
+				type: 'attribute',
+				key: key,
+				operator: operator,
+				value: attribute,
+				test: test
+			});
+			
 			break;
-
 		}
-	
+		
 		partIndex++;
 		return '';
 	};
@@ -920,8 +917,18 @@ authors:
 	for (var displayName in Slick) {
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
 	}
-})();
-
-document.search = function(expression){
-	return Slick(document, expression);
-};
+	
+	// public
+	
+	if (this.Slick) {
+		
+		this.Slick.parse = SlickParser;
+		
+		this.Slick.reverse = function(expression){
+			return parse((typeof expression == 'string') ? expression : expression.raw, true);
+		};
+		
+		this.Slick.parse.escapeRegExp = escapeRegExp;
+	}
+	
+}).call(this,this);
