@@ -306,7 +306,7 @@ authors:
 	var combinators = {
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos){ // all child nodes, any level
-			var i,l,item,children;
+			var i, l, item, children;
 
 			if (!this.isXMLDocument) {
 				getById: if (id) {
@@ -668,7 +668,7 @@ authors:
 	
 	this.Slick = Slick;
 	
-}).call(this,this);
+}).call(this, this);
 
 
 /*
@@ -931,4 +931,4 @@ authors:
 		this.Slick.parse.escapeRegExp = escapeRegExp;
 	}
 	
-}).call(this,this);
+}).call(this, this);
