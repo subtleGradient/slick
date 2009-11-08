@@ -32,17 +32,17 @@ authors:
 		// handle input / context:
 		
 		{
-			if (expression == null){
+			if (expression == null) {
 				return found;
 				
-			} else if (typeof expression == 'string'){
+			} else if (typeof expression == 'string') {
 				parsed = Slick.parse(expression);
 				if (!parsed.length) return found;
 				
-			} else if (expression.Slick){
+			} else if (expression.Slick) {
 				parsed = expression;
 				
-			} else if (local.contains(context, expression)){
+			} else if (local.contains(context, expression)) {
 				found.push(expression);
 				return found;
 				
@@ -111,7 +111,7 @@ authors:
 			
 			local.localUniques = {};
 			
-			if (j === (currentExpression.length - 1)){
+			if (j === (currentExpression.length - 1)) {
 				local.uniques = tempUniques;
 				local.found = found;
 			} else {
@@ -119,7 +119,7 @@ authors:
 				local.found = [];
 			}
 	
-			if (j == 0){
+			if (j == 0) {
 				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
 			} else {
 				items = current;
@@ -195,7 +195,7 @@ authors:
 	} : (root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
 	} : function(context, node){
-		if (node) while ((node = node.parentNode)){
+		if (node) while ((node = node.parentNode)) {
 			if (node === context) return true;
 		}
 		return false;
@@ -227,7 +227,7 @@ authors:
 		var a = (inta || inta === 0) ? inta : 1;
 		var special = parsed[2] || false;
 		var b = parseInt(parsed[3], 10) || 0;
-		if (a != 0){
+		if (a != 0) {
 			b--;
 			while (b < 1) b += a;
 			while (b >= a) b -= a;
@@ -251,7 +251,7 @@ authors:
 	
 	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
 		var uid = this.uidOf(node);
-		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
+		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) {
 			this.uniques[uid] = true;
 			this.found.push(node);
 		}
@@ -288,7 +288,7 @@ authors:
 				var part = parts[i];
 				switch (part.type){
 					case 'class':
-						if (classes !== false){
+						if (classes !== false) {
 							var cls = local.getAttribute(node, 'class');
 							if (!cls || !part.regexp.test(cls)) return false;
 						}
@@ -308,7 +308,7 @@ authors:
 		' ': function(node, tag, id, parts, classes, attributes, pseudos){ // all child nodes, any level
 			var i,l,item,children;
 
-			if(!this.isXMLDocument){
+			if (!this.isXMLDocument) {
 				getById: if (id) {
 					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
@@ -358,7 +358,7 @@ authors:
 
 		'+': function(node, tag, id, parts){ // next sibling
 			while ((node = node.nextSibling)){
-				if (node.nodeType == 1){
+				if (node.nodeType == 1) {
 					this.push(node, tag, id, parts);
 					break;
 				}
@@ -367,7 +367,7 @@ authors:
 
 		'!+': function(node, tag, id, parts){ // previous sibling
 			while ((node = node.previousSibling)){
-				if (node.nodeType == 1){
+				if (node.nodeType == 1) {
 					this.push(node, tag, id, parts);
 					break;
 				}
@@ -376,7 +376,7 @@ authors:
 
 		'^': function(node, tag, id, parts){ // first child
 			node = node.firstChild;
-			if (node){
+			if (node) {
 				if (node.nodeType == 1) this.push(node, tag, id, parts);
 				else this['combinator:+>'](node, tag, id, parts);
 			}
@@ -384,7 +384,7 @@ authors:
 
 		'!^': function(node, tag, id, parts){ // last child
 			node = node.lastChild;
-			if (node){
+			if (node) {
 				if (node.nodeType == 1) this.push(node, tag, id, parts);
 				else this['combinator:<+'](node, tag, id, parts);
 			}
@@ -467,13 +467,13 @@ authors:
 			if (parsed.special != 'n') return this['pseudo:' + parsed.special](node, argument);
 			if (parsed.a === 1 && parsed.b === 0) return true;
 			var count = 0, uid = this.uidOf(node);
-			if (!this.positions[uid]){
+			if (!this.positions[uid]) {
 				while ((node = node.previousSibling)){
 					if (node.nodeType !== 1) continue;
 					count ++;
 					var uis = this.uidOf(node);
 					var position = this.positions[uis];
-					if (position != null){
+					if (position != null) {
 						count = position + count;
 						break;
 					}
@@ -520,7 +520,7 @@ authors:
 	
 	// Slick.lookupEngine = function(name){
 	// 	var engine = local['customEngine:' + name];
-	// 	if (engine) return function(context, parsed){
+	// 	if (engine) return function(context, parsed) {
 	// 		return engine.call(this, context, parsed);
 	// 	};
 	// };
@@ -573,7 +573,7 @@ authors:
 	
 	Slick.lookupPseudo = function(name){
 		var pseudo = local['pseudo:' + name];
-		if (pseudo) return function(argument){
+		if (pseudo) return function(argument) {
 			return pseudo.call(this, argument);
 		};
 	};
@@ -638,7 +638,7 @@ authors:
 		if (!append) append = [];
 		for (var i = 0, l = nodes.length; i < l; i++){
 			var node = nodes[i], uid = local.uidOf(node);
-			if (!uniques[uid]){
+			if (!uniques[uid]) {
 				uniques[uid] = true;
 				append.push(node);
 			}
@@ -792,7 +792,7 @@ authors:
 		var selectorBitMap, selectorBitName;
 		
 		for (var aN = 1; aN < a.length; aN++){
-			if (a[aN]){
+			if (a[aN]) {
 				selectorBitMap = aN;
 				selectorBitName = rmap[selectorBitMap];
 				break;
@@ -814,7 +814,7 @@ authors:
 		
 		var isSeparator = selectorBitName == 'separator';
 		
-		if (isSeparator || separatorIndex == -1){
+		if (isSeparator || separatorIndex == -1) {
 			parsed.expressions[++separatorIndex] = [];
 			combinatorIndex = -1;
 			if (isSeparator) return '';
@@ -822,11 +822,11 @@ authors:
 		
 		var isCombinator = (selectorBitName == 'combinator') || (selectorBitName == 'combinatorChildren');
 		
-		if (isCombinator || combinatorIndex == -1){
+		if (isCombinator || combinatorIndex == -1) {
 			var combinator = a[map.combinator] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
-			if (reversed){
+			if (reversed) {
 				if (currentSeparator[combinatorIndex]) currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
 			}
 			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
@@ -895,7 +895,7 @@ authors:
 			default   : test = function(value){ return !!value; };
 			}
 			
-			if (!test) test = function(value){
+			if (!test) test = function(value) {
 				return value && regexp.test(value);
 			};
 			
