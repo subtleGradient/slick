@@ -143,7 +143,7 @@ authors:
 
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
-		
+
 		try{
 			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
@@ -656,7 +656,7 @@ authors:
 		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
 	}
 	for (displayName in Slick) {
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	}
 	
 	// init
@@ -915,7 +915,7 @@ authors:
 	};
 	
 	for (var displayName in Slick) {
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	}
 	
 	// public
