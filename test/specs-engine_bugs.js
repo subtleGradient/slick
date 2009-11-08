@@ -2,6 +2,7 @@ function specsSelectorEngineBugs(specs,context){
 	
 	var rootElement;
 	var testNode;
+	var isXML = Slick.isXML(context.document);
 	var setup = 
 	specs.before_each = function(){
 		testNode = context.document.createElement('div');
@@ -180,6 +181,7 @@ function specsBrowserBugsFixed(specs,context){
 	
 	var rootElement;
 	var testNode, tmpNode, tmpNode1, tmpNode2, tmpNode3, tmpNode4, tmpNode5, tmpNode6, tmpNode7, tmpNode8, tmpNode9;
+	var isXML = Slick.isXML(context.document);
 	var results, resultsArray;
 	var setup = function(){
 		testNode = context.document.createElement('div');
@@ -258,6 +260,18 @@ function specsBrowserBugsFixed(specs,context){
 			// value_of( results[0] ).should_not_be(tmpNode1);
 		};
 		
+		if( !isXML )
+		it['Should NOT match name attribute, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementbyid" type="text" /><input id="getelementbyid" type="password" />';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = testNode.lastChild;
+			
+			results = context.Slick(testNode,'#getelementbyid',[]);
+			value_of( results[0] == tmpNode1).should_be_false();
+		};
+		
 		it['Should match id attribute, even when another element has that [name]'] = function(){
 			teardown();setup();
 			
@@ -270,6 +284,56 @@ function specsBrowserBugsFixed(specs,context){
 			// value_of( results[0] ).should_be(tmpNode2);
 			value_of( results[0] == tmpNode2).should_be_true();
 		};
+		
+		if( !isXML )
+		it['Should match id attribute, even when another element has that [name], using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementbyid" type="text" /><input id="getelementbyid" type="password" /><input name="getelementbyid" type="text" />';
+			tmpNode1 = testNode.childNodes[0];
+			tmpNode2 = testNode.childNodes[1];
+			tmpNode3 = testNode.childNodes[2];
+			
+			results = context.Slick(testNode,'#getelementbyid',[]);
+			// value_of( results ).should_be([tmpNode2]);
+			// value_of( results[0] ).should_be(tmpNode2);
+			value_of( results[0] == tmpNode2).should_be_true();
+		};
+
+		if( !isXML )
+		it['Should get just the first matched element with passed id, using innerHTML'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input name="getelementbyid" type="text" /><input id="getelementbyid" type="password" /><input name="getelementbyid" type="text" /><input id="getelementbyid" type="text" />';
+			tmpNode1 = testNode.childNodes[0];
+			tmpNode2 = testNode.childNodes[1];
+			tmpNode3 = testNode.childNodes[2];
+			tmpNode4 = testNode.childNodes[3];
+			
+			results = context.Slick(testNode,'#getelementbyid',[]);
+			// value_of( results ).should_be([tmpNode2]);
+			// value_of( results[0] ).should_be(tmpNode2);
+			value_of( results[0] == tmpNode2 ).should_be_true();
+			value_of( results.length ).should_be(1);
+		};
+		
+		if( !isXML )
+		it['Should get just the first matched element with passed id, using innerHTML, changing nodes orders'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<input id="getelementbyid" type="password" /><input name="getelementbyid" type="text" /><input name="getelementbyid" type="text" /><input id="getelementbyid" type="text" />';
+			tmpNode1 = testNode.childNodes[0];
+			tmpNode2 = testNode.childNodes[1];
+			tmpNode3 = testNode.childNodes[2];
+			tmpNode4 = testNode.childNodes[3];
+			
+			results = context.Slick(testNode,'#getelementbyid',[]);
+			// value_of( results ).should_be([tmpNode2]);
+			// value_of( results[0] ).should_be(tmpNode2);
+			value_of( results[0] == tmpNode1 ).should_be_true();
+			value_of( results.length ).should_be(1);
+		};
+
 		
 	});
 	
