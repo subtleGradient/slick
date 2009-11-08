@@ -930,6 +930,8 @@ authors:
 		};
 		
 		this.Slick.parse.escapeRegExp = escapeRegExp;
+	} else {
+		this.SlickParser = SlickParser;
 	}
 	
 }).apply(this);
