@@ -12,7 +12,7 @@ authors:
 - Fabio M Costa
 ...
 */
-(function(context){
+(function(){
 	
 	var local = {};
 	
@@ -668,7 +668,8 @@ authors:
 	
 	this.Slick = Slick;
 	
-}).call(this, this);
+}).apply(this);
+
 
 
 /*
@@ -684,7 +685,7 @@ authors:
 - Fabio M Costa
 ...
 */
-(function(global){
+(function(){
 	
 	function SlickParser(expression){
 		return parse(expression);
@@ -931,4 +932,4 @@ authors:
 		this.Slick.parse.escapeRegExp = escapeRegExp;
 	}
 	
-}).call(this, this);
+}).apply(this);
