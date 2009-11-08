@@ -745,7 +745,7 @@ authors:
 	};
 	
 	var regexp = new RegExp(
-		"(?x)^(?:"
+		("(?x)^(?:"
 		+"  \\s* ( , | $ ) \\s*         " // Separator
 		+"| \\s* ( <combinator>+ ) \\s* " // Combinator
 		+"|      ( \\s+ )               " // CombinatorChildren
@@ -754,7 +754,7 @@ authors:
 		+"| \\.  ( <unicode>+       )   " // ClassName
 		+"| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\])" // Attribute
 		+"|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?"             // Pseudo
-		+")"
+		+")")
 		.replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
