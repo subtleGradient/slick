@@ -66,12 +66,6 @@ Describe('TAG',function(){
 		}
 	};
 	
-	// tag namespaces
-	it['should parse the namespace'] = TODO;
-	it['should parse the namespace from an escaped tagname'] = TODO;
-	
-	
-	
 	// TAG
 	var newTAG = function(TAG){
 		return function(){
@@ -89,6 +83,15 @@ Describe('TAG',function(){
 	
 });
 
+/*
+Describe('Namespace',function(){
+	
+	// tag namespaces
+	it['should parse the namespace'] = TODO;
+	it['should parse the namespace from an escaped tagname'] = TODO;
+	
+});
+*/
 
 
 var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number".split(' ');
