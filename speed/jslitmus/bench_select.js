@@ -63,6 +63,10 @@ function benchmarkSelectors(specs,context){
 		it['NWm'] = _benchmarkSelectors(function(searchContext,selector){ return global.NW.Dom.select(selector,searchContext); }, context, selectors);
 	}
 	
+	if (global.yass) {
+		// global.yass.setCache(false);
+		it['YASS'] = _benchmarkSelectors(function(doc,selector){ return global.yass(selector,doc,true); }, context, selectors);
+	}
 }
 
 function _benchmarkSelectors(SELECT,context,selectors,before,after){
