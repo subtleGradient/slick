@@ -194,9 +194,37 @@ Describe('CLASS',function(){
 
 
 
-var ATTRIB_KEYS = 'normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number'.split(' ');
 var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
-var ATTRIB_VALUES = 'normal,ǝpoɔıun,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
+
+var ATTRIB_KEYS = '\
+normal,\
+ spaced,\
+spaced ,\
+escaped\\]character,\
+ǝpoɔıun,\
+with-dash,\
+with_underscore,\
+123number,\
+'.split(',');
+
+var ATTRIB_VALUES = '\
+normal,\
+ǝpoɔıun,\
+"double quote",\
+\'single quote\',\
+"double\\"escaped",\
+\'single\\\'escaped\',\
+ "spaced",\
+ \'spaced\',\
+"spaced" ,\
+\'spaced\' ,\
+parens(),\
+curly{},\
+"quoted parens()",\
+"quoted curly{}",\
+"quoted square[]",\
+'.split(',');
+
 Describe('ATTRIBUTE',function(){
 	
 	
@@ -281,7 +309,8 @@ Describe('ATTRIBUTE',function(){
 		if (!ATT_expected[0]) ATT_expected[0] = ATT_actual[0];
 		if (!ATT_expected[1]) ATT_expected[1] = ATT_actual[1];
 		if (!ATT_expected[2]) ATT_expected[2] = ATT_actual[2];
-		ATT_expected[2] = ATT_expected[2].replace(/^["']/g,'').replace(/["']$/g,'');
+		ATT_expected[0] = ATT_expected[0].replace(/^\s*|\s*$/g,'');
+		ATT_expected[2] = ATT_expected[2].replace(/^\s*["']|["']\s*$/g,'');
 		
 		return function(){
 			
@@ -304,15 +333,22 @@ Describe('ATTRIBUTE',function(){
 			
 		};
 	};
-	for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VALUE_I]; ATTRIB_VALUE_I++)
-	for (var ATTRIB_OPERATOR_I=0, ATTRIB_OPERATOR; ATTRIB_OPERATOR = ATTRIB_OPERATORS[ATTRIB_OPERATOR_I]; ATTRIB_OPERATOR_I++)
-	for (var ATTRIB_KEY_I=0, ATTRIB_KEY; ATTRIB_KEY = ATTRIB_KEYS[ATTRIB_KEY_I]; ATTRIB_KEY_I++){
-		
-		it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR    ,ATTRIB_VALUE]);
-		it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
-		// it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
-		// it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR    ,ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
-		
+	for (var ATTRIB_KEY_I=0, ATTRIB_KEY; ATTRIB_KEY = ATTRIB_KEYS[ATTRIB_KEY_I]; ATTRIB_KEY_I++) {
+		Describe(ATTRIB_KEY,function(){
+			for (var ATTRIB_OPERATOR_I=0, ATTRIB_OPERATOR; ATTRIB_OPERATOR = ATTRIB_OPERATORS[ATTRIB_OPERATOR_I]; ATTRIB_OPERATOR_I++) {
+				
+				for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VALUE_I]; ATTRIB_VALUE_I++) {
+					
+					if (!ATTRIB_VALUE) continue;
+					it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR    ,ATTRIB_VALUE]);
+					// it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
+					// it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
+					// it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR    ,ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
+					
+				}
+			}
+			
+		});
 	}
 	
 });
@@ -320,7 +356,7 @@ Describe('ATTRIBUTE',function(){
 
 
 var PSEUDO_KEYS = 'normal escaped\\,character ǝpoɔıun with-dash with_underscore'.split(' ');
-var PSEUDO_VALUES = 'normal,ǝpoɔıun,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');;
+var PSEUDO_VALUES = 'normal,ǝpoɔıun, spaced,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');;
 Describe('PSEUDO',function(){
 	
 	it['should parse pseudos into the pseudos array'] = function(){
