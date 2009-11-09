@@ -227,30 +227,25 @@ authors:
 	
 	local.cacheNTH = {};
 	
-	local.matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/;
+	local.matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]\d+)?$/;
 	
 	local.parseNTHArgument = function(argument){
 		var parsed = argument.match(this.matchNTH);
 		if (!parsed) return false;
-		var inta = parseInt(parsed[1], 10);
-		var a = (inta || inta === 0) ? inta : 1;
 		var special = parsed[2] || false;
+		var a = parsed[1];
+		switch (a){
+			case '': a = 1; break;
+			case '-': a = -1; break;
+			default: a = +a;
+		}
 		var b = parseInt(parsed[3], 10) || 0;
-		if (a != 0){
-			b--;
-			while (b < 1) b += a;
-			while (b >= a) b -= a;
-		} else {
-			a = b;
-			special = 'index';
-		}
 		switch (special){
-			case 'n':    parsed = {a: a, b: b, special: 'n'}; break;
-			case 'odd':  parsed = {a: 2, b: 0, special: 'n'}; break;
-			case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
-			default:     parsed = {a: (a - 1), special: 'index'};
+			case 'n':    parsed = (a === 0) ? 'index' : {a: a, b: b}; break;
+			case 'odd':  parsed = {a: 2, b: 1}; break;
+			case 'even': parsed = {a: 2, b: 0}; break;
+			default:     parsed = 'index';
 		}
-		
 		return (this.cacheNTH[argument] = parsed);
 	};
 	
@@ -461,31 +456,36 @@ authors:
 		'nth-child': function(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-			if (parsed.special != 'n') return this['pseudo:' + parsed.special](node, argument);
-			if (parsed.a === 1 && parsed.b === 0) return true;
-			var count = 0, uid = this.uidOf(node);
+			if (parsed === 'index') return this['pseudo:index'](node, argument);
+			var uid = this.uidOf(node);
 			if (!this.positions[uid]){
+				var count = 1;
 				while ((node = node.previousSibling)){
 					if (node.nodeType !== 1) continue;
-					count ++;
-					var uis = this.uidOf(node);
-					var position = this.positions[uis];
+					var position = this.positions[this.uidOf(node)];
 					if (position != null){
 						count = position + count;
 						break;
 					}
+					count++;
 				}
 				this.positions[uid] = count;
 			}
-			return (this.positions[uid] % parsed.a === parsed.b);
+			var a = parsed.a, b = parsed.b, pos = this.positions[uid];
+			if (a >= 0){
+				if (pos < b) return false;
+			} else {
+				if (b < pos) return false;
+			}
+			return ((pos - b) % a) === 0;
 		},
 
 		// custom pseudos
 
 		'index': function(node, index){
-			var count = 0;
+			var count = 1;
 			while ((node = node.previousSibling)) if (node.nodeType === 1 && ++count > index) return false;
-			return (count === index);
+			return (count == index);
 		},
 
 		'even': function(node, argument){
