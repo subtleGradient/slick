@@ -504,6 +504,10 @@ authors:
 
 		// custom pseudos
 
+		'index': function(node, index){
+			return this['pseudo:nth-child'](node, '' + index + 1);
+		},
+
 		'even': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n+1');
 		},
