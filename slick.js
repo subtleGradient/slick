@@ -140,43 +140,43 @@ authors:
 	Slick.setBrowser = function(document){
 		var testNode = document.createElement('div');
 		root.appendChild(testNode);
-
+		
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
-
+		
 		try{
 			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
 			testNode.firstChild.className = 'b';
 			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 		}catch(e){};
-
+		
 		root.removeChild(testNode);
 		testNode = null;
 	};
 	
 	Slick.setDocument = function(document){
-		local.isXMLDocument = local.isXML(document);
-
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-
-		// IE returns comment nodes for getElementsByTagName('*')
-		testNode.appendChild(document.createComment(''));
-		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
-		
-		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
-		
-		// getElementById selects name attribute?
-		try{
-			testNode.innerHTML = '<a name=idgetsname>';
-			local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-		}catch(e){}
-
-		root.removeChild(testNode);
-		testNode = null;
+		if (!(local.isXMLDocument = local.isXML(document))){
+			var testNode = document.createElement('div');
+			root.appendChild(testNode);
+			
+			// IE returns comment nodes for getElementsByTagName('*')
+			testNode.appendChild(document.createComment(''));
+			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			
+			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+			try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
+			try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
+			
+			// getElementById selects name attribute?
+			try{
+				testNode.innerHTML = '<a name=idgetsname>';
+				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+			}catch(e){}
+			
+			root.removeChild(testNode);
+			testNode = null;
+		}
 	};
 	
 	// Utils
