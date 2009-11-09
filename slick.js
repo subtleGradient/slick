@@ -271,10 +271,10 @@ authors:
 		}
 		var b = parseInt(parsed[3], 10) || 0;
 		switch (special){
-			case 'n':    parsed = (a === 0) ? 'index' : {a: a, b: b}; break;
+			case 'n':    parsed = {a: a, b: b}; break;
 			case 'odd':  parsed = {a: 2, b: 1}; break;
 			case 'even': parsed = {a: 2, b: 0}; break;
-			default:     parsed = 'index';
+			default:     parsed = {a: 0, b: a};
 		}
 		return (this.cacheNTH[argument] = parsed);
 	};
@@ -478,7 +478,6 @@ authors:
 		'nth-child': function(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-			if (parsed === 'index') return this['pseudo:index'](node, argument);
 			var uid = this.uidOf(node);
 			if (!this.positions[uid]){
 				var count = 1;
@@ -494,7 +493,8 @@ authors:
 				this.positions[uid] = count;
 			}
 			var a = parsed.a, b = parsed.b, pos = this.positions[uid];
-			if (a >= 0){
+			if (a == 0) return b == pos;
+			if (a > 0){
 				if (pos < b) return false;
 			} else {
 				if (b < pos) return false;
@@ -503,14 +503,6 @@ authors:
 		},
 
 		// custom pseudos
-
-		'index': function(node, index){
-			var count = 1;
-			while ((node = node.previousSibling)){
-				if (node.nodeType === 1 && ++count > index) return false;
-			}
-			return (count == index);
-		},
 
 		'even': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n+1');
