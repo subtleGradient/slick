@@ -735,16 +735,16 @@ authors:
 	};
 	
 	var regexp = new RegExp(
-		("(?x)^(?:"
-		+"  \\s* ( , | $ ) \\s*         " // Separator
-		+"| \\s* ( <combinator>+ ) \\s* " // Combinator
-		+"|      ( \\s+ )               " // CombinatorChildren
-		+"|      ( <unicode>+ | \\* )   " // Tag
-		+"| \\#  ( <unicode>+       )   " // ID
-		+"| \\.  ( <unicode>+       )   " // ClassName
-		+"| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\])" // Attribute
-		+"|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?"             // Pseudo
-		+")")
+		"(?x)^(?:\
+		  \\s* ( , | $ ) \\s*                           # Separator              \n\
+		| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
+		|      ( \\s+ )                                 # CombinatorChildren     \n\
+		|      ( <unicode>+ | \\* )                     # Tag                    \n\
+		| \\#  ( <unicode>+       )                     # ID                     \n\
+		| \\.  ( <unicode>+       )                     # ClassName              \n\
+		| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
+		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)"
 		.replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
