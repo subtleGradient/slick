@@ -277,33 +277,43 @@ Describe('ATTRIBUTE',function(){
 	
 	
 	// ATTRIBUTE
-	var newATTRIB = function(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE){
+	var newATTRIB = function(ATT_actual, ATT_expected){
+		ATT_expected = ATT_expected || {};
+		if (!ATT_expected[0]) ATT_expected[0] = ATT_actual[0];
+		if (!ATT_expected[1]) ATT_expected[1] = ATT_actual[1];
+		if (!ATT_expected[2]) ATT_expected[2] = ATT_actual[2];
+		ATT_expected[2] = ATT_expected[2].replace(/^["']/g,'').replace(/["']$/g,'');
+		
 		return function(){
 			
-			s = PARSE('[' + ATTRIB_KEY + ']');
-			value_of( s.expressions.length ).should_be( 1 );
-			value_of( s.expressions[0].length ).should_be( 1 );
-			s = s.expressions[0][0];
-			value_of( s.attributes[0].key ).should_be( ATTRIB_KEY );
+			// s = PARSE('[' + ATT_actual[0] + ']');
+			// value_of( s.expressions.length ).should_be( 1 );
+			// value_of( s.expressions[0].length ).should_be( 1 );
+			// s = s.expressions[0][0];
+			// value_of( s.attributes[0].key ).should_be( ATT_actual[0] );
 			
-			s = PARSE('[' + ATTRIB_KEY + ATTRIB_OPERATOR + ATTRIB_VALUE + ']');
+			s = PARSE('[' + ATT_actual[0] + ATT_actual[1] + ATT_actual[2] + ']');
+			
 			value_of( s.expressions.length ).should_be( 1 );
 			value_of( s.expressions[0].length ).should_be( 1 );
-			s = s.expressions[0][0];
-			value_of( s.attributes[0].key ).should_be( ATTRIB_KEY );
-			value_of( s.attributes[0].operator ).should_be( ATTRIB_OPERATOR );
-			value_of( s.attributes[0].value ).should_be( ATTRIB_VALUE.replace(/^["']/g,'').replace(/["']$/g,'') );
+			
+			var e = s.expressions[0][0];
+			
+			value_of( e.attributes[0].key      ).should_be( ATT_expected[0] );
+			value_of( e.attributes[0].operator ).should_be( ATT_expected[1] );
+			value_of( e.attributes[0].value    ).should_be( ATT_expected[2] );
 			
 		};
 	};
-	for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VALUE_I]; ATTRIB_VALUE_I++){
-		for (var ATTRIB_OPERATOR_I=0, ATTRIB_OPERATOR; ATTRIB_OPERATOR = ATTRIB_OPERATORS[ATTRIB_OPERATOR_I]; ATTRIB_OPERATOR_I++){
-			for (var ATTRIB_KEY_I=0, ATTRIB_KEY; ATTRIB_KEY = ATTRIB_KEYS[ATTRIB_KEY_I]; ATTRIB_KEY_I++){
-				
-				it['should support ATTRIB: `'+ '[' + ATTRIB_KEY + ATTRIB_OPERATOR + ATTRIB_VALUE + ']' +'`'] = newATTRIB(ATTRIB_KEY, ATTRIB_OPERATOR, ATTRIB_VALUE);
-				
-			}
-		}
+	for (var ATTRIB_VALUE_I=0, ATTRIB_VALUE; ATTRIB_VALUE = ATTRIB_VALUES[ATTRIB_VALUE_I]; ATTRIB_VALUE_I++)
+	for (var ATTRIB_OPERATOR_I=0, ATTRIB_OPERATOR; ATTRIB_OPERATOR = ATTRIB_OPERATORS[ATTRIB_OPERATOR_I]; ATTRIB_OPERATOR_I++)
+	for (var ATTRIB_KEY_I=0, ATTRIB_KEY; ATTRIB_KEY = ATTRIB_KEYS[ATTRIB_KEY_I]; ATTRIB_KEY_I++){
+		
+		it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR    ,ATTRIB_VALUE]);
+		it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
+		// it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
+		// it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR    ,ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
+		
 	}
 	
 });
