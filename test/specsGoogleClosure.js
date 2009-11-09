@@ -1,17 +1,19 @@
 function specsGoogleClosure(specs,context){
 	
-	function makeSlickTestSearch(selector, count, disableQSA) {
+	function makeSlickTestSearch(selector, count, disableQSA, rootNode) {
 		return function(){
 			context.Slick.disableQSA = !!disableQSA;
-			value_of( context.Slick(context.document, selector).length ).should_be( count );
+			value_of( context.Slick(rootNode, selector).length ).should_be( count );
 			delete context.Slick.disableQSA;
 		};
-	}
+	};
+	
 	function setup_it_should_find(specs){
-		return function it_should_find(count,selector){
+		return function it_should_find(count, selector, rootNodeId){
+			var rootNode = rootNodeId ? context.document.getElementById(rootNodeId) : context.document;
 			if (global.document.querySelectorAll)
-				specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false);
-			specs['should find '+count+' `'+selector+'` without QSA' ] = makeSlickTestSearch(selector, count, true);
+				specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false, rootNode);
+			specs['should find '+count+' `'+selector+'` without QSA' ] = makeSlickTestSearch(selector, count, true, rootNode);
 		};
 	};
 	
