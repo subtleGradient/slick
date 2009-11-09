@@ -12,7 +12,7 @@ authors:
 - Fabio M Costa
 ...
 */
-(function(context){
+(function(){
 	
 	var local = {};
 	
@@ -73,12 +73,12 @@ authors:
 		
 		// querySelectorAll
 		
-		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)) {
+		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try { nodes = context.querySelectorAll(expression); }
-			catch(error) { if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
+			catch(error){ if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
 			
 			if (!nodes) break QSA;
 			nodes = local.collectionToArray(nodes);
@@ -143,7 +143,7 @@ authors:
 
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
-		
+
 		try{
 			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
@@ -306,10 +306,10 @@ authors:
 	var combinators = {
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos){ // all child nodes, any level
-			var i,l,item,children;
+			var i, l, item, children;
 
-			if(!this.isXMLDocument){
-				getById: if (id) {
+			if (!this.isXMLDocument){
+				getById: if (id){
 					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
 					item = node.getElementById(id);
@@ -317,7 +317,7 @@ authors:
 					this.push(item, tag, null, parts);
 					return;
 				}
-				getById: if (id) {
+				getById: if (id){
 					if (!this.document.getElementById) break getById;
 					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
@@ -325,7 +325,7 @@ authors:
 					this.push(item, tag, null, parts);
 					return;
 				}
-				getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName) {
+				getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName){
 					children = node.getElementsByClassName(classes.join(' '));
 					if (!(children && children.length)) break getByClass;
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
@@ -618,8 +618,8 @@ authors:
 	Slick.deepMatch = function(node, expression, context){
 		// FIXME: FPO code only
 		var nodes = Slick(context||document, expression);
-		for (var i=0; i < nodes.length; i++) {
-			if (nodes[i] === node) {
+		for (var i=0; i < nodes.length; i++){
+			if (nodes[i] === node){
 				return true;
 			}
 		}
@@ -652,11 +652,11 @@ authors:
 	
 	// debugging
 	var displayName;
-	for (displayName in local) {
+	for (displayName in local){
 		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
 	}
-	for (displayName in Slick) {
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+	for (displayName in Slick){
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	}
 	
 	// init
@@ -668,7 +668,8 @@ authors:
 	
 	this.Slick = Slick;
 	
-}).call(this,this);
+}).apply(this);
+
 
 
 /*
@@ -684,7 +685,7 @@ authors:
 - Fabio M Costa
 ...
 */
-(function(global){
+(function(){
 	
 	function SlickParser(expression){
 		return parse(expression);
@@ -744,16 +745,16 @@ authors:
 	};
 	
 	var regexp = new RegExp(
-		"(?x)^(?:\
-		  \\s* ( , | $ ) \\s*                           # Separator              \n\
-		| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
-		|      ( \\s+ )                                 # CombinatorChildren     \n\
-		|      ( <unicode>+ | \\* )                     # Tag                    \n\
-		| \\#  ( <unicode>+       )                     # ID                     \n\
-		| \\.  ( <unicode>+       )                     # ClassName              \n\
-		| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\]) # Attribute \n\
-		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
-		)"
+		("(?x)^(?:"
+		+"  \\s* ( , | $ ) \\s*         " // Separator
+		+"| \\s* ( <combinator>+ ) \\s* " // Combinator
+		+"|      ( \\s+ )               " // CombinatorChildren
+		+"|      ( <unicode>+ | \\* )   " // Tag
+		+"| \\#  ( <unicode>+       )   " // ID
+		+"| \\.  ( <unicode>+       )   " // ClassName
+		+"| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\])" // Attribute
+		+"|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?"             // Pseudo
+		+")")
 		.replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -914,13 +915,13 @@ authors:
 		return '';
 	};
 	
-	for (var displayName in Slick) {
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick."+displayName;
+	for (var displayName in Slick){
+		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	}
 	
 	// public
 	
-	if (this.Slick) {
+	if (this.Slick){
 		
 		this.Slick.parse = SlickParser;
 		
@@ -929,6 +930,8 @@ authors:
 		};
 		
 		this.Slick.parse.escapeRegExp = escapeRegExp;
+	} else {
+		this.SlickParser = SlickParser;
 	}
 	
-}).call(this,this);
+}).apply(this);
