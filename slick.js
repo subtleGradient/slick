@@ -31,33 +31,30 @@ authors:
 		
 		// handle input / context:
 		
-		{
-			if (expression == null){
-				return found;
-				
-			} else if (typeof expression == 'string'){
-				parsed = Slick.parse(expression);
-				if (!parsed.length) return found;
-				
-			} else if (expression.Slick){
-				parsed = expression;
-				
-			} else if (local.contains(context, expression)){
-				found.push(expression);
-				return found;
-				
-			} else {
-				return found;
-			}
-			
-			var document = (context.ownerDocument || context);
-			if (document != local.document) Slick.setDocument(document);
-			local.document = document;
-			
-			if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
-			else local.push = local.pushUID;
-			
+		if (expression == null){
+			return found;
+
+		} else if (typeof expression == 'string'){
+			parsed = Slick.parse(expression);
+			if (!parsed.length) return found;
+
+		} else if (expression.Slick){
+			parsed = expression;
+
+		} else if (local.contains(context, expression)){
+			found.push(expression);
+			return found;
+
+		} else {
+			return found;
 		}
+
+		var document = (context.ownerDocument || context);
+		if (document != local.document) Slick.setDocument(document);
+		local.document = document;
+
+		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
+		else local.push = local.pushUID;
 		
 		// custom engines
 		
@@ -512,7 +509,7 @@ authors:
 	
 	Slick.defineEngine = function(name, fn, shouldDefine){
 		if (shouldDefine == null) shouldDefine = true;
-		if (typeof shouldDefine == 'function') shouldDefine = shouldDefine.call(local)
+		if (typeof shouldDefine == 'function') shouldDefine = shouldDefine.call(local);
 		if (shouldDefine)
 			local['customEngine:' + name] = local['customEngine:' + fn] || fn;
 		return this;
@@ -806,7 +803,7 @@ authors:
 		if (a[map.tagName]=='*') parsed.type.push('tagName*');
 		
 		else if (parsed.type[parsed.type.length-1] == selectorBitName && selectorBitName == 'className')
-			parsed.type[parsed.type.length-1] = 'classNames'
+			parsed.type[parsed.type.length-1] = 'classNames';
 		
 		else if (parsed.type[parsed.type.length-1] == 'classNames' && selectorBitName == 'className');
 		
