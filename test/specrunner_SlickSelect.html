@@ -22,6 +22,7 @@
 <script type="text/javascript" src="specs-engine_bugs.js"></script>
 <script type="text/javascript" src="specs-mock_template.js" charset="utf-8"></script>
 <script src="slick_xml_specs.js" type="text/javascript" charset="utf-8"></script>
+<script src="specs-select_nth-child.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- Runner -->
 <script type="text/javascript" src="assets/simple_request.js"></script>
@@ -30,6 +31,7 @@
 new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
 	Describe('Bugs', specsSelectorEngineBugs);
 	Describe('Bugs Fixed', specsBrowserBugsFixed);
+	specsSelectNthChild();
 });
 
 </script>
