@@ -16,8 +16,82 @@ authors:
 	
 	var local = {};
 	
-	setDocument(this.document);
-	setBrowser(local.document);
+	// Feature / Bug detection
+	
+	local.isXML = function(element){
+		var ownerDocument = element.ownerDocument || element;
+		return (!!ownerDocument.xmlVersion)
+			|| (!!ownerDocument.xml)
+			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
+			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
+	};
+	
+	local.setBrowser = function(document){
+		var root = local.root;
+		var testNode = document.createElement('div');
+		root.appendChild(testNode);
+		
+		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
+		try {
+			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+		} catch(e){};
+		
+		try {
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+			testNode.getElementsByClassName('b').length;
+			testNode.firstChild.className = 'b';
+			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+		} catch(e){};
+		
+		root.removeChild(testNode);
+		testNode = null;
+		return this;
+	};
+	
+	local.setDocument = function(document){
+		if (local.document == document) return Slick;
+		
+		if ('document' in document) document = document.document;
+		else if (document.ownerDocument) document = document.ownerDocument;
+		
+		local.document = document;
+		local.root = document.documentElement;
+		
+		if (!(local.isXMLDocument = local.isXML(document))){
+			
+			var testNode = document.createElement('div');
+			local.root.appendChild(testNode);
+			var selected;
+			
+			// IE returns comment nodes for getElementsByTagName('*') for some documents
+			testNode.appendChild(document.createComment('')); local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			
+			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
+			try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = ((selected = testNode.getElementsByTagName('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			if (testNode.querySelectorAll) try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = ((selected = testNode.querySelectorAll('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			// IE returns elements with the name instead of just id for getElementById for some documents
+			try {
+				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+			} catch(e){}
+			
+			local.root.removeChild(testNode);
+			testNode = null;
+			
+		}
+		return Slick;
+	};
+	
+	// Init
+	
+	local.setDocument(this.document);
+	
+	local.setBrowser(local.document);
 	
 	var window = this, document = local.document, root = local.root;
 	
@@ -51,7 +125,7 @@ authors:
 
 		}
 		
-		if (local.document != document) Slick.setDocument(context);
+		if (local.document != document) local.setDocument(context);
 		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
@@ -138,70 +212,6 @@ authors:
 		return found;
 	};
 	
-	// Feature / Bug detection
-	
-	function setBrowser(document){
-		var root = local.root;
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-		
-		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
-		
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-		
-		root.removeChild(testNode);
-		testNode = null;
-	};
-	Slick.setBrowser = setBrowser;
-	
-	function setDocument(document){
-		if (local.document == document) return Slick;
-		
-		if ('document' in document) document = document.document;
-		else if (document.ownerDocument) document = document.ownerDocument;
-		
-		local.document = document;
-		local.root = document.documentElement;
-		
-		if (!(local.isXMLDocument = isXML(document))){
-			
-			var testNode = document.createElement('div');
-			local.root.appendChild(testNode);
-			var selected;
-			
-			// IE returns comment nodes for getElementsByTagName('*') for some documents
-			testNode.appendChild(document.createComment('')); local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
-			
-			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
-			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = ((selected = testNode.getElementsByTagName('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
-			} catch(e){};
-			
-			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
-			if (testNode.querySelectorAll) try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = ((selected = testNode.querySelectorAll('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
-			} catch(e){};
-			// IE returns elements with the name instead of just id for getElementById for some documents
-			try {
-				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-			} catch(e){}
-			
-			local.root.removeChild(testNode);
-			testNode = null;
-			
-		}
-		return Slick;
-	};
-	Slick.setDocument = setDocument;
-	
 	// Utils
 	
 	local.uidx = 1;
@@ -273,16 +283,6 @@ authors:
 			this.found.push(node);
 		}
 	};
-	
-	function isXML(element){
-		var ownerDocument = element.ownerDocument || element;
-		return (!!ownerDocument.xmlVersion)
-			|| (!!ownerDocument.xml)
-			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
-			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
-	};
-	
-	Slick.isXML = local.isXML = isXML;
 	
 	var matchers = {
 		
@@ -654,6 +654,7 @@ authors:
 	
 	// public
 	
+	Slick.isXML = local.isXML;
 	this.Slick = Slick;
 	
 }).apply(this);
