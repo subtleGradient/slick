@@ -1,4 +1,4 @@
-function specSelectNthChild(){
+function specsSelectNthChild(){
 	
 	Describe('nth-child',function(specs,context){
 		
