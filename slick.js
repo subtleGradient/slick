@@ -931,6 +931,9 @@ __END__
 	
 	// public
 	
+	SlickParser.cache = cache;
+	SlickParser.reverseCache = reverseCache;
+	
 	if (this.Slick){
 		
 		this.Slick.parse = SlickParser;
