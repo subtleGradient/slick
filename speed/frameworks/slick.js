@@ -16,9 +16,84 @@ authors:
 	
 	var local = {};
 	
-	var window = this, document = this.document, root = document.documentElement;
-
-	local.document = document;
+	// Feature / Bug detection
+	
+	local.isXML = function(element){
+		var ownerDocument = element.ownerDocument || element;
+		return (!!ownerDocument.xmlVersion)
+			|| (!!ownerDocument.xml)
+			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
+			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
+	};
+	
+	local.setBrowser = function(document){
+		var root = local.root;
+		var testNode = document.createElement('div');
+		root.appendChild(testNode);
+		
+		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
+		try {
+			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+		} catch(e){};
+		
+		try {
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+			testNode.getElementsByClassName('b').length;
+			testNode.firstChild.className = 'b';
+			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+		} catch(e){};
+		
+		root.removeChild(testNode);
+		testNode = null;
+		return this;
+	};
+	
+	local.setDocument = function(document){
+		if (local.document == document) return Slick;
+		
+		if ('document' in document) document = document.document;
+		else if (document.ownerDocument) document = document.ownerDocument;
+		
+		local.document = document;
+		local.root = document.documentElement;
+		
+		if (!(local.isXMLDocument = local.isXML(document))){
+			
+			var testNode = document.createElement('div');
+			local.root.appendChild(testNode);
+			var selected;
+			
+			// IE returns comment nodes for getElementsByTagName('*') for some documents
+			testNode.appendChild(document.createComment('')); local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			
+			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
+			try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = ((selected = testNode.getElementsByTagName('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			if (testNode.querySelectorAll) try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = ((selected = testNode.querySelectorAll('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			// IE returns elements with the name instead of just id for getElementById for some documents
+			try {
+				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+			} catch(e){}
+			
+			local.root.removeChild(testNode);
+			testNode = null;
+			
+		}
+		return Slick;
+	};
+	
+	// Init
+	
+	local.setDocument(this.document);
+	
+	local.setBrowser(local.document);
+	
+	var window = this, document = local.document, root = local.root;
 	
 	// Slick
 	
@@ -49,10 +124,9 @@ authors:
 			return found;
 
 		}
-
-		var document = (context.ownerDocument || context);
-		if (document != local.document) Slick.setDocument(document);
-		local.document = document;
+		
+		if (local.document != document) local.setDocument(context);
+		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
@@ -138,57 +212,6 @@ authors:
 		return found;
 	};
 	
-	// Feature / Bug detection
-	
-	Slick.setBrowser = function(document){
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-		
-		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
-		
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-		
-		root.removeChild(testNode);
-		testNode = null;
-	};
-	
-	Slick.setDocument = function(document){
-		if (!(local.isXMLDocument = local.isXML(document))){
-			var testNode = document.createElement('div');
-			root.appendChild(testNode);
-			
-			// IE returns comment nodes for getElementsByTagName('*')
-			testNode.appendChild(document.createComment(''));
-			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
-			
-			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); 
-			} catch(e){};
-
-			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/');
-			} catch(e){};
-			
-			// getElementById selects name attribute?
-			try {
-				testNode.innerHTML = '<a name=idgetsname>';
-				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-			} catch(e){}
-			
-			root.removeChild(testNode);
-			testNode = null;
-		}
-	};
-	
 	// Utils
 	
 	local.uidx = 1;
@@ -259,14 +282,6 @@ authors:
 			this.uniques[uid] = true;
 			this.found.push(node);
 		}
-	};
-	
-	local.isXML = function(element){
-		var ownerDocument = element.ownerDocument || element;
-		return (!!ownerDocument.xmlVersion)
-			|| (!!ownerDocument.xml)
-			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
-			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 	
 	var matchers = {
@@ -628,10 +643,6 @@ authors:
 		return append;
 	};
 	
-	// utils
-	
-	Slick.isXML = local.isXML;
-	
 	// debugging
 	var displayName;
 	for (displayName in local)
@@ -640,13 +651,10 @@ authors:
 	for (displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	// init
-	
-	Slick.setBrowser(document);
-	Slick.setDocument(document);
 	
 	// public
 	
+	Slick.isXML = local.isXML;
 	this.Slick = Slick;
 	
 }).apply(this);
@@ -727,17 +735,33 @@ authors:
 	};
 	
 	var regexp = new RegExp(
-		("(?x)^(?:"
-		+"  \\s* ( , | $ ) \\s*         " // Separator
-		+"| \\s* ( <combinator>+ ) \\s* " // Combinator
-		+"|      ( \\s+ )               " // CombinatorChildren
-		+"|      ( <unicode>+ | \\* )   " // Tag
-		+"| \\#  ( <unicode>+       )   " // ID
-		+"| \\.  ( <unicode>+       )   " // ClassName
-		+"| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\])" // Attribute
-		+"|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?"             // Pseudo
-		+")")
-		.replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
+/*
+#!/usr/bin/env ruby
+puts "\t\t" + DATA.read.gsub(/\(\?x\)|\s+#.*$|\s+|\\$|\\n/,'')
+__END__
+		"(?x)^(?:\
+		  \\s* ( , | $ ) \\s*                           # Separator              \n\
+		| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
+		|      ( \\s+ )                                 # CombinatorChildren     \n\
+		|      ( <unicode>+ | \\* )                     # Tag                    \n\
+		| \\#  ( <unicode>+       )                     # ID                     \n\
+		| \\.  ( <unicode>+       )                     # ClassName              \n\
+		|                                               # Attribute \n\
+		\\[  \
+			\\s* (<unicode>+)  (?:  \
+				\\s* ([*^$!~|]?=)  (?:  \
+					(?: \\s* (?:\
+						  \"((?:[^\"]|\\\")*)\"\
+						|  '((?:[^'] |\\')* )' \
+					))  |   (   [^\\]]*     )  \
+				)  \
+			)?  \\s*  \
+		\\](?!\\]) \n\
+		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)"
+/***/
+		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'))|([^\\]]*)))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"/***/
+		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	);
@@ -906,6 +930,9 @@ authors:
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
 	// public
+	
+	SlickParser.cache = cache;
+	SlickParser.reverseCache = reverseCache;
 	
 	if (this.Slick){
 		
