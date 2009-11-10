@@ -164,24 +164,23 @@ authors:
 		if (!(local.isXMLDocument = local.isXML(document))){
 			var testNode = document.createElement('div');
 			root.appendChild(testNode);
+			var selected;
 			
-			// IE returns comment nodes for getElementsByTagName('*')
-			testNode.appendChild(document.createComment(''));
-			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			// IE returns comment nodes for getElementsByTagName('*') for some documents
+			testNode.appendChild(document.createComment('')); local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 			
-			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
 			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); 
-			} catch(e){};
-
-			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/');
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = ((selected = testNode.getElementsByTagName('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 			
-			// getElementById selects name attribute?
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			if (testNode.querySelectorAll) try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = ((selected = testNode.querySelectorAll('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				testNode.innerHTML = '<a name=idgetsname>';
-				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 			} catch(e){}
 			
 			root.removeChild(testNode);
