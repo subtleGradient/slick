@@ -34,34 +34,27 @@ function benchmarkParser(specs,context){
 		throw error;
 	};
 	
-	it['THIS.parse'] = _benchmarkParser(function(searchContext,selector){ return global.SlickThis.parse(selector); }, context, selectors);
-	it['LAST.parse'] = _benchmarkParser(function(searchContext,selector){ return global.SlickLast.parse(selector); }, context, selectors); 
+	it['THIS.parse'] = _benchmarkParser(global.SlickThis.parse, context, selectors);
+	it['LAST.parse'] = _benchmarkParser(global.SlickLast.parse, context, selectors); 
 }
 
-function _benchmarkParser(SELECT,context,selectors,before,after){
+function _benchmarkParser(PARSE,context,selectors,before,after){
 	function __benchmarkParser(count){
 		var document = context.document;
 		var i, ii, node, l;
-		var elements = SELECT(document,'*');
+		var elements = PARSE('*');
 		before = before || function(){};
 		after = after || function(){};
 		before(context);
 		var results = {};
-		// if (global.console && global.console.profile){
-		// 	global.console.profile(SELECT+disableQSA);
-		// 	for (ii=0; ii < selectors.length; ii++) {
-		// 		// for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
-		// 		SELECT(document, selectors[ii]);
-		// 	}
-		// 	global.console.profileEnd(SELECT+disableQSA);
-		// }
 		
 		while(count--){
 			for (ii=0; ii < selectors.length; ii++) if (selectors[ii]){
 				
-				for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
+				for (var property in PARSE.cache) { PARSE.cache[property] = null; }
+				for (var property in PARSE.reverseCache) { PARSE.cache[property] = null; }
 				try{
-					results[selectors[ii]] = SELECT(document, selectors[ii]).length;
+					results[selectors[ii]] = PARSE(selectors[ii]).length;
 				}catch(error){
 					results[selectors[ii]] = error;
 				}
