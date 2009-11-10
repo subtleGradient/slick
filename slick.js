@@ -16,9 +16,10 @@ authors:
 	
 	var local = {};
 	
-	var window = this, document = this.document, root = document.documentElement;
-
-	local.document = document;
+	setDocument(this.document);
+	setBrowser(local.document);
+	
+	var window = this, document = local.document, root = local.root;
 	
 	// Slick
 	
@@ -49,10 +50,9 @@ authors:
 			return found;
 
 		}
-
-		var document = (context.ownerDocument || context);
-		if (document != local.document) Slick.setDocument(document);
-		local.document = document;
+		
+		if (local.document != document) Slick.setDocument(context);
+		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
@@ -140,7 +140,8 @@ authors:
 	
 	// Feature / Bug detection
 	
-	Slick.setBrowser = function(document){
+	function setBrowser(document){
+		var root = local.root;
 		var testNode = document.createElement('div');
 		root.appendChild(testNode);
 		
@@ -159,11 +160,21 @@ authors:
 		root.removeChild(testNode);
 		testNode = null;
 	};
+	Slick.setBrowser = setBrowser;
 	
-	Slick.setDocument = function(document){
-		if (!(local.isXMLDocument = local.isXML(document))){
+	function setDocument(document){
+		if (local.document == document) return Slick;
+		
+		if ('document' in document) document = document.document;
+		else if (document.ownerDocument) document = document.ownerDocument;
+		
+		local.document = document;
+		local.root = document.documentElement;
+		
+		if (!(local.isXMLDocument = isXML(document))){
+			
 			var testNode = document.createElement('div');
-			root.appendChild(testNode);
+			local.root.appendChild(testNode);
 			var selected;
 			
 			// IE returns comment nodes for getElementsByTagName('*') for some documents
@@ -183,10 +194,13 @@ authors:
 				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 			} catch(e){}
 			
-			root.removeChild(testNode);
+			local.root.removeChild(testNode);
 			testNode = null;
+			
 		}
+		return Slick;
 	};
+	Slick.setDocument = setDocument;
 	
 	// Utils
 	
@@ -260,13 +274,15 @@ authors:
 		}
 	};
 	
-	local.isXML = function(element){
+	function isXML(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
 			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
+	
+	Slick.isXML = local.isXML = isXML;
 	
 	var matchers = {
 		
@@ -627,10 +643,6 @@ authors:
 		return append;
 	};
 	
-	// utils
-	
-	Slick.isXML = local.isXML;
-	
 	// debugging
 	var displayName;
 	for (displayName in local)
@@ -639,10 +651,6 @@ authors:
 	for (displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	// init
-	
-	Slick.setBrowser(document);
-	Slick.setDocument(document);
 	
 	// public
 	
