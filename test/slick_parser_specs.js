@@ -197,6 +197,7 @@ Describe('CLASS',function(){
 var ATTRIB_KEYS = 'normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number'.split(' ');
 var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
 var ATTRIB_VALUES = 'normal,ǝpoɔıun,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',parens(),curly{},"quoted parens()","quoted curly{}","quoted square[]"'.split(',');
+// TODO: add "square[]" to ATTRIB_VALUES for prototype support
 Describe('ATTRIBUTE',function(){
 	
 	
