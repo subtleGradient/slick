@@ -33,7 +33,8 @@ authors:
 		
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
+			local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
 		} catch(e){};
 		
 		try {
@@ -797,7 +798,8 @@ __END__
 		pseudoClassValue: 16
 	};
 	
-	var rmap = {}; for (var p in map) rmap[map[p]] = p;
+	var rmap = {};
+	for (var p in map) rmap[map[p]] = p;
 	
 	function parser(){
 		var a = arguments;
