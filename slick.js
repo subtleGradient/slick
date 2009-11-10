@@ -64,20 +64,26 @@ authors:
 			var selected;
 			
 			// IE returns comment nodes for getElementsByTagName('*') for some documents
-			testNode.appendChild(document.createComment('')); local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			testNode.appendChild(document.createComment(''));
+			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 			
 			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
 			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = ((selected = testNode.getElementsByTagName('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.getElementsByTagName('*');
+				local.starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 			
 			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
 			if (testNode.querySelectorAll) try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = ((selected = testNode.querySelectorAll('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.querySelectorAll('*');
+				local.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+				testNode.innerHTML = '<a name=idgetsname>';
+				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 			} catch(e){}
 			
 			local.root.removeChild(testNode);
@@ -590,7 +596,7 @@ authors:
 	};
 	
 	Slick.defineAttribute('class', function(){
-		return ('className'in this) ? this.className : this.getAttribute('class');
+		return ('className' in this) ? this.className : this.getAttribute('class');
 	}).defineAttribute('for', function(){
 		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	}).defineAttribute('href', function(){
