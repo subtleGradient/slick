@@ -31,40 +31,38 @@ authors:
 		
 		// handle input / context:
 		
-		{
-			if (expression == null){
-				return found;
-				
-			} else if (typeof expression == 'string'){
-				parsed = Slick.parse(expression);
-				if (!parsed.length) return found;
-				
-			} else if (expression.Slick){
-				parsed = expression;
-				
-			} else if (local.contains(context, expression)){
-				found.push(expression);
-				return found;
-				
-			} else {
-				return found;
-			}
-			
-			var document = (context.ownerDocument || context);
-			if (document != local.document) Slick.setDocument(document);
-			local.document = document;
-			
-			if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
-			else local.push = local.pushUID;
-			
+		if (expression == null){
+			return found;
+
+		} else if (typeof expression == 'string'){
+			parsed = Slick.parse(expression);
+			if (!parsed.length) return found;
+
+		} else if (expression.Slick){
+			parsed = expression;
+
+		} else if (local.contains(context, expression)){
+			found.push(expression);
+			return found;
+
+		} else {
+			return found;
+
 		}
+
+		var document = (context.ownerDocument || context);
+		if (document != local.document) Slick.setDocument(document);
+		local.document = document;
+
+		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
+		else local.push = local.pushUID;
 		
 		// custom engines
 		
 		customEngine: {
 			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + parsed.type.join(':');
 			if (typeof local[customEngineName] != 'function') break customEngine;
-			if (typeof local[customEngineName+' check'] == 'function' && !local[customEngineName+' check'](context, parsed)) break customEngine;
+			if (typeof local[customEngineName + ' check'] == 'function' && !local[customEngineName + ' check'](context, parsed)) break customEngine;
 			
 			local.found = found;
 			local[customEngineName](context, parsed);
@@ -77,8 +75,11 @@ authors:
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
-			try { nodes = context.querySelectorAll(expression); }
-			catch(error){ if (Slick.debug) Slick.debug('QSA Fail ' + expression, error); };
+			try {
+				nodes = context.querySelectorAll(expression);
+			} catch(error){
+				if (Slick.debug) Slick.debug('QSA Fail ' + expression, error);
+			}
 			
 			if (!nodes) break QSA;
 			nodes = local.collectionToArray(nodes);
@@ -108,9 +109,9 @@ authors:
 			classes    = currentBit.classes;
 			attributes = currentBit.attributes;
 			pseudos    = currentBit.pseudos;
-			
+		
 			local.localUniques = {};
-			
+		
 			if (j === (currentExpression.length - 1)){
 				local.uniques = tempUniques;
 				local.found = found;
@@ -118,18 +119,20 @@ authors:
 				local.uniques = {};
 				local.found = [];
 			}
-	
+
 			if (j == 0){
 				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
 			} else {
 				items = current;
-				if (local[combinator])
+				if (local[combinator]){
 					for (m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
-				else
+				} else {
 					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
+				}
 			}
-			
+		
 			current = local.found;
+		
 		}
 		
 		return found;
@@ -140,43 +143,50 @@ authors:
 	Slick.setBrowser = function(document){
 		var testNode = document.createElement('div');
 		root.appendChild(testNode);
-
+		
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
-		try{ testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length; }catch(e){};
-
-		try{
+		try {
+			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+		} catch(e){};
+		
+		try {
 			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
 			testNode.firstChild.className = 'b';
 			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		}catch(e){};
-
+		} catch(e){};
+		
 		root.removeChild(testNode);
 		testNode = null;
 	};
 	
 	Slick.setDocument = function(document){
-		local.isXMLDocument = local.isXML(document);
+		if (!(local.isXMLDocument = local.isXML(document))){
+			var testNode = document.createElement('div');
+			root.appendChild(testNode);
+			
+			// IE returns comment nodes for getElementsByTagName('*')
+			testNode.appendChild(document.createComment(''));
+			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			
+			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
+			try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); 
+			} catch(e){};
 
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-
-		// IE returns comment nodes for getElementsByTagName('*')
-		testNode.appendChild(document.createComment(''));
-		local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
-		
-		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
-		try{ testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/'); }catch(e){};
-		
-		// getElementById selects name attribute?
-		try{
-			testNode.innerHTML = '<a name=idgetsname>';
-			local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-		}catch(e){}
-
-		root.removeChild(testNode);
-		testNode = null;
+			try {
+				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
+			// getElementById selects name attribute?
+			try {
+				testNode.innerHTML = '<a name=idgetsname>';
+				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+			} catch(e){}
+			
+			root.removeChild(testNode);
+			testNode = null;
+		}
 	};
 	
 	// Utils
@@ -195,19 +205,18 @@ authors:
 	} : (root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
 	} : function(context, node){
-		if (node) while ((node = node.parentNode)){
+		if (node) while ((node = node.parentNode))
 			if (node === context) return true;
-		}
 		return false;
 	};
 	
 	local.collectionToArray = function(node){
 	   return Array.prototype.slice.call(node);
 	};
-	try{
+
+	try {
 	    local.collectionToArray(root.childNodes);
-	}
-	catch(e){
+	} catch(e){
 		local.collectionToArray = function(node){
 			if (node instanceof Array) return node;
 			var i = node.length, array = new Array(i);
@@ -218,30 +227,25 @@ authors:
 	
 	local.cacheNTH = {};
 	
-	local.matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]?\d*)?$/;
+	local.matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]\d+)?$/;
 	
 	local.parseNTHArgument = function(argument){
 		var parsed = argument.match(this.matchNTH);
 		if (!parsed) return false;
-		var inta = parseInt(parsed[1], 10);
-		var a = (inta || inta === 0) ? inta : 1;
 		var special = parsed[2] || false;
+		var a = parsed[1];
+		switch (a){
+			case '': a = 1; break;
+			case '-': a = -1; break;
+			default: a = +a;
+		}
 		var b = parseInt(parsed[3], 10) || 0;
-		if (a != 0){
-			b--;
-			while (b < 1) b += a;
-			while (b >= a) b -= a;
-		} else {
-			a = b;
-			special = 'index';
-		}
 		switch (special){
-			case 'n':    parsed = {a: a, b: b, special: 'n'}; break;
-			case 'odd':  parsed = {a: 2, b: 0, special: 'n'}; break;
-			case 'even': parsed = {a: 2, b: 1, special: 'n'}; break;
-			default:     parsed = {a: (a - 1), special: 'index'};
+			case 'n':    parsed = {a: a, b: b}; break;
+			case 'odd':  parsed = {a: 2, b: 1}; break;
+			case 'even': parsed = {a: 2, b: 0}; break;
+			default:     parsed = {a: 0, b: a};
 		}
-		
 		return (this.cacheNTH[argument] = parsed);
 	};
 	
@@ -287,12 +291,10 @@ authors:
 			for (var i = 0, l = parts.length; i < l; i++){
 				var part = parts[i];
 				switch (part.type){
-					case 'class':
-						if (classes !== false){
-							var cls = local.getAttribute(node, 'class');
-							if (!cls || !part.regexp.test(cls)) return false;
-						}
-					break;
+					case 'class': if (classes !== false){
+						var cls = local.getAttribute(node, 'class');
+						if (!cls || !part.regexp.test(cls)) return false;
+					} break;
 					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
 					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
 				}
@@ -301,6 +303,7 @@ authors:
 		}
 
 	};
+
 	for (var m in matchers) local['match:' + m] = matchers[m];
 	
 	var combinators = {
@@ -340,9 +343,7 @@ authors:
 		},
 		
 		'!': function(node, tag, id, parts){  // all parent nodes up to document
-			while ((node = node.parentNode)){
-				if (node !== document) this.push(node, tag, id, parts);
-			}
+			while ((node = node.parentNode)) if (node !== document) this.push(node, tag, id, parts);
 		},
 
 		'>': function(node, tag, id, parts){ // direct children
@@ -357,20 +358,16 @@ authors:
 		},
 
 		'+': function(node, tag, id, parts){ // next sibling
-			while ((node = node.nextSibling)){
-				if (node.nodeType == 1){
-					this.push(node, tag, id, parts);
-					break;
-				}
+			while ((node = node.nextSibling)) if (node.nodeType == 1){
+				this.push(node, tag, id, parts);
+				break;
 			}
 		},
 
 		'!+': function(node, tag, id, parts){ // previous sibling
-			while ((node = node.previousSibling)){
-				if (node.nodeType == 1){
-					this.push(node, tag, id, parts);
-					break;
-				}
+			while ((node = node.previousSibling)) if (node.nodeType == 1){
+				this.push(node, tag, id, parts);
+				break;
 			}
 		},
 
@@ -421,6 +418,7 @@ authors:
 		}
 
 	};
+
 	for (var c in combinators) local['combinator:' + c] = combinators[c];
 	
 	var pseudos = {
@@ -439,59 +437,50 @@ authors:
 		},
 
 		'first-child': function(node){
-			return this['pseudo:index'](node, 0);
+			return this['pseudo:nth-child'](node, '1');
 		},
 
 		'last-child': function(node){
-			while ((node = node.nextSibling)){
-				if (node.nodeType === 1) return false;
-			}
+			while ((node = node.nextSibling)) if (node.nodeType === 1) return false;
 			return true;
 		},
 
 		'only-child': function(node){
 			var prev = node;
-			while ((prev = prev.previousSibling)){
-				if (prev.nodeType === 1) return false;
-			}
+			while ((prev = prev.previousSibling)) if (prev.nodeType === 1) return false;
 			var next = node;
-			while ((next = next.nextSibling)){
-				if (next.nodeType === 1) return false;
-			}
+			while ((next = next.nextSibling)) if (next.nodeType === 1) return false;
 			return true;
 		},
 
 		'nth-child': function(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-			if (parsed.special != 'n') return this['pseudo:' + parsed.special](node, argument);
-			if (parsed.a === 1 && parsed.b === 0) return true;
-			var count = 0, uid = this.uidOf(node);
+			var uid = this.uidOf(node);
 			if (!this.positions[uid]){
+				var count = 1;
 				while ((node = node.previousSibling)){
 					if (node.nodeType !== 1) continue;
-					count ++;
-					var uis = this.uidOf(node);
-					var position = this.positions[uis];
+					var position = this.positions[this.uidOf(node)];
 					if (position != null){
 						count = position + count;
 						break;
 					}
+					count++;
 				}
 				this.positions[uid] = count;
 			}
-			return (this.positions[uid] % parsed.a === parsed.b);
+			var a = parsed.a, b = parsed.b, pos = this.positions[uid];
+			if (a == 0) return b == pos;
+			if (a > 0){
+				if (pos < b) return false;
+			} else {
+				if (b < pos) return false;
+			}
+			return ((pos - b) % a) === 0;
 		},
 
 		// custom pseudos
-
-		'index': function(node, index){
-			var count = 0;
-			while ((node = node.previousSibling)){
-				if (node.nodeType === 1 && ++count > index) return false;
-			}
-			return (count === index);
-		},
 
 		'even': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n+1');
@@ -502,6 +491,7 @@ authors:
 		}
 
 	};
+
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
 	// Slick contains
@@ -512,9 +502,8 @@ authors:
 	
 	Slick.defineEngine = function(name, fn, shouldDefine){
 		if (shouldDefine == null) shouldDefine = true;
-		if (typeof shouldDefine == 'function') shouldDefine = shouldDefine.call(local)
-		if (shouldDefine)
-			local['customEngine:' + name] = local['customEngine:' + fn] || fn;
+		if (typeof shouldDefine == 'function') shouldDefine = shouldDefine.call(local);
+		if (shouldDefine) local['customEngine:' + name] = local['customEngine:' + fn] || fn;
 		return this;
 	};
 	
@@ -525,24 +514,16 @@ authors:
 	// 	};
 	// };
 	
-	Slick.defineEngine('className',function(context, parsed){
-		this.found.push.apply(this.found,
-			this.collectionToArray(
-				context.getElementsByClassName( parsed.expressions[0][0].classes.join(' ') )
-			)
-		);
-	},function(){
+	Slick.defineEngine('className', function(context, parsed){
+		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
+	}, function(){
 		return this.cachedGetElementsByClassName === false;
 	});
 	
-	Slick.defineEngine('classNames','className');
+	Slick.defineEngine('classNames', 'className');
 	
-	Slick.defineEngine('tagName',function(context, parsed){
-		this.found.push.apply(this.found,
-			this.collectionToArray(
-				context.getElementsByTagName( parsed.expressions[0][0].tag )
-			)
-		);
+	Slick.defineEngine('tagName', function(context, parsed){
+		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
 	});
 	
 	Slick.defineEngine('tagName*','tagName', function(context, parsed){
@@ -576,6 +557,7 @@ authors:
 		if (pseudo) return function(argument){
 			return pseudo.call(this, argument);
 		};
+		return null;
 	};
 	
 	// add attributes
@@ -652,12 +634,11 @@ authors:
 	
 	// debugging
 	var displayName;
-	for (displayName in local){
+	for (displayName in local)
 		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
-	}
-	for (displayName in Slick){
+
+	for (displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
-	}
 	
 	// init
 	
@@ -685,6 +666,7 @@ authors:
 - Fabio M Costa
 ...
 */
+
 (function(){
 	
 	function SlickParser(expression){
@@ -792,12 +774,10 @@ authors:
 		
 		var selectorBitMap, selectorBitName;
 		
-		for (var aN = 1; aN < a.length; aN++){
-			if (a[aN]){
-				selectorBitMap = aN;
-				selectorBitName = rmap[selectorBitMap];
-				break;
-			}
+		for (var aN = 1; aN < a.length; aN++) if (a[aN]){
+			selectorBitMap = aN;
+			selectorBitName = rmap[selectorBitMap];
+			break;
 		}
 		
 		if (!selectorBitName) return '';
@@ -805,10 +785,10 @@ authors:
 		
 		if (a[map.tagName]=='*') parsed.type.push('tagName*');
 		
-		else if (parsed.type[parsed.type.length-1] == selectorBitName && selectorBitName == 'className')
-			parsed.type[parsed.type.length-1] = 'classNames'
+		else if (parsed.type[parsed.type.length - 1] == selectorBitName && selectorBitName == 'className')
+			parsed.type[parsed.type.length-1] = 'classNames';
 		
-		else if (parsed.type[parsed.type.length-1] == 'classNames' && selectorBitName == 'className');
+		else if (parsed.type[parsed.type.length - 1] == 'classNames' && selectorBitName == 'className');
 		
 		else parsed.type.push(selectorBitName);
 		
@@ -839,75 +819,82 @@ authors:
 		
 		switch (selectorBitName){
 		
-		case 'tagName':
-			currentParsed.tag = a[map.tagName];
-			return '';
+			case 'tagName': currentParsed.tag = a[map.tagName]; return '';
 			
-		case 'id':
-			currentParsed.id = a[map.id];
-			return '';
+			case 'id': currentParsed.id = a[map.id]; return '';
 			
-		case 'className':
-			var className = a[map.className];
+			case 'className':
+
+				var className = a[map.className];
 			
-			if (!currentParsed.classes) currentParsed.classes = [className];
-			else currentParsed.classes.push(className);
+				if (!currentParsed.classes) currentParsed.classes = [className];
+				else currentParsed.classes.push(className);
 			
-			currentParsed.parts[partIndex] = {
-				type: 'class',
-				value: className,
-				regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
-			};
-			
+				currentParsed.parts[partIndex] = {
+					type: 'class',
+					value: className,
+					regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
+				};
+
 			break;
 			
-		case 'pseudoClass':
-			parsed.simple = false;
+			case 'pseudoClass':
+
+				parsed.simple = false;
 			
-			if (!currentParsed.pseudos) currentParsed.pseudos = [];
+				if (!currentParsed.pseudos) currentParsed.pseudos = [];
 			
-			currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
-				type: 'pseudo',
-				key: a[map.pseudoClass],
-				value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
-			});
-			
+				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
+					type: 'pseudo',
+					key: a[map.pseudoClass],
+					value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
+				});
+
 			break;
 			
-		case 'attributeKey':
-			parsed.simple = false;
+			case 'attributeKey':
+
+				parsed.simple = false;
 			
-			if (!currentParsed.attributes) currentParsed.attributes = [];
+				if (!currentParsed.attributes) currentParsed.attributes = [];
 			
-			var key = a[map.attributeKey];
-			var operator = a[map.attributeOperator];
-			var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
+				var key = a[map.attributeKey];
+				var operator = a[map.attributeOperator];
+				var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
 			
-			var test, regexp;
+				var test, regexp;
 			
-			switch (operator){
-			case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
-			case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
-			case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attribute) +'(\\s|$)' ); break;
-			case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute) +'(-|$)'   ); break;
-			case  '=' : test = function(value){ return attribute == value; }; break;
-			case '*=' : test = function(value){ return value && value.indexOf(attribute) > -1; }; break;
-			case '!=' : test = function(value){ return attribute != value; }; break;
-			default   : test = function(value){ return !!value; };
-			}
+				switch (operator){
+					case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
+					case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
+					case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attribute) +'(\\s|$)' ); break;
+					case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute) +'(-|$)'   ); break;
+					case  '=' : test = function(value){
+						return attribute == value;
+					}; break;
+					case '*=' : test = function(value){
+						return value && value.indexOf(attribute) > -1;
+					}; break;
+					case '!=' : test = function(value){
+						return attribute != value;
+					}; break;
+					default   : test = function(value){
+						return !!value;
+					};
+				}
 			
-			if (!test) test = function(value){
-				return value && regexp.test(value);
-			};
+				if (!test) test = function(value){
+					return value && regexp.test(value);
+				};
 			
-			currentParsed.attributes.push(currentParsed.parts[partIndex] = {
-				type: 'attribute',
-				key: key,
-				operator: operator,
-				value: attribute,
-				test: test
-			});
-			
+				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
+					type: 'attribute',
+					key: key,
+					operator: operator,
+					value: attribute,
+					test: test
+				});
+
 			break;
 		}
 		
@@ -915,9 +902,8 @@ authors:
 		return '';
 	};
 	
-	for (var displayName in Slick){
+	for (var displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
-	}
 	
 	// public
 	
