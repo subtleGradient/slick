@@ -363,6 +363,22 @@ authors:
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
 					return;
 				}
+				QSA: if (node.querySelectorAll){
+					var query = [];
+					if (tag && tag != '*') query.push(tag.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\'));
+					if (id){ query.push('#');query.push(id.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\')); }
+					if (classes){ query.push('.');query.push(classes.join('').replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\').replace(/\\/,'.')); }
+					try {
+						children = node.querySelectorAll(query.join(''));
+					} catch(e){
+						Slick.debug && Slick.debug(query, e);
+						break QSA;
+					}
+					for (i = 0, l = children.length; i < l; i++)
+						if (this.contains(node, children[i]))
+							this.push(children[i], tag, id, parts);
+					return;
+				}
 			}
 			getByTag: {
 				children = node.getElementsByTagName(tag);
