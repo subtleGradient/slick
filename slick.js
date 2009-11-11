@@ -345,7 +345,7 @@ authors:
 			var i, l, item, children;
 
 			if (!this.isXMLDocument){
-				getById: if (id){
+				getById: if (id && node.nodeType === 9){
 					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
 					item = node.getElementById(id);
@@ -353,11 +353,11 @@ authors:
 					this.push(item, tag, null, parts);
 					return;
 				}
-				getById: if (id){
+				getById: if (id && node.nodeType !== 9){
 					if (!this.document.getElementById) break getById;
 					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
-					if (!this.contains(node.documentElement||node, item)) break getById;
+					if (!this.contains(node, item)) break getById;
 					this.push(item, tag, null, parts);
 					return;
 				}
