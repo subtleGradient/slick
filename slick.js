@@ -876,6 +876,8 @@ __END__
 			
 			case 'pseudoClass':
 
+				// TODO: pseudoClass is only not simple when it's custom or buggy
+				// if (pseudoBuggyOrCustom[pseudoClass])
 				parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
@@ -890,6 +892,8 @@ __END__
 			
 			case 'attributeKey':
 
+				// TODO: attributeKey is only not simple when it's custom or buggy
+				// if (attributeKeyBuggyOrCustom[attributeKey])
 				parsed.simple = false;
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
