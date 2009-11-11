@@ -1,5 +1,5 @@
 function newSlickWinFromDoc(document){
-	var fakeWin = {};
+	var fakeWin = { fake:true };
 	fakeWin.document = document;
 	// fakeWin.document = getXML('/test/tools/MooTools_Logo.svg');
 	// fakeWin.document = loadXML('tools/MooTools_Logo.svg');
