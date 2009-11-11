@@ -4,18 +4,41 @@
  * @Layout
  */
 
+
+#slickspec_logo {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	z-index: 9999;
+	margin-right:150px;
+	padding:0.5em 0.75em;
+	color: #fff;
+	
+	font-size: 20px;
+	line-height: 20px;
+	
+	font-weight: normal;
+}
+#slickspec_logo a,
+#slickspec_logo a:link,
+#slickspec_logo a:visited {
+	color: #fff;
+	text-decoration: none;
+}
+#slickspec_logo a:hover {
+	color: #000;
+}
+
 html {
-  overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: scroll;
 }
 
 iframe {display:none;}
 
 body, #jsspec_container {
-  overflow: hidden;
   padding: 0;
   margin: 0;
-  width: 100%;
-  height: 100%;
   background-color: #FFFFFF;
 }
 
@@ -154,6 +177,16 @@ pre.examples-code {
 	border: solid 1px #CCC;
 	font-size: 10px;
 	font-family: "Panic Sans", "Monaco", monospace !important;
+	overflow-x: auto;
+	
+	scrollbar-base-color:       #FFF;
+	scrollbar-arrow-color:      #FFF;
+	scrollbar-track-color:      #FFF;
+	scrollbar-3dlight-color:    #eee;
+	scrollbar-highlight-color:  #eee;
+	scrollbar-face-color:       #eee;
+	scrollbar-shadow-color:     #eee;
+	scrollbar-darkshadow-color: #FFF;
 }
 
 /* example explaination */
@@ -209,8 +242,4 @@ ul.examples li.ongoing, ul.examples li.ongoing a { color: #330; background-color
 .dom_path {
 	font-size: 0.75em;
 	color: gray;
-}
-strong {
-	font-weight: normal;
-	background-color: #FFC6C6;
 }
