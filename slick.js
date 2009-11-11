@@ -51,7 +51,7 @@ authors:
 	};
 	
 	local.setDocument = function(document){
-		if (local.document == document) return Slick;
+		if (local.document == document) return;
 		
 		if ('document' in document) document = document.document;
 		else if (document.ownerDocument) document = document.ownerDocument;
@@ -92,7 +92,6 @@ authors:
 			testNode = null;
 			
 		}
-		return Slick;
 	};
 	
 	// Init
