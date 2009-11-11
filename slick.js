@@ -124,6 +124,7 @@ authors:
 		// Reject misc junk input
 		if (!context.nodeType) return found;
 
+		// expression input
 		if (expression == null){
 			return found;
 
@@ -140,7 +141,6 @@ authors:
 
 		} else {
 			return found;
-
 		}
 		
 		if (local.document != document) local.setDocument(context);
