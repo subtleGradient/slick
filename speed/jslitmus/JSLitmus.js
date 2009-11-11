@@ -555,7 +555,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
               var resultCell = document.createElement('td');
               if (test.result[key] instanceof Error) {
                 resultCell.appendChild(document.createTextNode('Error'));
-                resultCell.setAttribute('title', test.result[key]);
+                resultCell.setAttribute('title', test.result[key].message);
               }
               else {
                 resultCell.appendChild(document.createTextNode(test.result[key]));
