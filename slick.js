@@ -371,7 +371,8 @@ authors:
 			getByTag: {
 				children = node.getElementsByTagName(tag);
 				if (!(children && children.length)) break getByTag;
-				for (i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
+				if (!(this.starSelectsComments || this.starSelectsClosed)) tag = null;
+				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
 			}
 		},
 		
