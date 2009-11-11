@@ -65,7 +65,7 @@ authors:
 			
 			var testNode = document.createElement('div');
 			local.root.appendChild(testNode);
-			var selected;
+			var selected, id;
 			
 			// IE returns comment nodes for getElementsByTagName('*') for some documents
 			testNode.appendChild(document.createComment(''));
@@ -88,7 +88,11 @@ authors:
 			try {
 				testNode.innerHTML = '<a name=idgetsname>';
 				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-			} catch(e){}
+				id = 'getelementbyid';
+				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
+				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
+			} catch(e){
+			};
 			
 			local.root.removeChild(testNode);
 			testNode = null;
