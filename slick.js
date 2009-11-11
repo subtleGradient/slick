@@ -10,6 +10,7 @@ authors:
 - Thomas Aylott
 - Valerio Proietti
 - Fabio M Costa
+- Jan Kassens
 ...
 */
 (function(){
