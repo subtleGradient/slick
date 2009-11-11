@@ -113,7 +113,16 @@ authors:
 		local.positions = {};
 		
 		// handle input / context:
-		
+
+		// No context
+		if (!context) return found;
+
+		// Convert the node from a window to a document
+		if (!context.nodeType && context.document) context = context.document;
+
+		// Reject misc junk input
+		if (!context.nodeType) return found;
+
 		if (expression == null){
 			return found;
 
