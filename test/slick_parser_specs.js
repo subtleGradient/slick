@@ -214,6 +214,8 @@ normal,\
 \'single quote\',\
 "double\\"escaped",\
 \'single\\\'escaped\',\
+ spaced,\
+spaced ,\
  "spaced",\
  \'spaced\',\
 "spaced" ,\
@@ -311,7 +313,7 @@ Describe('ATTRIBUTE',function(){
 		if (!ATT_expected[1]) ATT_expected[1] = ATT_actual[1];
 		if (!ATT_expected[2]) ATT_expected[2] = ATT_actual[2];
 		ATT_expected[0] = ATT_expected[0].replace(/^\s*|\s*$/g,'');
-		ATT_expected[2] = ATT_expected[2].replace(/^\s*["']|["']\s*$/g,'');
+		ATT_expected[2] = ATT_expected[2].replace(/^\s*["']?|["']?\s*$/g,'');
 		
 		return function(){
 			
