@@ -38,6 +38,63 @@ new Mock(/\b(html)\b/i, function(specs,context){
 		};
 	});
 });
+new Mock('', function(specs,context){
+	Describe('Select Inputs',function(specs,context){
+		
+		Describe('context',function(specs,context){
+			
+			it['must accept a document'] = function(){
+				value_of( Slick(context.document, '*', []) ).should_not_be( [] );
+			};
+			
+			it['must accept a node'] = function(){
+				value_of( Slick(context.document.documentElement, '*', []).length ).should_not_be( 0 );
+			};
+			
+			it['must accept any node'] = function(){
+				value_of( Slick(context.document.documentElement, '*', []).length ).should_not_be( 0 );
+				var timedLog;
+				var elements = context.document.getElementsByTagName('*');
+				for (var i=0, l=elements.length; i < l; i++) {
+					if (elements[i].nodeType != 1) continue;
+					
+					if (global.console && global.console.log)
+					timedLog = setTimeout(function(){
+						console.log(elements[i]);
+					}, 100);
+					
+					if (elements[i].getElementsByTagName('*').length)
+						value_of( Slick(elements[i], '*', []).length ).should_not_be( 0 );
+					else
+						value_of( Slick(elements[i], '*', []).length ).should_be( 0 );
+					
+					clearTimeout(timedLog);
+				}
+			};
+			
+			it['must accept a window'] = function(){
+				value_of( context.Slick(global.window, '*', []).length ).should_not_be( 0 );
+				if (context.window && !context.window.fake)
+					value_of( Slick(context.window, '*', []).length ).should_not_be( 0 );
+			};
+			
+			it['must reject null'] = function(){ value_of( Slick(null, '*', []).length ).should_be( 0 ); };
+			it['must reject Number'] = function(){ value_of( Slick(1234567891011, '*', []).length ).should_be( 0 ); };
+			it['must reject Array '] = function(){ value_of( Slick([1,2,3,4,5,6], '*', []).length ).should_be( 0 ); };
+			it['must reject String'] = function(){ value_of( Slick("string here", '*', []).length ).should_be( 0 ); };
+			it['must reject Object'] = function(){ value_of( Slick({ foo:'bar' }, '*', []).length ).should_be( 0 ); };
+			
+		});
+		
+		Describe('selector',function(specs,context){
+			
+			it
+			
+		});
+		
+		
+	});
+});
 
 </script>
 </head>
