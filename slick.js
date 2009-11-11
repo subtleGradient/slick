@@ -866,13 +866,13 @@ __END__
 		
 		switch (selectorBitName){
 		
-			case 'tagName': currentParsed.tag = a[map.tagName]; return '';
+			case 'tagName': currentParsed.tag = a[map.tagName].replace(/\\/g,''); return '';
 			
-			case 'id': currentParsed.id = a[map.id]; return '';
+			case 'id': currentParsed.id = a[map.id].replace(/\\/g,''); return '';
 			
 			case 'className':
 
-				var className = a[map.className];
+				var className = a[map.className].replace(/\\/g,'');
 			
 				if (!currentParsed.classes) currentParsed.classes = [className];
 				else currentParsed.classes.push(className);
@@ -892,11 +892,14 @@ __END__
 				parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
-			
+				
+				var value = a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue] || null;
+				if (value) value = value.replace(/\\/g,'')
+				
 				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
 					type: 'pseudo',
-					key: a[map.pseudoClass],
-					value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
+					key: a[map.pseudoClass].replace(/\\/g,''),
+					value: value
 				});
 
 			break;
@@ -909,9 +912,9 @@ __END__
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
 			
-				var key = a[map.attributeKey];
+				var key = a[map.attributeKey].replace(/\\/g,'');
 				var operator = a[map.attributeOperator];
-				var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
+				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
 			
 				var test, regexp;
 			
