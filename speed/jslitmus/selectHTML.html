@@ -19,6 +19,9 @@
 <script src="../frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/yass.css3.js" type="text/javascript" charset="utf-8"></script>
+<script src="../frameworks/sly.js" type="text/javascript" charset="utf-8"></script>
+<script src="../frameworks/domass.js" type="text/javascript" charset="utf-8"></script>
+<script src="../frameworks/dojo-acme.js" type="text/javascript" charset="utf-8"></script>
 
 <script type="text/javascript" src="../../test/assets/JSSpecHelpers_slick.js" charset="utf-8"></script>
 
@@ -114,6 +117,9 @@ textarea{
 	font-size: 10px;
 	line-height: 12px !important;
 }
+iframe.mock{
+	display:none;
+}
 
 </style>
 </head>
@@ -123,9 +129,9 @@ textarea{
 	<ul>
 		<li><a href="?">Reset Selectors</a></li>
 		<li><a href="?selectors=.note%0D%0A.note.note%0D%0A.a1%0D%0A.a2%0D%0A.a3%0D%0A.a4%0D%0A.a5%0D%0A.a6%0D%0A">ClassNames</a></li>
-		<li><a href="?selectors=html%0D%0Abody%0D%0Adiv%0D%0Aa%0D%0Aflarm">Tags</a></li>
+		<li><a href="?selectors=*%0D%0Ahtml%0D%0Abody%0D%0Adiv%0D%0Aa%0D%0Aflarm">Tags</a></li>
 		<li><a href="?selectors=%23title%0D%0Ah1%23title%0D%0Adiv+%23title%0D%0A*+%23title%0D%0A">IDs</a></li>
-		<li><a href="http://home.subtlegradient.com:4000/speed/jslitmus/selectHTML.html?selectors=%3Anth-child%28even%29%0D%0A%3Anth-child%282n%29%0D%0A%3Anth-child%28odd%29%0D%0A%3Anth-child%282n%2B1%29%0D%0A%3Anth-child%28n%29%0D%0A">:nth-child()</a></li>
+		<li><a href="?selectors=%3Anth-child%28even%29%0D%0A%3Anth-child%282n%29%0D%0A%3Anth-child%28odd%29%0D%0A%3Anth-child%282n%2B1%29%0D%0A%3Anth-child%28n%29%0D%0A">:nth-child()</a></li>
 	</ul>
 	<form action="" method="get">
 		<script type="text/javascript" charset="utf-8">
@@ -140,7 +146,7 @@ document.write('</textarea>');
 </div>
 
 <!-- mocks -->
-<iframe onload="Mock.register('tmpl html std',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
+<iframe class="mock" onload="Mock.register('tmpl html std',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
 <!-- <iframe onload="Mock.register('tmpl html almost std',this.contentWindow)" src="../../test/tools/template-almost.html"></iframe> -->
 <!-- <iframe onload="Mock.register('tmpl html quirks',this.contentWindow)" src="../../test/tools/template-quirks.html"></iframe> -->
 
