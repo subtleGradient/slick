@@ -94,7 +94,7 @@ Describe('Namespace',function(){
 */
 
 
-var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number".split(' ');
+var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number id\:\:with\:colons".split(' ');
 Describe('ID',function(){
 	
 	// ids
