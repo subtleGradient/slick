@@ -124,6 +124,7 @@ JSSpec.Browser.Trident = (JSSpec.Browser.Trident && !JSSpec.Browser.NativeConsol
 var runSpecs = window.onload;
 window.onload = function(){
 	window.loaded = true;
+	setTimeout(runSpecs, 100);
 };
 
 
