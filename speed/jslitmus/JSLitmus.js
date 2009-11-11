@@ -409,7 +409,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
       <div id="jsl_status"></div> \
       <div id="chart" style="display:none"> \
       <a id="chart_link" target="_blank"><img id="chart_image"></a> \
-      TinyURL (for chart): \
+      TinyURL (for chart): <input type="button" id="tiny_url_btn" value="Create TinyUrl" />\
       <iframe id="tiny_url" frameBorder="0" scrolling="no" src=""></iframe> \
       </div> \
       <a id="jslitmus_credit" title="JSLitmus home page" href="http://code.google.com/p/jslitmus" target="_blank">Powered by JSLitmus</a> \
@@ -497,7 +497,13 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
       jsl.$('chart').style.display = '';
 
       // Update the tiny URL
-      jsl.$('tiny_url').src = 'http://tinyurl.com/api-create.php?url='+escape(url);
+      jsl.$('tiny_url').src = 'about:blank';
+      jsl.$('tiny_url_btn').disabled = false;
+      jsl.$('tiny_url_btn').onclick = function(){
+        this.disabled = true;
+        this.onclick = function(){};
+        jsl.$('tiny_url').src = 'http://tinyurl.com/api-create.php?url='+escape(url);
+      };
     },
 
     /**
