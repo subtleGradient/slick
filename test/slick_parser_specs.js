@@ -59,9 +59,8 @@ Describe('TAG',function(){
 		value_of( s.expressions[0][0].tag ).should_be( 'tag' );
 		
 		for (var i=0, TAG; TAG = TAGS[i]; i++){
-			
 			s = PARSE(TAG);
-			value_of( s.expressions[0][0].tag ).should_be( TAG );
+			value_of( s.expressions[0][0].tag ).should_be( TAG.replace(/\\/g,'') );
 			
 		}
 	};
@@ -72,7 +71,7 @@ Describe('TAG',function(){
 			
 			s = PARSE(TAG);
 			s = s.expressions[0][0];
-			value_of( s.tag ).should_be( TAG );
+			value_of( s.tag ).should_be( TAG.replace(/\\/g,'') );
 			
 		};
 	};
@@ -94,7 +93,7 @@ Describe('Namespace',function(){
 */
 
 
-var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number id\:\:with\:colons".split(' ');
+var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number silly\\:id\\:\\:with\\:colons".split(' ');
 Describe('ID',function(){
 	
 	// ids
@@ -115,10 +114,9 @@ Describe('ID',function(){
 	// ID
 	var newID = function(ID){
 		return function(){
-			
 			s = PARSE('#' + ID);
 			s = s.expressions[0][0];
-			value_of( s.id ).should_be( ID );
+			value_of( s.id ).should_be( ID.replace(/\\/g,'') );
 			
 		};
 	};
@@ -172,7 +170,7 @@ Describe('CLASS',function(){
 			
 			s = PARSE('.' + CLASS);
 			s = s.expressions[0][0];
-			value_of( s.classes[0] ).should_be( CLASS );
+			value_of( s.classes[0] ).should_be( CLASS.replace(/\\/g,'') );
 			
 		};
 	};
@@ -185,7 +183,7 @@ Describe('CLASS',function(){
 		
 		for (var CLASS_I=0, CLASS; CLASS = CLASSES[CLASS_I]; CLASS_I++){
 			
-			value_of( s.classes[CLASS_I] ).should_be( CLASS );
+			value_of( s.classes[CLASS_I] ).should_be( CLASS.replace(/\\/g,'') );
 			
 		}
 	};
@@ -312,8 +310,8 @@ Describe('ATTRIBUTE',function(){
 		if (!ATT_expected[0]) ATT_expected[0] = ATT_actual[0];
 		if (!ATT_expected[1]) ATT_expected[1] = ATT_actual[1];
 		if (!ATT_expected[2]) ATT_expected[2] = ATT_actual[2];
-		ATT_expected[0] = ATT_expected[0].replace(/^\s*|\s*$/g,'');
-		ATT_expected[2] = ATT_expected[2].replace(/^\s*["']?|["']?\s*$/g,'');
+		ATT_expected[0] = ATT_expected[0].replace(/^\s*|\s*$/g,'').replace(/\\/g,'');
+		ATT_expected[2] = ATT_expected[2].replace(/^\s*["']?|["']?\s*$/g,'').replace(/\\/g,'');
 		
 		return function(){
 			
