@@ -96,8 +96,8 @@ function specsGoogleClosure(specs,context){
 		it_should_find(3, '>', 'container');
 		it_should_find(3, '> *', 'container');
 		it_should_find(2, '> [qux]', 'container');
-		// assertEquals('child1', goog.dom.query('> [qux]', 'container')[0].id);
-		// assertEquals('child3', goog.dom.query('> [qux]', 'container')[1].id);
+		// assertEquals('child1', context.Slick('> [qux]', 'container')[0].id);
+		// assertEquals('child3', context.Slick('> [qux]', 'container')[1].id);
 		it_should_find(3, '>', 'container');
 		it_should_find(3, '> *', 'container');
 	});
@@ -121,7 +121,7 @@ function specsGoogleClosure(specs,context){
 	
 	Describe('testNthChild',function(specs){
 		var it_should_find = setup_it_should_find(specs);
-		// assertEquals(goog.dom.$('_foo'), goog.dom.query('.foo:nth-child(2)')[0]);
+		// assertEquals(goog.dom.$('_foo'), context.Slick('.foo:nth-child(2)')[0]);
 		it_should_find(2, '#t > h3:nth-child(odd)');
 		it_should_find(3, '#t h3:nth-child(odd)');
 		it_should_find(3, '#t h3:nth-child(2n+1)');
@@ -154,29 +154,33 @@ function specsGoogleClosure(specs,context){
 	
 	Describe('testIdsWithColons',function(specs){
 		var it_should_find = setup_it_should_find(specs);
+		it_should_find(1, "[id = 'silly:id::with:colons']");
 		it_should_find(1, "#silly\\:id\\:\\:with\\:colons");
 	});
 	
 	Describe('testOrder',function(specs){
-		var it_should_find = setup_it_should_find(specs);
-		// var els = goog.dom.query('.myupperclass .myclass input');
-		// assertEquals('myid1', els[0].id);
-		// assertEquals('myid2', els[1].id);
+		it['should return elements in source order'] = function(){
+			var it_should_find = setup_it_should_find(specs);
+			var els = context.Slick(context.document, '.myupperclass .myclass input');
+			value_of( els[0].id ).should_be( 'myid1' );
+			value_of( els[1].id ).should_be( 'myid2' );
+		};
 	});
 	
 	Describe('testCorrectDocumentInFrame',function(specs){
-		var it_should_find = setup_it_should_find(specs);
-		// var frameDocument = window.frames['ifr'].document;
-		// frameDocument.body.innerHTML =
-		// document.getElementById('iframe-test').innerHTML;
-		
-		// var els = goog.dom.query('#if1 .if2 div', document);
-		// var frameEls = goog.dom.query('#if1 .if2 div', frameDocument);
-		
-		// assertEquals(els.length, frameEls.length);
-		// assertEquals(1, frameEls.length);
-		// assertNotEquals(document.getElementById('if3'),
-		// frameDocument.getElementById('if3'));
+		it['should testCorrectDocumentInFrame'] = function(){
+			var it_should_find = setup_it_should_find(specs);
+			var frameDocument = context.window.frames['ifr'].document;
+			frameDocument.body.innerHTML =
+			context.document.getElementById('iframe-test').innerHTML;
+
+			var els = context.Slick(context.document, '#if1 .if2 div');
+			var frameEls = context.Slick(frameDocument, '#if1 .if2 div');
+
+			value_of( frameEls.length ).should_be( els.length );
+			value_of( frameEls.length ).should_be( 1 );
+			value_of( frameDocument.getElementById('if3') ).should_not_be( context.document.getElementById('if3') );
+		};
 	});
 	
 	
