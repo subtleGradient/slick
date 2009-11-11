@@ -33,7 +33,8 @@ authors:
 		
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
 		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
+			local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
 		} catch(e){};
 		
 		try {
@@ -64,20 +65,26 @@ authors:
 			var selected;
 			
 			// IE returns comment nodes for getElementsByTagName('*') for some documents
-			testNode.appendChild(document.createComment('')); local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			testNode.appendChild(document.createComment(''));
+			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 			
 			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
 			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = ((selected = testNode.getElementsByTagName('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.getElementsByTagName('*');
+				local.starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 			
 			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
 			if (testNode.querySelectorAll) try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = ((selected = testNode.querySelectorAll('*')) && selected.length && selected[0].nodeName.charAt(0) == '/');
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.querySelectorAll('*');
+				local.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				testNode.innerHTML = '<a name=idgetsname>'; local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
+				testNode.innerHTML = '<a name=idgetsname>';
+				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
 			} catch(e){}
 			
 			local.root.removeChild(testNode);
@@ -497,6 +504,10 @@ authors:
 
 		// custom pseudos
 
+		'index': function(node, index){
+			return this['pseudo:nth-child'](node, '' + index + 1);
+		},
+
 		'even': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n+1');
 		},
@@ -590,7 +601,7 @@ authors:
 	};
 	
 	Slick.defineAttribute('class', function(){
-		return ('className'in this) ? this.className : this.getAttribute('class');
+		return ('className' in this) ? this.className : this.getAttribute('class');
 	}).defineAttribute('for', function(){
 		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	}).defineAttribute('href', function(){
@@ -759,8 +770,8 @@ __END__
 		\\](?!\\]) \n\
 		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
 		)"
-/***/
-		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'))|([^\\]]*)))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"/***/
+// */
+		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'))|([^\\]]*)))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -791,7 +802,8 @@ __END__
 		pseudoClassValue: 16
 	};
 	
-	var rmap = {}; for (var p in map) rmap[map[p]] = p;
+	var rmap = {};
+	for (var p in map) rmap[map[p]] = p;
 	
 	function parser(){
 		var a = arguments;
@@ -864,6 +876,8 @@ __END__
 			
 			case 'pseudoClass':
 
+				// TODO: pseudoClass is only not simple when it's custom or buggy
+				// if (pseudoBuggyOrCustom[pseudoClass])
 				parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
@@ -878,6 +892,8 @@ __END__
 			
 			case 'attributeKey':
 
+				// TODO: attributeKey is only not simple when it's custom or buggy
+				// if (attributeKeyBuggyOrCustom[attributeKey])
 				parsed.simple = false;
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
