@@ -441,14 +441,14 @@ Describe('PSEUDO',function(){
 			value_of( s.expressions.length ).should_be( 1 );
 			value_of( s.expressions[0].length ).should_be( 1 );
 			s = s.expressions[0][0];
-			value_of( s.pseudos[0].key ).should_be( PSEUDO_KEY );
+			value_of( s.pseudos[0].key ).should_be( PSEUDO_KEY.replace(/\\/g,'') );
 			
 			s = PARSE(':' + PSEUDO_KEY +'('+ PSEUDO_VALUE + ')');
 			value_of( s.expressions.length ).should_be( 1 );
 			value_of( s.expressions[0].length ).should_be( 1 );
 			s = s.expressions[0][0];
-			value_of( s.pseudos[0].key ).should_be( PSEUDO_KEY );
-			value_of( s.pseudos[0].value ).should_be( PSEUDO_VALUE.replace(/^["']/g,'').replace(/["']$/g,'') );
+			value_of( s.pseudos[0].key ).should_be( PSEUDO_KEY.replace(/\\/g,'') );
+			value_of( s.pseudos[0].value ).should_be( PSEUDO_VALUE.replace(/^["']/g,'').replace(/["']$/g,'').replace(/\\/g,'') );
 			
 		};
 	};
