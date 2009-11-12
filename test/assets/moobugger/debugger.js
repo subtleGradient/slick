@@ -143,8 +143,11 @@ Moo.Array.forEach(debug.methods, function(name){
 Moo.Debugger = {
 	
 	load: function(){
-				
+		
+		document.documentElement.className = document.documentElement.className + ' moobugger';
+		
 		debug.spacer = document.createElement('div');
+		debug.spacer.className = 'debug-spacer';
 		document.body.appendChild(debug.spacer);
 
 		debug.iFrame = document.createElement('iframe');
@@ -206,6 +209,7 @@ Moo.Debugger = {
 	
 	unload: function(){
 		debug.queue = [];
+		document.documentElement.className = document.documentElement.className.replace(/ ?moobugger ?/,' ');
 		Moo.Element.remove(debug.iFrame);
 		Moo.Element.remove(debug.spacer);
 		Moo.Element.remove(document.getElementById('debug-bookmarklet'));

@@ -1,16 +1,15 @@
 @CHARSET "UTF-8";
 
 /* --------------------
- * @Layout
- */
+* @Layout
+*/
 
 
 #slickspec_logo {
 	position: absolute;
 	top: 0px;
-	right: 0px;
+	left: 0px;
 	z-index: 9999;
-	margin-right:150px;
 	padding:0.5em 0.75em;
 	color: #fff;
 	
@@ -35,47 +34,96 @@ html {
 }
 
 iframe {display:none;}
+iframe#debugger {display:block !important;}
+iframe#debugger{ position: fixed !important; bottom: 0; top: auto; }
+* html iframe#debugger{position:absolute !important;bottom:auto;top:expression(eval(document.documentElement.scrollTop+document.documentElement.clientHeight-this.clientHeight));}
+
+.debug-spacer {display:none;}
+
+/*Make position:fixed work in IE6!*/
+
+* html,* html body   /* IE6 Fixed Position Jitter Fix */ {background-image:url(about:blank);background-attachment:fixed;}
+
+#slickspec_logo,
+.fixed-top           /* position fixed Top            */ {position: fixed    ; bottom: auto ; top:  0px                                                                                                          ; }
+* html #slickspec_logo,
+* html .fixed-top    /* IE6 position fixed Top        */ {position: absolute ; bottom: auto ; top:  expression(eval(document.documentElement.scrollTop))                                                         ; }
+.fixed-bottom        /* position fixed Bottom         */ {position: fixed    ; bottom: 0px  ; top:  auto                                                                                                         ; }
+* html .fixed-bottom /* IE6 position fixed Bottom     */ {position: absolute ; bottom: auto ; top:  expression(eval(document.documentElement.scrollTop+document.documentElement.clientHeight-this.clientHeight)) ; }
+.fixed-left          /* position fixed Left           */ {position: fixed    ; right:  auto ; left: 0px                                                                                                         ; }
+* html .fixed-left   /* IE6 position fixed Left       */ {position: absolute ; right:  auto ; left: expression(eval(document.documentElement.scrollLeft))                                                       ; }
+.fixed-right         /* position fixed right          */ {position: fixed    ; right:  0px  ; left: auto                                                                                                        ; }
+* html .fixed-right  /* IE6 position fixed right      */ {position: absolute ; right:  auto ; left: expression(eval(document.documentElement.scrollWidth-this.clientWidth))                                     ; }
+
+
 
 body, #jsspec_container {
-  padding: 0;
-  margin: 0;
-  background-color: #FFFFFF;
+	padding: 0;
+	margin: 0;
+	background-color: #FFFFFF;
+}
+
+#jsspec_container {
+	padding-bottom:180px;
 }
 
 #title {
-  padding: 0;
-  margin: 0;
-  position: absolute;
-  top: 0px;	   
-  left: 0px;
-  width: 100%;
-  height: 40px;
-  overflow: hidden;
+	padding: 0 !important;
+	margin: 0 !important;
+	height: 40px !important;
+	overflow: hidden !important;
+	
+	position: fixed;
+	_position: absolute;
+	top: 0px;	   
+	_top: expression(eval(document.documentElement.scrollTop));
+	left: 0px;
+	_left: expression(eval(document.documentElement.scrollLeft));
+	width: 100%;
+	_width: expression(eval(document.documentElement.clientWidth));
+	
+	z-index: 1000;
+}
+
+#title {
+	border-bottom:2px solid #fff;
 }
 
 #list {
-  padding: 0;
-  margin: 0;
-  position: absolute;	 
-  top: 40px;
-  left: 0px;
-  bottom: 0px;
-  overflow: auto;	 
-  width: 250px;	   
-  _height:expression(document.body.clientHeight-40);
+	overflow: auto;
+	
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	background: #eee;
+	
+	margin-top:42px;
+	
+	width: 250px;
+}
+* html #list{
+	position: absolute;
+	bottom: auto;
+	top: expression(eval(document.documentElement.scrollTop));
+	height: expression(eval(document.documentElement.clientHeight - 42));
+}
+html.moobugger #list{
+	bottom: 180px;
+}
+* html.moobugger #list{
+	bottom: auto;
+	height: expression(eval(document.documentElement.clientHeight - 42 - 180));
 }
 
 #log {
-  padding: 0;
-  margin: 0;
-  position: absolute;	 
-  top: 40px;
-  left: 250px;
-  right: 0px;
-  bottom: 0px;
-  overflow: auto;
-  _height:expression(document.body.clientHeight-40);
-  _width:expression(document.body.clientWidth-250);
+	position:relative;
+	overflow: hidden;
+	
+	padding: 0;
+	margin: 0;
+	margin-top: 42px;
+	margin-left: 250px;
 }
 
 /*iPhone*/
@@ -91,8 +139,8 @@ body, #jsspec_container {
 
 
 /* --------------------
- * @Decorations and colors
- */
+* @Decorations and colors
+*/
 * {
 	padding: 0;
 	margin: 0;
@@ -114,19 +162,34 @@ div#title {
 }
 
 div#title h1 {
-	font-size: 1.5em;
-	float: left;
+	float: right;
+	padding: 0.25em 0.75em;
+	font-size: 16px;
+}
+div#title h1:before{
+	content:"powered by ";
+	font-size: 9px;
+	font-style: italic;
+	color:#fff;
 }
 
+div#title ul {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	margin-left:120px;
+}
 div#title ul li {
+	font-size: 12px;
 	float: left;
-	padding: 0.5em 0em 0.5em 0.75em;
+	padding: 0.75em 0em 0.5em 0.75em;
+	max-width: 14em;
 }
 
 div#title p {
 	float:right;
-	margin-right:1em;
-	font-size: 0.75em;
+	padding: 0.5em 0em 0.5em 0.75em;
+	font-size: 10px;
 }
 
 /* spec container */
@@ -135,6 +198,7 @@ ul.specs {
 }
 ul.specs li {
 	margin-bottom: 0.1em;
+	position:relative;
 }
 
 /* spec title */
@@ -166,15 +230,26 @@ ul.examples li {
 /* example title */
 ul.examples li h4 {
 	font-weight: normal;
-	font-size: 0.75em;
+	font-size: 12px;
 	margin-left: 1em;
 }
 
 pre.examples-code {
-	margin: 0.5em 2em;
-	padding: 0.5em;
 	background: #FFFFFF;
 	border: solid 1px #CCC;
+	
+	margin: 0.5em 2em;
+}
+pre.examples-code code {
+	display:block;
+	
+	padding: 0.5em;
+	_padding-right: 0;
+	_padding-left: 0;
+	
+	white-space: pre;
+	_width:100%;
+	
 	font-size: 10px;
 	font-family: "Panic Sans", "Monaco", monospace !important;
 	overflow-x: auto;
@@ -192,14 +267,13 @@ pre.examples-code {
 /* example explaination */
 ul.examples li div {
 	padding: 1em 2em;
-	font-size: 0.75em;
+	font-size: 11px;
 }
 
 /* styles for ongoing, success, failure, error */
-ul.specs li h3, ul.specs li h3 a { color: #666; background-color: #eee; }
+ul.specs li h3, ul.specs li h3 a { color: #666; background-color: #fff; }
 
 div.success, div.success a { color: #FFFFFF; background-color: #6C6; }
-/*li.ongoing li.success pre.examples-code, li pre.examples-code { display:none !important; }*/
 div.exception, div.exception a { color: #FFFFFF; background-color: #C30; }
 
 ul.specs li.success h3, ul.specs li.success h3 a { color: #FFFFFF; background-color: #6C6; }
@@ -215,8 +289,8 @@ ul.examples li.ongoing, ul.examples li.ongoing a { color: #330; background-color
 
 
 /* --------------------
- * values
- */
+* values
+*/
 .number_value, .string_value, .regexp_value, .boolean_value, .dom_value {
 	font-family: monospace;
 	color: blue;
@@ -240,6 +314,6 @@ ul.examples li.ongoing, ul.examples li.ongoing a { color: #330; background-color
 	color: red;
 }
 .dom_path {
-	font-size: 0.75em;
+	font-size: 11px;
 	color: gray;
 }
