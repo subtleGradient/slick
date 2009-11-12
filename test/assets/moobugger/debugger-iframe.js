@@ -6,6 +6,8 @@ License:
 	MIT-style license.
 */
 
+var FOR_IN_MAX = 20;
+
 var debug = {
 
 	$nil: Function.empty,
@@ -45,17 +47,26 @@ var debug = {
 				case 'element': holder.adopt(debug.$element(chunk.value)); break;
 				case 'array': holder.adopt(new Element('span').setHTML('['), debug.$parse(chunk.value, ', ', true), new Element('span').setHTML(']')); break;
 				case 'object':
-					holder.adopt(new Element('span').setHTML('{'));
-					var x = 0;
-					var length = 0;
-					for (var len in chunk.value) length++;
-					for (var key in chunk.value){
-						x++;
-						holder.adopt(new Element('span').setHTML('<span class="key">', key, '</span>', ': '), debug.$parse([chunk.value[key]], '', true));
-						if (x != length) holder.adopt(new Element('span').setHTML(', '));
+					try{
+						holder.adopt(new Element('span').setHTML('{'));
+						var x = 0;
+						var length = 0;
+						
+						for (var len in chunk.value) length++;
+						for (var key in chunk.value){
+							x++;
+							holder.adopt(new Element('span').setHTML('<span class="key">', key, '</span>', ': '), debug.$parse([chunk.value[key]], '', true));
+							if (x != length) holder.adopt(new Element('span').setHTML(', '));
+							if (x > FOR_IN_MAX){
+								holder.adopt(new Element('span').setHTML('and '+ (length - x) +' more properties…'));
+								break;
+							}
+						}
+						holder.adopt(new Element('span').setHTML('}'));
+					}catch(e){
+						new Element('span').addClass(chunk.type).appendText(chunk.value).inject(holder);
 					}
-					holder.adopt(new Element('span').setHTML('}'));
-				break;
+					break;
 				default: new Element('span').addClass(chunk.type).appendText(chunk.value).inject(holder);
 			}
 			if (i != (chunks.length - 1)) holder.adopt(new Element('span').setHTML(separator));
@@ -69,19 +80,22 @@ var debug = {
 	},
 
 	$element: function(el){
-		var oldbg = el.style.backgroundColor;
-		var oldfg = el.style.color;
+		var el_style = el.style;
+		if (!el_style) el_style = {};
+		
+		var oldbg = el_style.backgroundColor;
+		var oldfg = el_style.color;
 		
 		var link = new Element('a', {'href': '#'}).addEvents({
 
 			mouseenter: function(){
-				el.style.backgroundColor = '#DBEAF0';
-				el.style.color = '#757E8A';
+				el_style.backgroundColor = '#DBEAF0';
+				el_style.color = '#757E8A';
 			},
 			
 			mouseleave: function(){
-				el.style.backgroundColor = oldbg;
-				el.style.color = oldfg;
+				el_style.backgroundColor = oldbg;
+				el_style.color = oldfg;
 			},
 			
 			click: function(){
