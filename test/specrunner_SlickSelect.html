@@ -5,7 +5,6 @@
 <title>Selectors :: SlickSpec</title>
 
 <!-- Debugger -->
-<script src="assets/moobugger/mootools.js" type="text/javascript" charset="utf-8"></script>
 <script src="assets/moobugger/debugger.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- JSSpec -->
@@ -35,6 +34,7 @@ new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
 });
 
 </script>
+
 </head>
 <body><h1 id="slickspec_logo"><a href="http://github.com/mootools/slick/">Slick<strong>Spec</strong></a></h1>
 
@@ -45,8 +45,8 @@ new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
 <iframe onload="Mock.register('template html quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
 
 <!--[if gt IE 8]><!-->
-<!-- <iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe> -->
-<!-- <iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe> -->
+<iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe>
+<iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe>
 <iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe>
 <!-- <![endif]-->
 
