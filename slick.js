@@ -367,7 +367,7 @@ authors:
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
 					return;
 				}
-				QSA: if (node.querySelectorAll){
+				QSA: if (node.querySelectorAll && !Slick.disableQSA){
 					var query = [];
 					if (tag && tag != '*') query.push(tag.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\'));
 					if (id){ query.push('#');query.push(id.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\')); }
@@ -378,9 +378,11 @@ authors:
 						Slick.debug && Slick.debug(query, e);
 						break QSA;
 					}
-					for (i = 0, l = children.length; i < l; i++)
-						if (this.contains(node, children[i]))
-							this.push(children[i], tag, id, parts);
+					if (node.nodeType === 9) for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
+					
+					else for (i = 0, l = children.length; i < l; i++)
+						if (this.contains(node, children[i])) this.push(children[i], tag, id, parts);
+					
 					return;
 				}
 			}
