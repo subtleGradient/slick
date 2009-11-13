@@ -140,7 +140,7 @@ authors:
 		} else if (expression.Slick){
 			parsed = expression;
 
-		} else if (local.contains(context, expression)){
+		} else if (local.contains(context.documentElement || context, expression)){
 			found.push(expression);
 			return found;
 
