@@ -84,6 +84,9 @@ new Mock('', function(specs,context){
 			it['must reject String'] = function(){ value_of( Slick("string here", '*', []).length ).should_be( 0 ); };
 			it['must reject Object'] = function(){ value_of( Slick({ foo:'bar' }, '*', []).length ).should_be( 0 ); };
 			
+			it['must accept a parsed selector object'] = function(){
+				value_of( context.Slick(global.window, Slick.parse('*'), []).length ).should_not_be( 0 );
+			};
 			
 		});
 		
