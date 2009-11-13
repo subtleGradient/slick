@@ -109,6 +109,7 @@ authors:
 	var window = this, document = local.document, root = local.root;
 	
 	// Slick
+	local.isSimple = {};
 	
 	var Slick = local.Slick = function(context, expression, append){
 		
@@ -120,7 +121,37 @@ authors:
 		// handle input / context:
 
 		// No context
-		if (!context) return found;
+		if (typeof expression == 'string'){
+		
+		QSA: if (local.isSimple[expression] !== false && context.querySelectorAll && !(local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
+			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
+			
+			var nodes;
+			try {
+				nodes = context.querySelectorAll(expression);
+				local.isSimple[expression] = true;
+			} catch(error){
+				// if (Slick.debug) Slick.debug('QSA Fail ' + expression, error);
+				local.isSimple[expression] = false;
+			}
+			
+			if (!nodes) break QSA;
+			nodes = local.collectionToArray(nodes);
+			if (!append) return nodes;
+			
+			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
+			else found.push.apply(found, nodes);
+			return found;
+			
+		}
+		
+		
+		
+		
+			parsed = Slick.parse(expression);
+			if (!parsed.length) return found;
+
+		} else if (!context) return found;
 
 		// Convert the node from a window to a document
 		if (!context.nodeType && context.document) context = context.document;
@@ -131,10 +162,6 @@ authors:
 		// expression input
 		if (expression == null){
 			return found;
-
-		} else if (typeof expression == 'string'){
-			parsed = Slick.parse(expression);
-			if (!parsed.length) return found;
 
 		} else if (expression.Slick){
 			parsed = expression;
