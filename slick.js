@@ -194,6 +194,7 @@ authors:
 		
 		// querySelectorAll
 		
+/*
 		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
@@ -213,6 +214,7 @@ authors:
 			return found;
 			
 		}
+*/
 		
 		// default engine
 		
@@ -394,6 +396,7 @@ authors:
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
 					return;
 				}
+/*
 				QSA: if (node.querySelectorAll && !Slick.disableQSA){
 					var query = [];
 					if (tag && tag != '*') query.push(tag.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\'));
@@ -412,6 +415,7 @@ authors:
 					
 					return;
 				}
+*/
 			}
 			getByTag: {
 				children = node.getElementsByTagName(tag);
