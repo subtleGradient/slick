@@ -168,13 +168,15 @@ authors:
 		
 		// querySelectorAll
 		
-		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
+		QSA: if (context.querySelectorAll && !(parsed.simple === false || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try {
 				nodes = context.querySelectorAll(parsed.raw);
+				parsed.simple = true;
 			} catch(error){
+				parsed.simple = false;
 				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
@@ -974,7 +976,7 @@ __END__
 
 			break;
 		}
-		
+		delete parsed.simple;
 		partIndex++;
 		return '';
 	};
