@@ -168,9 +168,9 @@ authors:
 			
 			var nodes;
 			try {
-				nodes = context.querySelectorAll(expression);
+				nodes = context.querySelectorAll(parsed.raw);
 			} catch(error){
-				if (Slick.debug) Slick.debug('QSA Fail ' + expression, error);
+				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
 			if (!nodes) break QSA;
