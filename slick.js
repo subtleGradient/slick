@@ -977,7 +977,6 @@ __END__
 
 			break;
 		}
-		delete parsed.simple;
 		partIndex++;
 		return '';
 	};
