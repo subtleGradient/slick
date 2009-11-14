@@ -914,7 +914,7 @@ __END__
 
 				// TODO: pseudoClass is only not simple when it's custom or buggy
 				// if (pseudoBuggyOrCustom[pseudoClass])
-				parsed.simple = false;
+				// parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
 				
