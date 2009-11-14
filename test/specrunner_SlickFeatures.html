@@ -84,6 +84,17 @@ new Mock('', function(specs,context){
 			it['must reject String'] = function(){ value_of( Slick("string here", '*', []).length ).should_be( 0 ); };
 			it['must reject Object'] = function(){ value_of( Slick({ foo:'bar' }, '*', []).length ).should_be( 0 ); };
 			
+		});
+		
+		
+		
+	});
+});
+new Mock('html', function(specs,context){
+	Describe('Select Inputs',function(specs,context){
+		Describe('context',function(specs,context){
+
+
 			if (document.querySelectorAll)
 			it['must accept a parsed selector object QSA'] = function(){
 				context.Slick.disableQSA = false;
@@ -98,14 +109,10 @@ new Mock('', function(specs,context){
 				} finally {
 					context.Slick.debug = debug_old;
 				}
-				
 			};
-			
-			
+
+
 		});
-		
-		
-		
 	});
 });
 
