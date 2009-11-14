@@ -10,6 +10,7 @@ authors:
 - Thomas Aylott
 - Valerio Proietti
 - Fabio M Costa
+- Jan Kassens
 ...
 */
 (function(){
@@ -50,11 +51,13 @@ authors:
 	};
 	
 	local.setDocument = function(document){
-		if (local.document == document) return Slick;
+		if (local.document == document) return;
 		
-		if ('document' in document) document = document.document;
-		else if (document.ownerDocument) document = document.ownerDocument;
+		if (document.nodeType === 9);
+		else if (document.ownerDocument) document = document.ownerDocument; // node
+		else if ('document' in document) document = document.document; // window
 		
+		if (local.document == document) return;
 		local.document = document;
 		local.root = document.documentElement;
 		
@@ -91,7 +94,6 @@ authors:
 			testNode = null;
 			
 		}
-		return Slick;
 	};
 	
 	// Init
@@ -112,7 +114,17 @@ authors:
 		local.positions = {};
 		
 		// handle input / context:
-		
+
+		// No context
+		if (!context) return found;
+
+		// Convert the node from a window to a document
+		if (!context.nodeType && context.document) context = context.document;
+
+		// Reject misc junk input
+		if (!context.nodeType) return found;
+
+		// expression input
 		if (expression == null){
 			return found;
 
@@ -129,7 +141,6 @@ authors:
 
 		} else {
 			return found;
-
 		}
 		
 		if (local.document != document) local.setDocument(context);
@@ -157,9 +168,9 @@ authors:
 			
 			var nodes;
 			try {
-				nodes = context.querySelectorAll(expression);
+				nodes = context.querySelectorAll(parsed.raw);
 			} catch(error){
-				if (Slick.debug) Slick.debug('QSA Fail ' + expression, error);
+				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
 			if (!nodes) break QSA;
@@ -334,7 +345,7 @@ authors:
 			var i, l, item, children;
 
 			if (!this.isXMLDocument){
-				getById: if (id){
+				getById: if (id && node.nodeType === 9){
 					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
 					item = node.getElementById(id);
@@ -342,11 +353,11 @@ authors:
 					this.push(item, tag, null, parts);
 					return;
 				}
-				getById: if (id){
+				getById: if (id && node.nodeType !== 9){
 					if (!this.document.getElementById) break getById;
 					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
-					if (!this.contains(node.documentElement||node, item)) break getById;
+					if (!this.contains(node, item)) break getById;
 					this.push(item, tag, null, parts);
 					return;
 				}
@@ -360,7 +371,8 @@ authors:
 			getByTag: {
 				children = node.getElementsByTagName(tag);
 				if (!(children && children.length)) break getByTag;
-				for (i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
+				if (!(this.starSelectsComments || this.starSelectsClosed)) tag = null;
+				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
 			}
 		},
 		
@@ -761,17 +773,18 @@ __END__
 		\\[  \
 			\\s* (<unicode>+)  (?:  \
 				\\s* ([*^$!~|]?=)  (?:  \
-					(?: \\s* (?:\
-						  \"((?:[^\"]|\\\")*)\"\
-						|  '((?:[^'] |\\')* )' \
-					))  |   (   [^\\]]*     )  \
+					\\s* (?:\
+					      \"((?:[^\"]|\\\")*)\"\
+					    |  '((?:[^'] |\\')* )' \
+					    |   (   [^\\]]*?    )  \
+					)\
 				)  \
 			)?  \\s*  \
 		\\](?!\\]) \n\
 		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
 		)"
-// */
-		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'))|([^\\]]*)))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
+// *///
+		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -855,13 +868,13 @@ __END__
 		
 		switch (selectorBitName){
 		
-			case 'tagName': currentParsed.tag = a[map.tagName]; return '';
+			case 'tagName': currentParsed.tag = a[map.tagName].replace(/\\/g,''); return '';
 			
-			case 'id': currentParsed.id = a[map.id]; return '';
+			case 'id': currentParsed.id = a[map.id].replace(/\\/g,''); return '';
 			
 			case 'className':
 
-				var className = a[map.className];
+				var className = a[map.className].replace(/\\/g,'');
 			
 				if (!currentParsed.classes) currentParsed.classes = [className];
 				else currentParsed.classes.push(className);
@@ -881,11 +894,14 @@ __END__
 				parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
-			
+				
+				var value = a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue] || null;
+				if (value) value = value.replace(/\\/g,'')
+				
 				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
 					type: 'pseudo',
-					key: a[map.pseudoClass],
-					value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
+					key: a[map.pseudoClass].replace(/\\/g,''),
+					value: value
 				});
 
 			break;
@@ -898,9 +914,9 @@ __END__
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
 			
-				var key = a[map.attributeKey];
+				var key = a[map.attributeKey].replace(/\\/g,'');
 				var operator = a[map.attributeOperator];
-				var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
+				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
 			
 				var test, regexp;
 			
