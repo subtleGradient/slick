@@ -571,7 +571,8 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
             }
             break;
             
-          default: result = String(test.result);
+          default:
+            resultCell.appendChild(document.createTextNode(test.result));
           }
           // resultCell.innerHTML = " " + result;
         } else {
