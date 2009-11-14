@@ -84,9 +84,23 @@ new Mock('', function(specs,context){
 			it['must reject String'] = function(){ value_of( Slick("string here", '*', []).length ).should_be( 0 ); };
 			it['must reject Object'] = function(){ value_of( Slick({ foo:'bar' }, '*', []).length ).should_be( 0 ); };
 			
-			it['must accept a parsed selector object'] = function(){
-				value_of( context.Slick(global.window, Slick.parse('*'), []).length ).should_not_be( 0 );
+			if (document.querySelectorAll)
+			it['must accept a parsed selector object QSA'] = function(){
+				context.Slick.disableQSA = false;
+				debug_old = context.Slick.debug;
+				try {
+					var fail = false;
+					context.Slick.debug = function(){ fail = true; throw new Error('QSA should have used the raw property'); };
+					
+					value_of( context.Slick(global.window, { Slick:true, raw:'*', simple:true, type:[] }, []).length ).should_not_be( 0 );
+					value_of( fail ).should_be_false();
+					
+				} finally {
+					context.Slick.debug = debug_old;
+				}
+				
 			};
+			
 			
 		});
 		
