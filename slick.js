@@ -936,13 +936,13 @@ __END__
 				parsed.simple = false;
 			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
-			
+				
 				var key = a[map.attributeKey].replace(/\\/g,'');
 				var operator = a[map.attributeOperator];
 				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
-			
+				
 				var test, regexp;
-			
+				
 				switch (operator){
 					case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
 					case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
@@ -961,11 +961,11 @@ __END__
 						return !!value;
 					};
 				}
-			
+				
 				if (!test) test = function(value){
 					return value && regexp.test(value);
 				};
-			
+				
 				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
 					type: 'attribute',
 					key: key,
