@@ -815,6 +815,8 @@ __END__
 	
 	var qsaCombinators = (/^(\s|[~+>])$/);
 	
+	var simpleAttributeOperators = (/^[*^$~|]?=$/);
+	
 	var map = {
 		rawMatch: 0,
 		separator: 1,
@@ -931,15 +933,14 @@ __END__
 			
 			case 'attributeKey':
 
-				// TODO: attributeKey is only not simple when it's custom or buggy
-				// if (attributeKeyBuggyOrCustom[attributeKey])
-				parsed.simple = false;
-			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
 				
 				var key = a[map.attributeKey].replace(/\\/g,'');
 				var operator = a[map.attributeOperator];
 				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
+				
+				// Turn off simple mode for custom attribute operators. This should disable QSA mode
+				if (parsed.simple !== false) parsed.simple = !!simpleAttributeOperators.test(operator);
 				
 				var test, regexp;
 				
