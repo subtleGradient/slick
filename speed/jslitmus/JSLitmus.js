@@ -558,7 +558,7 @@ curl -s http://www.broofa.com/Tools/JSLitmus/JSLitmus.js #*/
           case "[object Object]":
             
             for (var key in test.result) {
-              var resultCell = document.createElement('td');
+              resultCell = document.createElement('td');
               if (test.result[key] instanceof Error) {
                 resultCell.appendChild(document.createTextNode('Error'));
                 resultCell.setAttribute('title', test.result[key].message);
