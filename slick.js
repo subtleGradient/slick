@@ -857,14 +857,14 @@ __END__
 		if (!selectorBitName) return '';
 		
 		
-		if (a[map.tagName]=='*') parsed.type.push('tagName*');
-		
+		if (a[map.tagName]=='*')
+			parsed.type.push('tagName*');
 		else if (parsed.type[parsed.type.length - 1] == selectorBitName && selectorBitName == 'className')
 			parsed.type[parsed.type.length-1] = 'classNames';
-		
 		else if (parsed.type[parsed.type.length - 1] == 'classNames' && selectorBitName == 'className');
-		
-		else parsed.type.push(selectorBitName);
+			// do nothing
+		else
+			parsed.type.push(selectorBitName);
 		
 		
 		var isSeparator = selectorBitName == 'separator';
@@ -881,9 +881,8 @@ __END__
 			var combinator = a[map.combinator] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
-			if (reversed){
-				if (currentSeparator[combinatorIndex]) currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
-			}
+			if (reversed && currentSeparator[combinatorIndex])
+				currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
 			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
