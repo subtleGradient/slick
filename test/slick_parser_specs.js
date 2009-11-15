@@ -49,9 +49,9 @@ Describe('Slick Parser',function(){
 		value_of(PARSE('.class1.class2.class3.class4').type).should_be(['classNames']);
 		value_of(PARSE('#id.class1.class2').type).should_be(['id', 'classNames']);
 		value_of(PARSE('div:foo(bar):not(td)').type).should_be(['tagName', 'pseudoClass', 'pseudoClass']);
-		value_of(PARSE('a b').type).should_be(['tagName', 'combinatorChildren', 'tagName']);
+		value_of(PARSE('* b').type).should_be(['tagName*', 'combinatorChildren', 'tagName']);
 		value_of(PARSE('a > b.bar').type).should_be(['tagName', 'combinator', 'tagName', 'className']);
-	}
+	};
 
 });
 
