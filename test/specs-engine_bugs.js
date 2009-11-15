@@ -337,4 +337,39 @@ function specsBrowserBugsFixed(specs,context){
 		
 	});
 	
+	Describe('Slick :selected', function(){
+		
+		specs.before_each = setup;
+		specs.after_each = teardown;
+		
+		if( !isXML )
+		it['Should match the selected option'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<select><option value="1">opt1</option><option value="2">opt2</option></select>';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = tmpNode1.firstChild;
+			tmpNode3 = tmpNode1.lastChild;
+			
+			results = context.Slick(testNode, ':selected');
+			value_of(results.length).should_be(1);
+			value_of(results[0] === tmpNode2).should_be_true();
+		};
+		
+		if( !isXML )
+		it['Should not match the first element from a multiple select'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = '<select multiple="multiple"><option value="1">opt1</option><option value="2" selected="selected">opt2</option></select>';
+			tmpNode1 = testNode.firstChild;
+			tmpNode2 = tmpNode1.firstChild;
+			tmpNode3 = tmpNode1.lastChild;
+			
+			results = context.Slick(testNode, ':selected');
+			value_of(results.length).should_be(1);
+			value_of(results[0] === tmpNode3).should_be_true();
+		};
+
+	});
+	
 };
