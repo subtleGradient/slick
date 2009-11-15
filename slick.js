@@ -549,8 +549,19 @@ authors:
 
 		'odd': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n');
-		}
+		},
 
+		'enabled': function(node){
+			return (node.disabled === false);
+		},
+
+		'checked': function(node){
+			return node.checked;
+		},
+
+		'selected': function(node){
+			return node.selected;
+		}
 	};
 
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
