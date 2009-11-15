@@ -19,7 +19,7 @@ function specsMockTemplate(specs, context){
 	it['should not fail when using QSA is enabled'] = function(){
 		value_of( context.Slick(context.document, 'body').length ).should_be( 1 );
 	};
-	gi
+	
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
 			context.Slick.disableQSA = !!disableQSA;
