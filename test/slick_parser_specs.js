@@ -39,7 +39,6 @@ Describe('Slick Parser',function(){
 		s = PARSE('tag#id.class[attrib][attrib=attribvalue]:pseudo:pseudo(pseudovalue):not(pseudovalue)');
 		
 		for (var i=0, part; part = s.expressions[0][0].parts[i]; i++){
-			
 			value_of( part.type ).should_not_be_undefined();
 		}
 	};
@@ -295,7 +294,7 @@ Describe('ATTRIBUTE',function(){
 		{ operator:'$=', value:'you!', matchAgainst:'test you! ', shouldBeTrue:false },
 		
 		{ operator:'!=', value:'test you!', matchAgainst:'test you?', shouldBeTrue:true },
-		{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false },
+		{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false }
 	];
 	function makeAttributeRegexTest(operator, value, matchAgainst, shouldBeTrue) {
 		return function(){
