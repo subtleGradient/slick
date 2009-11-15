@@ -824,7 +824,7 @@ __END__
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	);
 	
-	var qsaCombinators = (/^(\s|[~+>])$/);
+	var qsaCombinators = (/^[\s~+>]$/);
 	
 	var simpleAttributeOperators = (/^[*^$~|]?=$/);
 	
