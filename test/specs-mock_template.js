@@ -23,7 +23,7 @@ function specsMockTemplate(specs,context){
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
 			context.Slick.disableQSA = !!disableQSA;
-			value_of( context.Slick(document,selector).length ).should_be( count );
+			value_of( context.Slick(context.document,selector).length ).should_be( count );
 			delete context.Slick.disableQSA;
 		};
 	}
