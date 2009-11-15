@@ -66,7 +66,7 @@ function specsMockTemplate(specs, context){
 		
 		var ancestors = [];
 		var ancestors_length = 0;
-		var things = context.Slick(document,'.a1');
+		var things = context.Slick(context.document,'.a1');
 		var dad;
 		for (var i=0; i < things.length; i++) {
 			dad = things[i];
@@ -123,7 +123,7 @@ function specsMockTemplate(specs, context){
 		
 		var dupes = [];
 		var uniques = [];
-		var results = context.Slick(document,'* *');
+		var results = context.Slick(context.document,'* *');
 		var dupe = false;
 		
 		var dupe_uids = [];
@@ -154,7 +154,7 @@ function specsMockTemplate(specs, context){
 		// window['should not return duplicates for "* *[class]"'] = true;
 		var dupes = [];
 		var uniques = [];
-		var results = context.Slick(document,'* *[class]');
+		var results = context.Slick(context.document,'* *[class]');
 		var dupe = false;
 		
 		var dupe_uids = [];
@@ -222,7 +222,7 @@ function specsMockTemplate(specs, context){
 		
 		var dupes = [];
 		var uniques = [];
-		var results = context.Slick(document,'div p');
+		var results = context.Slick(context.document,'div p');
 		var dupe = false;
 		
 		for (var i=0; i < results.length; i++) {
@@ -293,10 +293,10 @@ function specsMockTemplate(specs, context){
 	it_should_find(54,  'p:first-child');
 	
 	// specs['":contains()" elements should actually contain the word'] = function(){
-	// 	var els = context.Slick(document,':contains(selectors)');
+	// 	var els = context.Slick(context.document,':contains(selectors)');
 	// 	for (var i=0,el; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'selectors' );
 	// 	
-	// 	els = context.Slick(document,':contains(Selectors)');
+	// 	els = context.Slick(context.document,':contains(Selectors)');
 	// 	for (i=0; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'Selectors' );
 	// };
 	// 
