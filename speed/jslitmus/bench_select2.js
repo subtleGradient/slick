@@ -34,10 +34,11 @@ function benchmarkSelectors(specs,context){
 		throw error;
 	};
 	
+	context = context.document.documentElement;
 	for (ii=0; ii < selectors.length; ii++) if (selectors[ii]){
 		
 		
-		if (context.document.querySelectorAll) {
+		if (context.querySelectorAll) {
 			// it['QSA Array '] = _benchmarkSelectors(function(searchContext,selector){
 			// 	try{
 			// 		return local.collectionToArray(searchContext.querySelectorAll.call(searchContext,selector));
@@ -47,7 +48,10 @@ function benchmarkSelectors(specs,context){
 			it['Slick WIP '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors[ii], function(){global.SlickThis.disableQSA = false;});
 			it['Slick Stable '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors[ii], function(){global.SlickLast.disableQSA = false;});
 		}
-		
+		else {
+			it['Slick WIP '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors[ii], function(){global.SlickThis.disableQSA = true;});
+			it['Slick Stable '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors[ii], function(){global.SlickLast.disableQSA = true;});
+		}
 		// it['Slick WIP noQSA '] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
 		// it['Slick Stable noQSA '] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors, function(){global.SlickLast.disableQSA = true;}); 
 		// 
