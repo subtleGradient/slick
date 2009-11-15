@@ -1,8 +1,8 @@
-function specsMockTemplate(specs,context){
+function specsMockTemplate(specs, context){
 	
 	it['should append results to an existing array if passed in'] = function(){
 		var append = [];
-		value_of( context.Slick(document, '*', append) ).should_be( append );
+		value_of( context.Slick(context.document, '*', append) ).should_be( append );
 	};
 	
 	it['should append results to an existing array-like-thing if passed in'] = function(){
@@ -12,22 +12,22 @@ function specsMockTemplate(specs,context){
 				this[this.length++] = item;
 			}
 		};
-		value_of( context.Slick(document, '*', append) ).should_be( append );
+		value_of( context.Slick(context.document, '*', append) ).should_be( append );
 	};
 	
 	if (document.querySelectorAll)
 	it['should not fail when using QSA is enabled'] = function(){
-		value_of( context.Slick(document,'body').length ).should_be( 1 );
+		value_of( context.Slick(context.document, 'body').length ).should_be( 1 );
 	};
-	
+	gi
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
 			context.Slick.disableQSA = !!disableQSA;
-			value_of( context.Slick(context.document,selector).length ).should_be( count );
+			value_of( context.Slick(context.document, selector).length ).should_be( count );
 			delete context.Slick.disableQSA;
 		};
 	}
-	function it_should_find(count,selector){
+	function it_should_find(count, selector){
 		if (global.document.querySelectorAll)
 			specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false);
 		specs['should find '+count+' `'+selector+'` without QSA' ] = makeSlickTestSearch(selector, count, true);

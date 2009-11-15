@@ -274,12 +274,8 @@ authors:
 		var parsed = argument.match(this.matchNTH);
 		if (!parsed) return false;
 		var special = parsed[2] || false;
-		var a = parsed[1];
-		switch (a){
-			case '': a = 1; break;
-			case '-': a = -1; break;
-			default: a = +a;
-		}
+		var a = parsed[1] || 1;
+		if(a == '-') a = -1;
 		var b = parseInt(parsed[3], 10) || 0;
 		switch (special){
 			case 'n':    parsed = {a: a, b: b}; break;
