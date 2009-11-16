@@ -29,7 +29,8 @@
  * Namespace
  */
 
-var baseQueryString = window.location.search.replace(/&?rerun=.*?(&|$)/ig,'').replace(/&$/,'') + '&' || '?';
+var baseQueryString = window.location.search.replace(/&?rerun=.*?(&|$)/ig,'').replace(/&$/,'');
+if (!baseQueryString) baseQueryString = '?'; else baseQueryString += '&';
 
 var JSSpec = {
 	specs: [],
