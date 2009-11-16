@@ -1,6 +1,6 @@
 var nodes = {};
 
-Describe('Slick Match',function(){
+Describe('Slick Match',function(specs, context){
 	
 	specs.before_all = function() {
 		nodes.nodeWithoutParent = document.createElement('div');
@@ -72,7 +72,7 @@ Describe('Slick Match',function(){
 	
 });
 
-Describe('Slick Deep Match',function(){
+Describe('Slick Deep Match',function(specs, context){
 	
 	specs.before_all = function() {
 		
@@ -103,42 +103,36 @@ Describe('Slick Deep Match',function(){
 	};
 	
 	
-	
-	it['should match a simple selector'] = function(){
-		
-		// tags
-		value_of( deepMatch(nodes.nested_a, '*') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, 'a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, ':not(a)') ).should_be_false();
-		value_of( deepMatch(nodes.nested_a, 'del') ).should_be_false();
-		value_of( deepMatch(nodes.nested_a, ':not(del)') ).should_be_true();
-		
-		// attributes
-		value_of( deepMatch(nodes.nested_a, '[id]') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, ':not([id])') ).should_be_false();
-		value_of( deepMatch(nodes.nested_a, '[class]') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, ':not([class])') ).should_be_false();
-		
-		// class
-		value_of( deepMatch(nodes.nested_a, '.a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, ':not(.a)') ).should_be_false();
-		
+	function it_should_match_selector(nodes, selector, should_be){
+		it['should match selector "' + selector + '"'] = function(){
+			
+			value_of( global.MATCH(nodes, selector) ).should_be(should_be);
+			
+		};
 	};
 	
-	it['should match a selector with combinators'] = function(){
-		
-		value_of( deepMatch(nodes.nested_a, '* *') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, '* > *') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, '* ~ *') ).should_be_false(); // has no previous siblings
-		value_of( deepMatch(nodes.nested_a, '* + *') ).should_be_false(); // has no previous siblings
-		
-		value_of( deepMatch(nodes.nested_a, 'b a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, 'b > a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, 'div > b > a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, 'div > b + b > a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, 'div > b ~ b > a') ).should_be_true();
-		value_of( deepMatch(nodes.nested_a, 'div a') ).should_be_true();
-	};
+	it_should_match_selector(nodes.nested_a, '*'             ,true  );
+	it_should_match_selector(nodes.nested_a, 'a'             ,true  );
+	it_should_match_selector(nodes.nested_a, ':not(a)'       ,false );
+	it_should_match_selector(nodes.nested_a, 'del'           ,false );
+	it_should_match_selector(nodes.nested_a, ':not(del)'     ,true  );
+	it_should_match_selector(nodes.nested_a, '[id]'          ,true  );
+	it_should_match_selector(nodes.nested_a, ':not([id])'    ,false );
+	it_should_match_selector(nodes.nested_a, '[class]'       ,true  );
+	it_should_match_selector(nodes.nested_a, ':not([class])' ,false );
+	it_should_match_selector(nodes.nested_a, '.a'            ,true  );
+	it_should_match_selector(nodes.nested_a, ':not(.a)'      ,false );
+
+	it_should_match_selector(nodes.nested_a, '* *'             ,true  );
+	it_should_match_selector(nodes.nested_a, '* > *'           ,true  );
+	it_should_match_selector(nodes.nested_a, '* ~ *'           ,false );
+	it_should_match_selector(nodes.nested_a, '* + *'           ,false );
+	it_should_match_selector(nodes.nested_a, 'b a'             ,true  );
+	it_should_match_selector(nodes.nested_a, 'b > a'           ,true  );
+	it_should_match_selector(nodes.nested_a, 'div > b > a'     ,true  );
+	it_should_match_selector(nodes.nested_a, 'div > b + b > a' ,true  );
+	it_should_match_selector(nodes.nested_a, 'div > b ~ b > a' ,true  );
+	it_should_match_selector(nodes.nested_a, 'div a'           ,true  );
 	
 	// it['should match a node outside the DOM'] = TODO;
 	

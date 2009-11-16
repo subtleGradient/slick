@@ -1,4 +1,4 @@
-function specsSelectorEngineBugs(specs,context){
+function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(specs,context){
 	
 	var rootElement;
 	var testNode;
@@ -174,10 +174,10 @@ function specsSelectorEngineBugs(specs,context){
 		value_of( results[0].getAttribute('type') ).should_be('text');
 	};
 	
-};
+});};
 
 
-function specsBrowserBugsFixed(specs,context){
+function specsBrowserBugsFixed(specs,context){ Describe('Bugs Fixed',function(specs,context){
 	
 	var rootElement;
 	var testNode, tmpNode, tmpNode1, tmpNode2, tmpNode3, tmpNode4, tmpNode5, tmpNode6, tmpNode7, tmpNode8, tmpNode9;
@@ -372,4 +372,4 @@ function specsBrowserBugsFixed(specs,context){
 
 	});
 	
-};
+});};

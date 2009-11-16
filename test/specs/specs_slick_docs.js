@@ -1,7 +1,7 @@
 function specsSlickDocs(){
 	Describe('MultiDocs',function(){
 		
-		it['should exist'] = TODO;
+		// it['should exist'] = TODO;
 		
 	});
 	

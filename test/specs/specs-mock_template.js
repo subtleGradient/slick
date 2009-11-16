@@ -1,25 +1,5 @@
 function specsMockTemplate(specs, context){
 	
-	it['should append results to an existing array if passed in'] = function(){
-		var append = [];
-		value_of( context.Slick(context.document, '*', append) ).should_be( append );
-	};
-	
-	it['should append results to an existing array-like-thing if passed in'] = function(){
-		var append = {
-			length: 0,
-			push: function(item){
-				this[this.length++] = item;
-			}
-		};
-		value_of( context.Slick(context.document, '*', append) ).should_be( append );
-	};
-	
-	if (document.querySelectorAll)
-	it['should not fail when using QSA is enabled'] = function(){
-		value_of( context.Slick(context.document, 'body').length ).should_be( 1 );
-	};
-	
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
 			context.Slick.disableQSA = !!disableQSA;
