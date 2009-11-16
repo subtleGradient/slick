@@ -113,7 +113,7 @@ Mock.Request = function(mockName, url){
 	
 	var self = this;
 	this.callback = function(html, xml){
-		Mock.register(self.mockName +': '+ String(self.url).replace(/^.*\//,''), newSlickWinFromDoc(xml));
+		Mock.register(self.mockName +': '+ String(self.url).replace(/^.*\//,''), newFakeWinFromDoc(xml));
 	};
 	this.rq = new SimpleRequest();
 	this.rq.send(this.url, this.callback);
