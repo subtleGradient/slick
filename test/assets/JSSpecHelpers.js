@@ -259,3 +259,13 @@ function getXML(url,mime){
 	
 };
 
+// Script Loader
+
+(function(){try{
+	
+	var results = window.location.search.match(/\bscript=(.*?\.js)/gi) || ['../slick.js'];
+	for (var i=0, scriptsrc; scriptsrc = results[i]; i++)
+		document.write('<scr'+'ipt src="'+ scriptsrc.replace(/^script=/,'') +'" type="text/javascript"><\/script>');
+	
+}catch(e){}})();
+
