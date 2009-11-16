@@ -88,8 +88,13 @@ var Mock = (function(){
 	};
 
 	Mock.register.done = function(){
-		for (var i=0; i < Mock.mocks.length; i++)
-			Mock.mocks[i].run();
+		for (var i=0; i < Mock.mocks.length; i++){
+			try {
+				Mock.mocks[i].run();
+			} finally {
+				continue;
+			}
+		}
 		
 		setTimeout(runSpecs, 100);
 	};
