@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>Slick Features :: SlickSpec</title>
+
+<!-- JSSpec -->
+<link rel="stylesheet" type="text/css" href="assets/slickspec.css" />
+<script type="text/javascript" src="assets/diff_match_patch.js"></script>
+<script type="text/javascript" src="assets/JSSpec.js"></script>
+<script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
+
+<!-- Slick -->
+<script type="text/javascript" src="../slick.js"></script>
+
+<!-- Specs -->
+<script type="text/javascript" src="specs-engine_bugs.js"></script>
+<script type="text/javascript" src="specs-select_exhaustive.js" charset="utf-8"></script>
+<script type="text/javascript" src="specs-mock_template.js" charset="utf-8"></script>
+<script src="slick_xml_specs.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Runner -->
+<script type="text/javascript" src="assets/simple_request.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+new Mock(/\b(xml|svg|xhtml)\b/i, function(specs,context){
+	var Slick = (context.Slick || global.Slick);
+	Describe('is XML',function(){
+		it['should be XML'] = function(){
+			value_of( context.document.nodeType ).should_be(9);
+			value_of( context.document ).should_not_be( global.document );
+			value_of(Slick.isXML(context.document)).should_be_true();
+		};
+	});
+});
+new Mock(/\b(html)\b/i, function(specs,context){
+	var Slick = (context.Slick || global.Slick);
+	Describe('is not XML',function(){
+		it['should not be XML'] = function(){
+			value_of( context.document.nodeType ).should_be(9);
+			value_of( context.document ).should_not_be( global.document );
+			value_of(Slick.isXML(context.document)).should_be_false();
+		};
+	});
+});
+new Mock('', function(specs,context){
+	
+	Describe('Select Inputs',function(specs,context){
+		var Slick = (context.Slick || global.Slick);
+		
+		Describe('append',function(){
+			
+			it['should append results to an existing array if passed in'] = function(){
+				var append = [];
+				value_of( Slick(context.document, '*', append) ).should_be( append );
+			};
+
+			it['should append results to an existing array-like-thing if passed in'] = function(){
+				var append = {
+					length: 0,
+					push: function(item){
+						this[this.length++] = item;
+					}
+				};
+				value_of( Slick(context.document, '*', append) ).should_be( append );
+			};
+
+			if (document.querySelectorAll)
+			it['should not fail when using QSA is enabled'] = function(){
+				value_of( Slick(context.document, 'body').length ).should_be( 1 );
+			};
+
+		});
+		
+		
+		Describe('context',function(specs,context){
+			var Slick = (context.Slick || global.Slick);
+			
+			it['must accept a document'] = function(){
+				value_of( Slick(context.document, '*', []) ).should_not_be( [] );
+			};
+			
+			it['must accept a node'] = function(){
+				value_of( Slick(context.document.documentElement, '*', []).length ).should_not_be( 0 );
+			};
+			
+			it['must accept any node'] = function(){
+				value_of( Slick(context.document.documentElement, '*', []).length ).should_not_be( 0 );
+				var timedLog;
+				var elements = context.document.getElementsByTagName('*');
+				for (var i=0, l=elements.length; i < l; i++) {
+					if (elements[i].nodeType != 1) continue;
+					
+					if (global.console && global.console.log)
+					timedLog = setTimeout(function(){
+						console.log(elements[i]);
+					}, 100);
+					
+					if (elements[i].getElementsByTagName('*').length)
+						value_of( Slick(elements[i], '*', []).length ).should_not_be( 0 );
+					else
+						value_of( Slick(elements[i], '*', []).length ).should_be( 0 );
+					
+					clearTimeout(timedLog);
+				}
+			};
+			
+			it['must accept a window'] = function(){
+				value_of( Slick(global.window, '*', []).length ).should_not_be( 0 );
+				if (context.window && !context.window.fake)
+					value_of( Slick(context.window, '*', []).length ).should_not_be( 0 );
+			};
+			
+			it['must reject null'] = function(){ value_of( Slick(null, '*', []).length ).should_be( 0 ); };
+			it['must reject Number'] = function(){ value_of( Slick(1234567891011, '*', []).length ).should_be( 0 ); };
+			it['must reject Array '] = function(){ value_of( Slick([1,2,3,4,5,6], '*', []).length ).should_be( 0 ); };
+			it['must reject String'] = function(){ value_of( Slick("string here", '*', []).length ).should_be( 0 ); };
+			it['must reject Object'] = function(){ value_of( Slick({ foo:'bar' }, '*', []).length ).should_be( 0 ); };
+			
+		});
+		
+		
+		
+	});
+});
+new Mock('html', function(specs,context){
+	var Slick = (context.Slick || global.Slick);
+	Describe('Select Inputs',function(){
+		Describe('context',function(){
+
+
+			if (document.querySelectorAll)
+			it['must accept a parsed selector object QSA'] = function(){
+				Slick.disableQSA = false;
+				debug_old = Slick.debug;
+				try {
+					var fail = false;
+					Slick.debug = function(){ fail = true; throw new Error('QSA should have used the raw property'); };
+					
+					value_of( Slick(global.window, { Slick:true, raw:'*', simple:true, type:[] }, []).length ).should_not_be( 0 );
+					value_of( fail ).should_be_false();
+					
+				} finally {
+					Slick.debug = debug_old;
+				}
+			};
+
+
+		});
+	});
+});
+
+</script>
+</head>
+<body><h1 id="slickspec_logo"><a href="./">Slick<strong>Spec</strong></a></h1>
+<p id="copyright">SlickSpec&mdash;Copyright &copy; MooTools 2009&mdash;MIT License</p>
+
+
+<!-- mocks -->
+<iframe onload="Mock.register('template html standard',this.contentWindow)" src="tools/template-standard.html"></iframe>
+<iframe onload="Mock.register('template html almost standard',this.contentWindow)" src="tools/template-almost.html"></iframe>
+<iframe onload="Mock.register('template html quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
+
+<!--[if gt IE 8]><!-->
+<iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe>
+<iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe>
+<iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe>
+<!-- <![endif]-->
+
+<!--[if gte IE 8]>
+<iframe onload="Mock.register('template html IE8 as IE7',this.contentWindow)" src="tools/template-ie7.html"></iframe>
+<![endif]-->
+
+<script type="text/javascript" charset="utf-8">
+
+new Mock.Request('responseXML','tools/xmlmock1.xml');
+new Mock.Request('responseXML','tools/MooTools_Logo.svg');
+
+</script>
+<script type="text/javascript" charset="utf-8">
+(function(){try{
+	
+	var result = window.location.search.match(/\bscript=(.*?\.js)/i);
+	if (result) document.write('<scr'+'ipt src="'+ result[1] +'" type="text/javascript"><\/script>');
+	
+}catch(e){}})();
+</script>	
+</body>
+</html>
