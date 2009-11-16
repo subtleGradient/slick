@@ -60,6 +60,8 @@ global.mocks = {};
 var Mock = (function(){
 	
 	function Mock(mockName, testBuilder){
+		if (mockName && !testBuilder) throw new Error("Invalid mockName, Mock syntax: `new Mock(/mockName/, function(specs, window){})`");
+		
 		if (Object.prototype.toString.call(mockName) != '[object RegExp]')
 			mockName = new RegExp(mockName);
 		
