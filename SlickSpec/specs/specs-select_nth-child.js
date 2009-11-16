@@ -4,7 +4,7 @@ function specsSelectNthChild(){
 		
 		var parent;
 		function should_select(selector, items){
-			var result = context.Slick(parent, selector);
+			var result = context.SELECT(parent, selector);
 			value_of(result.length).should_be(items.length);
 			for (var i = 0; i < result.length; i++){
 				value_of(result[i].innerHTML).should_be('' + items[i]);

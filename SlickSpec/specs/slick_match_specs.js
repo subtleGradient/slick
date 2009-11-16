@@ -14,17 +14,17 @@ Describe('Slick Match',function(specs, context){
 	
 	its['node should match another node'] = function(){
 		
-		value_of( Slick.match(nodes.basic, nodes.basic) ).should_be_true();
-		value_of( Slick.match(nodes.basic, document.createElement('div')) ).should_be_false();
+		value_of( SELECT(nodes.basic, nodes.basic) ).should_be_true();
+		value_of( SELECT(nodes.basic, document.createElement('div')) ).should_be_false();
 		
 	};
 	
 	its['node should NOT match nothing'] = function(){
 		
-		value_of( Slick.match(nodes.basic) ).should_be_false();
-		value_of( Slick.match(nodes.basic, null) ).should_be_false();
-		value_of( Slick.match(nodes.basic, undefined) ).should_be_false();
-		value_of( Slick.match(nodes.basic, '') ).should_be_false();
+		value_of( SELECT(nodes.basic) ).should_be_false();
+		value_of( SELECT(nodes.basic, null) ).should_be_false();
+		value_of( SELECT(nodes.basic, undefined) ).should_be_false();
+		value_of( SELECT(nodes.basic, '') ).should_be_false();
 		
 	};
 	

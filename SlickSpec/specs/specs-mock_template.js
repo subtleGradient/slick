@@ -2,9 +2,9 @@ function specsMockTemplate(specs, context){
 	
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
-			context.Slick.disableQSA = !!disableQSA;
-			value_of( context.Slick(context.document, selector).length ).should_be( count );
-			delete context.Slick.disableQSA;
+			context.SELECT.disableQSA = !!disableQSA;
+			value_of( context.SELECT(context.document, selector).length ).should_be( count );
+			delete context.SELECT.disableQSA;
 		};
 	}
 	function it_should_find(count, selector){
@@ -46,7 +46,7 @@ function specsMockTemplate(specs, context){
 		
 		var ancestors = [];
 		var ancestors_length = 0;
-		var things = context.Slick(context.document,'.a1');
+		var things = context.SELECT(context.document,'.a1');
 		var dad;
 		for (var i=0; i < things.length; i++) {
 			dad = things[i];
@@ -99,11 +99,11 @@ function specsMockTemplate(specs, context){
 	;
 	it_should_find(59  , 'body div');
 	it['should not return duplicates for "* *"'] = function(){
-		context.Slick.disableQSA = true;
+		context.SELECT.disableQSA = true;
 		
 		var dupes = [];
 		var uniques = [];
-		var results = context.Slick(context.document,'* *');
+		var results = context.SELECT(context.document,'* *');
 		var dupe = false;
 		
 		var dupe_uids = [];
@@ -126,15 +126,15 @@ function specsMockTemplate(specs, context){
 		}
 		value_of( dupes.length ).should_be( 0 );
 		
-		context.Slick.disableQSA = false;
+		context.SELECT.disableQSA = false;
 	};
 	it['should not return duplicates for "* *[class]"'] = function(){
-		context.Slick.disableQSA = true;
+		context.SELECT.disableQSA = true;
 		// console.log('should not return duplicates for "* *[class]"');
 		// window['should not return duplicates for "* *[class]"'] = true;
 		var dupes = [];
 		var uniques = [];
-		var results = context.Slick(context.document,'* *[class]');
+		var results = context.SELECT(context.document,'* *[class]');
 		var dupe = false;
 		
 		var dupe_uids = [];
@@ -159,11 +159,11 @@ function specsMockTemplate(specs, context){
 		// window['should not return duplicates for "* *[class]"'] = false;
 		// console.log('/should not return duplicates for "* *[class]"');
 		
-		context.Slick.disableQSA = false;
+		context.SELECT.disableQSA = false;
 	};
 /*
 	it['should not return duplicates for "* *" manually'] = function(){
-		context.Slick.disableQSA = true;
+		context.SELECT.disableQSA = true;
 		
 		var dupes = [];
 		var uniques = [];
@@ -194,15 +194,15 @@ function specsMockTemplate(specs, context){
 		}
 		value_of( dupes.length ).should_be( 0 );
 		
-		context.Slick.disableQSA = false;
+		context.SELECT.disableQSA = false;
 	};
 */
 	it['should not return duplicates for "div p"'] = function(){
-		context.Slick.disableQSA = true;
+		context.SELECT.disableQSA = true;
 		
 		var dupes = [];
 		var uniques = [];
-		var results = context.Slick(context.document,'div p');
+		var results = context.SELECT(context.document,'div p');
 		var dupe = false;
 		
 		for (var i=0; i < results.length; i++) {
@@ -224,7 +224,7 @@ function specsMockTemplate(specs, context){
 		value_of( dupes.length ).should_be( 0 );
 		value_of( uniques.length ).should_be( 140 );
 		
-		context.Slick.disableQSA = false;
+		context.SELECT.disableQSA = false;
 	};
 	it_should_find(140 , 'div p');
 	it_should_find(140 , 'div  p');
@@ -273,10 +273,10 @@ function specsMockTemplate(specs, context){
 	it_should_find(54,  'p:first-child');
 	
 	// specs['":contains()" elements should actually contain the word'] = function(){
-	// 	var els = context.Slick(context.document,':contains(selectors)');
+	// 	var els = context.SELECT(context.document,':contains(selectors)');
 	// 	for (var i=0,el; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'selectors' );
 	// 	
-	// 	els = context.Slick(context.document,':contains(Selectors)');
+	// 	els = context.SELECT(context.document,':contains(Selectors)');
 	// 	for (i=0; el=els[i]; i++) value_of( el.innerHTML ).should_match( 'Selectors' );
 	// };
 	// 

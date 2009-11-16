@@ -28,8 +28,8 @@ function specsSelectorExhaustive(specs,context){
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				
-				value_of(context.Slick || global.context.Slick).should_not_be_undefined();
-				var result = (context.Slick || global.context.Slick)(testNode.ownerDocument, '.' + CLASSES.join('.'));
+				value_of(context.SELECT || global.context.SELECT).should_not_be_undefined();
+				var result = (context.SELECT || global.context.SELECT)(testNode.ownerDocument, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
@@ -40,8 +40,8 @@ function specsSelectorExhaustive(specs,context){
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
 				
-				value_of(context.Slick || global.context.Slick).should_not_be_undefined();
-				var result = (context.Slick || global.context.Slick)(testNode, '.' + CLASSES.join('.'));
+				value_of(context.SELECT || global.context.SELECT).should_not_be_undefined();
+				var result = (context.SELECT || global.context.SELECT)(testNode, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
@@ -52,8 +52,8 @@ function specsSelectorExhaustive(specs,context){
 				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
 				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
 				
-				value_of(context.Slick || global.context.Slick).should_not_be_undefined();
-				var result = (context.Slick || global.context.Slick)(testNodeOrphaned, '.' + CLASSES.join('.'));
+				value_of(context.SELECT || global.context.SELECT).should_not_be_undefined();
+				var result = (context.SELECT || global.context.SELECT)(testNodeOrphaned, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
 				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};

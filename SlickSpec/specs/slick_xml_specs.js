@@ -1,12 +1,12 @@
 function specsAssetsTemplateXML(specs,context){
 	
-	Describe('Slick Selector Engine on XML file',function(){
+	Describe('SELECT Selector Engine on XML file',function(){
 		
 		function makeSlickTestSearch(selector, count, disableQSA) {
 			return function(){
-				context.Slick.disableQSA = !!disableQSA;
-				value_of( context.Slick(context.document, selector).length ).should_be( count );
-				delete context.Slick.disableQSA;
+				context.SELECT.disableQSA = !!disableQSA;
+				value_of( context.SELECT(context.document, selector).length ).should_be( count );
+				delete context.SELECT.disableQSA;
 			};
 		}
 		function it_should_find(count,selector){

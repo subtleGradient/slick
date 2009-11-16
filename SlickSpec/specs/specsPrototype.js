@@ -12,7 +12,7 @@ function specsPrototype(specs, context){
 
 	function slick_find(expression, root, append){
 		root = root || context.document;
-		return context.Slick(root, expression, append)[0];
+		return context.SELECT(root, expression, append)[0];
 	};
 
 	var $ = function(){
@@ -31,7 +31,7 @@ function specsPrototype(specs, context){
 	
 	function slick_search(expression, root, append){
 		root = root || context.document;
-		return context.Slick(root, expression, append);
+		return context.SELECT(root, expression, append);
 	};
 	var $$ = slick_search;
 

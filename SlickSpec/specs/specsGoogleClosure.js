@@ -4,9 +4,9 @@ function specsGoogleClosure(specs,context){
 	
 	function makeSlickTestSearch(selector, count, disableQSA, rootNode) {
 		return function(){
-			context.Slick.disableQSA = !!disableQSA;
-			value_of( context.Slick(rootNode, selector).length ).should_be( count );
-			delete context.Slick.disableQSA;
+			context.SELECT.disableQSA = !!disableQSA;
+			value_of( context.SELECT(rootNode, selector).length ).should_be( count );
+			delete context.SELECT.disableQSA;
 		};
 	};
 	
@@ -98,8 +98,8 @@ function specsGoogleClosure(specs,context){
 		it_should_find(3, '>', 'container');
 		it_should_find(3, '> *', 'container');
 		it_should_find(2, '> [qux]', 'container');
-		// assertEquals('child1', context.Slick('> [qux]', 'container')[0].id);
-		// assertEquals('child3', context.Slick('> [qux]', 'container')[1].id);
+		// assertEquals('child1', context.SELECT('> [qux]', 'container')[0].id);
+		// assertEquals('child3', context.SELECT('> [qux]', 'container')[1].id);
 		it_should_find(3, '>', 'container');
 		it_should_find(3, '> *', 'container');
 	});
@@ -123,7 +123,7 @@ function specsGoogleClosure(specs,context){
 	
 	Describe('testNthChild',function(specs){
 		var it_should_find = setup_it_should_find(specs);
-		// assertEquals(goog.dom.$('_foo'), context.Slick('.foo:nth-child(2)')[0]);
+		// assertEquals(goog.dom.$('_foo'), context.SELECT('.foo:nth-child(2)')[0]);
 		it_should_find(2, '#t > h3:nth-child(odd)');
 		it_should_find(3, '#t h3:nth-child(odd)');
 		it_should_find(3, '#t h3:nth-child(2n+1)');
@@ -163,7 +163,7 @@ function specsGoogleClosure(specs,context){
 	Describe('testOrder',function(specs){
 		it['should return elements in source order'] = function(){
 			var it_should_find = setup_it_should_find(specs);
-			var els = context.Slick(context.document, '.myupperclass .myclass input');
+			var els = context.SELECT(context.document, '.myupperclass .myclass input');
 			value_of( els[0].id ).should_be( 'myid1' );
 			value_of( els[1].id ).should_be( 'myid2' );
 		};
@@ -176,8 +176,8 @@ function specsGoogleClosure(specs,context){
 			frameDocument.body.innerHTML =
 			context.document.getElementById('iframe-test').innerHTML;
 
-			var els = context.Slick(context.document, '#if1 .if2 div');
-			var frameEls = context.Slick(frameDocument, '#if1 .if2 div');
+			var els = context.SELECT(context.document, '#if1 .if2 div');
+			var frameEls = context.SELECT(frameDocument, '#if1 .if2 div');
 
 			value_of( frameEls.length ).should_be( els.length );
 			value_of( frameEls.length ).should_be( 1 );
