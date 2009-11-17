@@ -6,7 +6,7 @@ function specsPrototype(specs, context){
 
 	function compareArrays(array1, array2){
 		for(var i = 0; i < array1.length; i++){
-			value_of(array1[i]).should_be(array2[i]);
+			value_of(array2[i]).should_be(array1[i]);
 		}
 	};
 
