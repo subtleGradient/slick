@@ -1,18 +1,20 @@
 function specsJQuery(specs, context){
 	
+	var document = context.document;
+	var Slick = context.Slick;
 	var test = Describe;
 	
 	function jQuery(expression, root){
 		var ret = [];
-		root = root || context.document;
-		if(typeof root == 'string') root = context.Slick(context.document, root);
+		root = root || document;
+		if(typeof root == 'string') root = Slick(document, root);
 		if(root.length || root.length == 0){
 			for(var i = 0; i < root.length; i++){
-				ret = context.Slick(root[i], expression, ret);
+				ret = Slick(root[i], expression, ret);
 			}
 		}
 		else{
-			ret = context.Slick(root, expression);
+			ret = Slick(root, expression);
 		}
 		return ret;
 	};
@@ -46,49 +48,48 @@ function specsJQuery(specs, context){
 	function q(){
 		var r = [];
 		for(var i = 0; i < arguments.length; i++){
-			r.push(context.document.getElementById(arguments[i]));
+			r.push(document.getElementById(arguments[i]));
 		}
 		return r;
 	};
-	Array.prototype.size = function(){
+	context.Array.prototype.size = Array.prototype.size = function(){
 		return this.length;
 	};
-	Array.prototype.get = function(){
+	context.Array.prototype.get = Array.prototype.get = function(){
 		return this;
 	};
-	Array.prototype.find = function(expression){
+	context.Array.prototype.find = Array.prototype.find = function(expression){
 		return jQuery(expression, this);
 	};
 	
-	
-	test('element', function(){
-		//ok( jQuery("*").size() >= 30, "Select all" );
+	test('element', function(specs){
+		ok( jQuery("*").size() >= 30, "Select all" );
 		var all = jQuery("*"), good = true;
 		for ( var i = 0; i < all.length; i++ )
 			if ( all[i].nodeType == 8 )
 				good = false;
 		ok( good, "Select all elements, no comment nodes" );
 		t( "Element Selector", "p", ["firstp","ap","sndp","en","sap","first"] );
-		t( "Element Selector", "body", ["body"] );
-		t( "Element Selector", "html", ["html"] );
+		t( "Element Selector 1", "body", ["body"] );
+		t( "Element Selector 2", "html", ["html"] );
 		t( "Parent Element", "div p", ["firstp","ap","sndp","en","sap","first"] );
 		equals( jQuery("param", "#object1").length, 2, "Object/param as context" );
 
 		//same( jQuery("p", document.getElementsByTagName("div")).get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
-		//same( jQuery("p", "div").get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
-		//same( jQuery("p", jQuery("div")).get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
-		//same( jQuery("div").find("p").get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
+		same( jQuery("p", "div").get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
+		same( jQuery("p", jQuery("div")).get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context. 1" );
+		same( jQuery("div").find("p").get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context. 2" );
 
 		ok( jQuery("#length").length, '&lt;input name="length"&gt; cannot be found under IE, see #945' );
 		ok( jQuery("#lengthtest input").length, '&lt;input name="length"&gt; cannot be found under IE, see #945' );
 
 		// Check for unique-ness and sort order
-		//same( jQuery("*").get(), jQuery("*, *").get(), "Check for duplicates: *, *" );
-		//same( jQuery("p").get(), jQuery("p, div p").get(), "Check for duplicates: p, div p" );
+		same( jQuery("*").get(), jQuery("*, *").get(), "Check for duplicates: *, *" );
+		same( jQuery("p").get(), jQuery("p, div p").get(), "Check for duplicates: p, div p" );
 
 		t( "Checking sort order", "h2, h1", ["qunit-header", "qunit-banner", "qunit-userAgent"] );
-		t( "Checking sort order", "h2:first, h1:first", ["qunit-header", "qunit-banner"] );
-		t( "Checking sort order", "p, p a", ["firstp", "simon1", "ap", "google", "groups", "anchor1", "mark", "sndp", "en", "yahoo", "sap", "anchor2", "simon", "first"] );
+		t( "Checking sort order 1", "h2:first, h1:first", ["qunit-header", "qunit-banner"] );
+		t( "Checking sort order 2", "p, p a", ["firstp", "simon1", "ap", "google", "groups", "anchor1", "mark", "sndp", "en", "yahoo", "sap", "anchor2", "simon", "first"] );
 	});
 	
 /*	if ( location.protocol != "file:" ) {
@@ -127,7 +128,7 @@ function specsJQuery(specs, context){
 	});
 */
 
-	test("id", function() {
+	test("id", function(specs) {
 		t( "ID Selector", "#body", ["body"] );
 		t( "ID Selector w/ Element", "body#body", ["body"] );
 		t( "ID Selector w/ Element", "ul#first", [] );
@@ -139,11 +140,11 @@ function specsJQuery(specs, context){
 		t( "Child ID selector using UTF8", "form > #台北", ["台北"] );
 	
 		t( "Escaped ID", "#foo\\:bar", ["foo:bar"] );
-		t( "Escaped ID", "#test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
+		t( "Escaped ID 1", "#test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 		t( "Descendant escaped ID", "div #foo\\:bar", ["foo:bar"] );
-		t( "Descendant escaped ID", "div #test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
+		t( "Descendant escaped ID 1", "div #test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 		t( "Child escaped ID", "form > #foo\\:bar", ["foo:bar"] );
-		t( "Child escaped ID", "form > #test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
+		t( "Child escaped ID 1", "form > #test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 	
 		t( "ID Selector, child ID present", "#form > #radio1", ["radio1"] ); // bug #267
 		t( "ID Selector, not an ancestor ID", "#form #first", [] );
@@ -167,33 +168,33 @@ function specsJQuery(specs, context){
 		t( "ID with weird characters in it", "#name\\+value", ["name+value"] );
 	});
 
-	test("class", function() {
+	test("class", function(specs) {
 		t( "Class Selector", ".blog", ["mark","simon"] );
-		t( "Class Selector", ".GROUPS", ["groups"] );
-		t( "Class Selector", ".blog.link", ["simon"] );
+		t( "Class Selector 1", ".GROUPS", ["groups"] );
+		t( "Class Selector 2", ".blog.link", ["simon"] );
 		t( "Class Selector w/ Element", "a.blog", ["mark","simon"] );
 		t( "Parent Class Selector", "p .blog", ["mark","simon"] );
 
-		//same( jQuery(".blog", document.getElementsByTagName("p")).get(), q("mark", "simon"), "Finding elements with a context." );
-		//same( jQuery(".blog", "p").get(), q("mark", "simon"), "Finding elements with a context." );
-		//same( jQuery(".blog", jQuery("p")).get(), q("mark", "simon"), "Finding elements with a context." );
-		//same( jQuery("p").find(".blog").get(), q("mark", "simon"), "Finding elements with a context." );
+		same( jQuery(".blog", document.getElementsByTagName("p")).get(), q("mark", "simon"), "Finding elements with a context." );
+		same( jQuery(".blog", "p").get(), q("mark", "simon"), "Finding elements with a context. 1" );
+		same( jQuery(".blog", jQuery("p")).get(), q("mark", "simon"), "Finding elements with a context. 2" );
+		same( jQuery("p").find(".blog").get(), q("mark", "simon"), "Finding elements with a context. 3" );
 	
 		t( "Class selector using UTF8", ".台北Táiběi", ["utf8class1"] );
-		//t( "Class selector using UTF8", ".台北", ["utf8class1","utf8class2"] );
-		t( "Class selector using UTF8", ".台北Táiběi.台北", ["utf8class1"] );
-		t( "Class selector using UTF8", ".台北Táiběi, .台北", ["utf8class1","utf8class2"] );
+		t( "Class selector using UTF8 1", ".台北", ["utf8class1","utf8class2"] );
+		t( "Class selector using UTF8 2", ".台北Táiběi.台北", ["utf8class1"] );
+		t( "Class selector using UTF8 3", ".台北Táiběi, .台北", ["utf8class1","utf8class2"] );
 		t( "Descendant class selector using UTF8", "div .台北Táiběi", ["utf8class1"] );
 		t( "Child class selector using UTF8", "form > .台北Táiběi", ["utf8class1"] );
 
 		t( "Escaped Class", ".foo\\:bar", ["foo:bar"] );
-		t( "Escaped Class", ".test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
+		t( "Escaped Class 1", ".test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 		t( "Descendant scaped Class", "div .foo\\:bar", ["foo:bar"] );
-		t( "Descendant scaped Class", "div .test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
+		t( "Descendant scaped Class 1", "div .test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 		t( "Child escaped Class", "form > .foo\\:bar", ["foo:bar"] );
-		t( "Child escaped Class", "form > .test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
+		t( "Child escaped Class 1", "form > .test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 
-		var div = context.document.createElement("div");
+		var div = document.createElement("div");
 	  	div.innerHTML = "<div class='test e'></div><div class='test'></div>";
 		//same( jQuery(".e", div).get(), [ div.firstChild ], "Finding a second class." );
 
@@ -202,50 +203,50 @@ function specsJQuery(specs, context){
 		//same( jQuery(".e", div).get(), [ div.firstChild, div.lastChild ], "Finding a modified class." );
 	});
 
-	test("name", function() {
+	test("name", function(specs) {
 		t( "Name selector", "input[name=action]", ["text1"] );
 		t( "Name selector with single quotes", "input[name='action']", ["text1"] );
 		t( "Name selector with double quotes", 'input[name="action"]', ["text1"] );
 
 		t( "Name selector non-input", "[name=test]", ["length", "fx-queue"] );
-		t( "Name selector non-input", "[name=div]", ["fadein"] );
-		t( "Name selector non-input", "*[name=iframe]", ["iframe"] );
+		t( "Name selector non-input 1", "[name=div]", ["fadein"] );
+		t( "Name selector non-input 2", "*[name=iframe]", ["iframe"] );
 
 		t( "Name selector for grouped input", "input[name='types[]']", ["types_all", "types_anime", "types_movie"] )
 
-		//same( jQuery("#form").find("input[name=action]").get(), q("text1"), "Name selector within the context of another element" );
-		//same( jQuery("#form").find("input[name='foo[bar]']").get(), q("hidden2"), "Name selector for grouped form element within the context of another element" );
+		same( jQuery("#form").find("input[name=action]").get(), q("text1"), "Name selector within the context of another element" );
+		same( jQuery("#form").find("input[name='foo[bar]']").get(), q("hidden2"), "Name selector for grouped form element within the context of another element" );
 
 		//var a = jQuery('<a id="tName1ID" name="tName1">tName1 A</a><a id="tName2ID" name="tName2">tName2 A</a><div id="tName1">tName1 Div</div>').appendTo('#main');
 
 		t( "Find elements that have similar IDs", "[name=tName1]", ["tName1ID"] );
-		t( "Find elements that have similar IDs", "[name=tName2]", ["tName2ID"] );
+		t( "Find elements that have similar IDs 1", "[name=tName2]", ["tName2ID"] );
 	});
 
 
 	test("multiple", function() {
 		t( "Comma Support", "h2, p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
-		t( "Comma Support", "h2 , p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
-		t( "Comma Support", "h2 , p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
-		t( "Comma Support", "h2,p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
+		t( "Comma Support 1", "h2 , p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
+		t( "Comma Support 2", "h2 , p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
+		t( "Comma Support 3", "h2,p", ["qunit-banner","qunit-userAgent","firstp","ap","sndp","en","sap","first"]);
 	});
 
 	test("child and adjacent", function() {
 		t( "Child", "p > a", ["simon1","google","groups","mark","yahoo","simon"] );
-		t( "Child", "p> a", ["simon1","google","groups","mark","yahoo","simon"] );
-		t( "Child", "p >a", ["simon1","google","groups","mark","yahoo","simon"] );
-		t( "Child", "p>a", ["simon1","google","groups","mark","yahoo","simon"] );
+		t( "Child 1", "p> a", ["simon1","google","groups","mark","yahoo","simon"] );
+		t( "Child 2", "p >a", ["simon1","google","groups","mark","yahoo","simon"] );
+		t( "Child 3", "p>a", ["simon1","google","groups","mark","yahoo","simon"] );
 		t( "Child w/ Class", "p > a.blog", ["mark","simon"] );
 		t( "All Children", "code > *", ["anchor1","anchor2"] );
 		t( "All Grandchildren", "p > * > *", ["anchor1","anchor2"] );
 		t( "Adjacent", "a + a", ["groups"] );
-		t( "Adjacent", "a +a", ["groups"] );
-		t( "Adjacent", "a+ a", ["groups"] );
-		t( "Adjacent", "a+a", ["groups"] );
-		t( "Adjacent", "p + p", ["ap","en","sap"] );
-		t( "Adjacent", "p#firstp + p", ["ap"] );
-		t( "Adjacent", "p[lang=en] + p", ["sap"] );
-		t( "Adjacent", "a.GROUPS + code + a", ["mark"] );
+		t( "Adjacent 1", "a +a", ["groups"] );
+		t( "Adjacent 2", "a+ a", ["groups"] );
+		t( "Adjacent 3", "a+a", ["groups"] );
+		t( "Adjacent 4", "p + p", ["ap","en","sap"] );
+		t( "Adjacent 5", "p#firstp + p", ["ap"] );
+		t( "Adjacent 6", "p[lang=en] + p", ["sap"] );
+		t( "Adjacent 7", "a.GROUPS + code + a", ["mark"] );
 		t( "Comma, Child, and Adjacent", "a + a, code > a", ["groups","anchor1","anchor2"] );
 
 		t( "Verify deep class selector", "div.blah > p > a", [] );
@@ -269,72 +270,69 @@ function specsJQuery(specs, context){
 
 		t( "First Child", "p:first-child", [] );
 
-		//reset();
-	
 		t( "Last Child", "p:last-child", ["sap"] );
-		t( "Last Child", "a:last-child", ["simon1","anchor1","mark","yahoo","anchor2","simon","liveLink1","liveLink2"] );
+		t( "Last Child 1", "a:last-child", ["simon1","anchor1","mark","yahoo","anchor2","simon","liveLink1","liveLink2"] );
 	
 		t( "Nth-child", "#main form#form > *:nth-child(2)", ["text1"] );
-		t( "Nth-child", "#main form#form > :nth-child(2)", ["text1"] );
+		t( "Nth-child 2", "#main form#form > :nth-child(2)", ["text1"] );
 
-		t( "Nth-child", "#form select:first option:nth-child(3)", ["option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(0n+3)", ["option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(1n+0)", ["option1a", "option1b", "option1c", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(1n)", ["option1a", "option1b", "option1c", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(n)", ["option1a", "option1b", "option1c", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(even)", ["option1b", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(odd)", ["option1a", "option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(2n)", ["option1b", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(2n+1)", ["option1a", "option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n)", ["option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n+1)", ["option1a", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n+2)", ["option1b"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n+3)", ["option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n-1)", ["option1b"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n-2)", ["option1a", "option1d"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n-3)", ["option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(3n+0)", ["option1c"] );
-		t( "Nth-child", "#form select:first option:nth-child(-n+3)", ["option1a", "option1b", "option1c"] );
+		t( "Nth-child 3", "#form select:first option:nth-child(3)", ["option1c"] );
+		t( "Nth-child 4", "#form select:first option:nth-child(0n+3)", ["option1c"] );
+		t( "Nth-child 5", "#form select:first option:nth-child(1n+0)", ["option1a", "option1b", "option1c", "option1d"] );
+		t( "Nth-child 6", "#form select:first option:nth-child(1n)", ["option1a", "option1b", "option1c", "option1d"] );
+		t( "Nth-child 7", "#form select:first option:nth-child(n)", ["option1a", "option1b", "option1c", "option1d"] );
+		t( "Nth-child 8", "#form select:first option:nth-child(even)", ["option1b", "option1d"] );
+		t( "Nth-child 9", "#form select:first option:nth-child(odd)", ["option1a", "option1c"] );
+		t( "Nth-child 10", "#form select:first option:nth-child(2n)", ["option1b", "option1d"] );
+		t( "Nth-child 11", "#form select:first option:nth-child(2n+1)", ["option1a", "option1c"] );
+		t( "Nth-child 12", "#form select:first option:nth-child(3n)", ["option1c"] );
+		t( "Nth-child 13", "#form select:first option:nth-child(3n+1)", ["option1a", "option1d"] );
+		t( "Nth-child 14", "#form select:first option:nth-child(3n+2)", ["option1b"] );
+		t( "Nth-child 15", "#form select:first option:nth-child(3n+3)", ["option1c"] );
+		t( "Nth-child 16", "#form select:first option:nth-child(3n-1)", ["option1b"] );
+		t( "Nth-child 17", "#form select:first option:nth-child(3n-2)", ["option1a", "option1d"] );
+		t( "Nth-child 18", "#form select:first option:nth-child(3n-3)", ["option1c"] );
+		t( "Nth-child 19", "#form select:first option:nth-child(3n+0)", ["option1c"] );
+		t( "Nth-child 20", "#form select:first option:nth-child(-n+3)", ["option1a", "option1b", "option1c"] );
 	});
 
-	test("attributes", function() {
+	test("attributes", function(specs) {
 		t( "Attribute Exists", "a[title]", ["google"] );
-		t( "Attribute Exists", "*[title]", ["google"] );
-		t( "Attribute Exists", "[title]", ["google"] );
-		t( "Attribute Exists", "a[ title ]", ["google"] );
+		t( "Attribute Exists 1", "*[title]", ["google"] );
+		t( "Attribute Exists 2", "[title]", ["google"] );
+		t( "Attribute Exists 3", "a[ title ]", ["google"] );
 	
 		t( "Attribute Equals", "a[rel='bookmark']", ["simon1"] );
-		t( "Attribute Equals", 'a[rel="bookmark"]', ["simon1"] );
-		t( "Attribute Equals", "a[rel=bookmark]", ["simon1"] );
-		t( "Attribute Equals", "a[href='http://www.google.com/']", ["google"] );
-		t( "Attribute Equals", "a[ rel = 'bookmark' ]", ["simon1"] );
+		t( "Attribute Equals 1", 'a[rel="bookmark"]', ["simon1"] );
+		t( "Attribute Equals 2", "a[rel=bookmark]", ["simon1"] );
+		t( "Attribute Equals 3", "a[href='http://www.google.com/']", ["google"] );
+		t( "Attribute Equals 4", "a[ rel = 'bookmark' ]", ["simon1"] );
 
-		context.document.getElementById("anchor2").href = "#2";
+		document.getElementById("anchor2").href = "#2";
 		t( "href Attribute", "p a[href^=#]", ["anchor2"] );
-		t( "href Attribute", "p a[href*=#]", ["simon1", "anchor2"] );
+		t( "href Attribute 1", "p a[href*=#]", ["simon1", "anchor2"] );
 
 		t( "for Attribute", "form label[for]", ["label-for"] );
 		t( "for Attribute in form", "#form [for=action]", ["label-for"] );
 
-		jQuery("form input")[0].test = 0;
-		jQuery("form input")[1].test = 1;
-
-	  // Disabled tests - expandos don't work in all browsers
+		//jQuery("form input")[0].test = 0;
+		//jQuery("form input")[1].test = 1;
+	  	// Disabled tests - expandos don't work in all browsers
 		//t( "Expando attribute", "form input[test]", ["text1", "text2"] );
 		//t( "Expando attribute value", "form input[test=0]", ["text1"] );
 		//t( "Expando attribute value", "form input[test=1]", ["text2"] );
 	
 		t( "Attribute containing []", "input[name^='foo[']", ["hidden2"] );
-		t( "Attribute containing []", "input[name^='foo[bar]']", ["hidden2"] );
-		t( "Attribute containing []", "input[name*='[bar]']", ["hidden2"] );
-		t( "Attribute containing []", "input[name$='bar]']", ["hidden2"] );
-		t( "Attribute containing []", "input[name$='[bar]']", ["hidden2"] );
-		t( "Attribute containing []", "input[name$='foo[bar]']", ["hidden2"] );
-		t( "Attribute containing []", "input[name*='foo[bar]']", ["hidden2"] );
+		t( "Attribute containing [] 1", "input[name^='foo[bar]']", ["hidden2"] );
+		t( "Attribute containing [] 2", "input[name*='[bar]']", ["hidden2"] );
+		t( "Attribute containing [] 3", "input[name$='bar]']", ["hidden2"] );
+		t( "Attribute containing [] 4", "input[name$='[bar]']", ["hidden2"] );
+		t( "Attribute containing [] 5", "input[name$='foo[bar]']", ["hidden2"] );
+		t( "Attribute containing [] 6", "input[name*='foo[bar]']", ["hidden2"] );
 	
 		t( "Multiple Attribute Equals", "#form input[type='radio'], #form input[type='hidden']", ["radio1", "radio2", "hidden1"] );
-		t( "Multiple Attribute Equals", "#form input[type='radio'], #form input[type=\"hidden\"]", ["radio1", "radio2", "hidden1"] );
-		t( "Multiple Attribute Equals", "#form input[type='radio'], #form input[type=hidden]", ["radio1", "radio2", "hidden1"] );
+		t( "Multiple Attribute Equals 1", "#form input[type='radio'], #form input[type=\"hidden\"]", ["radio1", "radio2", "hidden1"] );
+		t( "Multiple Attribute Equals 2", "#form input[type='radio'], #form input[type=hidden]", ["radio1", "radio2", "hidden1"] );
 	
 		t( "Attribute selector using UTF8", "span[lang=中文]", ["台北"] );
 	
@@ -344,11 +342,11 @@ function specsJQuery(specs, context){
 		t( "Attribute Is Not Equal", "#ap a[hreflang!='en']", ["google","groups","anchor1"] );
 
 		t("Empty values", "#select1 option[value='']", ["option1a"]);
-		t("Empty values", "#select1 option[value!='']", ["option1b","option1c","option1d"]);
+		t("Empty values 1", "#select1 option[value!='']", ["option1b","option1c","option1d"]);
 	
 		t("Select options via :selected", "#select1 option:selected", ["option1a"] );
-		t("Select options via :selected", "#select2 option:selected", ["option2d"] );
-		t("Select options via :selected", "#select3 option:selected", ["option3b", "option3c"] );
+		t("Select options via :selected 1", "#select2 option:selected", ["option2d"] );
+		t("Select options via :selected 2", "#select3 option:selected", ["option3b", "option3c"] );
 	
 		t( "Grouped Form Elements", "input[name='foo[bar]']", ["hidden2"] );
 	
@@ -357,7 +355,7 @@ function specsJQuery(specs, context){
 		t( ":not() Equals quoted attribute", "#form select:not([name='select1'])", ["select2", "select3"]);
 	});
 
-	test("pseudo (:) selectors", function() {
+	test("pseudo (:) selectors", function(specs) {
 		t( "First Child", "p:first-child", ["firstp","sndp"] );
 		t( "Last Child", "p:last-child", ["sap"] );
 		t( "Only Child", "a:only-child", ["simon1","anchor1","yahoo","anchor2","liveLink1","liveLink2"] );
@@ -370,10 +368,10 @@ function specsJQuery(specs, context){
 
 		t( "Selected Option Element", "#form option:selected", ["option1a","option2d","option3b","option3c"] );
 		t( "Text Contains", "a:contains('Google')", ["google","groups"] );
-		t( "Text Contains", "a:contains('Google Groups')", ["groups"] );
+		t( "Text Contains 1", "a:contains('Google Groups')", ["groups"] );
 
-		t( "Text Contains", "a:contains('Google Groups (Link)')", ["groups"] );
-		t( "Text Contains", "a:contains('(Link)')", ["groups"] );
+		t( "Text Contains 2", "a:contains('Google Groups (Link)')", ["groups"] );
+		t( "Text Contains 3", "a:contains('(Link)')", ["groups"] );
 
 		t( "Element Preceded By", "p ~ div", ["foo", "moretests","tabindex-tests", "liveHandlerOrder"] );
 		t( "Not", "a.blog:not(.link)", ["mark"] );
@@ -382,19 +380,19 @@ function specsJQuery(specs, context){
 		t( "Not - recursive", "#form option:not(:not(:selected))[id^='option3']", [ "option3b", "option3c"] );
 
 		t( ":not() failing interior", "p:not(.foo)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not() failing interior", "p:not(div.foo)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not() failing interior", "p:not(p.foo)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not() failing interior", "p:not(#blargh)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not() failing interior", "p:not(div#blargh)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not() failing interior", "p:not(p#blargh)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not() failing interior 1", "p:not(div.foo)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not() failing interior 2", "p:not(p.foo)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not() failing interior 3", "p:not(#blargh)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not() failing interior 4", "p:not(div#blargh)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not() failing interior 5", "p:not(p#blargh)", ["firstp","ap","sndp","en","sap","first"] );
 
 		t( ":not Multiple", "p:not(a)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not Multiple", "p:not(a, b)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not Multiple", "p:not(a, b, div)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not Multiple", "p:not(p)", [] );
-		t( ":not Multiple", "p:not(a,p)", [] );
-		t( ":not Multiple", "p:not(p,a)", [] );
-		t( ":not Multiple", "p:not(a,p,b)", [] );
+		t( ":not Multiple 1", "p:not(a, b)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not Multiple 2", "p:not(a, b, div)", ["firstp","ap","sndp","en","sap","first"] );
+		t( ":not Multiple 3", "p:not(p)", [] );
+		t( ":not Multiple 4", "p:not(a,p)", [] );
+		t( ":not Multiple 5", "p:not(p,a)", [] );
+		t( ":not Multiple 6", "p:not(a,p,b)", [] );
 		//t( ":not Multiple", ":input:not(:image,:input,:submit)", [] );
 	
 		//t( "nth Element", "p:nth(1)", ["ap"] );
