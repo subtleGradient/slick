@@ -204,11 +204,11 @@ function specsPrototype(specs, context){
 		// AND NOW COME THOSE NEW TESTS AFTER ANDREW'S REWRITE!
 		
 		it['should SelectorWithNamespacedAttributes'] = function(){
-			if (Prototype.BrowserFeatures.XPath) {
-				this.assertUndefined(new Selector('html[xml:lang]').xpath);
-				this.assertUndefined(new Selector('body p[xml:lang]').xpath);
-			} else
-			this.info("Could not test XPath bypass: no XPath to begin with!");
+			// if (Prototype.BrowserFeatures.XPath) {
+			// 	this.assertUndefined(new Selector('html[xml:lang]').xpath);
+			// 	this.assertUndefined(new Selector('body p[xml:lang]').xpath);
+			// } else
+			// this.info("Could not test XPath bypass: no XPath to begin with!");
 			this.assertElementsMatch($$('[xml:lang]'), 'html', '#item_3');
 			this.assertElementsMatch($$('*[xml:lang]'), 'html', '#item_3');
 		};
