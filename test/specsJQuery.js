@@ -6,15 +6,15 @@ function specsJQuery(specs, context){
 	
 	function jQuery(expression, root){
 		var ret = [];
-		root = root || document;
-		if(typeof root == 'string') root = Slick(document, root);
+		root = root || context.document;
+		if(typeof root == 'string') root = context.SELECT(context.document, root);
 		if(root.length || root.length == 0){
 			for(var i = 0; i < root.length; i++){
-				ret = Slick(root[i], expression, ret);
+				ret = context.SELECT(root[i], expression, ret);
 			}
 		}
 		else{
-			ret = Slick(root, expression);
+			ret = context.SELECT(root, expression);
 		}
 		return ret;
 	};
