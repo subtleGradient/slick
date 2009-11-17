@@ -21,6 +21,7 @@
 <script type="text/javascript" charset="utf-8" src="specs/specs-mock_template.js"></script>
 <script type="text/javascript" charset="utf-8" src="specs/specsGoogleClosure.js"></script>
 <script type="text/javascript" charset="utf-8" src="specs/specsPrototype.js"></script>
+<script type="text/javascript" charset="utf-8" src="specs/specsJQuery.js"></script>
 
 <!-- Runner -->
 
@@ -31,6 +32,7 @@
 
 new Mock('Closure', specsGoogleClosure);
 new Mock('PrototypeJS', specsPrototype);
+new Mock('jQuery', specsJQuery);
 new Mock('Generic', specsMockTemplate);
 new Mock('xmlmock1', specsAssetsTemplateXML);
 
@@ -95,6 +97,7 @@ new Mock.Request('SVG responseXML','mocks/MooTools_Logo.svg');
 <!-- Framework Mocks -->
 <iframe onload="Mock.register('Google Closure',this.contentWindow)" src="mocks/GoogleClosure-query_test.html"></iframe>
 <iframe onload="Mock.register('PrototypeJS',this.contentWindow)" src="mocks/Prototype-query_test.html"></iframe>
+<iframe onload="Mock.register('jQuery',this.contentWindow)" src="mocks/jQuery-query_test.html"></iframe>
 
 
 </body>
