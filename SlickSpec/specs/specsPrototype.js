@@ -153,10 +153,10 @@ function specsPrototype(specs, context){
 		};
 
 		it['should SelectorMatchElements'] = function(){
-			this.assertElementsMatch(Selector.matchElements($('list').descendants(), 'li'), '#item_1', '#item_2', '#item_3');
-			this.assertElementsMatch(Selector.matchElements($('fixtures').descendants(), 'a.internal'), '#link_1', '#link_2');
-			compareArrays([], Selector.matchElements($('fixtures').descendants(), 'p.last'));
-			this.assertElementsMatch(Selector.matchElements($('fixtures').descendants(), '.inexistant, a.internal'), '#link_1', '#link_2');
+			this.assertElementsMatch(context.MATCH($('list').descendants(), 'li'), '#item_1', '#item_2', '#item_3');
+			this.assertElementsMatch(context.MATCH($('fixtures').descendants(), 'a.internal'), '#link_1', '#link_2');
+			compareArrays([], context.MATCH($('fixtures').descendants(), 'p.last'));
+			this.assertElementsMatch(context.MATCH($('fixtures').descendants(), '.inexistant, a.internal'), '#link_1', '#link_2');
 		};
 
 		it['should SelectorFindElement'] = function(){
@@ -169,29 +169,30 @@ function specsPrototype(specs, context){
 		it['should ElementMatch'] = function(){
 			var span = $('dupL1');
 			// tests that should pass
-			this.assert(span.match('span'));
-			this.assert(span.match('span#dupL1'));
-			this.assert(span.match('div > span'), 'child combinator');
-			this.assert(span.match('#dupContainer span'), 'descendant combinator');      
-			this.assert(span.match('#dupL1'), 'ID only');
-			this.assert(span.match('span.span_foo'), 'class name 1');
-			this.assert(span.match('span.span_bar'), 'class name 2');
-			this.assert(span.match('span:first-child'), 'first-child pseudoclass');
 			
-			this.assert(!span.match('span.span_wtf'), 'bogus class name');
-			this.assert(!span.match('#dupL2'), 'different ID');
-			this.assert(!span.match('div'), 'different tag name');
-			this.assert(!span.match('span span'), 'different ancestry');
-			this.assert(!span.match('span > span'), 'different parent');
-			this.assert(!span.match('span:nth-child(5)'), 'different pseudoclass');
+			value_of(context.MATCH(span, 'span')).should_be_true();
+			value_of(context.MATCH(span, 'span#dupL1')).should_be_true();
+			value_of(context.MATCH(span, 'div > span'), 'child combinator').should_be_true();
+			value_of(context.MATCH(span, '#dupContainer span'), 'descendant combinator').should_be_true();
+			value_of(context.MATCH(span, '#dupL1'), 'ID only').should_be_true();
+			value_of(context.MATCH(span, 'span.span_foo'), 'class name 1').should_be_true();
+			value_of(context.MATCH(span, 'span.span_bar'), 'class name 2').should_be_true();
+			value_of(context.MATCH(span, 'span:first-child'), 'first-child pseudoclass').should_be_true();
 			
-			this.assert(!$('link_2').match('a[rel^=external]'));
-			this.assert($('link_1').match('a[rel^=external]'));
-			this.assert($('link_1').match('a[rel^="external"]'));
-			this.assert($('link_1').match("a[rel^='external']"));
+			value_of(!context.MATCH(span, 'span.span_wtf'), 'bogus class name').should_be_true();
+			value_of(!context.MATCH(span, '#dupL2'), 'different ID').should_be_true();
+			value_of(!context.MATCH(span, 'div'), 'different tag name').should_be_true();
+			value_of(!context.MATCH(span, 'span span'), 'different ancestry').should_be_true();
+			value_of(!context.MATCH(span, 'span > span'), 'different parent').should_be_true();
+			value_of(!context.MATCH(span, 'span:nth-child(5)'), 'different pseudoclass').should_be_true();
 			
-			this.assert(span.match({ match: function(element) { return true }}), 'custom selector');
-			this.assert(!span.match({ match: function(element) { return false }}), 'custom selector');
+			value_of(!context.MATCH($('link_2'), 'a[rel^=external]')).should_be_true();
+			value_of(context.MATCH($('link_1'), 'a[rel^=external]')).should_be_true();
+			value_of(context.MATCH($('link_1'), 'a[rel^="external"]')).should_be_true();
+			value_of(context.MATCH($('link_1'), "a[rel^='external']")).should_be_true();
+			
+			value_of(context.MATCH(span, { match: function(element) { return true }}), 'custom selector').should_be_true();
+			value_of(!context.MATCH(span, { match: function(element) { return false }}), 'custom selector').should_be_true();
 		};
 
 		it['should SelectorWithSpaceInAttributeValue'] = function(){
@@ -370,12 +371,12 @@ function specsPrototype(specs, context){
 
 		it['should CopiedNodesGetIncluded'] = function(){
 			this.assertElementsMatch(
-				Selector.matchElements($('counted_container').descendants(), 'div'),
+				context.MATCH($('counted_container').descendants(), 'div'),
 				'div.is_counted'
 			);
 			$('counted_container').innerHTML += $('counted_container').innerHTML;
 			this.assertElementsMatch(
-				Selector.matchElements($('counted_container').descendants(), 'div'), 'div.is_counted', 
+				context.MATCH($('counted_container').descendants(), 'div'), 'div.is_counted', 
 				'div.is_counted'
 			);
 		};
