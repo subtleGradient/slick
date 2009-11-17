@@ -7,20 +7,20 @@ function specsJQuery(specs, context){
 	function jQuery(expression, root){
 		var ret = [];
 		root = root || context.document;
-		if(typeof root == 'string') root = context.SELECT(context.document, root);
+		if(typeof root == 'string') root = context.SELECT(context.document, root, []);
 		if(root.length || root.length == 0){
 			for(var i = 0; i < root.length; i++){
 				ret = context.SELECT(root[i], expression, ret);
 			}
 		}
 		else{
-			ret = context.SELECT(root, expression);
+			ret = context.SELECT(root, expression, []);
 		}
 		return ret;
 	};
 	function ok(a, message){
 		specs[message] = function(){
-			value_of(a).should_be_true();
+			value_of(!!a).should_be_true();
 		};
 	};
 	function equals(a, b, message){
