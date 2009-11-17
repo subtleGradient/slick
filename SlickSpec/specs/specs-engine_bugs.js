@@ -1,4 +1,4 @@
-function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(specs,context){
+function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(){
 	
 	var rootElement;
 	var testNode;
@@ -123,16 +123,17 @@ function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(specs,
 		teardown();setup();
 		var results;
 		
-		var tmpNode1;tmpNode1 = context.document.createElement('span');tmpNode1.setAttribute('class','b');tmpNode1.setAttribute('className','b');testNode.appendChild(tmpNode1);
-		var tmpNode2;tmpNode2 = context.document.createElement('span');tmpNode2.setAttribute('class','b');tmpNode2.setAttribute('className','b');testNode.appendChild(tmpNode2);
+		var tmpNode1; tmpNode1 = context.document.createElement('span'); tmpNode1.setAttribute('class','b'); tmpNode1.setAttribute('className','b'); testNode.appendChild(tmpNode1);
+		var tmpNode2; tmpNode2 = context.document.createElement('span'); tmpNode2.setAttribute('class','b'); tmpNode2.setAttribute('className','b'); testNode.appendChild(tmpNode2);
 		
-		value_of( SELECT(tmpNode1, '[class|=b]') ).should_be_true();
-		value_of( SELECT(tmpNode1, '[class=b]') ).should_be_true();
-		value_of( SELECT(tmpNode1, '.b') ).should_be_true();
-		value_of( SELECT(tmpNode1, '.f') ).should_be_false();
 		
-		value_of( SELECT(tmpNode2, '.b') ).should_be_true();
-		value_of( SELECT(tmpNode2, '.f') ).should_be_false();
+		value_of( context.SELECT(testNode, '.b', []).length ).should_be(2);
+		value_of( context.SELECT(testNode, '.f', []).length ).should_be(0);
+		value_of( context.SELECT(testNode, '[class|=b]', []).length ).should_be(2);
+		value_of( context.SELECT(testNode, '[class=b]', []).length ).should_be(2);
+		
+		value_of( context.SELECT(testNode, '.b', []).length ).should_not_be(0);
+		value_of( context.SELECT(testNode, '.f', []).length ).should_be(0);
 		
 		results = context.SELECT(testNode, '.b');
 		value_of( results.length ).should_be(2);
@@ -145,12 +146,13 @@ function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(specs,
 		
 		tmpNode1.setAttribute('class','f');
 		tmpNode1.setAttribute('className','f');
-		value_of( tmpNode1.getAttribute('class') ).should_be('f');
-		value_of( SELECT(tmpNode1, '.b') ).should_be_false();
-		value_of( SELECT(tmpNode1, '.f') ).should_be_true();
 		
-		value_of( SELECT(tmpNode2, '.b') ).should_be_true();
-		value_of( SELECT(tmpNode2, '.f') ).should_be_false();
+		value_of( tmpNode1.getAttribute('class') ).should_be('f');
+		value_of( context.SELECT(tmpNode1, '.b', []).length ).should_be(0);
+		value_of( context.SELECT(testNode, '.f', [])[0] ).should_be(tmpNode1);
+		
+		value_of( context.SELECT(testNode, '.b', []).length ).should_be(1);
+		value_of( context.SELECT(testNode, '.f', []).length ).should_be(1);
 		
 		results = context.SELECT(testNode, '.b');
 		value_of( results.length ).should_be(1);
