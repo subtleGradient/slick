@@ -358,17 +358,17 @@ function specsPrototype(specs, context){
 			element.setAttribute('id','scratch_element');
 			$$('body')[0].appendChild(element);
 			var results = $$('#scratch_element div');
-			this.assert(typeof results[0].show == 'function');
-			this.assert(typeof results[1].show == 'function');
-			this.assert(typeof results[2].show == 'function');
+			value_of(typeof results[0].show == 'function');
+			value_of(typeof results[1].show == 'function');
+			value_of(typeof results[2].show == 'function');
 		};
 
 		it['should CountedIsNotAnAttribute'] = function(){
 			var el = $('list');
 			Selector.handlers.mark([el]);
-			this.assert(!el.innerHTML.include("_counted"));
+			value_of(!el.innerHTML.include("_counted"));
 			Selector.handlers.unmark([el]);
-			this.assert(!el.innerHTML.include("_counted"));      
+			value_of(!el.innerHTML.include("_counted"));      
 		};
 
 		it['should CopiedNodesGetIncluded'] = function(){
@@ -390,7 +390,7 @@ function specsPrototype(specs, context){
 			this.assertNotNullOrUndefined(wrapper.select('[id=myTD]')[0], 'selecting: [id=myTD]');
 			this.assertNotNullOrUndefined(wrapper.select('#myTD')[0], 'selecting: #myTD');
 			this.assertNotNullOrUndefined(wrapper.select('td')[0],  'selecting: td');      
-			this.assert($$('#myTD').length == 0, 'should not turn up in document-rooted search');
+			value_of($$('#myTD').length == 0, 'should not turn up in document-rooted search');
 			window.debug = false;
 		};
 
