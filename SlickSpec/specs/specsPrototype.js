@@ -160,10 +160,12 @@ function specsPrototype(specs, context){
 		};
 
 		it['should SelectorFindElement'] = function(){
-			this.assertElementMatches(Selector.findElement($('list').descendants(), 'li'), 'li#item_1.first');
-			this.assertElementMatches(Selector.findElement($('list').descendants(), 'li', 1), 'li#item_2');
-			this.assertElementMatches(Selector.findElement($('list').descendants(), 'li#item_3'), 'li');
-			this.assertEqual(undefined, Selector.findElement($('list').descendants(), 'em'));
+			TODO('implement context.SELECT1');
+			
+			this.assertElementMatches(context.SELECT1($('list').descendants(), 'li'), 'li#item_1.first');
+			this.assertElementMatches(context.SELECT1($('list').descendants(), 'li', 1), 'li#item_2');
+			this.assertElementMatches(context.SELECT1($('list').descendants(), 'li#item_3'), 'li');
+			this.assertEqual(undefined, context.SELECT1($('list').descendants(), 'em'));
 		};
 
 		it['should ElementMatch'] = function(){
