@@ -65,7 +65,7 @@ authors:
 			
 			var testNode = document.createElement('div');
 			local.root.appendChild(testNode);
-			var selected;
+			var selected, id;
 			
 			// IE returns comment nodes for getElementsByTagName('*') for some documents
 			testNode.appendChild(document.createComment(''));
@@ -86,9 +86,13 @@ authors:
 			} catch(e){};
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				testNode.innerHTML = '<a name=idgetsname>';
-				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-			} catch(e){}
+				testNode.innerHTML = '<a name=idgetsname></a><b id=idgetsname></b>';
+				local.idGetsName = testNode.ownerDocument.getElementById('idgetsname') === testNode.firstChild;
+				id = 'getelementbyid';
+				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
+				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
+			} catch(e){
+			};
 			
 			local.root.removeChild(testNode);
 			testNode = null;
@@ -105,6 +109,7 @@ authors:
 	var window = this, document = local.document, root = local.root;
 	
 	// Slick
+	local.isSimple = {};
 	
 	var Slick = local.Slick = function(context, expression, append){
 		
@@ -125,17 +130,17 @@ authors:
 		if (!context.nodeType) return found;
 
 		// expression input
-		if (expression == null){
-			return found;
-
-		} else if (typeof expression == 'string'){
+		if (typeof expression == 'string'){
 			parsed = Slick.parse(expression);
 			if (!parsed.length) return found;
+
+		} else if (expression == null){
+			return found;
 
 		} else if (expression.Slick){
 			parsed = expression;
 
-		} else if (local.contains(context, expression)){
+		} else if (local.contains(context.documentElement || context, expression)){
 			found.push(expression);
 			return found;
 
@@ -163,13 +168,15 @@ authors:
 		
 		// querySelectorAll
 		
-		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
+		QSA: if (context.querySelectorAll && !(parsed.simple === false || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try {
 				nodes = context.querySelectorAll(parsed.raw);
+				parsed.simple = true;
 			} catch(error){
+				parsed.simple = false;
 				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
@@ -274,12 +281,8 @@ authors:
 		var parsed = argument.match(this.matchNTH);
 		if (!parsed) return false;
 		var special = parsed[2] || false;
-		var a = parsed[1];
-		switch (a){
-			case '': a = 1; break;
-			case '-': a = -1; break;
-			default: a = +a;
-		}
+		var a = parsed[1] || 1;
+		if(a == '-') a = -1;
 		var b = parseInt(parsed[3], 10) || 0;
 		switch (special){
 			case 'n':    parsed = {a: a, b: b}; break;
@@ -367,6 +370,26 @@ authors:
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
 					return;
 				}
+/*
+				QSA: if (node.querySelectorAll && !Slick.disableQSA){
+					var query = [];
+					if (tag && tag != '*') query.push(tag.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\'));
+					if (id){ query.push('#');query.push(id.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\')); }
+					if (classes){ query.push('.');query.push(classes.join('').replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\').replace(/\\/,'.')); }
+					try {
+						children = node.querySelectorAll(query.join(''));
+					} catch(e){
+						Slick.debug && Slick.debug(query, e);
+						break QSA;
+					}
+					if (node.nodeType === 9) for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
+					
+					else for (i = 0, l = children.length; i < l; i++)
+						if (this.contains(node, children[i])) this.push(children[i], tag, id, parts);
+					
+					return;
+				}
+*/
 			}
 			getByTag: {
 				children = node.getElementsByTagName(tag);
@@ -526,8 +549,19 @@ authors:
 
 		'odd': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n');
-		}
+		},
 
+		'enabled': function(node){
+			return (node.disabled === false);
+		},
+
+		'checked': function(node){
+			return node.checked;
+		},
+
+		'selected': function(node){
+			return node.selected;
+		}
 	};
 
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
@@ -786,11 +820,13 @@ __END__
 // *///
 		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
-		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
+		.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	);
 	
-	var qsaCombinators = (/^(\s|[~+>])$/);
+	var qsaCombinators = (/^[\s~+>]$/);
+	
+	var simpleAttributeOperators = (/^[*^$~|]?=$/);
 	
 	var map = {
 		rawMatch: 0,
@@ -832,14 +868,14 @@ __END__
 		if (!selectorBitName) return '';
 		
 		
-		if (a[map.tagName]=='*') parsed.type.push('tagName*');
-		
+		if (a[map.tagName]=='*')
+			parsed.type.push('tagName*');
 		else if (parsed.type[parsed.type.length - 1] == selectorBitName && selectorBitName == 'className')
 			parsed.type[parsed.type.length-1] = 'classNames';
-		
 		else if (parsed.type[parsed.type.length - 1] == 'classNames' && selectorBitName == 'className');
-		
-		else parsed.type.push(selectorBitName);
+			// do nothing
+		else
+			parsed.type.push(selectorBitName);
 		
 		
 		var isSeparator = selectorBitName == 'separator';
@@ -856,9 +892,8 @@ __END__
 			var combinator = a[map.combinator] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
-			if (reversed){
-				if (currentSeparator[combinatorIndex]) currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
-			}
+			if (reversed && currentSeparator[combinatorIndex])
+				currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
 			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
@@ -891,7 +926,7 @@ __END__
 
 				// TODO: pseudoClass is only not simple when it's custom or buggy
 				// if (pseudoBuggyOrCustom[pseudoClass])
-				parsed.simple = false;
+				// parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
 				
@@ -908,18 +943,17 @@ __END__
 			
 			case 'attributeKey':
 
-				// TODO: attributeKey is only not simple when it's custom or buggy
-				// if (attributeKeyBuggyOrCustom[attributeKey])
-				parsed.simple = false;
-			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
-			
+				
 				var key = a[map.attributeKey].replace(/\\/g,'');
 				var operator = a[map.attributeOperator];
 				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
-			
+				
+				// Turn off simple mode for custom attribute operators. This should disable QSA mode
+				if (parsed.simple !== false) parsed.simple = !!simpleAttributeOperators.test(operator);
+				
 				var test, regexp;
-			
+				
 				switch (operator){
 					case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
 					case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
@@ -938,11 +972,11 @@ __END__
 						return !!value;
 					};
 				}
-			
+				
 				if (!test) test = function(value){
 					return value && regexp.test(value);
 				};
-			
+				
 				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
 					type: 'attribute',
 					key: key,
@@ -953,7 +987,6 @@ __END__
 
 			break;
 		}
-		
 		partIndex++;
 		return '';
 	};
