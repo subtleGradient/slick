@@ -16,7 +16,7 @@ function specsMockTemplate(specs, context){
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
 	
-	it_should_find(1825, '*:not([href^=tel:])');
+	it_should_find(1821, '*:not([href^=tel:])');
 	it_should_find(1814, 'body *:not([href^=tel:])');
 	
 	it_should_find(1, 'html');
