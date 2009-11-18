@@ -353,7 +353,7 @@ function specsBrowserBugsFixed(specs,context){ Describe('Bugs Fixed',function(sp
 			tmpNode2 = tmpNode1.firstChild;
 			tmpNode3 = tmpNode1.lastChild;
 			
-			results = context.Slick(testNode, ':selected');
+			results = context.SELECT(testNode, ':selected');
 			value_of(results.length).should_be(1);
 			value_of(results[0] === tmpNode2).should_be_true();
 		};
