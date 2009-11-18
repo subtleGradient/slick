@@ -35,7 +35,8 @@
 new Mock('Closure', specsGoogleClosure);
 new Mock('PrototypeJS', specsPrototype);
 new Mock('jQuery', specsJQuery);
-new Mock(/Generic.*?HTML/, specsMockTemplate);
+new Mock('Dojo', specsDojo);
+new Mock(/Generic.*?\bHTML/, specsMockTemplate);
 new Mock('xmlmock1', specsAssetsTemplateXML);
 
 // Specific Bugs
@@ -65,7 +66,6 @@ new Mock(/\b(html)\b/i, function(specs,context){
 		};
 	});
 });
-new Mock('Dojo', specsDojo);
 
 
 </script>
