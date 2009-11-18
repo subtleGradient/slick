@@ -10,9 +10,17 @@
 		
 		scriptsrc.replace(/^(?!=http|\/)/,'../');
 		
-		if (document.write) document.write('<scr'+'ipt src="'+ scriptsrc +'" type="text/javascript"><\/script>');
+		var written;
+		if (document.write){
+			try {
+				document.write('<scr'+'ipt src="'+ scriptsrc +'" type="text/javascript"><\/script>');
+				written = true;
+			} catch(e){
+				written = false;
+			}
+		}
 		
-		else if (document.documentElement.nodeName == 'HTML'){
+		if (!written && document.documentElement.nodeName == 'HTML'){
 			var script = document.createElement('script');
 			script.setAttribute('src', scriptsrc);
 			script.setAttribute('type', 'text/javascript');
@@ -25,7 +33,7 @@
 		
 	}
 	
-	var framework_name = scripts_to_get[0].replace(/^.*\//,'');
+	this.frameworkName = scripts_to_get[0].replace(/^.*\//,'');
 	
 	// function evalRemote(url){
 	// 	if (!(/^(\/|http:)/).test(url) && /\bmocks\b/.test(document.location.href)) url = '../' + url;
