@@ -92,14 +92,21 @@ function specsPrototype(specs, context){
 		};
 
 		// they are returning the same values but with different orders
+/*
 		it['should $$CombinesResultsWhenMultipleExpressionsArePassed'] = function(){
 			compareArrays($('link_1', 'link_2', 'item_1', 'item_2', 'item_3'), $$('#p a', null, $$(' ul#list li ')));
 		};
+*/
 
 		it['should SelectorWithTagNameAndAttributeExistence'] = function(){
 			compareArrays($$('#fixtures h1'), $$('h1[class]'), 'h1[class]');
 			compareArrays($$('#fixtures h1'), $$('h1[CLASS]'), 'h1[CLASS]');
-			compareArrays([$('item_3')], $$('li#item_3[class]'), 'li#item_3[class]');
+			
+			// the element has class=""
+			// this test assumes that you would want to return the element, even though the value is blank
+			// value_of(context.document.querySelectorAll('li#item_3[class]')).should_be([$('item_3')]);
+			value_of( context.SELECT(context.document, 'li#item_3[class]') ).should_be([$('item_3')]);
+			// compareArrays([$('item_3')], $$('li#item_3[class]'), 'li#item_3[class]');
 		};
 
 		it['should SelectorWithTagNameAndSpecificAttributeValue'] = function(){
@@ -152,13 +159,16 @@ function specsPrototype(specs, context){
 			compareArrays([], $$('a[class~=external][href!="#"]'));
 		};
 
+/*
 		it['should SelectorMatchElements'] = function(){
 			this.assertElementsMatch(context.MATCH($('list').descendants(), 'li'), '#item_1', '#item_2', '#item_3');
 			this.assertElementsMatch(context.MATCH($('fixtures').descendants(), 'a.internal'), '#link_1', '#link_2');
 			compareArrays([], context.MATCH($('fixtures').descendants(), 'p.last'));
 			this.assertElementsMatch(context.MATCH($('fixtures').descendants(), '.inexistant, a.internal'), '#link_1', '#link_2');
 		};
+*/
 
+/*
 		it['should SelectorFindElement'] = function(){
 			TODO('implement context.SELECT1');
 			
@@ -167,6 +177,7 @@ function specsPrototype(specs, context){
 			this.assertElementMatches(context.SELECT1($('list').descendants(), 'li#item_3'), 'li');
 			this.assertEqual(undefined, context.SELECT1($('list').descendants(), 'em'));
 		};
+*/
 
 		it['should ElementMatch'] = function(){
 			var span = $('dupL1');
@@ -209,8 +220,10 @@ function specsPrototype(specs, context){
 			// 	this.assertUndefined(new Selector('body p[xml:lang]').xpath);
 			// } else
 			// this.info("Could not test XPath bypass: no XPath to begin with!");
-			this.assertElementsMatch($$('[xml:lang]'), 'html', '#item_3');
-			this.assertElementsMatch($$('*[xml:lang]'), 'html', '#item_3');
+			// this.assertElementsMatch($$('[xml:lang]') , 'html', '#item_3');
+			// this.assertElementsMatch($$('*[xml:lang]'), 'html', '#item_3');
+			value_of( $$('[xml:lang]')  ).should_be([ context.document.documentElement, context.document.getElementById('item_3') ]);
+			value_of( $$('*[xml:lang]') ).should_be([ context.document.documentElement, context.document.getElementById('item_3') ]);
 		};
 
 		it['should SelectorWithChild'] = function(){
@@ -285,13 +298,16 @@ function specsPrototype(specs, context){
 			compareArrays($('item_2', 'item_3'), $$('#list > li:nth-child(n+2)'));
 			compareArrays($('item_1', 'item_2'), $$('#list > li:nth-child(-n+2)'));
 		};
+		it['should SelectorWithFirstLastOnlyNthNthLastChild 2'] = function(){
+			compareArrays([$('link_2')], $$('#p *:last-child(2)'), 'nth-last-child');
+		};
 
 		it['should SelectorWithFirstLastNthNthLastOfType'] = function(){
-			//compareArrays([$('link_2')], $$('#p a:nth-of-type(2)'), 'nth-of-type');
-			//compareArrays([$('link_1')], $$('#p a:nth-of-type(1)'), 'nth-of-type');
-			//compareArrays([$('link_2')], $$('#p a:nth-last-of-type(1)'), 'nth-last-of-type');
-			//compareArrays([$('link_1')], $$('#p a:first-of-type'), 'first-of-type');
-			//compareArrays([$('link_2')], $$('#p a:last-of-type'), 'last-of-type');
+			compareArrays([$('link_2')], $$('#p a:nth-of-type(2)'), 'nth-of-type');
+			compareArrays([$('link_1')], $$('#p a:nth-of-type(1)'), 'nth-of-type');
+			compareArrays([$('link_2')], $$('#p a:nth-last-of-type(1)'), 'nth-last-of-type');
+			compareArrays([$('link_1')], $$('#p a:first-of-type'), 'first-of-type');
+			compareArrays([$('link_2')], $$('#p a:last-of-type'), 'last-of-type');
 		};
 
 		it['should SelectorWithNot'] = function(){
@@ -330,7 +346,7 @@ function specsPrototype(specs, context){
 			compareArrays($$('ul > li:nth-child(even)'), $$('ul > li:nth-child(2n)'));
 			compareArrays($$('ul > li:nth-child(odd)'), $$('ul > li:nth-child(2n+1)'));
 			compareArrays($$('ul > li:first-child'), $$('ul > li:nth-child(1)'));
-			//compareArrays($$('ul > li:last-child'), $$('ul > li:nth-last-child(1)'));
+			compareArrays($$('ul > li:last-child'), $$('ul > li:nth-last-child(1)'));
 			compareArrays($$('ul > li:nth-child(n-999)'), $$('ul > li'));
 			compareArrays($$('ul>li'), $$('ul > li'));
 			compareArrays($$('#p a:not(a[rel$="nofollow"])>em'), $$('#p a:not(a[rel$="nofollow"]) > em'));
@@ -344,6 +360,7 @@ function specsPrototype(specs, context){
 		};
 
 		it['should CommasFor$$'] = function(){
+			// fails for lack of namespaced attribute selector support
 			compareArrays($('list', 'p', 'link_1', 'item_1', 'item_3', 'troubleForm'), $$('#list, .first,*[xml:lang="es-us"] , #troubleForm'));
 			compareArrays($('list', 'p', 'link_1', 'item_1', 'item_3', 'troubleForm'), $$('#list, .first,', '*[xml:lang="es-us"] , #troubleForm'));
 			compareArrays($('commaParent', 'commaChild'), $$('form[title*="commas,"], input[value="#commaOne,#commaTwo"]'));
@@ -352,9 +369,9 @@ function specsPrototype(specs, context){
 
 		it['should SelectorExtendsAllNodes'] = function(){
 			var element = document.createElement('div');
-			(3).times(function(){
-				element.appendChild(document.createElement('div'));
-			});
+			element.appendChild(document.createElement('div'));
+			element.appendChild(document.createElement('div'));
+			element.appendChild(document.createElement('div'));
 			element.setAttribute('id','scratch_element');
 			$$('body')[0].appendChild(element);
 			var results = $$('#scratch_element div');
@@ -363,6 +380,8 @@ function specsPrototype(specs, context){
 			value_of(typeof results[2].show == 'function');
 		};
 
+/*
+		replace descendants functionality
 		it['should CountedIsNotAnAttribute'] = function(){
 			var el = $('list');
 			Selector.handlers.mark([el]);
@@ -370,7 +389,10 @@ function specsPrototype(specs, context){
 			Selector.handlers.unmark([el]);
 			value_of(!el.innerHTML.include("_counted"));      
 		};
+*/
 
+/*
+		replace descendants functionality
 		it['should CopiedNodesGetIncluded'] = function(){
 			this.assertElementsMatch(
 				context.MATCH($('counted_container').descendants(), 'div'),
@@ -382,24 +404,30 @@ function specsPrototype(specs, context){
 				'div.is_counted'
 			);
 		};
+*/
 
 		it['should SelectorNotInsertedNodes'] = function(){
 			window.debug = true;
-			var wrapper = new Element("div");
-			wrapper.update("<table><tr><td id='myTD'></td></tr></table>");
-			this.assertNotNullOrUndefined(wrapper.select('[id=myTD]')[0], 'selecting: [id=myTD]');
-			this.assertNotNullOrUndefined(wrapper.select('#myTD')[0], 'selecting: #myTD');
-			this.assertNotNullOrUndefined(wrapper.select('td')[0],  'selecting: td');      
+			var wrapper = context.document.createElement('div');
+			wrapper.innerHTML = ("<table><tr><td id='myTD'></td></tr></table>");
+			value_of(context.SELECT(wrapper, '[id=myTD]') [0]).should_not_be_undefined();
+			value_of(context.SELECT(wrapper, '#myTD')     [0]).should_not_be_undefined();
+			value_of(context.SELECT(wrapper, 'td')        [0]).should_not_be_undefined();
 			value_of($$('#myTD').length == 0, 'should not turn up in document-rooted search');
 			window.debug = false;
 		};
 
+/*
+		Prototype-specific test
 		it['should ElementDown'] = function(){
 			var a = $('dupL4'); 
 			var b = $('dupContainer').down('#dupL4');
 			this.assertEqual(a, b);
 		};
+*/
 
+/*
+		Prototype-specific test
 		it['should ElementDownWithDotAndColon'] = function(){
 			var a = $('dupL4_dotcolon'); 
 			var b = $('dupContainer.withdot:active').down('#dupL4_dotcolon');    
@@ -408,12 +436,13 @@ function specsPrototype(specs, context){
 			this.assertEqual(a, b);
 			compareArrays([a], c);
 		};
+*/
 
 		it['should DescendantSelectorBuggy'] = function(){
 			var el = document.createElement('div');
 			el.innerHTML = '<ul><li></li></ul><div><ul><li></li></ul></div>';
 			document.body.appendChild(el);
-			this.assertEqual(2, $(el).select('ul li').length);
+			value_of( context.SELECT(el, 'ul li').length ).should_be( 2 );
 			document.body.removeChild(el);
 		};
 
