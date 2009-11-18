@@ -34,10 +34,8 @@
 new Mock('Closure', specsGoogleClosure);
 new Mock('PrototypeJS', specsPrototype);
 new Mock('jQuery', specsJQuery);
-new Mock('Generic', specsMockTemplate);
+new Mock(/Generic.*?HTML/, specsMockTemplate);
 new Mock('xmlmock1', specsAssetsTemplateXML);
-
-
 
 // Specific Bugs
 
