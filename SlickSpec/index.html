@@ -32,16 +32,16 @@ sup.version{
 }
 
 
-ul#prebuilt {
+#prebuilt ul {
 	padding-left:0;
 	list-style:none;
 }
-ul#prebuilt li a {
+#prebuilt li a {
 	font-size: 1.5em;
 	text-decoration: none;
 	padding: 0.5em;
 }
-ul#prebuilt li a:hover {
+#prebuilt li a:hover {
 	background-color: #eee;
 }
 
@@ -55,11 +55,19 @@ ul#prebuilt li a:hover {
 <p><em>Generic Selectors API Specification</em></p>
 
 
-<ul id="prebuilt">
+<div id="prebuilt">
+<h3>All Specs</h3>
+<ul>
 	<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">edge</sup></a></li>
 	<li><a href="select.html?script=http://mootools.github.com/slick/slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">pre-release</sup></a></li>
 	<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
 </ul>
+<h3>Dojo Specs</h3>
+<ul>
+	<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js&amp;rerun=Dojo">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">edge</sup> </a></li>
+	<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js&amp;rerun=Dojo"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
+</ul>
+</div>
 
 <form action="select.html" method="get" accept-charset="utf-8" id="select" class="span-12 box">
 	
@@ -80,6 +88,10 @@ ul#prebuilt li a:hover {
 		<div>
 			<label class="column span-3" for="script"><span>Bootstrap Script</span></label>
 			<input class="span-8 last" type="text" name="script" value="bootstrap/slick.slickspec.js" />
+		</div>
+		<div>
+			<label class="column span-3" for="rerun">Rerun Spec</label>
+			<input class="span-8 last" type="text" name="rerun" value="" />
 		</div>
 	</fieldset>
 	
