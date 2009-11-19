@@ -416,7 +416,7 @@ JSSpec.Runner.prototype.getSpecById = function(id) {
 
 JSSpec.Runner.prototype.getSpecByContext = function(context) {
 	for(var i = 0; i < this.specs.length; i++) {
-		if(this.specs[i].context == context) return this.specs[i];
+		if(this.specs[i].context.match(context)) return this.specs[i];
 	}
 	return null;
 };
