@@ -108,50 +108,44 @@ JSSpec.Executor.prototype.mergeExceptions = function(assertionFailure, normalExc
 };
 
 JSSpec.Executor.prototype.run = function() {
-	if (this.ran){
-		window.clearTimeout(this.runTimer);
-	 	return;
-	}
 	var self = this;
 	var target = this.target;
 	var onSuccess = this.onSuccess;
 	var onException = this.onException;
 	
-	window.clearTimeout(this.runTimer);
-	this.runTimer = window.setTimeout(function(){
-		var result;
-		if(JSSpec.Browser.Trident) {
-			
-			window._curExecutor = self;
-			result = self.target();
-			self.onSuccess(self, result);
-			
-		} else try {
-			
-			result = self.target();
-			self.onSuccess(self, result);
-			
-		} catch(ex) {
-			
-			if(JSSpec.Browser.Webkit) ex = {message:ex.message, fileName:ex.sourceURL, lineNumber:ex.line};
-			if(JSSpec._secondPass){
-				ex = self.mergeExceptions(JSSpec._assertionFailure, ex);
-				delete JSSpec._secondPass;
-				delete JSSpec._assertionFailure;
+	window.setTimeout(
+		function() {
+			var result;
+			if(JSSpec.Browser.Trident) {
+				window._curExecutor = self;
 				
-				ex.type = "failure";
-				self.onException(self, ex);
-			} else if(JSSpec._assertionFailure) {
-				JSSpec._secondPass = true;
-				self.ran = 'fail';
-				self.run();
-				self.ran = 'pass';
+				result = self.target();
+				self.onSuccess(self, result);
 			} else {
-				self.onException(self, ex);
+				try {
+					result = self.target();
+					self.onSuccess(self, result);
+				} catch(ex) {
+					if(JSSpec.Browser.Webkit) ex = {message:ex.message, fileName:ex.sourceURL, lineNumber:ex.line};
+					
+					if(JSSpec._secondPass)  {
+						ex = self.mergeExceptions(JSSpec._assertionFailure, ex);
+						delete JSSpec._secondPass;
+						delete JSSpec._assertionFailure;
+						
+						ex.type = "failure";
+						self.onException(self, ex);
+					} else if(JSSpec._assertionFailure) {
+						JSSpec._secondPass = true;
+						self.run();
+					} else {
+						self.onException(self, ex);
+					}
+				}
 			}
-			
-		}
-	},0);
+		},
+		0
+	);
 };
 
 
@@ -179,24 +173,23 @@ JSSpec.CompositeExecutor.prototype.addExecutor = function(executor) {
 	executor.parent = this;
 	executor.onSuccessBackup = executor.onSuccess;
 	executor.onSuccess = function(result) {
-		this.ran = 'pass';
-		// this.onSuccessBackup(result);
-		// set next to the next that !ran
-		var next = this.next;
-		while (next && next.ran) next = next.next;
-		if (next) next.run();
-		else this.parent.onSuccess();
+		this.onSuccessBackup(result);
+		if(this.next) {
+			this.next.run();
+		} else {
+			this.parent.onSuccess();
+		}
 	};
 	executor.onExceptionBackup = executor.onException;
 	executor.onException = function(executor, ex) {
-		this.ran = 'fail';
-		// this.onExceptionBackup(executor, ex);
+		this.onExceptionBackup(executor, ex);
 
 		if(this.parent.continueOnException) {
-			var next = this.next;
-			while (next && next.ran) next = next.next;
-			if (next) next.run();
-			else this.parent.onSuccess();
+			if(this.next) {
+				this.next.run();
+			} else {
+				this.parent.onSuccess();
+			}
 		} else {
 			this.parent.onException(executor, ex);
 		}
@@ -226,7 +219,6 @@ JSSpec.Spec = function(context, entries) {
 };
 
 JSSpec.Spec.id = 0;
-
 JSSpec.Spec.prototype.getExamples = function() {
 	return this.examples;
 };
@@ -351,7 +343,6 @@ JSSpec.Example = function(name, target, before, after) {
 };
 
 JSSpec.Example.id = 0;
-
 JSSpec.Example.prototype.isFailure = function() {
 	return this.exception && this.exception.type == "failure";
 };
@@ -361,8 +352,6 @@ JSSpec.Example.prototype.isError = function() {
 };
 
 JSSpec.Example.prototype.getExecutor = function() {
-	JSSpec.Example.executors = JSSpec.Example.executors || {};
-	if (JSSpec.Example.executors[this.name]) return JSSpec.Example.executors[this.name];
 	var self = this;
 	var onException = function(executor, ex) {
 		self.exception = ex;
@@ -383,7 +372,7 @@ JSSpec.Example.prototype.getExecutor = function() {
 	
 	composite.addExecutor(targetAndAfter);
 	
-	return JSSpec.Example.executors[this.name] = composite;
+	return composite;
 };
 
 /**
