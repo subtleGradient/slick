@@ -53,7 +53,7 @@ function benchmarkSelectors(specs,context){
 	}
 	
 	if (global.NW) {
-		global.NW.Dom.setCache(false);
+		// global.NW.Dom.setCache(false);
 		it['NWm'] = _benchmarkSelectors(function(searchContext,selector){ return global.NW.Dom.select(selector,searchContext); }, context, selectors);
 	}
 	
