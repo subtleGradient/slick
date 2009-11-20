@@ -2,7 +2,7 @@
 
 (function(){
 	
-	window.scripts_to_get = parent.scripts_to_get || window.location.search.match(/\bscript=(.*?\.js)/gi) || ['http://mootools.github.com/slick/slick.js','bootstrap/slick.slickspec.js'];
+	window.scripts_to_get = window.scripts_to_get || parent.scripts_to_get || window.location.search.match(/\bscript=(.*?\.js)/gi) || ['http://mootools.github.com/slick/slick.js','/SlickSpec/bootstrap/slick.slickspec.js'];
 	
 	for (var i=0, scriptsrc; scriptsrc = scripts_to_get[i]; i++){
 		
@@ -33,7 +33,7 @@
 		
 	}
 	
-	this.frameworkName = scripts_to_get[0].replace(/^.*\//,'');
+	this.frameworkName = (scripts_to_get[0] || '').replace(/^.*\//,'');
 	
 	// function evalRemote(url){
 	// 	if (!(/^(\/|http:)/).test(url) && /\bmocks\b/.test(document.location.href)) url = '../' + url;
