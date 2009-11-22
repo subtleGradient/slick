@@ -1,8 +1,8 @@
 function setupMethods(specs, window){
 	var Slick = window.Slick || global.Slick;
 	
-	window.SELECT = function(context, selector){
-		return Slick.search(context, selector);
+	window.SELECT = function(context, selector, append){
+		return Slick.search(context, selector, append);
 	};
 	window.SELECT1 = function(context, selector){
 		return Slick.find(context, selector);
