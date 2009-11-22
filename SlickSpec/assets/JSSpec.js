@@ -476,15 +476,16 @@ JSSpec.Logger.prototype.onRunnerStart = function() {
 	var title = document.createElement("DIV");
 	title.id = "title";
 	title.innerHTML = [
-		'<h1><a href="http://jania.pe.kr/aw/moin.cgi/JSSpec">JSSpec</a></h1>',
+		'<h1 id="framework_name"> ', window.frameworkName||'', ' </h1>',
 		'<ul>',
-		JSSpec.options.rerun ? '<li>[<a href="' + baseQueryString + '" title="rerun all specs">X</a>] ' + JSSpec.util.escapeTags(decodeURIComponent(JSSpec.options.rerun)) + '</li>' : '',
-		'	<li><span id="total_examples">' + JSSpec.runner.totalExamples + '</span> examples</li>',
-		'	<li><span id="total_failures">0</span> failures</li>',
-		'	<li><span id="total_errors">0</span> errors</li>',
-		'	<li><span id="progress">0</span>% done</li>',
-		'	<li><span id="total_elapsed">0</span> secs</li>',
+		JSSpec.options.rerun ? '<li><a href="' + baseQueryString + '" title="rerun all specs">X</a> ' + JSSpec.util.escapeTags(decodeURIComponent(JSSpec.options.rerun)) + ' </li>' : '',
+		'	<li><span id="total_examples">' + JSSpec.runner.totalExamples + '</span> examples </li>',
+		'	<li><span id="total_failures">0</span> failures </li>',
+		'	<li><span id="total_errors">0</span> errors </li>',
+		'	<li><span id="progress">0</span>% done </li>',
+		'	<li><span id="total_elapsed">0</span> secs </li>',
 		'</ul>',
+		'<h1><a href="http://jania.pe.kr/aw/moin.cgi/JSSpec">JSSpec </a></h1>',
 	].join("");
 	container.appendChild(title);
 
