@@ -17,9 +17,11 @@ authors:
 	
 	var local = {};
 	
+	var Slick = local.Slick = this.Slick = this.Slick || {};
+	
 	// Feature / Bug detection
 	
-	local.isXML = function(element){
+	Slick.isXML = local.isXML = function(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
@@ -112,7 +114,7 @@ authors:
 	// Slick
 	local.isSimple = {};
 	
-	var Slick = local.Slick = function(context, expression, append){
+	var search = Slick.search = local.search = function(context, expression, append){
 		
 		// setup
 		
@@ -249,7 +251,7 @@ authors:
 	};
 	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	local.contains = (root.contains) ? function(context, node){
+	Slick.contains = local.contains = (root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
@@ -567,10 +569,6 @@ authors:
 
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	// Slick contains
-	
-	Slick.contains = local.contains;
-	
 	// add pseudos
 	
 	Slick.defineEngine = function(name, fn, shouldDefine){
@@ -708,12 +706,6 @@ authors:
 
 	for (displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
-	
-	
-	// public
-	
-	Slick.isXML = local.isXML;
-	this.Slick = Slick;
 	
 }).apply(this);
 
