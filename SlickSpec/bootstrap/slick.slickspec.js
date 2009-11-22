@@ -44,8 +44,6 @@ function verifySetupContext(specs, context){
 	Describe('Verify Context',function(){
 
 		it['should set the context properly'] = function(){
-			value_of(context).should_not_be(global);
-			value_of(context).should_not_be(window);
 			value_of(context.document).should_not_be_undefined();
 			value_of(context.document.nodeType).should_be(9);
 			
