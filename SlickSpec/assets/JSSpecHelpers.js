@@ -84,13 +84,6 @@ var Mock = (function(){
 		for (var mockName in global.mocks) if (this.mockName.test(mockName)) {
 			
 			global.context = global.mocks[mockName];
-			for (var i = 0, l = global.willDefineEverywhere.length; i  < l; i++) {
-				try {
-					global.willDefineEverywhere[i](global.context);
-				} finally {
-					continue;
-				}
-			}
 			Describe(mockName,this.testBuilder);
 			
 		}
@@ -132,11 +125,6 @@ Mock.Request = function(mockName, url){
 	this.rq = new SimpleRequest();
 	this.rq.send(this.url, this.callback);
 };
-
-global.willDefineEverywhere = [];
-Mock.defineEverywhere = function(definer){
-	global.willDefineEverywhere.push(definer);
-}
 
 var TODO = function(){ throw "TODO: This test has not be written yet"; };
 
