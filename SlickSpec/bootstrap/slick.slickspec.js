@@ -13,6 +13,9 @@ function setupMethods(specs, window){
 	window.isXML = function(document){
 		return Slick.isXML(document);
 	};
+	window.PARSE = function(selector){
+		return Slick.parse(selector);
+	};
 }
 
 function verifySetupMethods(specs, window){
@@ -28,6 +31,12 @@ function verifySetupMethods(specs, window){
 		it['should define isXML'] = function(){
 			value_of( typeof window.isXML ).should_be('function');
 			value_of( typeof window.isXML(window.document) ).should_be('boolean');
+		};
+		it['should define PARSE'] = function(){
+			value_of( typeof window.PARSE ).should_be('function');
+			value_of( typeof window.PARSE('*') ).should_be('object');
+			value_of( window.PARSE('*').expressions.length ).should_be(1);
+			value_of( window.PARSE('*').expressions[0].length ).should_be(1);
 		};
 	});
 };
