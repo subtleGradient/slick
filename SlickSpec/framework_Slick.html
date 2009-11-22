@@ -8,7 +8,9 @@
 <link rel="stylesheet" type="text/css" href="assets/slickspec.css" />
 <script type="text/javascript" src="assets/diff_match_patch.js"></script>
 <script type="text/javascript" src="assets/JSSpec.js"></script>
+<script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript" src="assets/JSSpecHelpers.js"></script>
+<script type="text/javascript" src="assets/getgetter.js"></script>
 
 <!-- Slick -->
 <script type="text/javascript" src="../slick.js"></script>
@@ -21,7 +23,6 @@
 <script type="text/javascript" src="slick_xml_specs.js"></script>
 
 <!-- Runner -->
-<script type="text/javascript" src="assets/simple_request.js"></script>
 <script type="text/javascript">
 
 new Mock(/\b(xml|svg|xhtml)\b/i, function(specs,context){
@@ -178,13 +179,5 @@ new Mock.Request('responseXML','mocks/xmlmock1.xml');
 new Mock.Request('responseXML','mocks/MooTools_Logo.svg');
 
 </script>
-<script type="text/javascript">
-(function(){try{
-	
-	var result = window.location.search.match(/\bscript=(.*?\.js)/i);
-	if (result) document.write('<scr'+'ipt src="'+ result[1] +'" type="text/javascript"><\/script>');
-	
-}catch(e){}})();
-</script>	
 </body>
 </html>
