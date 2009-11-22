@@ -157,24 +157,24 @@ new Mock('html', function(specs,context){
 
 
 <!-- mocks -->
-<iframe onload="Mock.register('template html standard',this.contentWindow)" src="tools/template-standard.html"></iframe>
-<iframe onload="Mock.register('template html almost standard',this.contentWindow)" src="tools/template-almost.html"></iframe>
-<iframe onload="Mock.register('template html quirks',this.contentWindow)" src="tools/template-quirks.html"></iframe>
+<iframe onload="Mock.register('template html standard',this.contentWindow)" src="mocks/template-standard.html"></iframe>
+<iframe onload="Mock.register('template html almost standard',this.contentWindow)" src="mocks/template-almost.html"></iframe>
+<iframe onload="Mock.register('template html quirks',this.contentWindow)" src="mocks/template-quirks.html"></iframe>
 
 <!--[if gt IE 8]><!-->
-<iframe onload="Mock.register('template xhtml',this.contentWindow)" src="tools/template.xhtml"></iframe>
-<iframe onload="Mock.register('template xml',this.contentWindow)" src="tools/template.xml"></iframe>
-<iframe onload="Mock.register('svg logo',this.contentWindow)" src="tools/MooTools_Logo.svg"></iframe>
+<iframe onload="Mock.register('template xhtml',this.contentWindow)" src="mocks/template.xhtml"></iframe>
+<iframe onload="Mock.register('template xml',this.contentWindow)" src="mocks/template.xml"></iframe>
+<iframe onload="Mock.register('svg logo',this.contentWindow)" src="mocks/MooTools_Logo.svg"></iframe>
 <!-- <![endif]-->
 
 <!--[if gte IE 8]>
-<iframe onload="Mock.register('template html IE8 as IE7',this.contentWindow)" src="tools/template-ie7.html"></iframe>
+<iframe onload="Mock.register('template html IE8 as IE7',this.contentWindow)" src="mocks/template-ie7.html"></iframe>
 <![endif]-->
 
 <script type="text/javascript" charset="utf-8">
 
-new Mock.Request('responseXML','tools/xmlmock1.xml');
-new Mock.Request('responseXML','tools/MooTools_Logo.svg');
+new Mock.Request('responseXML','mocks/xmlmock1.xml');
+new Mock.Request('responseXML','mocks/MooTools_Logo.svg');
 
 </script>
 <script type="text/javascript" charset="utf-8">
