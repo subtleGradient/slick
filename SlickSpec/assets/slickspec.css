@@ -118,7 +118,7 @@ body, #jsspec_container {
 	padding: 0 !important;
 	margin: 0 !important;
 	height: 40px !important;
-	overflow: hidden !important;
+/*	overflow: hidden !important;*/
 	
 	position: fixed;
 	_position: absolute;
@@ -213,7 +213,7 @@ div#title h1 {
 	padding: 0.25em 0.75em;
 	font-size: 16px;
 }
-div#title h1:before{
+div#title h1 a:before{
 	content:"powered by ";
 	font-size: 9px;
 	font-style: italic;
