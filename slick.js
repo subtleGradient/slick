@@ -727,7 +727,9 @@ authors:
 
 (function(){
 	
-	function SlickParser(expression){
+	var Slick = this.Slick = this.Slick || {};
+	
+	Slick.parse = function(expression){
 		return parse(expression);
 	};
 	
@@ -736,8 +738,8 @@ authors:
 		combinatorIndex,
 		partIndex,
 		reversed,
-		cache = {},
-		reverseCache = {}
+		cache = Slick.parse.cache = {},
+		reverseCache = Slick.parse.reverseCache = {}
 	;
 	
 	var parse = function(expression, isReversed){
@@ -780,7 +782,7 @@ authors:
 		return expression;
 	};
 	
-	var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
+	var escapeRegExp = Slick.parse.escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
@@ -987,22 +989,8 @@ __END__
 	for (var displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	// public
-	
-	SlickParser.cache = cache;
-	SlickParser.reverseCache = reverseCache;
-	
-	if (this.Slick){
-		
-		this.Slick.parse = SlickParser;
-		
-		this.Slick.reverse = function(expression){
-			return parse((typeof expression == 'string') ? expression : expression.raw, true);
-		};
-		
-		this.Slick.parse.escapeRegExp = escapeRegExp;
-	} else {
-		this.SlickParser = SlickParser;
-	}
+	Slick.parse.reverse = function(expression){
+		return parse((typeof expression == 'string') ? expression : expression.raw, true);
+	};
 	
 }).apply(this);
