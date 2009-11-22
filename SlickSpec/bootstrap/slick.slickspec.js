@@ -27,6 +27,7 @@ function verifySetupMethods(specs, window){
 		};
 		it['should define isXML'] = function(){
 			value_of( typeof window.isXML ).should_be('function');
+			value_of( typeof window.isXML(window.document) ).should_be('boolean');
 		};
 	});
 };
