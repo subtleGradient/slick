@@ -1,6 +1,5 @@
 function specsSelectorExhaustive(specs,context){
 	
-	var CLASSES = "normal escaped\\,character ǝpoɔıun 瀡 with-dash with_underscore 123number MiXeDcAsE".split(' ');
 	Describe('CLASS',function(specs,context){
 		
 		specs.before_each = function(){
