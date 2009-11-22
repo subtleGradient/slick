@@ -4,6 +4,9 @@ function setupMethods(specs, window){
 	window.SELECT = function(context, selector){
 		return Slick.search(context, selector);
 	};
+	window.SELECT1 = function(context, selector){
+		return Slick.find(context, selector);
+	};
 	window.MATCH = function(context, selector){
 		return Slick.match(context, selector);
 	};
