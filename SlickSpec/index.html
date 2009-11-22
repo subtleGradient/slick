@@ -16,11 +16,8 @@ sup.version{
 	font-style: italic;
 }
 
-#select {
+#select .buttons {
 	text-align:right;
-}
-#select fieldset {
-	text-align:left;
 }
 #select label {
 	text-align:right;
@@ -42,7 +39,10 @@ sup.version{
 	padding: 0.5em;
 }
 #prebuilt li a:hover {
-	background-color: #eee;
+	background-color: #DEE6F7;
+}
+#prebuilt .box li a:hover {
+	background-color: #fff;
 }
 
 </style>
@@ -54,33 +54,30 @@ sup.version{
 <h1>Slick<strong>Spec</strong> <sup class="version">alpha</sup></h1>
 <p><em>Generic Selectors API Specification</em></p>
 
-
 <div id="prebuilt">
-<h3>All Specs</h3>
-<ul>
-	<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">edge</sup></a></li>
-	<li><a href="select.html?script=http://mootools.github.com/slick/slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">pre-release</sup></a></li>
-	<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
-	<!-- <li><a href="select.html?script=http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools.js&amp;script=bootstrap/moo12.slickspec.js"> &rarr; SlickSpec <strong>MooTools 1.2</strong> <sup class="version">latest</sup></a></li> -->
-</ul>
-<h3>Dojo Specs</h3>
-<ul>
-	<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js&amp;rerun=Dojo">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">edge</sup> </a></li>
-	<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js&amp;rerun=Dojo"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
-</ul>
-<div class="span-12 box">
-<h4>Slick.js Specific</h4>
-<ul>
-	<li><a href="framework_Slick.html">Framework Slick</a></li>
-	<li><a href="parse.html">Parse</a></li>
-	<li><a href="match.html">Match <sup class="version">work in progress</sup></a></li>
-</ul>
-</div>
+	<ul>
+		<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">edge</sup></a></li>
+		<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
+		<li><a href="select.html?script=http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools.js&amp;script=bootstrap/moo12.slickspec.js"> &rarr; SlickSpec <strong>MooTools</strong> <sup class="version">1.2.4</sup></a></li>
+	</ul>
+	
+	<div class="span-12 box">
+		<h4>Slick.js Specific</h4>
+		<ul>
+			<li><a href="framework_Slick.html">Slick Features</a></li>
+			<li><a href="parse.html">Slick Parser</a></li>
+			<li><a href="match.html">Match <sup class="version">work in progress</sup></a></li>
+		</ul>
+	</div>
 </div>
 
 <hr />
 
 <form action="select.html" method="get" accept-charset="utf-8" id="select" class="span-12 box">
+	
+	<p>To run SlickSpec on your own selector engine all you need is a link to the source and a simple bootstrap script.</p>
+	<p>The bootstrap script maps the generic methods that the specs use to the specific selector engine's methods.</p>
+	<p>See the Slick.js bootstrap as an example <a href="bootstrap/slick.slickspec.js">bootstrap/slick.slickspec.js</a>.</p>
 	
 	<fieldset>
 		<legend>Run against a custom script</legend>
@@ -106,7 +103,9 @@ sup.version{
 		</div>
 	</fieldset>
 	
-	<input type="submit" value="SlickSpec Custom &rarr;" />
+	<div class="buttons">
+		<input type="submit" value="SlickSpec Custom &rarr;" />
+	</div>
 </form>
 
 </div>
