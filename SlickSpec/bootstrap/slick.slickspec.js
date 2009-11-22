@@ -1,12 +1,14 @@
 function setupMethods(specs, window){
+	var Slick = window.Slick || global.Slick;
+	
 	window.SELECT = function(context, selector){
-		return (window.Slick || global.Slick)(context, selector);
+		return Slick.search(context, selector);
 	};
 	window.MATCH = function(context, selector){
-		return (window.Slick || global.Slick).match(context, selector);
+		return Slick.match(context, selector);
 	};
 	window.isXML = function(document){
-		return (window.Slick || global.Slick).isXML(document);
+		return Slick.isXML(document);
 	};
 }
 
