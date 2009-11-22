@@ -58,7 +58,6 @@ Describe('Slick Parser',function(){
 Describe('Slick Parser Syntax',function(){
 
 
-var TAGS = 'normal UPCASE escaped\\,character ǝpoɔıun'.split(' ');
 Describe('TAG',function(){
 	
 	
@@ -102,7 +101,6 @@ Describe('Namespace',function(){
 */
 
 
-var IDS = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number silly\\:id\\:\\:with\\:colons".split(' ');
 Describe('ID',function(){
 	
 	// ids
@@ -137,7 +135,6 @@ Describe('ID',function(){
 
 
 
-var CLASSES = "normal escaped\\,character ǝpoɔıun with-dash with_underscore 123number".split(' ');
 Describe('CLASS',function(){
 	
 	// classes
@@ -200,40 +197,6 @@ Describe('CLASS',function(){
 });
 
 
-
-var ATTRIB_OPERATORS = '= != *= ^= $= ~= |='.split(' ');
-
-var ATTRIB_KEYS = '\
-normal,\
- spaced,\
-spaced ,\
-escaped\\]character,\
-ǝpoɔıun,\
-with-dash,\
-with_underscore,\
-123number,\
-'.split(',');
-
-var ATTRIB_VALUES = '\
-normal,\
-ǝpoɔıun,\
-"double quote",\
-\'single quote\',\
-"double\\"escaped",\
-\'single\\\'escaped\',\
- spaced,\
-spaced ,\
- "spaced",\
- \'spaced\',\
-"spaced" ,\
-\'spaced\' ,\
-parens(),\
-curly{},\
-"quoted parens()",\
-"quoted curly{}",\
-"quoted square[]",\
-'.split(',');
-// TODO: add "square[]" to ATTRIB_VALUES for prototype support
 
 Describe('ATTRIBUTE',function(){
 	
@@ -351,9 +314,6 @@ Describe('ATTRIBUTE',function(){
 					
 					if (!ATTRIB_VALUE) continue;
 					it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR    ,ATTRIB_VALUE]);
-					// it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
-					// it["should support ATTRIB: `["+ATTRIB_KEY+(    ATTRIB_OPERATOR+" ")+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY,    ATTRIB_OPERATOR+" ",ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
-					// it["should support ATTRIB: `["+ATTRIB_KEY+(" "+ATTRIB_OPERATOR    )+ATTRIB_VALUE+"]`"] = newATTRIB([ATTRIB_KEY," "+ATTRIB_OPERATOR    ,ATTRIB_VALUE],[null,ATTRIB_OPERATOR]);
 					
 				}
 			}
@@ -365,8 +325,6 @@ Describe('ATTRIBUTE',function(){
 
 
 
-var PSEUDO_KEYS = 'normal escaped\\,character ǝpoɔıun with-dash with_underscore'.split(' ');
-var PSEUDO_VALUES = 'normal,ǝpoɔıun, spaced,"double quote",\'single quote\',"double\\"escaped",\'single\\\'escaped\',curly{},square[],"quoted parens()","quoted curly{}","quoted square[]"'.split(',');;
 Describe('PSEUDO',function(){
 	
 	it['should parse pseudos into the pseudos array'] = function(){
@@ -392,55 +350,6 @@ Describe('PSEUDO',function(){
 		value_of( s.expressions[0][0].parts[0].value ).should_be( 'pseudoValue' );
 		
 	};
-	
-/*
-	its['pseudos nth value should transform odd to 2n+1'] = function(){
-		var nths = [
-			{raw:        ":nth-child(odd)", key:       "nth-child", value:"2n+1"},
-			{raw:   ":nth-last-child(odd)", key:  "nth-last-child", value:"2n+1"},
-			{raw: ":nth-last-of-type(odd)", key:"nth-last-of-type", value:"2n+1"},
-			{raw:      ":nth-of-type(odd)", key:     "nth-of-type", value:"2n+1"},
-			
-			{raw:        ":nth-child(odd)", key:'nth-child', value:"2n+1"},
-			{raw:       ":nth-child(2n+1)", key:'nth-child', value:"2n+1"},
-			{raw:          ":nth-child(n)", key:'nth-child', value:"n"   }
-		];
-		for (var i=0,s, N; N = nths[i]; i++){
-			
-			s = PARSE(N.raw);
-			
-			value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
-			value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
-			
-			value_of( s.expressions[0][0].parts[0].key ).should_be( N.key );
-			value_of( s.expressions[0][0].parts[0].value ).should_be( N.value );
-			
-		}
-	};
-	its['pseudos nth value should transform even to 2n'] = function(){
-		var nths = [
-			{raw:        ":nth-child(even)", key:       "nth-child", value:"2n"},
-			{raw:   ":nth-last-child(even)", key:  "nth-last-child", value:"2n"},
-			{raw: ":nth-last-of-type(even)", key:"nth-last-of-type", value:"2n"},
-			{raw:      ":nth-of-type(even)", key:     "nth-of-type", value:"2n"},
-			
-			{raw:":nth-child(even)", key:'nth-child', value:"2n" },
-			{raw:":nth-child(2n)"  , key:'nth-child', value:"2n" },
-			{raw:":nth-child(n)"   , key:'nth-child', value:"n"  }
-		];
-		for (var i=0,s, N; N = nths[i]; i++){
-			
-			s = PARSE(N.raw);
-			
-			value_of( s.expressions[0][0].pseudos[0].key ).should_be( N.key );
-			value_of( s.expressions[0][0].pseudos[0].value ).should_be( N.value );
-			
-			value_of( s.expressions[0][0].parts[0].key ).should_be( N.key );
-			value_of( s.expressions[0][0].parts[0].value ).should_be( N.value );
-			
-		}
-	}
-*/
 	
 	// PSEUDO
 	var newPSEUDO = function(PSEUDO_KEY, PSEUDO_VALUE){
@@ -473,7 +382,6 @@ Describe('PSEUDO',function(){
 
 
 
-var COMBINATORS = (" >+~" + "`!@$%^&={}\\;</").split('');
 Describe('COMBINATOR',function(){
 	
 	it['should give each simple selector in each selector expression a combinator'] = function(){
