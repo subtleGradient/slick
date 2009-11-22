@@ -31,7 +31,7 @@ function specsPrototype(specs, context){
 
 	function slick_search(expression, root, append){
 		root = root || context.document;
-		return context.SELECT(root, expression, append);
+		return context.SELECT(root, expression, append||[]);
 	};
 	var $$ = slick_search;
 
@@ -105,7 +105,7 @@ function specsPrototype(specs, context){
 			// the element has class=""
 			// this test assumes that you would want to return the element, even though the value is blank
 			// value_of(context.document.querySelectorAll('li#item_3[class]')).should_be([$('item_3')]);
-			value_of( context.SELECT(context.document, 'li#item_3[class]') ).should_be([$('item_3')]);
+			value_of( context.SELECT(context.document, 'li#item_3[class]', []) ).should_be([$('item_3')]);
 			// compareArrays([$('item_3')], $$('li#item_3[class]'), 'li#item_3[class]');
 		};
 
