@@ -127,32 +127,6 @@ new Mock('', function(specs,context){
 		
 	});
 });
-new Mock('html', function(specs,context){
-	var SELECT = (context.SELECT || global.SELECT);
-	Describe('Select Inputs',function(){
-		Describe('context',function(){
-
-
-			if (document.querySelectorAll)
-			it['must accept a parsed selector object QSA'] = function(){
-				SELECT.disableQSA = false;
-				debug_old = SELECT.debug;
-				try {
-					var fail = false;
-					SELECT.debug = function(){ fail = true; throw new Error('QSA should have used the raw property'); };
-					
-					value_of( SELECT(global.window, { SELECT:true, raw:'*', simple:true, type:[] }, []).length ).should_not_be( 0 );
-					value_of( fail ).should_be_false();
-					
-				} finally {
-					SELECT.debug = debug_old;
-				}
-			};
-
-
-		});
-	});
-});
 
 </script>
 </head>
