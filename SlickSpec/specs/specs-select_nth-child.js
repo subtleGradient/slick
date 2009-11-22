@@ -24,11 +24,14 @@ function specsSelectNthChild(){
 		};
 		
 		it['should match by index'] = function(){
-			should_select(':nth-child(-1)', []);
 			should_select(':nth-child(0)', []);
 			should_select(':nth-child(1)', [1]);
 			should_select(':nth-child(10)', [10]);
 			should_select(':nth-child(11)', []);
+		};
+		if (!global.disableNegNth)
+		it['should match by index with negative'] = function(){
+			should_select(':nth-child(-1)', []);
 		};
 		it['should match even'] = function(){
 			should_select(':nth-child(even)', [2, 4, 6, 8, 10]);
@@ -48,6 +51,7 @@ function specsSelectNthChild(){
 			should_select(':nth-child(2n+5)', [5, 7, 9]);
 			should_select(':nth-child(n+8)', [8, 9, 10]);
 		};
+		if (!global.disableNegNth)
 		it['should skip a number of last elements'] = function(){
 			should_select(':nth-child(-2n+5)', [1, 3, 5]);
 			should_select(':nth-child(-4n+2)', [2]);
