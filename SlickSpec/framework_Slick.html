@@ -16,13 +16,13 @@
 
 <!-- Specs -->
 <script type="text/javascript" src="specs-engine_bugs.js"></script>
-<script type="text/javascript" src="specs-select_exhaustive.js" charset="utf-8"></script>
-<script type="text/javascript" src="specs-mock_template.js" charset="utf-8"></script>
-<script src="slick_xml_specs.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="specs-select_exhaustive.js"></script>
+<script type="text/javascript" src="specs-mock_template.js"></script>
+<script src="slick_xml_specs.js" type="text/javascript"></script>
 
 <!-- Runner -->
 <script type="text/javascript" src="assets/simple_request.js"></script>
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript">
 
 new Mock(/\b(xml|svg|xhtml)\b/i, function(specs,context){
 	var SELECT = (context.SELECT || global.SELECT);
@@ -172,13 +172,13 @@ new Mock('html', function(specs,context){
 <iframe onload="Mock.register('template html IE8 as IE7',this.contentWindow)" src="mocks/template-ie7.html"></iframe>
 <![endif]-->
 
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript">
 
 new Mock.Request('responseXML','mocks/xmlmock1.xml');
 new Mock.Request('responseXML','mocks/MooTools_Logo.svg');
 
 </script>
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript">
 (function(){try{
 	
 	var result = window.location.search.match(/\bscript=(.*?\.js)/i);
