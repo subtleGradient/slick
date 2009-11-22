@@ -138,6 +138,7 @@ function specsGoogleClosure(specs,context){
 		it_should_find(3, '#t > *:nth-child(n+10)');
 		it_should_find(1, '#t > *:nth-child(n+12)');
 		it_should_find(10, '#t > *:nth-child(-n+10)');
+		if (!global.disableNegNth)
 		it_should_find(5, '#t > *:nth-child(-2n+10)');
 		it_should_find(6, '#t > *:nth-child(2n+2)');
 		it_should_find(5, '#t > *:nth-child(2n+4)');
