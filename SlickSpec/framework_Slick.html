@@ -69,7 +69,9 @@ new Mock('', function(specs,context){
 
 			if (document.querySelectorAll)
 			it['should not fail when using QSA is enabled'] = function(){
-				value_of( SELECT(context.document, 'body').length ).should_be( 1 );
+				context.Slick && (context.Slick.disableQSA = false);
+				value_of( typeof SELECT(context.document, '*').length ).should_be('number');
+				value_of( SELECT(context.document, '*').length ).should_not_be(0);
 			};
 
 		});
