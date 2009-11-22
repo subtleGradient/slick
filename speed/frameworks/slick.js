@@ -17,9 +17,11 @@ authors:
 	
 	var local = {};
 	
+	var Slick = local.Slick = this.Slick = this.Slick || {};
+	
 	// Feature / Bug detection
 	
-	local.isXML = function(element){
+	Slick.isXML = local.isXML = function(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
@@ -56,6 +58,7 @@ authors:
 		if (document.nodeType === 9);
 		else if (document.ownerDocument) document = document.ownerDocument; // node
 		else if ('document' in document) document = document.document; // window
+		else return;
 		
 		if (local.document == document) return;
 		local.document = document;
@@ -111,7 +114,7 @@ authors:
 	// Slick
 	local.isSimple = {};
 	
-	var Slick = local.Slick = function(context, expression, append){
+	var search = Slick.search = local.search = function(context, expression, append){
 		
 		// setup
 		
@@ -148,7 +151,7 @@ authors:
 			return found;
 		}
 		
-		if (local.document != document) local.setDocument(context);
+		if (local.document != context.ownerDocument || context) local.setDocument(context);
 		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
@@ -248,7 +251,7 @@ authors:
 	};
 	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	local.contains = (root.contains) ? function(context, node){
+	Slick.contains = local.contains = (root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
@@ -566,10 +569,6 @@ authors:
 
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 	
-	// Slick contains
-	
-	Slick.contains = local.contains;
-	
 	// add pseudos
 	
 	Slick.defineEngine = function(name, fn, shouldDefine){
@@ -671,7 +670,7 @@ authors:
 	
 	Slick.deepMatch = function(node, expression, context){
 		// FIXME: FPO code only
-		var nodes = Slick(context||document, expression);
+		var nodes = Slick.search(context||document, expression);
 		for (var i=0; i < nodes.length; i++){
 			if (nodes[i] === node){
 				return true;
@@ -708,12 +707,6 @@ authors:
 	for (displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	
-	// public
-	
-	Slick.isXML = local.isXML;
-	this.Slick = Slick;
-	
 }).apply(this);
 
 
@@ -734,7 +727,9 @@ authors:
 
 (function(){
 	
-	function SlickParser(expression){
+	var Slick = this.Slick = this.Slick || {};
+	
+	Slick.parse = function(expression){
 		return parse(expression);
 	};
 	
@@ -743,8 +738,8 @@ authors:
 		combinatorIndex,
 		partIndex,
 		reversed,
-		cache = {},
-		reverseCache = {}
+		cache = Slick.parse.cache = {},
+		reverseCache = Slick.parse.reverseCache = {}
 	;
 	
 	var parse = function(expression, isReversed){
@@ -787,7 +782,7 @@ authors:
 		return expression;
 	};
 	
-	var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
+	var escapeRegExp = Slick.parse.escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
@@ -994,22 +989,8 @@ __END__
 	for (var displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	// public
-	
-	SlickParser.cache = cache;
-	SlickParser.reverseCache = reverseCache;
-	
-	if (this.Slick){
-		
-		this.Slick.parse = SlickParser;
-		
-		this.Slick.reverse = function(expression){
-			return parse((typeof expression == 'string') ? expression : expression.raw, true);
-		};
-		
-		this.Slick.parse.escapeRegExp = escapeRegExp;
-	} else {
-		this.SlickParser = SlickParser;
-	}
+	Slick.parse.reverse = function(expression){
+		return parse((typeof expression == 'string') ? expression : expression.raw, true);
+	};
 	
 }).apply(this);
