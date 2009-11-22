@@ -31,9 +31,28 @@ function verifySetupMethods(specs, window){
 		};
 	});
 };
+function verifySetupContext(specs, context){
+	Describe('Verify Context',function(){
+
+		it['should set the context properly'] = function(){
+			value_of(context).should_not_be(global);
+			value_of(context).should_not_be(window);
+			value_of(context.document).should_not_be_undefined();
+			value_of(context.document.nodeType).should_be(9);
+			
+			var title = context.document.getElementsByTagName('title');
+			for (var i=0, l=title.length; i < l; i++)
+				if (title[i].firstChild)
+					value_of(title[i].firstChild.nodeValue).should_not_match(404);
+			
+		};
+
+	});
+};
 
 setupMethods({},this);
 new Mock('',setupMethods);
 
 verifySetupMethods({},this);
 new Mock('',verifySetupMethods);
+new Mock('',verifySetupContext);
