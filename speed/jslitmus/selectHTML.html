@@ -16,10 +16,17 @@ window.scripts_to_get = [];
 <!-- <script type="text/javascript" src="../../SlickSpec/assets/getgetter.js"></script> -->
 
 <!-- Slick -->
-<script> document.write('<scr'+'ipt src="../frameworks/slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
-<script type="text/javascript"> var SlickLast = Slick; </script>
 <script> document.write('<scr'+'ipt src="../../slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
-<script type="text/javascript"> var SlickThis = Slick; </script>
+<script type="text/javascript">
+var SlickThis = Slick;
+delete this.Slick;
+</script>
+
+<script> document.write('<scr'+'ipt src="../frameworks/slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script type="text/javascript">
+var SlickLast = Slick;
+delete this.Slick;
+</script>
 
 <script src="../frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
@@ -145,7 +152,7 @@ hr{
 		<li><a href="?selectors=*%0D%0Ahtml%0D%0Abody%0D%0Adiv%0D%0Aa%0D%0Aflarm">Tags</a></li>
 		<li><a href="?selectors=%23title%0D%0Ah1%23title%0D%0Adiv+%23title%0D%0A*+%23title%0D%0A">IDs</a></li>
 		<li><a href="?selectors=.note%0D%0A.note.note%0D%0A.a1%0D%0A.a2%0D%0A.a3%0D%0A.a4%0D%0A.a5%0D%0A.a6%0D%0A">ClassNames</a></li>
-		<li><a href="?selectors=div%5Bclass%5E%3Dexa%5D%5Bclass%24%3Dmple%5D%0D%0Aa%5Bhref%5D%5Blang%5D%5Bclass%5D%0D%0Adiv%5Bclass%5D%0D%0Adiv%5Bclass%3Dexample%5D%0D%0Adiv%5Bclass%5E%3Dexa%5D%0D%0Adiv%5Bclass%24%3Dmple%5D%0D%0Adiv%5Bclass*%3De%5D%0D%0Adiv%5Bclass%7C%3Ddialog%5D%0D%0A%5Bid%21%3Dtitle%5D%0D%0Adiv%5Bclass%7E%3Dexample%5D%0D%0A">[attribs]</a></li>
+		<li><a href="?selectors=%5Bclass%5E%3Dexa%5D%5Bclass%24%3Dmple%5D%0D%0A%5Bhref%5D%5Blang%5D%5Bclass%5D%0D%0A%5Bclass%5D%0D%0A%5Bclass%3Dexample%5D%0D%0A%5Bclass%5E%3Dexa%5D%0D%0A%5Bclass%24%3Dmple%5D%0D%0A%5Bclass*%3De%5D%0D%0A%5Bclass%7C%3Ddialog%5D%0D%0A%5Bid%21%3Dtitle%5D%0D%0A%5Bclass%7E%3Dexample%5D%0D%0A">[attribs]</a></li>
 		<li><a href="?selectors=p%3Acontains%28selectors%29%0D%0A">:contains()</a></li>
 		<li><a href="?selectors=%3Anth-child%28even%29%0D%0A%3Anth-child%282n%29%0D%0A%3Anth-child%28odd%29%0D%0A%3Anth-child%282n%2B1%29%0D%0A%3Anth-child%28n%29%0D%0A">:nth-child()</a></li>
 		<li><a href="?selectors=div+%3E+p%0D%0Adiv+%2B+p%0D%0Adiv+%7E+p%0D%0Adiv+p+a%0D%0A">Combinators</a></li>
