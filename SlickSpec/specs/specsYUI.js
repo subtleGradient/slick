@@ -1,10 +1,18 @@
 function specsYUI(specs, context){
-	var Y = {};
-	Y.Dom = {};
+	var Y = {
+		each: function(iterable, fn){
+			if('length' in iterable){
+				for(var i = 0, len = iterable.length; i < len; i++){
+					fn.call(iterable[i], iterable[i]);
+				}
+			}
+			return null;
+		}
+	};
 	var document = context.document;
 	var SELECT = context.SELECT;
 	var match = function(node, expression){
-		return context.Slick.deepMatch(node, expression, document);
+		return context.MATCH(node, expression, document);
 	};
 
 	Y.Dom = {
@@ -93,12 +101,21 @@ function specsYUI(specs, context){
 	    }
 	};
 
+	Y.DOM = {
+		next: function(node){
+			var next = node;
+			while ((next = next.nextSibling)) if (next.nodeType === 1) return next;
+			return null;
+		}
+	};
+	Y.DOM.byId = Y.Dom.get;
+
 	//new Y.Console({height:'90%'}).render();
 	//var suite = new Y.Test.Suite("Selector Suite");
 	var suite = {
 		add: function(tests){
 			for(description in tests){
-				Describe(description, tests[description]);
+				tests[description]();
 			}
 		}
 	};
@@ -118,21 +135,32 @@ function specsYUI(specs, context){
 		test: function(node, expression){
 			return match(node, expression);
 		},
-		query: function(expression, context){
-			return SELECT(context || document, expression);
+		query: function(expression, context, first){
+			var elements = SELECT(context || document, expression);
+			return first ? elements[0] : elements;
 		}
 	};
 	
 	//var Assert = Y.Assert;
 	var Assert = {
-		isTrue: function(a, message, specs){
+		isTrue: function(a, message){
 			specs[message] = function(){
 				value_of(!!a).should_be_true();
 			};
 		},
 		isFalse: function(a, message){
 			specs[message] = function(){
-				value_of(!a).should_be_true();
+				value_of(!!a).should_be_false();
+			};
+		},
+		isNull: function(a, message){
+			specs[message] = function(){
+				value_of(a).should_be_null();
+			};
+		},
+		areEqual: function(a, b, message){
+			specs[message] = function(){
+				value_of(a).should_be(b);
 			};
 		}
 	};
@@ -148,31 +176,29 @@ function specsYUI(specs, context){
 			};
 		}
 	};
-/*
+
 	var $ = Selector.query;
 	var demo = Y.Dom.get('demo');
 	children = Y.Dom.getChildren(demo);
 	var demoFirstChild = children[0];
 	var demoLastChild = children[children.length - 1];
-*/
+	
 	//var selectorQueryAll = new Y.Test.Case({
 	var selectorQueryAll = {
 	    //name: 'Query All',
 
-	    //testFilter: function() {
-	        //var all = Y.Dom.get('test-inputs').getElementsByTagName('input');
-	        //ArrayAssert.itemsAreEqual([all[0], all[1], all[2]], Selector.filter(all, '[type=checkbox]'), '[type=checkbox]');
-	        //ArrayAssert.itemsAreEqual([], Selector.filter(null, '[type=checkbox]'), 'null input');
+	    testFilter: function() {
+	        var all = Y.Dom.get('test-inputs').getElementsByTagName('input');
+	        ArrayAssert.itemsAreEqual([all[0], all[1], all[2]], Selector.filter(all, '[type=checkbox]'), '[type=checkbox]');
+	        ArrayAssert.itemsAreEqual([], Selector.filter(null, '[type=checkbox]'), 'null input');
 	        //ArrayAssert.itemsAreEqual([document.getElementById('test-inputs')], Selector.filter(['root-test', 'test-inputs'], 'form'), 'form (string inputs)');
 	        // no longer supporting string input for element
 	        //ArrayAssert.itemsAreEqual([document.getElementById('test-inputs')], Selector.filter(['root-test', document.getElementById('test-inputs'), document.createTextNode('foo')], 'form'), 'form (mixed inputs)');
-	    //},
-		
-	    testTest: function(specs) {
-			
-			//console.log(Selector.test(Y.Dom.get('checkbox-unchecked'), '[type=checkbox], button'), '?!');
-			Assert.isTrue(Selector.test(Y.Dom.get('checkbox-unchecked'), '[type=checkbox], button'), '[type=checkbox], button', specs);
-	        /*Assert.isTrue(Selector.test(Y.Dom.get('checkbox-unchecked'), 'button, [type=checkbox]'), 'button, [type=checkbox]');
+	    },
+	
+	    testTest: function() {
+			Assert.isTrue(Selector.test(Y.Dom.get('checkbox-unchecked'), '[type=checkbox], button'), '[type=checkbox], button');
+	        Assert.isTrue(Selector.test(Y.Dom.get('checkbox-unchecked'), 'button, [type=checkbox]'), 'button, [type=checkbox]');
 	        Assert.isFalse(Selector.test(Y.Dom.get('checkbox-unchecked'), 'foo, button'), 'foo, button');
 	        Assert.isFalse(Selector.test(null, '#foo'), ';ull input');
 	        Assert.isFalse(Selector.test(document.createTextNode('foo'), '#foo'), 'textNode input');
@@ -181,7 +207,6 @@ function specsYUI(specs, context){
 	        Assert.isFalse(Selector.test(Y.Dom.get('test-lang-none'), '[lang|=en]'), '[lang|=en] false pos');
 	        Assert.isFalse(Selector.test(Y.Dom.get('checkbox-unchecked'), 'for [type=checkbox]'), 'for [type=checkbox] false pos');
 	        Assert.isTrue(Selector.test(Y.Dom.get('checkbox-unchecked'), 'form [type=checkbox]'), 'form [type=checkbox]');
-	        Assert.isFalse(Selector.test(Y.Dom.get('checkbox-unchecked'), 'for [type=checkbox]'), 'for [type=checkbox] false pos');
 			
 	        Assert.isTrue(Selector.test(Y.Dom.get('checkbox-checked'), '[type=checkbox]:checked'), 'type=checkbox:checked');
 	        Assert.isTrue(Selector.test(Y.Dom.get('radio-checked'), ':checked'), ':checked (radio)');
@@ -214,9 +239,8 @@ function specsYUI(specs, context){
 	        Assert.isTrue(Selector.test(Y.DOM.byId('foo-bar'), 'input#foo-bar', form));
 	        Assert.isFalse(Selector.test(Y.DOM.byId('foo-bar'), '#test-inputs input#foo-bar', form));
 	        Assert.isTrue(Selector.test(Y.DOM.byId('foo-bar'), '#test-inputs input#foo-bar', form.parentNode));
-	*/
-	    }
-/*
+	    },
+
 	    testRootQuery: function() {
 	        var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 
@@ -240,9 +264,9 @@ function specsYUI(specs, context){
 	        // based on non-standard behavior
 	        ArrayAssert.itemsAreEqual([], $('body p', document.body), "$('body p', document.body)");
 	        ArrayAssert.itemsAreEqual([], $('#root-test li', Y.Dom.get('nth-test')), 'id selector w/root false pos');
+	    },
 
-	    },*/
-	    /*
+/*
 	    testNthLastChild: function() {
 	        var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 	        var odd = Y.Dom.getElementsByClassName('even', 'li', 'nth-test');
@@ -256,8 +280,9 @@ function specsYUI(specs, context){
 	        ArrayAssert.itemsAreEqual(odd, $('li:nth-last-child(2n+1)'), '2n+1');
 	        ArrayAssert.itemsAreEqual(four1, $('li:nth-last-child(4n+1)'), '4n+1');
 	    },
-	    */
-/*	    testNthType: function() {
+*/
+
+		testNthType: function() {
 	        var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 	        var odd = Y.Dom.getElementsByClassName('odd', 'li', 'nth-test');
 	        var even = Y.Dom.getElementsByClassName('even', 'li', 'nth-test');
@@ -279,10 +304,8 @@ function specsYUI(specs, context){
 
 	        //ArrayAssert.itemsAreEqual(even, $('#nth-type-test div:nth-of-type(2n)'),
 	            //"$('#nth-type-test div:nth-of-type(2n)')");
-
 	    },
-	*/
-	/*
+
 	    testNthChild: function() {
 	        var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 	        var odd = Y.Dom.getElementsByClassName('odd', 'li', 'nth-test');
@@ -297,7 +320,7 @@ function specsYUI(specs, context){
 	        //ArrayAssert.itemsAreEqual(even[1], $('li:nth-child(0n+2)'), '0n+2');
 	        //ArrayAssert.itemsAreEqual(three1, $('li:nth-child(3n+1)'), '3n+1');
 	        ArrayAssert.itemsAreEqual(all, $('li:nth-child(n+1)'), 'n+1');
-*/
+
 	        //from http://www.w3.org/TR/css3-selectors/#nth-child-pseudo examples
 	        /*
 	        ArrayAssert.itemsAreEqual(odd, $('li:nth-child(2n+1)'), '2n+1');
@@ -313,10 +336,9 @@ function specsYUI(specs, context){
 	        ArrayAssert.itemsAreEqual(even[0], $('li:nth-child(1)'), '1');
 	        ArrayAssert.itemsAreEqual(all, $('li:nth-child(1n+0)'), '1n+0');
 	        ArrayAssert.itemsAreEqual(all, $('li:nth-child(n+0)'), 'n+0');
-	        */
+			*/
+		},
 
-//	    },
-/*
 	    testQuery: function() {
 	        ArrayAssert.itemsAreEqual(document.getElementsByTagName('p'), $('p, p'), 'p, p');
 	        Assert.areEqual(document.getElementsByTagName('p')[0], $('p', null, true), 'p (firstOnly)');
@@ -359,11 +381,12 @@ function specsYUI(specs, context){
 	        Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo]", null, true), "div[foo], null, true");
 	        ArrayAssert.itemsAreEqual([Y.DOM.byId('test-custom-attr')], $("[foo]"), "[foo]");
 	    }
-*/
+
 	};
-/*
-	var simpleTest = new Y.Test.Case({
-	    name: 'Simple Node Test',
+
+	//var simpleTest = new Y.Test.Case({
+	var simpleTest = {
+		//name: 'Simple Node Test',
 
 	    testPseudo: function() {
 	        Assert.isTrue(Selector.test(Y.Dom.getLastChild('demo'), ':last-child'), 'last-child');
@@ -445,8 +468,6 @@ function specsYUI(specs, context){
 	    //   var frameDoc = Y.DOM.byId('test-frame').contentWindow.document;
 	    //   Assert.areEqual('iframe foo', $('#demo li', frameDoc, true).innerHTML, "Y.get('#demo li', frameDoc, true)");
 	    //},
-	    
-
 
 	    // to support:
 	    // $('> p', myNode) === ('#my-node-id > p');
@@ -467,12 +488,10 @@ function specsYUI(specs, context){
 	        //ArrayAssert.itemsAreEqual([Y.Dom.get('demo2')], $('+ div', Y.DOM.byId('demo')), '#demo + div');
 	        //ArrayAssert.itemsAreEqual($('#demo-first-child ~ p'), $('~ p', Y.DOM.byId('demo-first-child')), '#demo-first-child ~ div');
 	    }
+	};
 
-	});
-*/	
 	suite.add(selectorQueryAll);
-	
-	//suite.add(simpleTest);
+	suite.add(simpleTest);
 	//Y.Test.Runner.add(suite);
 	//Y.Test.Runner.run();
 };
