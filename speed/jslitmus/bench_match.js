@@ -41,12 +41,13 @@ function benchmarkSelectors(specs,context){
 	
 	if (context.document.querySelectorAll) {
 		// it['QSA Array'] = _benchmarkSelectors(qsaMatch, context, selectors);
-		
 		it['Slick WIP']      = _benchmarkSelectors(function(node,selector){ return global.SlickThis.match(node,selector); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
 		it['Slick Stable']   = _benchmarkSelectors(function(node,selector){ return global.SlickLast.match(node,selector); }, context, selectors, function(){global.SlickLast.disableQSA = false;});
 	}
-	it['Slick WIP noQSA']    = _benchmarkSelectors(function(node,selector){ return global.SlickThis.match(node,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
-	it['Slick Stable noQSA'] = _benchmarkSelectors(function(node,selector){ return global.SlickLast.match(node,selector); }, context, selectors, function(){global.SlickLast.disableQSA = true;}); 
+	else {
+		it['Slick WIP noQSA']    = _benchmarkSelectors(function(node,selector){ return global.SlickThis.match(node,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
+		it['Slick Stable noQSA'] = _benchmarkSelectors(function(node,selector){ return global.SlickLast.match(node,selector); }, context, selectors, function(){global.SlickLast.disableQSA = true;}); 
+	}
 	
 	if (global.Sizzle) {
 		it['Sizzle'] = _benchmarkSelectors(function(node,selector){ return !!global.Sizzle.matches(selector,[node]).length; }, context, selectors);
