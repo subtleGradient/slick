@@ -1,7 +1,7 @@
 function setupMethods(specs, window){
 	
-	window.SELECT = function(context, selector){
-		return (window.NW || global.NW).Dom.select(selector, context);
+	window.SELECT = function(context, selector, append){
+		return (window.NW || global.NW).Dom.select(selector, context, append);
 	};
 	window.MATCH = function(context, selector){
 		return (window.NW || global.NW).Dom.match(context, selector);

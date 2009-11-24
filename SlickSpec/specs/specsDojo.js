@@ -157,7 +157,7 @@ function specsDojo(specs, context){
 			"doh.is(3, dojo.query('#t > *:nth-child(n+10)').length);",
 			"doh.is(1, dojo.query('#t > *:nth-child(n+12)').length);",
 			"doh.is(10, dojo.query('#t > *:nth-child(-n+10)').length);",
-			"doh.is(5, dojo.query('#t > *:nth-child(-2n+10)').length);",
+			(!global.disableNegNth) ? "doh.is(5, dojo.query('#t > *:nth-child(-2n+10)').length);" : '',
 			"doh.is(6, dojo.query('#t > *:nth-child(2n+2)').length);",
 			"doh.is(5, dojo.query('#t > *:nth-child(2n+4)').length);",
 			"doh.is(5, dojo.query('#t > *:nth-child(2n+4)').length);",
