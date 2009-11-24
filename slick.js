@@ -89,9 +89,7 @@ authors:
 			} catch(e){};
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				testNode.innerHTML = '<a name=idgetsname></a><b id=idgetsname></b>';
-				local.idGetsName = testNode.ownerDocument.getElementById('idgetsname') === testNode.firstChild;
-				id = 'getelementbyid';
+				id = 'idgetsname';
 				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
 				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
 			} catch(e){
