@@ -55,7 +55,7 @@ authors:
 	local.setDocument = function(document){
 		if (local.document === document) return;
 		
-		if (document.nodeType === 9);
+		if (document.nodeType == 9);
 		else if (document.ownerDocument) document = document.ownerDocument; // node
 		else if ('document' in document) document = document.document; // window
 		else return;
