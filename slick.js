@@ -703,12 +703,15 @@ authors:
 	};
 	
 	// debugging
-	var displayName;
-	for (displayName in local)
-		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
 
-	for (displayName in Slick)
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
+	var setDisplayName = function(obj, prefix){
+		prefix = prefix || '';
+		for (displayName in obj)
+			if (typeof obj[displayName] == 'function') obj[displayName].displayName = prefix + displayName;
+	};
+	
+	setDisplayName(local);
+	setDisplayName(Slick, 'Slick.');
 	
 }).apply(this);
 
