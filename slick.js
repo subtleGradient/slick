@@ -501,15 +501,15 @@ authors:
 		},
 
 		'last-child': function(node){
-			while ((node = node.nextSibling)) if (node.nodeType === 1) return false;
+			while ((node = node.nextSibling)) if (node.nodeType == 1) return false;
 			return true;
 		},
 
 		'only-child': function(node){
 			var prev = node;
-			while ((prev = prev.previousSibling)) if (prev.nodeType === 1) return false;
+			while ((prev = prev.previousSibling)) if (prev.nodeType == 1) return false;
 			var next = node;
-			while ((next = next.nextSibling)) if (next.nodeType === 1) return false;
+			while ((next = next.nextSibling)) if (next.nodeType == 1) return false;
 			return true;
 		},
 
@@ -520,7 +520,7 @@ authors:
 			if (!this.positions[uid]){
 				var count = 1;
 				while ((node = node.previousSibling)){
-					if (node.nodeType !== 1) continue;
+					if (node.nodeType != 1) continue;
 					var position = this.positions[this.uidOf(node)];
 					if (position != null){
 						count = position + count;
@@ -537,7 +537,7 @@ authors:
 			} else {
 				if (b < pos) return false;
 			}
-			return ((pos - b) % a) === 0;
+			return ((pos - b) % a) == 0;
 		},
 
 		// custom pseudos
