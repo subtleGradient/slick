@@ -151,7 +151,7 @@ authors:
 			return found;
 		}
 		
-		if (local.document != context.ownerDocument || context) local.setDocument(context);
+		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
