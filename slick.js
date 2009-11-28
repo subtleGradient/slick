@@ -890,7 +890,7 @@ __END__
 			var currentSeparator = parsed.expressions[separatorIndex];
 			if (reversed && currentSeparator[combinatorIndex])
 				currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
-			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
+			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
 		}
