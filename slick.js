@@ -743,7 +743,7 @@ authors:
 	;
 	
 	var parse = function(expression, isReversed){
-		expression = String(expression);
+		expression = '' + expression;
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
