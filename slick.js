@@ -267,7 +267,7 @@ authors:
 	    local.collectionToArray(root.childNodes);
 	} catch(e){
 		local.collectionToArray = function(node){
-			if (node instanceof Array) return node;
+			if (Object.prototype.toString.call(node) == '[object Array]') return node;
 			var i = node.length, array = new Array(i);
 			while (i--) array[i] = node[i];
 			return array;
