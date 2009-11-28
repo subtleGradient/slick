@@ -212,7 +212,7 @@ authors:
 		
 			local.localUniques = {};
 		
-			if (j === (currentExpression.length - 1)){
+			if (j == (currentExpression.length - 1)){
 				local.uniques = tempUniques;
 				local.found = found;
 			} else {
