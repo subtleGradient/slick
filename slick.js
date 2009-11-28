@@ -152,7 +152,7 @@ authors:
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
 
-		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
+		if (parsed.length == 1 && parsed.expressions[0].length == 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
 		
 		// custom engines
