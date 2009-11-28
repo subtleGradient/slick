@@ -19,13 +19,15 @@ authors:
 	
 	var Slick = local.Slick = this.Slick = this.Slick || {};
 	
+	var objectPrototypeToString = Object.prototype.toString;
+	
 	// Feature / Bug detection
 	
 	Slick.isXML = local.isXML = function(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
-			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
+			|| (objectPrototypeToString.call(ownerDocument) == '[object XMLDocument]')
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 	
@@ -269,7 +271,7 @@ authors:
 	    local.collectionToArray(root.childNodes);
 	} catch(e){
 		local.collectionToArray = function(node){
-			if (Object.prototype.toString.call(node) == '[object Array]') return node;
+			if (objectPrototypeToString.call(node) == '[object Array]') return node;
 			var i = node.length, array = new Array(i);
 			while (i--) array[i] = node[i];
 			return array;
