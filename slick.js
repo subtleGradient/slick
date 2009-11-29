@@ -91,13 +91,13 @@ authors:
 				selected = testNode.querySelectorAll('*');
 				local.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
+			
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
 				id = 'idgetsname' + timeStamp;
 				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
 				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
-			} catch(e){
-			};
+			} catch(e){};
 			
 			local.root.removeChild(testNode);
 			testNode = null;
