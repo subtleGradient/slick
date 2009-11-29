@@ -853,18 +853,20 @@ __END__
 	for (var p in map) rmap[map[p]] = p;
 	
 	function parser(){
-		var a = arguments,
-			selectorBitName
-		;
+		var a = arguments;
 		
-		for (var aN = 1, len = a.length; aN < len; aN++) if (a[aN]){
-			selectorBitName = rmap[aN];
+		var selectorBitMap, selectorBitName;
+		
+		for (var aN = 1; aN < a.length; aN++) if (a[aN]){
+			selectorBitMap = aN;
+			selectorBitName = rmap[selectorBitMap];
 			break;
 		}
 		
 		if (!selectorBitName) return '';
 		
-		if (a[map.tagName] == '*')
+		
+		if (a[map.tagName]=='*')
 			parsed.type.push('tagName*');
 		else if (parsed.type[parsed.type.length - 1] == selectorBitName && selectorBitName == 'className')
 			parsed.type[parsed.type.length-1] = 'classNames';
