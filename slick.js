@@ -112,8 +112,7 @@ authors:
 	var window = this, document = local.document, root = local.root;
 	
 	// Slick
-	local.isSimple = {};
-	
+
 	var search = Slick.search = local.search = function(context, expression, append){
 		
 		// setup
