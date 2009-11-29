@@ -54,6 +54,8 @@ authors:
 		return this;
 	};
 	
+	var timeStamp = +new Date();
+	
 	local.setDocument = function(document){
 		if (local.document === document) return;
 		
@@ -85,7 +87,7 @@ authors:
 			
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				id = 'idgetsname';
+				id = 'idgetsname' + timeStamp;
 				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
 				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
 			} catch(e){};
