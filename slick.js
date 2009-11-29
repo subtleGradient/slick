@@ -269,7 +269,7 @@ authors:
 	} catch(e){
 		local.collectionToArray = function(node){
 			if (objectPrototypeToString.call(node) == '[object Array]') return node;
-			var i = node.length, array = new Array(i);
+			var i = node.length, array = [];
 			while (i--) array[i] = node[i];
 			return array;
 		};
