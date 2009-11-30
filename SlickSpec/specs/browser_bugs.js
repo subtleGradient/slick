@@ -166,6 +166,15 @@ function specsBrowserBugs(specs,context){
 			value_of( result.length ).should_be(0);
 		};
 		
+		it['getElementsByTagName Should not return closed nodes'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = 'foo</foo>';
+			result = testNode.getElementsByTagName('*');
+			
+			value_of( result.length ).should_be(0);
+		};
+		
 	});
 	
 	if(context.document.querySelector)
