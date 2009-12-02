@@ -241,6 +241,10 @@ authors:
 		return found;
 	};
 	
+	var find = Slick.find = local.find = function(context, expression, append){
+		return Slick.search(context, expression, append)[0] || null;
+	};
+	
 	// Utils
 	
 	local.uidx = 1;
