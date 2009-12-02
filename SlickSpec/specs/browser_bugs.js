@@ -197,6 +197,15 @@ function specsBrowserBugs(specs,context){
 			value_of( result ).should_be_null();
 		};
 		
+		it['querySelector Should not return closed nodes'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = 'foo</foo>';
+			result = testNode.querySelector('*');
+			
+			value_of( result ).should_be_null();
+		};
+		
 	});
 	
 	if(context.document.querySelectorAll)
@@ -219,6 +228,15 @@ function specsBrowserBugs(specs,context){
 			tmpNode1 = context.document.createComment('');testNode.appendChild(tmpNode1);
 			
 			result = testNode.querySelectorAll('*');
+			value_of( result.length ).should_be(0);
+		};
+		
+		it['querySelectorAll Should not return closed nodes'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = 'foo</foo>';
+			result = testNode.querySelectorAll('*');
+			
 			value_of( result.length ).should_be(0);
 		};
 		
