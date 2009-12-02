@@ -85,6 +85,13 @@ authors:
 				local.starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 			
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			if (testNode.querySelectorAll) try {
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.querySelectorAll('*');
+				local.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
 				id = 'idgetsname' + timeStamp;
@@ -181,7 +188,8 @@ authors:
 			nodes = local.collectionToArray(nodes);
 			if (!append) return nodes;
 			
-			found.push.apply(found, nodes);
+			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
+			else found.push.apply(found, nodes);
 			return found;
 			
 		}
