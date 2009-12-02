@@ -24,6 +24,10 @@ function verifySetupMethods(specs, window){
 			value_of( typeof window.SELECT ).should_be('function');
 			value_of( window.SELECT(window.document, '*').length ).should_not_be(0);
 		};
+		it['should define SELECT1'] = function(){
+			value_of( typeof window.SELECT1 ).should_be('function');
+			value_of( window.SELECT1(window.document, '*') ).should_not_be_null();
+		};
 		it['should define MATCH'] = function(){
 			value_of( typeof window.MATCH ).should_be('function');
 			value_of( window.MATCH(window.document.documentElement, '*') ).should_be_true();
