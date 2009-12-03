@@ -31,29 +31,6 @@ authors:
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 	
-	local.setBrowser = function(document){
-		var root = local.root;
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-		
-		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
-			local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
-		
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-		
-		root.removeChild(testNode);
-		testNode = null;
-		return this;
-	};
-	
 	var timeStamp = +new Date();
 	
 	local.setDocument = function(document){
@@ -67,6 +44,14 @@ authors:
 		if (local.document === document) return;
 		local.document = document;
 		local.root = document.documentElement;
+		
+		local.starSelectsClosed
+		= local.starSelectsComments
+		= local.starSelectsClosedQSA
+		= local.idGetsName
+		= local.brokenMixedCaseQSA
+		= local.cachedGetElementsByClassName
+		= false;
 		
 		if (!(local.isXMLDocument = local.isXML(document))){
 			
@@ -99,6 +84,19 @@ authors:
 				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
 			} catch(e){};
 			
+			// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
+			try {
+				testNode.innerHTML = '<a class="MiXedCaSe"></a>';
+				local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+			} catch(e){};
+
+			try {
+				testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+				testNode.getElementsByClassName('b').length;
+				testNode.firstChild.className = 'b';
+				local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+			} catch(e){};
+			
 			local.root.removeChild(testNode);
 			testNode = null;
 			
@@ -108,8 +106,6 @@ authors:
 	// Init
 	
 	local.setDocument(this.document);
-	
-	local.setBrowser(local.document);
 	
 	var window = this, document = local.document, root = local.root;
 	
