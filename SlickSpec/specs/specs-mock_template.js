@@ -4,6 +4,7 @@ function specsMockTemplate(specs, context){
 		return function(){
 			context.SELECT.disableQSA = !!disableQSA;
 			value_of( context.SELECT(context.document, selector).length ).should_be( count );
+			value_of( context.SELECT1(context.document, selector) )['should_' + (count ? 'not_' : '') + 'be_null']();
 			delete context.SELECT.disableQSA;
 		};
 	}
