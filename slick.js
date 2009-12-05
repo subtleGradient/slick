@@ -327,8 +327,9 @@ authors:
 			if (tag && tag ==='*' && (node.nodeType != 1 || node.nodeName.charAt(0) == '/')) return false; // Fix for comment nodes and closed nodes
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
-			for (var i = 0, l = parts.length; i < l; i++){
-				var part = parts[i];
+			for (var i = 0, l = parts.length, part; i < l; i++){
+				part = parts[i];
+				if (!part) continue;
 				switch (part.type){
 					case 'class': if (classes !== false){
 						var cls = local.getAttribute(node, 'class');
@@ -792,13 +793,13 @@ authors:
 puts "\t\t" + DATA.read.gsub(/\(\?x\)|\s+#.*$|\s+|\\$|\\n/,'')
 __END__
 		"(?x)^(?:\
-		  \\s* ( , | $ ) \\s*                           # Separator              \n\
-		| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
-		|      ( \\s+ )                                 # CombinatorChildren     \n\
-		|      ( <unicode>+ | \\* )                     # Tag                    \n\
-		| \\#  ( <unicode>+       )                     # ID                     \n\
-		| \\.  ( <unicode>+       )                     # ClassName              \n\
-		|                                               # Attribute \n\
+		  \\s* ( , ) \\s*               # Separator          \n\
+		| \\s* ( <combinator>+ ) \\s*   # Combinator         \n\
+		|      ( \\s+ )                 # CombinatorChildren \n\
+		|      ( <unicode>+ | \\* )     # Tag                \n\
+		| \\#  ( <unicode>+       )     # ID                 \n\
+		| \\.  ( <unicode>+       )     # ClassName          \n\
+		|                               # Attribute          \n\
 		\\[  \
 			\\s* (<unicode>+)  (?:  \
 				\\s* ([*^$!~|]?=)  (?:  \
@@ -810,10 +811,16 @@ __END__
 				)  \
 			)?  \\s*  \
 		\\](?!\\]) \n\
-		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		|   :+ ( <unicode>+ )(?:\
+		\\( (?:\
+			 \"((?:[^\"]|\\\")*)\"\
+			| '((?:[^']|\\'  )*)'\
+			|  (   [^\\)]*     )\
+		) \\)\
+		)?\
 		)"
-// *///
-		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
+//*/
+		"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -823,165 +830,145 @@ __END__
 	
 	var simpleAttributeOperators = (/^[*^$~|]?=$/);
 	
-	var map = {
-		rawMatch: 0,
-		separator: 1,
-		combinator: 2,
-		combinatorChildren: 3,
+	function parser(
+		rawMatch,
 		
-		tagName: 4,
-		id: 5,
-		className: 6,
+		separator,
+		combinator,
+		combinatorChildren,
 		
-		attributeKey: 7,
-		attributeOperator: 8,
-		attributeValueDouble : 9,
-		attributeValueSingle : 10,
-		attributeValue: 11,
+		tagName,
+		id,
+		className,
 		
-		pseudoClass: 12,
-		pseudoClassArgs: 13,
-		pseudoClassValueDouble : 14,
-		pseudoClassValueSingle : 15,
-		pseudoClassValue: 16
-	};
-	
-	var rmap = {};
-	for (var p in map) rmap[map[p]] = p;
-	
-	function parser(){
-		var a = arguments;
+		attributeKey,
+		attributeOperator,
+		attributeValueDouble,
+		attributeValueSingle,
+		attributeValue,
 		
-		var selectorBitMap, selectorBitName;
-		
-		for (var aN = 1; aN < a.length; aN++) if (a[aN]){
-			selectorBitMap = aN;
-			selectorBitName = rmap[selectorBitMap];
-			break;
-		}
-		
-		if (!selectorBitName) return '';
-		
-		
-		if (a[map.tagName]=='*')
-			parsed.type.push('tagName*');
-		else if (parsed.type[parsed.type.length - 1] == selectorBitName && selectorBitName == 'className')
-			parsed.type[parsed.type.length-1] = 'classNames';
-		else if (parsed.type[parsed.type.length - 1] == 'classNames' && selectorBitName == 'className');
-			// do nothing
-		else
-			parsed.type.push(selectorBitName);
-		
-		
-		var isSeparator = selectorBitName == 'separator';
-		
-		if (isSeparator || separatorIndex == -1){
+		pseudoClass,
+		pseudoClassValueDouble,
+		pseudoClassValueSingle,
+		pseudoClassValue
+	){
+		if (separator || separatorIndex == -1){
 			parsed.expressions[++separatorIndex] = [];
 			combinatorIndex = -1;
-			if (isSeparator) return '';
+			if (separator) return '';
 		}
 		
-		var isCombinator = (selectorBitName == 'combinator') || (selectorBitName == 'combinatorChildren');
-		
-		if (isCombinator || combinatorIndex == -1){
-			var combinator = a[map.combinator] || ' ';
+		if (combinator || combinatorChildren || combinatorIndex == -1){
+			combinator = combinator || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
 			if (reversed && currentSeparator[combinatorIndex])
 				currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
 			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
 			partIndex = 0;
-			if (isCombinator) return '';
 		}
 		
 		var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
-		
-		switch (selectorBitName){
-		
-			case 'tagName': currentParsed.tag = a[map.tagName].replace(/\\/g,''); return '';
-			
-			case 'id': currentParsed.id = a[map.id].replace(/\\/g,''); return '';
-			
-			case 'className':
 
-				var className = a[map.className].replace(/\\/g,'');
+		if (tagName){
+			if (tagName == '*') parsed.type.push('tagName*');
+			else parsed.type.push('tagName');
 			
-				if (!currentParsed.classes) currentParsed.classes = [className];
-				else currentParsed.classes.push(className);
-			
-				currentParsed.parts[partIndex] = {
-					type: 'class',
-					value: className,
-					regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
-				};
-
-			break;
-			
-			case 'pseudoClass':
-
-				// TODO: pseudoClass is only not simple when it's custom or buggy
-				// if (pseudoBuggyOrCustom[pseudoClass])
-				// parsed.simple = false;
-			
-				if (!currentParsed.pseudos) currentParsed.pseudos = [];
-				
-				var value = a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue] || null;
-				if (value) value = value.replace(/\\/g,'')
-				
-				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
-					type: 'pseudo',
-					key: a[map.pseudoClass].replace(/\\/g,''),
-					value: value
-				});
-
-			break;
-			
-			case 'attributeKey':
-
-				if (!currentParsed.attributes) currentParsed.attributes = [];
-				
-				var key = a[map.attributeKey].replace(/\\/g,'');
-				var operator = a[map.attributeOperator];
-				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
-				
-				// Turn off simple mode for custom attribute operators. This should disable QSA mode
-				if (parsed.simple !== false) parsed.simple = !!simpleAttributeOperators.test(operator);
-				
-				var test, regexp;
-				
-				switch (operator){
-					case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
-					case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
-					case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attribute) +'(\\s|$)' ); break;
-					case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute) +'(-|$)'   ); break;
-					case  '=' : test = function(value){
-						return attribute == value;
-					}; break;
-					case '*=' : test = function(value){
-						return value && value.indexOf(attribute) > -1;
-					}; break;
-					case '!=' : test = function(value){
-						return attribute != value;
-					}; break;
-					default   : test = function(value){
-						return !!value;
-					};
-				}
-				
-				if (!test) test = function(value){
-					return value && regexp.test(value);
-				};
-				
-				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
-					type: 'attribute',
-					key: key,
-					operator: operator,
-					value: attribute,
-					test: test
-				});
-
-			break;
+			currentParsed.tag = tagName.replace(/\\/g,'');
+			return '';
 		}
+
+		else if (id){
+			parsed.type.push('id');
+			currentParsed.id = id.replace(/\\/g,'');
+			return '';
+		}
+
+		else if (className){
+			if ((/classNames?/).test(parsed.type[parsed.type.length - 1]))
+				parsed.type[parsed.type.length - 1] = 'classNames';
+			else parsed.type.push('className');
+			
+			className = className.replace(/\\/g,'');
+		
+			if (!currentParsed.classes) currentParsed.classes = [className];
+			else currentParsed.classes.push(className);
+		
+			currentParsed.parts[partIndex] = {
+				type: 'class',
+				value: className,
+				regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
+			};
+		}
+
+		else if (pseudoClass){
+			parsed.type.push('pseudoClass');
+			// TODO: pseudoClass is only not simple when it's custom or buggy
+			// if (pseudoBuggyOrCustom[pseudoClass])
+			// parsed.simple = false;
+		
+			if (!currentParsed.pseudos) currentParsed.pseudos = [];
+			
+			var value = pseudoClassValueDouble || pseudoClassValueSingle || pseudoClassValue || null;
+			if (value) value = value.replace(/\\/g,'');
+			
+			currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
+				type: 'pseudo',
+				key: pseudoClass.replace(/\\/g,''),
+				value: value
+			});
+		}
+
+		else if (attributeKey){
+			parsed.type.push('attributeKey');
+			if (!currentParsed.attributes) currentParsed.attributes = [];
+			
+			var key = attributeKey.replace(/\\/g,'');
+			var operator = attributeOperator;
+			var attribute = (attributeValueDouble || attributeValueSingle || attributeValue || '').replace(/\\/g,'');
+			
+			// Turn off simple mode for custom attribute operators. This should disable QSA mode
+			if (parsed.simple !== false) parsed.simple = !!simpleAttributeOperators.test(operator);
+			
+			var test, regexp;
+			
+			switch (operator){
+				case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
+				case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
+				case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attribute) +'(\\s|$)' ); break;
+				case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute) +'(-|$)'   ); break;
+				case  '=' : test = function(value){
+					return attribute == value;
+				}; break;
+				case '*=' : test = function(value){
+					return value && value.indexOf(attribute) > -1;
+				}; break;
+				case '!=' : test = function(value){
+					return attribute != value;
+				}; break;
+				default   : test = function(value){
+					return !!value;
+				};
+			}
+			
+			if (!test) test = function(value){
+				return value && regexp.test(value);
+			};
+			
+			currentParsed.attributes.push(currentParsed.parts[partIndex] = {
+				type: 'attribute',
+				key: key,
+				operator: operator,
+				value: attribute,
+				test: test
+			});
+		}
+		
+		else if (combinator){
+			parsed.type.push(combinator);
+		}
+
+
 		partIndex++;
 		return '';
 	};
