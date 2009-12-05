@@ -116,7 +116,7 @@ global.selectors = [
 	''
 ];
 
-new Mock(/\b(html)\b/i, benchmarkSelectors);
+new Mock('', benchmarkSelectors);
 
 </script>
 <style type="text/css" media="screen">
@@ -174,7 +174,8 @@ document.write('</textarea>');
 </div>
 
 <!-- mocks -->
-<iframe class="mock" onload="Mock.register('tmpl html std',this.contentWindow)" src="../../SlickSpec/mocks/template-standard.html"></iframe>
+<iframe class="mock" onload="Mock.register('',this.contentWindow)" src="../../SlickSpec/mocks/template-standard.html"></iframe>
+<!-- <iframe class="mock" onload="Mock.register('tmpl html std',this.contentWindow)" src="../../SlickSpec/mocks/template-standard.html"></iframe> -->
 <!-- <iframe onload="Mock.register('tmpl html almost std',this.contentWindow)" src="../../SlickSpec/mocks/template-almost.html"></iframe> -->
 <!-- <iframe onload="Mock.register('tmpl html quirks',this.contentWindow)" src="../../SlickSpec/mocks/template-quirks.html"></iframe> -->
 
