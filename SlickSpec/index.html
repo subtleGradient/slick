@@ -29,7 +29,7 @@ sup.version{
 }
 
 
-#prebuilt ul {
+ul#prebuilt {
 	padding-left:0;
 	list-style:none;
 }
@@ -41,7 +41,7 @@ sup.version{
 #prebuilt li a:hover {
 	background-color: #DEE6F7;
 }
-#prebuilt .box li a:hover {
+.box a:hover {
 	background-color: #fff;
 }
 
@@ -51,62 +51,85 @@ sup.version{
 <div class="container">
 
 
-<h1>Slick<strong>Spec</strong> <sup class="version">alpha</sup></h1>
+<h1>Slick<strong>Spec</strong> <sup class="version">public release 1</sup></h1>
 <p><em>Generic Selectors API Specification</em></p>
 
-<div id="prebuilt">
-	<ul>
-		<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <strong>Slick</strong> <sup class="version">edge</sup></a></li>
-		<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
-		<li><a href="select.html?script=http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools.js&amp;script=bootstrap/moo12.slickspec.js"> &rarr; SlickSpec <strong>MooTools</strong> <sup class="version">1.2.4</sup></a></li>
-	</ul>
+<div class="span-12 last">
+	<p>SlickSpec is a framework independant specification for selectors engines.</p>
+	
+	<p>In this first release all the various separate specs have been combined into a single spec runner. Some of the frameworks specifically choose not to support some selectors that other frameworks fully support. In our next SlickSpec release we plan to separate out these selectors and have both a strict standards-only set and a common extenstions set of specs.</p>
+</div>
+
+<div class="span-24">
+	
+	<div class="span-9">
+		<h2>Bootstrapped</h2>
+		<ul id="prebuilt">
+			<li><a href="select.html?script=http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools.js&amp;script=bootstrap/moo12.slickspec.js"> &rarr; SlickSpec <strong>MooTools</strong> <sup class="version">1.2.4</sup></a></li>
+			<li><a href="select.html?script=../slick.js&amp;script=bootstrap/slick.slickspec.js">        &rarr; SlickSpec <small>MooTools</small> <strong>Slick</strong> <sup class="version">edge</sup></a></li>
+			<li><a href="select.html?script=http://javascript.nwbox.com/NWMatcher/nwmatcher.js&amp;script=bootstrap/nwmatcher.slickspec.js"> &rarr; SlickSpec <strong>NWMatcher</strong> <sup class="version">latest</sup></a></li>
+		</ul>
+		
+<!--
+		<h3>Results</h3>
+		
+		<table border="0" cellspacing="0" cellpadding="0">
+			<tr><th>&nbsp;</th><th>Framework</th><th>IE6 </th><th>IE7 </th><th>IE8 </th><th>Safari4</th><th>FF3.5 </th></tr>
+			<tr><th><a href="#">Run</a></th><th>MooTools <sup class="version">1.2.4</sup></th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+			<tr><th><a href="#">Run</a></th><th>Slick <sup class="version">Nov 23 2009</sup></th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+		</table>
+-->
+		
+	</div>
 	
 	<div class="span-12 box">
-		<h4>Slick.js Specific</h4>
-		<ul>
-			<li><a href="framework_Slick.html">Slick Features</a></li>
-			<li><a href="parse.html">Slick Parser</a></li>
-			<li><a href="match.html">Match <sup class="version">work in progress</sup></a></li>
-		</ul>
+		<h2>SlickSpec for any engine</h2>
+		<p>To run SlickSpec on your own selector engine all you need is a link to the source and a simple bootstrap script.</p>
+		<p>The bootstrap script maps the generic methods that the specs use to the specific selector engine's methods.</p>
+		<p>See the Slick.js bootstrap as an example <a href="bootstrap/slick.slickspec.js">bootstrap/slick.slickspec.js</a>.</p>
+		
+		<form action="select.html" method="get" accept-charset="utf-8" id="select">
+			<fieldset>
+				<legend>Run against a custom script</legend>
+				<div>
+					<label class="column span-3" for="script">Script(s)</label>
+					<input class="span-8 last" type="text" name="script" value="../slick.js" />
+				</div>
+				<div>
+					<label class="column span-3" for="script">&nbsp;</label>
+					<input class="span-8 last" type="text" name="script" value="" />
+				</div>
+				<div>
+					<label class="column span-3" for="script">&nbsp;</label>
+					<input class="span-8 last" type="text" name="script" value="" />
+				</div>
+				<div>
+					<label class="column span-3" for="script"><span>Bootstrap Script</span></label>
+					<input class="span-8 last" type="text" name="script" value="bootstrap/slick.slickspec.js" />
+				</div>
+				<div>
+					<label class="column span-3" for="rerun">Rerun Spec</label>
+					<input class="span-8 last" type="text" name="rerun" value="" />
+				</div>
+			</fieldset>
+			
+			<div class="buttons">
+				<input type="submit" value="SlickSpec Custom &rarr;" />
+			</div>
+		</form>
 	</div>
 </div>
 
-<hr />
+<div class="span-12">
+	<h3>Known Issues</h3>
+<ul>
+<li>
+	<strong>Sometimes specs run multiple times and result in a % higher than 100%</strong><br />
+	This isn't that big of a deal since the result of each spec should remain the same no matter how many times it is run
+</li>
+</ul>
+</div>
 
-<form action="select.html" method="get" accept-charset="utf-8" id="select" class="span-12 box">
-	
-	<p>To run SlickSpec on your own selector engine all you need is a link to the source and a simple bootstrap script.</p>
-	<p>The bootstrap script maps the generic methods that the specs use to the specific selector engine's methods.</p>
-	<p>See the Slick.js bootstrap as an example <a href="bootstrap/slick.slickspec.js">bootstrap/slick.slickspec.js</a>.</p>
-	
-	<fieldset>
-		<legend>Run against a custom script</legend>
-		<div>
-			<label class="column span-3" for="script">Script(s)</label>
-			<input class="span-8 last" type="text" name="script" value="../slick.js" />
-		</div>
-		<div>
-			<label class="column span-3" for="script">&nbsp;</label>
-			<input class="span-8 last" type="text" name="script" value="" />
-		</div>
-		<div>
-			<label class="column span-3" for="script">&nbsp;</label>
-			<input class="span-8 last" type="text" name="script" value="" />
-		</div>
-		<div>
-			<label class="column span-3" for="script"><span>Bootstrap Script</span></label>
-			<input class="span-8 last" type="text" name="script" value="bootstrap/slick.slickspec.js" />
-		</div>
-		<div>
-			<label class="column span-3" for="rerun">Rerun Spec</label>
-			<input class="span-8 last" type="text" name="rerun" value="" />
-		</div>
-	</fieldset>
-	
-	<div class="buttons">
-		<input type="submit" value="SlickSpec Custom &rarr;" />
-	</div>
-</form>
 
 </div>
 </body>
