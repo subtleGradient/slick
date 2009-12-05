@@ -8,19 +8,26 @@
 </style>
 
 <!-- JSSpec -->
-<script type="text/javascript" src="../../test/assets/JSSpec.js"></script>
-<script type="text/javascript" src="../../test/assets/JSSpecHelpers.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpec.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpecHelpers.js"></script>
 
 <!-- Slick -->
+<script> document.write('<scr'+'ipt src="../../slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script type="text/javascript">
+var SlickThis = Slick;
+delete this.Slick;
+</script>
+
 <script> document.write('<scr'+'ipt src="../frameworks/slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
-<script type="text/javascript"> var SlickLast = Slick; </script>
-<script> document.write('<scr'+'ipt src="../../test/../slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
-<script type="text/javascript"> var SlickThis = Slick; </script>
+<script type="text/javascript">
+var SlickLast = Slick;
+delete this.Slick;
+</script>
 <script src="../frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/yass.css3.js" type="text/javascript" charset="utf-8"></script>
 
-<script type="text/javascript" src="../../test/assets/JSSpecHelpers_slick.js" charset="utf-8"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpecHelpers_slick.js" charset="utf-8"></script>
 
 <!-- benchmarker -->
 <script src="JSLitmus.js" type="text/javascript" charset="utf-8"></script>
@@ -30,7 +37,7 @@
 <script src="bench_parse.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- Runner -->
-<script type="text/javascript" src="../../test/assets/simple_request.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
 global.disableQSA = true;
@@ -139,7 +146,7 @@ document.write('</textarea>');
 </div>
 
 <!-- mocks -->
-<iframe onload="Mock.register('tmpl html std',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
+<iframe onload="Mock.register('tmpl html std',this.contentWindow)" src="../../SlickSpec/mocks/template-standard.html"></iframe>
 
 <script type="text/javascript" charset="utf-8">
 document.getElementsByTagName('textarea')[0].style.height = global.selectors.length * 12 + 24 + 'px';
