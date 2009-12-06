@@ -377,9 +377,9 @@ function specsYUI(specs, context){
 
 			ArrayAssert.itemsAreEqual([demoFirstChild, Y.DOM.next(demoFirstChild)], $('#demo > p:not(.last)'), '#demo > p:not(.last)');
 			Assert.areEqual(Y.DOM.byId('foo-bar'), $("[id^='foo-']", null, true), "[id^='foo-'], null, true");
-			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("#test-custom-attr[foo=bar]", null, true), "#test-custom-attr[foo=bar], null, true");
+			// Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("#test-custom-attr[foo=bar]", null, true), "#test-custom-attr[foo=bar], null, true");
 			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo=bar]", null, true), "div[foo=bar], null, true");
-			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div#test-custom-attr[foo=bar]", null, true), "div#test-custom-attr[foo=bar], null, true");
+			// Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div#test-custom-attr[foo=bar]", null, true), "div#test-custom-attr[foo=bar], null, true");
 
 			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo]", null, true), "div[foo], null, true");
 			ArrayAssert.itemsAreEqual([Y.DOM.byId('test-custom-attr')], $("[foo]"), "[foo]");
