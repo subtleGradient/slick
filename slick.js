@@ -19,50 +19,39 @@ authors:
 	
 	var Slick = local.Slick = this.Slick = this.Slick || {};
 	
+	var objectPrototypeToString = Object.prototype.toString;
+	
 	// Feature / Bug detection
 	
 	Slick.isXML = local.isXML = function(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
-			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
+			|| (objectPrototypeToString.call(ownerDocument) == '[object XMLDocument]')
 			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 	
-	local.setBrowser = function(document){
-		var root = local.root;
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-		
-		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
-			local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
-		
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-		
-		root.removeChild(testNode);
-		testNode = null;
-		return this;
-	};
+	var timeStamp = +new Date();
 	
 	local.setDocument = function(document){
-		if (local.document == document) return;
+		if (local.document === document) return;
 		
 		if (document.nodeType === 9);
 		else if (document.ownerDocument) document = document.ownerDocument; // node
 		else if ('document' in document) document = document.document; // window
 		else return;
 		
-		if (local.document == document) return;
+		if (local.document === document) return;
 		local.document = document;
 		local.root = document.documentElement;
+		
+		local.starSelectsClosed
+		= local.starSelectsComments
+		= local.starSelectsClosedQSA
+		= local.idGetsName
+		= local.brokenMixedCaseQSA
+		= local.cachedGetElementsByClassName
+		= false;
 		
 		if (!(local.isXMLDocument = local.isXML(document))){
 			
@@ -87,15 +76,26 @@ authors:
 				selected = testNode.querySelectorAll('*');
 				local.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
+			
 			// IE returns elements with the name instead of just id for getElementById for some documents
 			try {
-				testNode.innerHTML = '<a name=idgetsname></a><b id=idgetsname></b>';
-				local.idGetsName = testNode.ownerDocument.getElementById('idgetsname') === testNode.firstChild;
-				id = 'getelementbyid';
+				id = 'idgetsname' + timeStamp;
 				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
 				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
-			} catch(e){
-			};
+			} catch(e){};
+			
+			// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
+			try {
+				testNode.innerHTML = '<a class="MiXedCaSe"></a>';
+				local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+			} catch(e){};
+
+			try {
+				testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+				testNode.getElementsByClassName('b').length;
+				testNode.firstChild.className = 'b';
+				local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+			} catch(e){};
 			
 			local.root.removeChild(testNode);
 			testNode = null;
@@ -107,13 +107,10 @@ authors:
 	
 	local.setDocument(this.document);
 	
-	local.setBrowser(local.document);
-	
 	var window = this, document = local.document, root = local.root;
 	
 	// Slick
-	local.isSimple = {};
-	
+
 	var search = Slick.search = local.search = function(context, expression, append){
 		
 		// setup
@@ -151,7 +148,7 @@ authors:
 			return found;
 		}
 		
-		if (local.document != context.ownerDocument || context) local.setDocument(context);
+		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
@@ -269,7 +266,7 @@ authors:
 	    local.collectionToArray(root.childNodes);
 	} catch(e){
 		local.collectionToArray = function(node){
-			if (node instanceof Array) return node;
+			if (objectPrototypeToString.call(node) == '[object Array]') return node;
 			var i = node.length, array = new Array(i);
 			while (i--) array[i] = node[i];
 			return array;
@@ -701,12 +698,15 @@ authors:
 	};
 	
 	// debugging
-	var displayName;
-	for (displayName in local)
-		if (typeof local[displayName] == 'function') local[displayName].displayName = displayName;
 
-	for (displayName in Slick)
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
+	var setDisplayName = function(obj, prefix){
+		prefix = prefix || '';
+		for (displayName in obj)
+			if (typeof obj[displayName] == 'function') obj[displayName].displayName = prefix + displayName;
+	};
+	
+	setDisplayName(local);
+	setDisplayName(Slick, 'Slick.');
 	
 }).apply(this);
 
@@ -744,7 +744,7 @@ authors:
 	;
 	
 	var parse = function(expression, isReversed){
-		expression = String(expression);
+		expression = '' + expression;
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];

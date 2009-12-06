@@ -2,7 +2,7 @@ function specsBrowserBugs(specs,context){
 	
 	var rootElement;
 	var testNode, tmpNode, tmpNode1, tmpNode2, tmpNode3, tmpNode4, tmpNode5, tmpNode6, tmpNode7, tmpNode8, tmpNode9;
-	var results, resultsArray;
+	var result, results, resultsArray;
 	var setup = 
 	specs.before_each = function(){
 		testNode = context.document.createElement('div');
@@ -156,6 +156,58 @@ function specsBrowserBugs(specs,context){
 		
 	});
 	
+	Describe('getElementsByTagName',function(){
+		it['getElementsByTagName Should not return comment nodes with * selector'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createComment('');testNode.appendChild(tmpNode1);
+			
+			result = testNode.getElementsByTagName('*');
+			value_of( result.length ).should_be(0);
+		};
+		
+		it['getElementsByTagName Should not return closed nodes'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = 'foo</foo>';
+			result = testNode.getElementsByTagName('*');
+			
+			value_of( result.length ).should_be(0);
+		};
+		
+	});
+	
+	if(context.document.querySelector)
+	Describe('querySelector',function(){
+		it['querySelector Should start finding nodes from the passed context'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createElement('input');tmpNode1.setAttribute('id', 'queryselectorall');tmpNode1.setAttribute('type','text');testNode.appendChild(tmpNode1);
+			
+			result = testNode.querySelector('div #queryselectorall');
+			value_of( result ).should_not_be( tmpNode1 );
+		};
+		
+		it['querySelector Should not return a comment node with * selector'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createComment('');testNode.appendChild(tmpNode1);
+			
+			result = testNode.querySelector('*');
+			value_of( result ).should_be_null();
+		};
+		
+		it['querySelector Should not return closed nodes'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = 'foo</foo>';
+			result = testNode.querySelector('*');
+			
+			value_of( result ).should_be_null();
+		};
+		
+	});
+	
 	if(context.document.querySelectorAll)
 	Describe('querySelectorAll',function(){
 		
@@ -168,6 +220,24 @@ function specsBrowserBugs(specs,context){
 			for (var i=0; i < results.length; i++) {
 				value_of( results[i] ).should_not_be( tmpNode1 );
 			}
+		};
+		
+		it['querySelectorAll Should not return comment nodes with * selector'] = function(){
+			teardown();setup();
+			
+			tmpNode1 = context.document.createComment('');testNode.appendChild(tmpNode1);
+			
+			result = testNode.querySelectorAll('*');
+			value_of( result.length ).should_be(0);
+		};
+		
+		it['querySelectorAll Should not return closed nodes'] = function(){
+			teardown();setup();
+			
+			testNode.innerHTML = 'foo</foo>';
+			result = testNode.querySelectorAll('*');
+			
+			value_of( result.length ).should_be(0);
 		};
 		
 	});
