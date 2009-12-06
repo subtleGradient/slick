@@ -1,8 +1,7 @@
 function setupMethods(specs, window){
 	var Element = window.Element || global.Element;
 	global.disableNegNth = true;
-	
-	document.querySelectorAll = null;
+	global.cannotDisableQSA = true;
 	
 	window.SELECT = function(context, selector, append){
 		return Element.getElements(context, selector);

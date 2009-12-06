@@ -8,9 +8,9 @@ function specsMockTemplate(specs, context){
 		};
 	}
 	function it_should_find(count, selector){
-		if (global.document.querySelectorAll)
+		if (global.document.querySelectorAll && !global.cannotDisableQSA)
 			specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false);
-		specs['should find '+count+' `'+selector+'` without QSA' ] = makeSlickTestSearch(selector, count, true);
+		specs['should find '+count+' `'+selector+'` ' + (!global.cannotDisableQSA ? '` without QSA' : '') ] = makeSlickTestSearch(selector, count, true);
 	};
 	
 	it_should_find(1, 'html');
