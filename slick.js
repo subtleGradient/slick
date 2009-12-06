@@ -111,11 +111,11 @@ authors:
 	
 	// Slick
 
-	var search = Slick.search = local.search = function(context, expression, append){
+	var search = Slick.search = local.search = function(context, expression, append, justFirst){
 		
 		// setup
 		
-		var parsed, found = append || [];
+		var parsed, found = justFirst ? null : (append || []);
 		local.positions = {};
 		
 		// handle input / context:
@@ -141,12 +141,14 @@ authors:
 			parsed = expression;
 
 		} else if (local.contains(context.documentElement || context, expression)){
-			found.push(expression);
+			justFirst ? found = expression : found.push(expression);
 			return found;
 
 		} else {
 			return found;
 		}
+		
+		found = append || [];
 		
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
@@ -157,36 +159,42 @@ authors:
 		// custom engines
 		
 		customEngine: {
-			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + parsed.type.join(':');
+			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + (justFirst ? 'justFirst:' : '') + parsed.type.join(':');
 			if (typeof local[customEngineName] != 'function') break customEngine;
 			if (typeof local[customEngineName + ' check'] == 'function' && !local[customEngineName + ' check'](context, parsed)) break customEngine;
 			
 			local.found = found;
-			local[customEngineName](context, parsed);
+			var first = local[customEngineName](context, parsed);
+			if(justFirst) return first;
 			return found;
 		}
 		
-		// querySelectorAll
+		// querySelector|querySelectorAll
 		
 		QSA: if (context.querySelectorAll && !(parsed.simple === false || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType != 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try {
-				nodes = context.querySelectorAll(parsed.raw);
+				nodes = context['querySelector' + (justFirst ? '' : 'All')](parsed.raw);
 				parsed.simple = true;
 			} catch(error){
 				parsed.simple = false;
 				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
-			if (!nodes) break QSA;
-			nodes = local.collectionToArray(nodes);
-			if (!append) return nodes;
-			
-			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
-			else found.push.apply(found, nodes);
-			return found;
+			if(justFirst){
+				if(nodes || nodes == null) return nodes;
+			}
+			else{
+				if (!nodes) break QSA;
+				nodes = local.collectionToArray(nodes);
+				if (!append) return nodes;
+
+				if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
+				else found.push.apply(found, nodes);
+				return found;
+			}
 			
 		}
 		
@@ -237,8 +245,8 @@ authors:
 		return found;
 	};
 	
-	var find = Slick.find = local.find = function(context, expression, append){
-		return Slick.search(context, expression, append)[0] || null;
+	var find = Slick.find = local.find = function(context, expression){
+		return Slick.search(context, expression, null, true);
 	};
 	
 	// Utils
