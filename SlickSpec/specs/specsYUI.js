@@ -1,13 +1,17 @@
 function specsYUI(specs, context){
-	var Y = {
-		each: function(iterable, fn){
-			if('length' in iterable){
-				for(var i = 0, len = iterable.length; i < len; i++){
-					fn.call(iterable[i], iterable[i]);
-				}
+	it['should be the right context'] = function(){
+		value_of( context ).should_be( global.mocks.YUI );
+	};
+	
+	
+	var Y = (context.YAHOO || global.YAHOO).util || {};
+	Y.each = Y.each || function(iterable, fn){
+		if('length' in iterable){
+			for(var i = 0, len = iterable.length; i < len; i++){
+				fn.call(iterable[i], iterable[i]);
 			}
-			return null;
 		}
+		return null;
 	};
 	var document = context.document;
 	var SELECT = context.SELECT;
@@ -15,7 +19,7 @@ function specsYUI(specs, context){
 		return context.MATCH(node, expression, document);
 	};
 
-	Y.Dom = {
+	Y.Dom = Y.Dom || {
 		get: function (id) {
 			return document.getElementById(id);
 		},
@@ -101,14 +105,14 @@ function specsYUI(specs, context){
 		}
 	};
 
-	Y.DOM = {
+	Y.DOM = Y.DOM || {
 		next: function(node){
 			var next = node;
 			while ((next = next.nextSibling)) if (next.nodeType === 1) return next;
 			return null;
 		}
 	};
-	Y.DOM.byId = Y.Dom.get;
+	Y.DOM.byId = Y.DOM.byId || Y.Dom.get;
 
 	//new Y.Console({height:'90%'}).render();
 	//var suite = new Y.Test.Suite("Selector Suite");
