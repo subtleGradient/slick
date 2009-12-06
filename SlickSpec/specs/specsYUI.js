@@ -162,7 +162,8 @@ function specsYUI(specs, context){
 		},
 		areEqual: function(a, b, message){
 			specs[message] = function(){
-				value_of(a).should_be(b);
+				if (!a) value_of( a == b ).should_be_true();
+				else value_of(a).should_be(b);
 			};
 		}
 	};
