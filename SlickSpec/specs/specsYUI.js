@@ -18,6 +18,7 @@ function specsYUI(specs, context){
 	var match = function(node, expression){
 		return context.MATCH(node, expression, document);
 	};
+	var SELECT1 = context.SELECT1;
 
 	Y.Dom = Y.Dom || {
 		get: function (id) {
