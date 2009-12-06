@@ -203,7 +203,7 @@ authors:
 		var currentExpression, currentBit;
 		var i, j, m, n;
 		var combinator, tag, id, parts, classes, attributes, pseudos;
-		var current, items;
+		var currentItems;
 		var expressions = parsed.expressions;
 		
 		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
@@ -223,15 +223,14 @@ authors:
 			if (j == 0){
 				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
 			} else {
-				items = current;
 				if (local[combinator]){
-					for (m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+					for (m = 0, n = currentItems.length; m < n; m++) local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
 				} else {
 					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
 				}
 			}
 		
-			current = local.found;
+			currentItems = local.found;
 		
 		}
 		
