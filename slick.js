@@ -933,7 +933,7 @@ __END__
 			var attribute = (attributeValueDouble || attributeValueSingle || attributeValue || '').replace(/\\/g,'');
 			
 			// Turn off simple mode for custom attribute operators. This should disable QSA mode
-			if (parsed.simple !== false) parsed.simple = !!simpleAttributeOperators.test(operator);
+			if (parsed.simple !== false && operator) parsed.simple = !!simpleAttributeOperators.test(operator);
 			
 			var test, regexp;
 			
