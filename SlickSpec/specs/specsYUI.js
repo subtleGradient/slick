@@ -139,8 +139,7 @@ function specsYUI(specs, context){
 			return MATCH(node, expression);
 		},
 		query: function(expression, context, first){
-			var elements = SELECT(context || document, expression);
-			return first ? elements[0] : elements;
+			return (first ? SELECT1 : SELECT)(context, expression);
 		}
 	};
 	
