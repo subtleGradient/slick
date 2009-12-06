@@ -43,6 +43,10 @@ function Describe(description,specBuilder){
 	// Build the spec object
 	try {specBuilder(specs,global.context);}
 	
+	catch(e) {
+		setTimeout(function(){throw e;}, 0);
+	}
+	
 	finally {
 		// Create the tests and go!
 		var spec_count = 0;
