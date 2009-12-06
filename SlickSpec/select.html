@@ -24,6 +24,7 @@
 <script type="text/javascript" charset="utf-8" src="specs/specsPrototype.js"></script>
 <script type="text/javascript" charset="utf-8" src="specs/specsJQuery.js"></script>
 <script type="text/javascript" charset="utf-8" src="specs/specsDojo.js"></script>
+<script type="text/javascript" charset="utf-8" src="specs/specsYUI.js"></script>
 
 <!-- Runner -->
 
@@ -36,6 +37,7 @@ new Mock('Closure', specsGoogleClosure);
 new Mock('PrototypeJS', specsPrototype);
 new Mock('jQuery', specsJQuery);
 new Mock('Dojo', specsDojo);
+new Mock('YUI', specsYUI);
 new Mock(/Generic.*?\bHTML/, specsMockTemplate);
 new Mock('xmlmock1', specsAssetsTemplateXML);
 
@@ -100,6 +102,7 @@ new Mock.Request('SVG responseXML','mocks/MooTools_Logo.svg');
 <iframe onload="Mock.register('PrototypeJS',this.contentWindow)" src="mocks/Prototype-query_test.html"></iframe>
 <iframe onload="Mock.register('jQuery',this.contentWindow)" src="mocks/jQuery-query_test.html"></iframe>
 <iframe onload="Mock.register('Dojo',this.contentWindow)" src="mocks/dojo-query_test.html"></iframe>
+<iframe onload="Mock.register('YUI',this.contentWindow)" src="mocks/yui-query_test.html"></iframe>
 
 
 </body>

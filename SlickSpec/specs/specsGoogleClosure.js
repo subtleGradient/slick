@@ -13,9 +13,9 @@ function specsGoogleClosure(specs,context){
 	function setup_it_should_find(specs){
 		return function it_should_find(count, selector, rootNodeId){
 			var rootNode = rootNodeId ? context.document.getElementById(rootNodeId) : context.document;
-			if (global.document.querySelectorAll)
+			if (global.document.querySelectorAll && !global.cannotDisableQSA)
 				specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false, rootNode);
-			specs['should find '+count+' `'+selector+'` without QSA' ] = makeSlickTestSearch(selector, count, true, rootNode);
+			specs['should find '+count+' `'+selector+'` ' + (!global.cannotDisableQSA ? '` without QSA' : '') ] = makeSlickTestSearch(selector, count, true, rootNode);
 		};
 	};
 	

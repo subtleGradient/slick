@@ -1,4 +1,5 @@
 function setupMethods(specs, window){
+	global.cannotDisableQSA = true;
 	
 	window.SELECT = function(context, selector, append){
 		return (window.NW || global.NW).Dom.select(selector, context, append);

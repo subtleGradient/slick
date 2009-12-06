@@ -44,7 +44,7 @@ function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(){
 	
 	var starIncludesClosedNodes = !!$try(function(){ return context.document.createElement('/foo').nodeName.substring(0,1)=='/'; });
 	
-	if (starIncludesClosedNodes && context.document && context.document.querySelectorAll)
+	if (starIncludesClosedNodes && context.document && context.document.querySelectorAll && !global.cannotDisableQSA)
 	it['should not return closed nodes with QSA'] = function(){
 		testNode.innerHTML = 'foo</foo>';
 		var results = context.SELECT(testNode,'*');
@@ -55,7 +55,7 @@ function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(){
 	};
 	
 	if (starIncludesClosedNodes)
-	it['should not return closed nodes without QSA'] = function(){
+	it['should not return closed nodes ' + (!global.cannotDisableQSA ? '` without QSA' : '')] = function(){
 		var tmpNode;
 		tmpNode = context.document.createElement('/foo');testNode.appendChild(tmpNode);
 		value_of( tmpNode.nodeName ).should_be('/foo');
