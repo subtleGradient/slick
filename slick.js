@@ -897,7 +897,7 @@ __END__
 			currentParsed.parts[partIndex] = {
 				type: 'class',
 				value: className,
-				regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
+				match:  ' ' + className + ' '
 			};
 		}
 
