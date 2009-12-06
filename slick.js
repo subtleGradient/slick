@@ -204,7 +204,6 @@ authors:
 		var i, j, m, n;
 		var combinator, tag, id, parts, classes, attributes, pseudos;
 		var current, items;
-		var tempUniques = {};
 		var expressions = parsed.expressions;
 		
 		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
@@ -218,14 +217,8 @@ authors:
 			pseudos    = currentBit.pseudos;
 		
 			local.localUniques = {};
-		
-			if (j == (currentExpression.length - 1)){
-				local.uniques = tempUniques;
-				local.found = found;
-			} else {
-				local.uniques = {};
-				local.found = [];
-			}
+			local.uniques = {};
+			local.found = (j == (currentExpression.length - 1)) ? found : [];
 
 			if (j == 0){
 				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
