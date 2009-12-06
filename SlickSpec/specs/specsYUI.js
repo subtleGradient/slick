@@ -15,10 +15,8 @@ function specsYUI(specs, context){
 	};
 	var document = context.document;
 	var SELECT = context.SELECT;
-	var match = function(node, expression){
-		return context.MATCH(node, expression, document);
-	};
 	var SELECT1 = context.SELECT1;
+	var MATCH = context.MATCH;
 
 	Y.Dom = Y.Dom || {
 		get: function (id) {
@@ -131,14 +129,14 @@ function specsYUI(specs, context){
 			nodes = nodes || [];
 			var ret = [];
 			for(var i = 0, len = nodes.length; i < len; i++){
-				if(match(nodes[i], expression)){
+				if(MATCH(nodes[i], expression)){
 					ret.push(nodes[i]);
 				}
 			}
 			return ret;
 		},
 		test: function(node, expression){
-			return match(node, expression);
+			return MATCH(node, expression);
 		},
 		query: function(expression, context, first){
 			var elements = SELECT(context || document, expression);
