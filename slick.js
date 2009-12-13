@@ -176,7 +176,7 @@ authors:
 			
 			var nodes;
 			try {
-				nodes = context['querySelector' + (justFirst ? '' : 'All')](parsed.raw);
+				nodes = context[justFirst ? 'querySelector' : 'querySelectorAll'](parsed.raw);
 				parsed.simple = true;
 			} catch(error){
 				parsed.simple = false;
