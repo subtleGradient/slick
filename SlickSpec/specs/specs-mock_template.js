@@ -3,8 +3,16 @@ function specsMockTemplate(specs, context){
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
 			context.SELECT.disableQSA = !!disableQSA;
-			value_of( context.SELECT(context.document, selector).length ).should_be( count );
-			value_of( context.SELECT1(context.document, selector) )['should_' + (count ? 'not_' : '') + 'be_null']();
+			var selectedArray = context.SELECT(context.document, selector);
+			var selected = context.SELECT1(context.document, selector);
+			value_of( selectedArray.length ).should_be( count );
+			if(count){
+				value_of( selected ).should_not_be_null();
+				value_of( selected === selectedArray[0] ).should_be_true();
+			}
+			else{
+				value_of( selected ).should_be_null();
+			}
 			delete context.SELECT.disableQSA;
 		};
 	}
