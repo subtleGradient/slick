@@ -101,6 +101,66 @@ authors:
 			testNode = null;
 			
 		}
+		
+		local.redefineEngines();
+		
+	};
+	
+	// Custom engines
+	
+	Slick.defineEngine = function(name, fn){
+		local['customEngine:' + name] = local['customEngine:' + fn] || fn;
+	};
+	
+	Slick.removeEngines = function(){
+		for(var i = arguments.length; i--;){
+			delete local['customEngine:' + arguments[i]];
+		}
+	};
+	
+	//Slick.resetEngines = function(){
+	//	var customEngine;
+	//	for(engineName in local){
+	//		customEngine = local[engineName];
+	//		if((/^customEngine:/).test(engineName) && customEngine.removeCustomEngineOnReset) delete customEngine;
+	//	}
+	//};
+	
+	// Document independent custom engines
+	
+	Slick.defineEngine('tagName', function(context, parsed){
+		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
+	});
+	Slick.defineEngine('XML:tagName', 'tagName');
+	
+	// Slick.lookupEngine = function(name){
+	// 	var engine = local['customEngine:' + name];
+	// 	if (engine) return function(context, parsed){
+	// 		return engine.call(this, context, parsed);
+	// 	};
+	// };
+	
+	// Slick.defineEngine('id',function(context, parsed){
+	// 	context = context.ownerDocument || context;
+	// 	var el = context.getElementById(parsed.expressions[0][0].id)
+	// 	this.found.push(  );
+	// },function(){
+	// 	return !this.idGetsName;
+	// });
+	
+	// Document dependent custom engines
+	
+	local.redefineEngines = function(){
+		Slick.removeEngines('className', 'classNames', 'tagName*');
+		if(this.document.getElementByClassName && !this.cachedGetElementsByClassName){
+			Slick.defineEngine('className', function(context, parsed){
+				this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
+			});
+			Slick.defineEngine('classNames', 'className');
+		}
+		if(!(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA)){
+			Slick.defineEngine('tagName*','tagName');
+		}
 	};
 	
 	// Init
@@ -566,48 +626,6 @@ authors:
 	};
 
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
-	
-	// add pseudos
-	
-	Slick.defineEngine = function(name, fn, shouldDefine){
-		if (shouldDefine == null) shouldDefine = true;
-		if (typeof shouldDefine == 'function') shouldDefine = shouldDefine.call(local);
-		if (shouldDefine) local['customEngine:' + name] = local['customEngine:' + fn] || fn;
-		return this;
-	};
-	
-	// Slick.lookupEngine = function(name){
-	// 	var engine = local['customEngine:' + name];
-	// 	if (engine) return function(context, parsed){
-	// 		return engine.call(this, context, parsed);
-	// 	};
-	// };
-	
-	Slick.defineEngine('className', function(context, parsed){
-		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
-	}, function(){
-		return this.cachedGetElementsByClassName === false;
-	});
-	
-	Slick.defineEngine('classNames', 'className');
-	
-	Slick.defineEngine('tagName', function(context, parsed){
-		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
-	});
-	
-	Slick.defineEngine('tagName*','tagName', function(context, parsed){
-		return !(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA);
-	});
-	
-	Slick.defineEngine('XML:tagName','tagName');
-	
-	// Slick.defineEngine('id',function(context, parsed){
-	// 	context = context.ownerDocument || context;
-	// 	var el = context.getElementById(parsed.expressions[0][0].id)
-	// 	this.found.push(  );
-	// },function(){
-	// 	return !this.idGetsName;
-	// });
 	
 	// add pseudos
 	
