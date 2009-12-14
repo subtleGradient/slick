@@ -93,7 +93,7 @@ function _benchmarkSelectors(SELECT,context,selectors,before,after){
 					results[selectors[ii]] = SELECT(document, selectors[ii]).length;
 				}catch(error){
 					results[selectors[ii]] = error;
-					console.log(selectors[ii]);
+					try{console.log( selectors[ii] );}catch(e){};
 					setTimeout(function(){throw error}, 0);
 				}
 				
