@@ -250,8 +250,12 @@ authors:
 			nodes = local.collectionToArray(nodes);
 			if (!append) return nodes;
 			
-			if (local.starSelectsClosedQSA) local.push.apply(local, nodes, '*');
-			else found.push.apply(found, nodes);
+			if (local.starSelectsClosedQSA){
+				var node;
+				for(var i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
+			} else {
+				found.push.apply(found, nodes);
+			}
 			return found;
 			
 		}

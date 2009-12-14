@@ -5,8 +5,9 @@ function specsPrototype(specs, context){
 	};
 
 	function compareArrays(array1, array2){
+		value_of(array1.length).should_be(array2.length);
 		for(var i = 0; i < array1.length; i++){
-			value_of(array2[i]).should_be(array1[i]);
+			value_of(array1[i]).should_be(array2[i]);
 		}
 	};
 
@@ -43,7 +44,7 @@ function specsPrototype(specs, context){
 			var allNodesArray = [], i;
 			var allNodes = context.document.getElementsByTagName('*');
 			for(i = 0; i < allNodes.length; i++){
-				if(allNodes[i].tagName !== '!') allNodesArray.push(allNodes[i]);
+				if(allNodes[i].nodeType === 1) allNodesArray.push(allNodes[i]);
 			}
 			compareArrays(allNodesArray, $$('*'));
 		};
