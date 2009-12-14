@@ -97,6 +97,12 @@ authors:
 				local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 			} catch(e){};
 			
+			// Opera 9.6 GEBCN doesnt detects the class if its not the first one
+			try {
+				testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
+				local.brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
+			} catch(e){};
+			
 			local.root.removeChild(testNode);
 			testNode = null;
 			
@@ -152,7 +158,7 @@ authors:
 	
 	local.redefineEngines = function(){
 		Slick.removeEngines('className', 'classNames', 'tagName*');
-		if(this.document.getElementByClassName && !this.cachedGetElementsByClassName){
+		if(this.document.getElementsByClassName && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN){
 			Slick.defineEngine('className', function(context, parsed){
 				this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
 			});
@@ -177,7 +183,7 @@ authors:
 		
 		var parsed, found = append || [];
 		local.positions = {};
-		
+
 		// handle input / context:
 
 		// No context
@@ -406,6 +412,7 @@ authors:
 	var combinators = {
 
 		' ': function(node, tag, id, parts, classes, attributes, pseudos){ // all child nodes, any level
+			
 			var i, l, item, children;
 
 			if (!this.isXMLDocument){
@@ -425,7 +432,7 @@ authors:
 					this.push(item, tag, null, parts);
 					return;
 				}
-				getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName){
+				getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN){
 					children = node.getElementsByClassName(classes.join(' '));
 					if (!(children && children.length)) break getByClass;
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
