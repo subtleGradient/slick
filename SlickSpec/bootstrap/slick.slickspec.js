@@ -5,7 +5,7 @@ function setupMethods(specs, window){
 		return Slick.search(context, selector, append);
 	};
 	window.SELECT1 = function(context, selector){
-		return Slick.find(context, selector);
+		return Slick.search(context, selector)[0];
 	};
 	window.MATCH = function(context, selector){
 		return Slick.match(context, selector);

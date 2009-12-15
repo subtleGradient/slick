@@ -139,44 +139,50 @@ function specsYUI(specs, context){
 			return MATCH(node, expression);
 		},
 		query: function(expression, context, first){
-			return (first ? SELECT1 : SELECT)(context, expression);
+			return (first ? SELECT1 : SELECT)(context || document, expression);
 		}
+	};
+	
+	var uid = 1;
+	
+	var generateSpec = function(message, fn){
+		specs[(uid++) + ': ' +(message || '')] = fn;
 	};
 	
 	//var Assert = Y.Assert;
 	var Assert = {
 		isTrue: function(a, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(!!a).should_be_true();
-			};
+			});
 		},
 		isFalse: function(a, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(!!a).should_be_false();
-			};
+			});
 		},
 		isNull: function(a, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(a == null).should_be_true();
-			};
+			});
 		},
 		areEqual: function(a, b, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				if (!a) value_of( a == b ).should_be_true();
 				else value_of(a).should_be(b);
-			};
+			});
 		}
 	};
 	
 	//var ArrayAssert = Y.ArrayAssert;
 	var ArrayAssert = {
 		itemsAreEqual: function(a, b, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(a.length).should_be(b.length);
 				for(var i = 0, len = a.length; i < len; i++){
 					value_of(a[i]).should_be(b[i]);
 				}
-			};
+			});
 		}
 	};
 
@@ -246,7 +252,7 @@ function specsYUI(specs, context){
 
 		testRootQuery: function() {
 			var all = Y.Dom.get('nth-test').getElementsByTagName('li');
-
+			
 			ArrayAssert.itemsAreEqual(all, $('li', document), 'document');
 			ArrayAssert.itemsAreEqual(all, $('#root-test li'), 'document');
 			ArrayAssert.itemsAreEqual([], $('#root-tes li', Y.DOM.byId('demo')), 'false id document');
