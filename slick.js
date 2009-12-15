@@ -324,17 +324,16 @@ authors:
 			if (tag && tag ==='*' && (node.nodeType != 1 || node.nodeName.charAt(0) == '/')) return false; // Fix for comment nodes and closed nodes
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
-			for (var i = 0, l = parts.length, part; i < l; i++){
+			if (parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
 				part = parts[i];
 				if (!part) continue;
-				switch (part.type){
-					case 'class': if (classes !== false){
-						var cls = local.getAttribute(node, 'class');
-						if (!cls || !part.regexp.test(cls)) return false;
-					} break;
-					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
-					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
+				if (part.type == 'class' && classes !== false){
+					cls = cls || node.className;
+					cls = cls || node.getAttribute('class');
+					if (!(cls && parts[i].regexp.test(cls))) return false;
 				}
+				if (part.type == 'pseudo' && pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false;
+				if (part.type == 'attribute' && attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false;
 			}
 			return true;
 		}
