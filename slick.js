@@ -582,6 +582,19 @@ authors:
 	// 	};
 	// };
 	
+	Slick.defineEngine('className', function(context, parts){
+		var results = context.getElementsByTagName(parts.expressions[0][0].tag);
+		parts = parts.expressions[0][0].parts;
+		N: for (var i = 0, p, node, className; node = results[i++];) {
+			if (!(className = node.className)) continue N;
+			for (p = 0; p < parts.length; p++)
+				if (!parts[p].regexp.test(className)) continue N;
+			this.found.push(node);
+		}
+	},function(){
+		return !this.root.querySelectorAll && !(this.root.getElementsByClassName && this.cachedGetElementsByClassName === false);
+	});
+	
 	Slick.defineEngine('className', function(context, parsed){
 		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
 	}, function(){
@@ -589,12 +602,16 @@ authors:
 	});
 	
 	Slick.defineEngine('classNames', 'className');
+	Slick.defineEngine('tagName:className', 'className', function(){
+		return !(this.root.getElementsByClassName && this.cachedGetElementsByClassName === false);
+	});
+	Slick.defineEngine('tagName:classNames', 'tagName:className');
 	
 	Slick.defineEngine('tagName', function(context, parsed){
 		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
 	});
 	
-	Slick.defineEngine('tagName*','tagName', function(context, parsed){
+	Slick.defineEngine('tagName*','tagName', function(){
 		return !(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA);
 	});
 	
