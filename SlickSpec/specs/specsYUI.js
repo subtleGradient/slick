@@ -4,8 +4,8 @@ function specsYUI(specs, context){
 	};
 	
 	
-	var Y = (context.YAHOO || global.YAHOO).util || {};
-	Y.each = Y.each || function(iterable, fn){
+	var Y = {};
+	Y.each = function(iterable, fn){
 		if('length' in iterable){
 			for(var i = 0, len = iterable.length; i < len; i++){
 				fn.call(iterable[i], iterable[i]);
