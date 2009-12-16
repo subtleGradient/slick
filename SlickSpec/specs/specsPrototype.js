@@ -276,9 +276,6 @@ function specsPrototype(specs, context){
 			compareArrays($('item_2', 'item_3'), $$('#list > li:nth-child(n+2)'));
 			compareArrays($('item_1', 'item_2'), $$('#list > li:nth-child(-n+2)'));
 		};
-		it['should SelectorWithFirstLastOnlyNthNthLastChild 2'] = function(){
-			compareArrays([$('link_2')], $$('#p *:last-child(2)'), 'nth-last-child');
-		};
 
 		it['should SelectorWithFirstLastNthNthLastOfType'] = function(){
 			compareArrays([$('link_2')], $$('#p a:nth-of-type(2)'), 'nth-of-type');
@@ -376,6 +373,7 @@ function specsPrototype(specs, context){
 			value_of( context.SELECT(el, 'ul li').length ).should_be( 2 );
 			document.body.removeChild(el);
 		};
+
 
 // they are returning the same values but with different orders
 /*
