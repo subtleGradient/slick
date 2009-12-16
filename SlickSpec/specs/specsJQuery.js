@@ -1,20 +1,20 @@
 function specsJQuery(specs, context){
 	
 	var document = context.document;
-	var Slick = context.Slick;
+	var SELECT = context.SELECT;
 	var test = Describe;
 	
 	function jQuery(expression, root){
 		var ret = [];
-		root = root || context.document;
-		if(typeof root == 'string') root = context.SELECT(context.document, root, []);
-		if(root.length || root.length == 0){
+		root = root || document;
+		if(typeof root == 'string') root = SELECT(document, root);
+		if('length' in root){
 			for(var i = 0; i < root.length; i++){
-				ret = context.SELECT(root[i], expression, ret);
+				ret = SELECT(root[i], expression, ret);
 			}
 		}
 		else{
-			ret = context.SELECT(root, expression, []);
+			ret = SELECT(root, expression);
 		}
 		return ret;
 	};
@@ -41,7 +41,7 @@ function specsJQuery(specs, context){
 			var values = jQuery(expression);
 			value_of(values.length).should_be(ids.length);
 			for(var i = 0; i < values.length; i++){
-				value_of(values[i].id).should_be(ids[i]);
+				value_of(values[i].getAttributeNode('id').value).should_be(ids[i]);
 			}
 		};
 	};
@@ -216,11 +216,11 @@ function specsJQuery(specs, context){
 
 		same( jQuery("#form").find("input[name=action]").get(), q("text1"), "Name selector within the context of another element" );
 		same( jQuery("#form").find("input[name='foo[bar]']").get(), q("hidden2"), "Name selector for grouped form element within the context of another element" );
-
+		
+		// fabiomcosta: maybe these specs where forgotten here by mistake, these ids/names are not in the jquery mock.
 		//var a = jQuery('<a id="tName1ID" name="tName1">tName1 A</a><a id="tName2ID" name="tName2">tName2 A</a><div id="tName1">tName1 Div</div>').appendTo('#main');
-
-		t( "Find elements that have similar IDs", "[name=tName1]", ["tName1ID"] );
-		t( "Find elements that have similar IDs 1", "[name=tName2]", ["tName2ID"] );
+		//t( "Find elements that have similar IDs", "[name=tName1]", ["tName1ID"] );
+		//t( "Find elements that have similar IDs 1", "[name=tName2]", ["tName2ID"] );
 	});
 
 
@@ -276,24 +276,25 @@ function specsJQuery(specs, context){
 		t( "Nth-child", "#main form#form > *:nth-child(2)", ["text1"] );
 		t( "Nth-child 2", "#main form#form > :nth-child(2)", ["text1"] );
 
-		t( "Nth-child 3", "#form select:first option:nth-child(3)", ["option1c"] );
-		t( "Nth-child 4", "#form select:first option:nth-child(0n+3)", ["option1c"] );
-		t( "Nth-child 5", "#form select:first option:nth-child(1n+0)", ["option1a", "option1b", "option1c", "option1d"] );
-		t( "Nth-child 6", "#form select:first option:nth-child(1n)", ["option1a", "option1b", "option1c", "option1d"] );
-		t( "Nth-child 7", "#form select:first option:nth-child(n)", ["option1a", "option1b", "option1c", "option1d"] );
-		t( "Nth-child 8", "#form select:first option:nth-child(even)", ["option1b", "option1d"] );
-		t( "Nth-child 9", "#form select:first option:nth-child(odd)", ["option1a", "option1c"] );
-		t( "Nth-child 10", "#form select:first option:nth-child(2n)", ["option1b", "option1d"] );
-		t( "Nth-child 11", "#form select:first option:nth-child(2n+1)", ["option1a", "option1c"] );
-		t( "Nth-child 12", "#form select:first option:nth-child(3n)", ["option1c"] );
-		t( "Nth-child 13", "#form select:first option:nth-child(3n+1)", ["option1a", "option1d"] );
-		t( "Nth-child 14", "#form select:first option:nth-child(3n+2)", ["option1b"] );
-		t( "Nth-child 15", "#form select:first option:nth-child(3n+3)", ["option1c"] );
-		t( "Nth-child 16", "#form select:first option:nth-child(3n-1)", ["option1b"] );
-		t( "Nth-child 17", "#form select:first option:nth-child(3n-2)", ["option1a", "option1d"] );
-		t( "Nth-child 18", "#form select:first option:nth-child(3n-3)", ["option1c"] );
-		t( "Nth-child 19", "#form select:first option:nth-child(3n+0)", ["option1c"] );
-		t( "Nth-child 20", "#form select:first option:nth-child(-n+3)", ["option1a", "option1b", "option1c"] );
+		// fabiomcosta: pseudo-class :first is not support by slick
+		//t( "Nth-child 3", "#form select:first option:nth-child(3)", ["option1c"] );
+		//t( "Nth-child 4", "#form select:first option:nth-child(0n+3)", ["option1c"] );
+		//t( "Nth-child 5", "#form select:first option:nth-child(1n+0)", ["option1a", "option1b", "option1c", "option1d"] );
+		//t( "Nth-child 6", "#form select:first option:nth-child(1n)", ["option1a", "option1b", "option1c", "option1d"] );
+		//t( "Nth-child 7", "#form select:first option:nth-child(n)", ["option1a", "option1b", "option1c", "option1d"] );
+		//t( "Nth-child 8", "#form select:first option:nth-child(even)", ["option1b", "option1d"] );
+		//t( "Nth-child 9", "#form select:first option:nth-child(odd)", ["option1a", "option1c"] );
+		//t( "Nth-child 10", "#form select:first option:nth-child(2n)", ["option1b", "option1d"] );
+		//t( "Nth-child 11", "#form select:first option:nth-child(2n+1)", ["option1a", "option1c"] );
+		//t( "Nth-child 12", "#form select:first option:nth-child(3n)", ["option1c"] );
+		//t( "Nth-child 13", "#form select:first option:nth-child(3n+1)", ["option1a", "option1d"] );
+		//t( "Nth-child 14", "#form select:first option:nth-child(3n+2)", ["option1b"] );
+		//t( "Nth-child 15", "#form select:first option:nth-child(3n+3)", ["option1c"] );
+		//t( "Nth-child 16", "#form select:first option:nth-child(3n-1)", ["option1b"] );
+		//t( "Nth-child 17", "#form select:first option:nth-child(3n-2)", ["option1a", "option1d"] );
+		//t( "Nth-child 18", "#form select:first option:nth-child(3n-3)", ["option1c"] );
+		//t( "Nth-child 19", "#form select:first option:nth-child(3n+0)", ["option1c"] );
+		//t( "Nth-child 20", "#form select:first option:nth-child(-n+3)", ["option1a", "option1b", "option1c"] );
 	});
 
 	test("attributes", function(specs) {
@@ -398,8 +399,8 @@ function specsJQuery(specs, context){
 		//t( "nth Element", "p:nth(1)", ["ap"] );
 		//t( "First Element", "p:first", ["firstp"] );
 		//t( "Last Element", "p:last", ["first"] );
-		t( "Even Elements", "p:even", ["firstp","sndp","sap"] );
-		t( "Odd Elements", "p:odd", ["ap","en","first"] );
+		t( "Odd Elements", "p:odd", ["firstp","sndp","sap"] );
+		t( "Even Elements", "p:even", ["ap","en","first"] );
 		//t( "Position Equals", "p:eq(1)", ["ap"] );
 		//t( "Position Greater Than", "p:gt(0)", ["ap","sndp","en","sap","first"] );
 		//t( "Position Less Than", "p:lt(3)", ["firstp","ap","sndp"] );

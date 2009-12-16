@@ -616,11 +616,11 @@ authors:
 		},
 
 		'even': function(node, argument){
-			return this['pseudo:nth-child'](node, '2n+1');
+			return this['pseudo:nth-child'](node, '2n');
 		},
 
 		'odd': function(node, argument){
-			return this['pseudo:nth-child'](node, '2n');
+			return this['pseudo:nth-child'](node, '2n+1');
 		},
 
 		'enabled': function(node){
@@ -884,7 +884,10 @@ __END__
 		if (separator || separatorIndex == -1){
 			parsed.expressions[++separatorIndex] = [];
 			combinatorIndex = -1;
-			if (separator) return '';
+			if (separator){
+				parsed.type.push('separator');
+				return '';
+			}
 		}
 		
 		if (combinator || combinatorChildren || combinatorIndex == -1){
