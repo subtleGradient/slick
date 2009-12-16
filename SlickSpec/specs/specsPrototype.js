@@ -335,11 +335,10 @@ function specsPrototype(specs, context){
 		};
 
 		it['should CommasFor$$'] = function(){
+			// fabiomcosta: specs adapted for Slick
 			// fails for lack of namespaced attribute selector support
-			compareArrays($('list', 'p', 'link_1', 'item_1', 'item_3', 'troubleForm'), $$('#list, .first,*[xml:lang="es-us"] , #troubleForm'));
-			compareArrays($('list', 'p', 'link_1', 'item_1', 'item_3', 'troubleForm'), $$('#list, .first,', '*[xml:lang="es-us"] , #troubleForm'));
-			compareArrays($('commaParent', 'commaChild'), $$('form[title*="commas,"], input[value="#commaOne,#commaTwo"]'));
-			compareArrays($('commaParent', 'commaChild'), $$('form[title*="commas,"]', 'input[value="#commaOne,#commaTwo"]'));
+			compareArrays($$('#list, #p, #link_1, #item_1, #item_3, #troubleForm'), $$('#list, .first,*[xml:lang="es-us"] , #troubleForm'));
+			compareArrays($$('#commaParent, #commaChild'), $$('form[title*="commas,"], input[value="#commaOne,#commaTwo"]'));
 		};
 
 		it['should SelectorExtendsAllNodes'] = function(){
