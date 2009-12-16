@@ -586,7 +586,7 @@ authors:
 	Slick.defineEngine('className', function(context, parsed){
 		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
 	}, function(){
-		return this.cachedGetElementsByClassName === false;
+		return this.root.getElementsByClassName && this.cachedGetElementsByClassName === false;
 	});
 	
 	Slick.defineEngine('classNames', 'className');
