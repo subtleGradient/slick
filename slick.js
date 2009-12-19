@@ -22,7 +22,7 @@ authors:
 	var objectPrototypeToString = Object.prototype.toString;
 	
 	// Feature / Bug detection
-	
+
 	Slick.isXML = local.isXML = function(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
