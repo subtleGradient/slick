@@ -318,9 +318,9 @@ authors:
 	};
 	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	Slick.contains = local.contains = (root.contains) ? function(context, node){
+	Slick.contains = local.contains = (root && root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
-	} : (root.compareDocumentPosition) ? function(context, node){
+	} : (root && root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
 	} : function(context, node){
 		if (node) while ((node = node.parentNode))
