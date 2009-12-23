@@ -181,7 +181,7 @@ authors:
 		
 		// setup
 		
-		var parsed, found = append || [];
+		var parsed, found = append || [], i;
 		local.positions = {};
 
 		// handle input / context:
@@ -252,7 +252,7 @@ authors:
 			
 			if (local.starSelectsClosedQSA){
 				var node;
-				for(var i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
+				for(i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
 			} else {
 				found.push.apply(found, nodes);
 			}
@@ -263,7 +263,7 @@ authors:
 		// default engine
 		
 		var currentExpression, currentBit;
-		var i, j, m, n;
+		var j, m, n;
 		var combinator, tag, id, parts, classes, attributes, pseudos;
 		var current, items;
 		var tempUniques = {};
@@ -1000,7 +1000,6 @@ __END__
 		else if (combinator){
 			parsed.type.push(combinator);
 		}
-
 
 		partIndex++;
 		return '';
