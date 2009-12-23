@@ -27,8 +27,8 @@ authors:
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
-			|| (objectPrototypeToString.call(ownerDocument) == '[object XMLDocument]')
-			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
+			|| (objectPrototypeToString.call(ownerDocument) === '[object XMLDocument]')
+			|| (ownerDocument.nodeType === 9 && ownerDocument.documentElement.nodeName !== 'HTML');
 	};
 	
 	var timeStamp = +new Date();
@@ -224,8 +224,8 @@ authors:
 		
 		customEngine: {
 			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + parsed.type.join(':');
-			if (typeof local[customEngineName] != 'function') break customEngine;
-			if (typeof local[customEngineName + ' check'] == 'function' && !local[customEngineName + ' check'](context, parsed)) break customEngine;
+			if (typeof local[customEngineName] !== 'function') break customEngine;
+			if (typeof local[customEngineName + ' check'] === 'function' && !local[customEngineName + ' check'](context, parsed)) break customEngine;
 			
 			local.found = found;
 			local[customEngineName](context, parsed);
@@ -336,7 +336,7 @@ authors:
 	    local.collectionToArray(root.childNodes);
 	} catch(e){
 		local.collectionToArray = function(node){
-			if (objectPrototypeToString.call(node) == '[object Array]') return node;
+			if (objectPrototypeToString.call(node) === '[object Array]') return node;
 			var i = node.length, array = new Array(i);
 			while (i--) array[i] = node[i];
 			return array;
@@ -391,8 +391,8 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if (tag && tag ==='*' && (node.nodeType != 1 || node.nodeName.charAt(0) == '/')) return false; // Fix for comment nodes and closed nodes
-			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
+			if (tag && tag === '*' && (node.nodeType !== 1 || node.nodeName.charAt(0) === '/')) return false; // Fix for comment nodes and closed nodes
+			if (tag && tag !== '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (id && node.getAttribute('id') != id) return false;
 			for (var i = 0, l = parts.length, part; i < l; i++){
 				part = parts[i];
@@ -487,14 +487,14 @@ authors:
 		},
 
 		'+': function(node, tag, id, parts){ // next sibling
-			while ((node = node.nextSibling)) if (node.nodeType == 1){
+			while ((node = node.nextSibling)) if (node.nodeType === 1){
 				this.push(node, tag, id, parts);
 				break;
 			}
 		},
 
 		'!+': function(node, tag, id, parts){ // previous sibling
-			while ((node = node.previousSibling)) if (node.nodeType == 1){
+			while ((node = node.previousSibling)) if (node.nodeType === 1){
 				this.push(node, tag, id, parts);
 				break;
 			}
@@ -503,7 +503,7 @@ authors:
 		'^': function(node, tag, id, parts){ // first child
 			node = node.firstChild;
 			if (node){
-				if (node.nodeType == 1) this.push(node, tag, id, parts);
+				if (node.nodeType === 1) this.push(node, tag, id, parts);
 				else this['combinator:+>'](node, tag, id, parts);
 			}
 		},
@@ -511,14 +511,14 @@ authors:
 		'!^': function(node, tag, id, parts){ // last child
 			node = node.lastChild;
 			if (node){
-				if (node.nodeType == 1) this.push(node, tag, id, parts);
+				if (node.nodeType === 1) this.push(node, tag, id, parts);
 				else this['combinator:<+'](node, tag, id, parts);
 			}
 		},
 
 		'~': function(node, tag, id, parts){ // next siblings
 			while ((node = node.nextSibling)){
-				if (node.nodeType != 1) continue;
+				if (node.nodeType !== 1) continue;
 				var uid = this.uidOf(node);
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
@@ -528,7 +528,7 @@ authors:
 
 		'!~': function(node, tag, id, parts){ // previous siblings
 			while ((node = node.previousSibling)){
-				if (node.nodeType != 1) continue;
+				if (node.nodeType !== 1) continue;
 				var uid = this.uidOf(node);
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
@@ -731,7 +731,7 @@ authors:
 	var setDisplayName = function(obj, prefix){
 		prefix = prefix || '';
 		for (displayName in obj)
-			if (typeof obj[displayName] == 'function') obj[displayName].displayName = prefix + displayName;
+			if (typeof obj[displayName] === 'function') obj[displayName].displayName = prefix + displayName;
 	};
 	
 	setDisplayName(local);
@@ -788,8 +788,8 @@ authors:
 	};
 	
 	var reverseCombinator = function(combinator){
-		if (combinator == '!') return ' ';
-		else if (combinator == ' ') return '!';
+		if (combinator === '!') return ' ';
+		else if (combinator === ' ') return '!';
 		else if ((/^!/).test(combinator)) return combinator.replace(/^(!)/, '');
 		else return '!' + combinator;
 	};
@@ -882,7 +882,7 @@ __END__
 		pseudoClassValueSingle,
 		pseudoClassValue
 	){
-		if (separator || separatorIndex == -1){
+		if (separator || separatorIndex === -1){
 			parsed.expressions[++separatorIndex] = [];
 			combinatorIndex = -1;
 			if (separator){
@@ -891,7 +891,7 @@ __END__
 			}
 		}
 		
-		if (combinator || combinatorChildren || combinatorIndex == -1){
+		if (combinator || combinatorChildren || combinatorIndex === -1){
 			combinator = combinator || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
@@ -1007,10 +1007,10 @@ __END__
 	};
 	
 	for (var displayName in Slick)
-		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
+		if (typeof Slick[displayName] === 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
 	Slick.parse.reverse = function(expression){
-		return parse((typeof expression == 'string') ? expression : expression.raw, true);
+		return parse((typeof expression === 'string') ? expression : expression.raw, true);
 	};
 	
 }).apply(this);
