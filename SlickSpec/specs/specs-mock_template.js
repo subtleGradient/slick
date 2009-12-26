@@ -16,7 +16,9 @@ function specsMockTemplate(specs, context){
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
 	
-	it_should_find(1821, '*:not([href^=tel:])');
+	// removes 'tel:' 'a' tags that are just grabbed by iphone and the META tag that puts IE8 in compatible mode
+	// <meta http-equiv="X-UA-Compatible" content="IE=7" />
+	it_should_find(1821, '*:not([href^=tel:]):not([http-equiv="X-UA-Compatible"])');
 	it_should_find(1814, 'body *:not([href^=tel:])');
 	
 	it_should_find(1, 'html');
