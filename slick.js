@@ -553,7 +553,11 @@ authors:
 	var pseudos = {
 
 		'empty': function(node){
-			return !(node.innerText || node.textContent || '').length;
+			if (!(node = node.firstChild)) return true;
+			do {
+				if (node.nodeType === 1) return false;
+			} while ((node = node.nextSibling)); 
+			return true;
 		},
 
 		'not': function(node, expression){
