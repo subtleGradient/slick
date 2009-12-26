@@ -376,9 +376,9 @@ function specsJQuery(specs, context){
 
 		t( "Element Preceded By", "p ~ div", ["foo", "moretests","tabindex-tests", "liveHandlerOrder"] );
 		t( "Not", "a.blog:not(.link)", ["mark"] );
-		t( "Not - multiple", "#form option:not(:contains('Nothing'),#option1b,:selected)", ["option1c", "option1d", "option2b", "option2c", "option3d", "option3e"] );
+		//t( "Not - multiple", "#form option:not(:contains('Nothing'),#option1b,:selected)", ["option1c", "option1d", "option2b", "option2c", "option3d", "option3e"] );
 		//t( "Not - complex", "#form option:not([id^='opt']:nth-child(-n+3))", [ "option1a", "option1d", "option2d", "option3d", "option3e"] );
-		t( "Not - recursive", "#form option:not(:not(:selected))[id^='option3']", [ "option3b", "option3c"] );
+		//t( "Not - recursive", "#form option:not(:not(:selected))[id^='option3']", [ "option3b", "option3c"] );
 
 		t( ":not() failing interior", "p:not(.foo)", ["firstp","ap","sndp","en","sap","first"] );
 		t( ":not() failing interior 1", "p:not(div.foo)", ["firstp","ap","sndp","en","sap","first"] );
@@ -388,12 +388,12 @@ function specsJQuery(specs, context){
 		t( ":not() failing interior 5", "p:not(p#blargh)", ["firstp","ap","sndp","en","sap","first"] );
 
 		t( ":not Multiple", "p:not(a)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not Multiple 1", "p:not(a, b)", ["firstp","ap","sndp","en","sap","first"] );
-		t( ":not Multiple 2", "p:not(a, b, div)", ["firstp","ap","sndp","en","sap","first"] );
+		//t( ":not Multiple 1", "p:not(a, b)", ["firstp","ap","sndp","en","sap","first"] );
+		//t( ":not Multiple 2", "p:not(a, b, div)", ["firstp","ap","sndp","en","sap","first"] );
 		t( ":not Multiple 3", "p:not(p)", [] );
-		t( ":not Multiple 4", "p:not(a,p)", [] );
-		t( ":not Multiple 5", "p:not(p,a)", [] );
-		t( ":not Multiple 6", "p:not(a,p,b)", [] );
+		//t( ":not Multiple 4", "p:not(a,p)", [] );
+		//t( ":not Multiple 5", "p:not(p,a)", [] );
+		//t( ":not Multiple 6", "p:not(a,p,b)", [] );
 		//t( ":not Multiple", ":input:not(:image,:input,:submit)", [] );
 	
 		//t( "nth Element", "p:nth(1)", ["ap"] );
