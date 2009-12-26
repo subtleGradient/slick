@@ -630,6 +630,10 @@ authors:
 		'enabled': function(node){
 			return (node.disabled === false);
 		},
+		
+		'disabled': function(node){
+			return (node.disabled === true);
+		},
 
 		'checked': function(node){
 			return node.checked;
