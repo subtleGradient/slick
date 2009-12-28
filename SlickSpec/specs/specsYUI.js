@@ -274,8 +274,8 @@ function specsYUI(specs, context){
 			ArrayAssert.itemsAreEqual([], $('body p', document.body), "$('body p', document.body)");
 			ArrayAssert.itemsAreEqual([], $('#root-test li', Y.Dom.get('nth-test')), 'id selector w/root false pos');
 		},
-
-/*
+		
+		/*
 		testNthLastChild: function() {
 			var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 			var odd = Y.Dom.getElementsByClassName('even', 'li', 'nth-test');
@@ -289,8 +289,8 @@ function specsYUI(specs, context){
 			ArrayAssert.itemsAreEqual(odd, $('li:nth-last-child(2n+1)'), '2n+1');
 			ArrayAssert.itemsAreEqual(four1, $('li:nth-last-child(4n+1)'), '4n+1');
 		},
-*/
-
+		*/
+		
 		testNthType: function() {
 			var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 			var odd = Y.Dom.getElementsByClassName('odd', 'li', 'nth-test');
@@ -383,9 +383,9 @@ function specsYUI(specs, context){
 
 			ArrayAssert.itemsAreEqual([demoFirstChild, Y.DOM.next(demoFirstChild)], $('#demo > p:not(.last)'), '#demo > p:not(.last)');
 			Assert.areEqual(Y.DOM.byId('foo-bar'), $("[id^='foo-']", null, true), "[id^='foo-'], null, true");
-			// Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("#test-custom-attr[foo=bar]", null, true), "#test-custom-attr[foo=bar], null, true");
+			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("#test-custom-attr[foo=bar]", null, true), "#test-custom-attr[foo=bar], null, true");
 			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo=bar]", null, true), "div[foo=bar], null, true");
-			// Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div#test-custom-attr[foo=bar]", null, true), "div#test-custom-attr[foo=bar], null, true");
+			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div#test-custom-attr[foo=bar]", null, true), "div#test-custom-attr[foo=bar], null, true");
 
 			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo]", null, true), "div[foo], null, true");
 			ArrayAssert.itemsAreEqual([Y.DOM.byId('test-custom-attr')], $("[foo]"), "[foo]");
