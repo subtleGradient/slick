@@ -7,8 +7,8 @@ function setupMethods(specs, window){
 	window.SELECT1 = function(context, selector){
 		return Slick.search(context, selector)[0];
 	};
-	window.MATCH = function(context, selector){
-		return Slick.match(context, selector);
+	window.MATCH = function(context, selector, root){
+		return root ? Slick.deepMatch(context, selector, root) : Slick.match(context, selector);
 	};
 	window.isXML = function(document){
 		return Slick.isXML(document);

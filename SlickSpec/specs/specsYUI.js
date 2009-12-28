@@ -135,8 +135,8 @@ function specsYUI(specs, context){
 			}
 			return ret;
 		},
-		test: function(node, expression){
-			return MATCH(node, expression);
+		test: function(node, expression, root){
+			return MATCH(node, expression, root);
 		},
 		query: function(expression, context, first){
 			return (first ? SELECT1 : SELECT)(context || document, expression);
