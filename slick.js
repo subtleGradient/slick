@@ -250,7 +250,7 @@ authors:
 			nodes = local.collectionToArray(nodes);
 			if (!append) return nodes;
 			
-			if (local.starSelectsClosedQSA){
+			if (parsed.raw === '*' && local.starSelectsClosedQSA){
 				var node;
 				for(i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
 			} else {
@@ -467,7 +467,8 @@ authors:
 				children = node.getElementsByTagName(tag);
 				if (!(children && children.length)) break getByTag;
 				if (!(this.starSelectsComments || this.starSelectsClosed)) tag = null;
-				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
+				var child;
+				for (i = 0; (child = children[i]); i++) this.push(children[i], tag, id, parts);
 			}
 		},
 		
