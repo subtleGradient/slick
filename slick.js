@@ -400,7 +400,7 @@ authors:
 				switch (part.type){
 					case 'class': if (classes !== false){
 						var cls = local.getAttribute(node, 'class');
-						if (!cls || ((' ' + cls + ' ').indexOf(part.match) < 0)) return false;
+						if (!cls || !part.regexp.test(cls)) return false;
 					} break;
 					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
 					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
@@ -934,7 +934,7 @@ __END__
 			currentParsed.parts[partIndex] = {
 				type: 'class',
 				value: className,
-				match:  ' ' + className + ' '
+				regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
 			};
 		}
 
