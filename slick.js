@@ -226,7 +226,7 @@ authors:
 		
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
-	
+
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
 		
@@ -796,7 +796,7 @@ authors:
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
-		var exp = expression;
+		var exp = expression.replace(/^\s+|\s+$/g, '');
 		parsed = {Slick: true, simple: true, type: [], expressions: [], raw: expression, reverse: function(){
 			return parse(this.raw, true);
 		}};
