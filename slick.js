@@ -690,7 +690,10 @@ authors:
 		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	}).defineAttribute('href', function(){
         return this.getAttribute('href', 2);
+    }).defineAttribute('style', function(){
+        return this.style.cssText;
     });
+    
 	
 	local.getAttribute = function(node, name){
 		// FIXME: check if getAttribute() will get input elements on a form on this browser
