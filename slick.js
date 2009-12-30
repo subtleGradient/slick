@@ -143,8 +143,10 @@ authors:
 		if(!context.getElementById) return false;
 		var id = parsed.expressions[0][0].id;
 		var el = context.getElementById(id);
-		if(el && el.id !== id) return false;
-		this.found.push(el);
+		if(el){
+			if(el.id !== id) return false;
+			this.found.push(el);
+		};
 	});
 	
 	// Slick.lookupEngine = function(name){
