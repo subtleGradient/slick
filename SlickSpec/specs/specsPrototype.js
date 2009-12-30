@@ -344,19 +344,6 @@ function specsPrototype(specs, context){
 			compareArrays($('link_1', 'link_2', 'item_1', 'item_2', 'item_3'), $$('#p a', null, $$(' ul#list li ')));
 		};
 		
-		it['should SelectorExtendsAllNodes'] = function(){
-			var element = document.createElement('div');
-			element.appendChild(document.createElement('div'));
-			element.appendChild(document.createElement('div'));
-			element.appendChild(document.createElement('div'));
-			element.setAttribute('id','scratch_element');
-			$$('body')[0].appendChild(element);
-			var results = $$('#scratch_element div');
-			value_of(typeof results[0].show == 'function');
-			value_of(typeof results[1].show == 'function');
-			value_of(typeof results[2].show == 'function');
-		};
-
 		it['should SelectorNotInsertedNodes'] = function(){
 			window.debug = true;
 			var wrapper = context.document.createElement('div');
@@ -375,6 +362,23 @@ function specsPrototype(specs, context){
 			value_of( context.SELECT(el, 'ul li').length ).should_be( 2 );
 			document.body.removeChild(el);
 		};
+
+/*
+		// fabiomcosta: theres no node extension tests on slick
+		it['should SelectorExtendsAllNodes'] = function(){
+			var element = document.createElement('div');
+			element.appendChild(document.createElement('div'));
+			element.appendChild(document.createElement('div'));
+			element.appendChild(document.createElement('div'));
+			element.setAttribute('id','scratch_element');
+			$$('body')[0].appendChild(element);
+			var results = $$('#scratch_element div');
+			value_of(typeof results[0].show == 'function');
+			value_of(typeof results[1].show == 'function');
+			value_of(typeof results[2].show == 'function');
+		};
+*/		
+
 /*
 		replace descendants functionality
 		it['should CountedIsNotAnAttribute'] = function(){
