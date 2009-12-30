@@ -234,8 +234,7 @@ authors:
 		
 		customEngine: {
 			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + parsed.type.join(':');
-			if (typeof local[customEngineName] !== 'function') break customEngine;
-			if (typeof local[customEngineName + ' check'] === 'function' && !local[customEngineName + ' check'](context, parsed)) break customEngine;
+			if (!local[customEngineName]) break customEngine;
 			
 			local.found = found;
 			if(local[customEngineName](context, parsed) !== false) return found;
