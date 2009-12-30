@@ -693,8 +693,12 @@ authors:
     });
 	
 	local.getAttribute = function(node, name){
+		// FIXME: check if getAttribute() will get input elements on a form on this browser
+		// getAttribute is faster than getAttributeNode().nodeValue
 		var method = this.attributeMethods[name];
-		return (method) ? method.call(node) : node.getAttribute(name);
+		if(method) return method.call(node);
+		var attributeNode = node.getAttributeNode(name);
+		return attributeNode ? attributeNode.nodeValue : null;
 	};
 	
 	// matcher
