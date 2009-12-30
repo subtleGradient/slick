@@ -254,14 +254,13 @@ authors:
 			}
 			
 			if (!nodes) break QSA;
-			nodes = local.collectionToArray(nodes);
-			if (!append) return nodes;
+			if (!append) return local.collectionToArray(nodes);
 			
 			if (parsed.raw === '*' && local.starSelectsClosedQSA){
 				var node;
 				for(i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
 			} else {
-				found.push.apply(found, nodes);
+				found.push.apply(found, local.collectionToArray(nodes));
 			}
 			return found;
 			
