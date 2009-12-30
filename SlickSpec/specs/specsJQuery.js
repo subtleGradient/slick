@@ -88,7 +88,7 @@ function specsJQuery(specs, context){
 		same( jQuery("p").get(), jQuery("p, div p").get(), "Check for duplicates: p, div p" );
 
 		t( "Checking sort order", "h2, h1", ["qunit-header", "qunit-banner", "qunit-userAgent"] );
-		t( "Checking sort order 1", "h2:first, h1:first", ["qunit-header", "qunit-banner"] );
+		//t( "Checking sort order 1", "h2:first, h1:first", ["qunit-header", "qunit-banner"] );
 		t( "Checking sort order 2", "p, p a", ["firstp", "simon1", "ap", "google", "groups", "anchor1", "mark", "sndp", "en", "yahoo", "sap", "anchor2", "simon", "first"] );
 	});
 	
