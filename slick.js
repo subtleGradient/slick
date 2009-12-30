@@ -139,6 +139,14 @@ authors:
 	});
 	Slick.defineEngine('XML:tagName', 'tagName');
 	
+	Slick.defineEngine('id', function(context, parsed){
+		if(!context.getElementById) return false;
+		var id = parsed.expressions[0][0].id;
+		var el = context.getElementById(id);
+		if(el && el.id !== id) return false;
+		this.found.push(el);
+	});
+	
 	// Slick.lookupEngine = function(name){
 	// 	var engine = local['customEngine:' + name];
 	// 	if (engine) return function(context, parsed){
@@ -228,8 +236,7 @@ authors:
 			if (typeof local[customEngineName + ' check'] === 'function' && !local[customEngineName + ' check'](context, parsed)) break customEngine;
 			
 			local.found = found;
-			local[customEngineName](context, parsed);
-			return found;
+			if(local[customEngineName](context, parsed) !== false) return found;
 		}
 		
 		// querySelectorAll
