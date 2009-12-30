@@ -843,7 +843,7 @@ authors:
 		reversed = !!isReversed;
 		var currentCache = (reversed) ? reverseCache : cache;
 		if (currentCache[expression]) return currentCache[expression];
-		var exp = expression;
+		var exp = expression.replace(/^\s+|\s+$/g, '');
 		parsed = {Slick: true, simple: true, type: [], expressions: [], raw: expression, reverse: function(){
 			return parse(this.raw, true);
 		}};
@@ -899,7 +899,7 @@ __END__
 			\\s* (<unicode>+)  (?:  \\
 				\\s* ([*^$!~|]?=)  (?:  \
 					\\s* (?:\
-					      \"((?:[^\"]|\\\")*)\"\
+					      \"((?:[^\"]|\\\\\")*)\"\
 					    |  '((?:[^'] |\\\\')* )' \
 					    |   (   [^\\]]*?    )  \
 					)\
@@ -915,7 +915,7 @@ __END__
 		)?\
 		)"
 //*/
-		"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
+		"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
