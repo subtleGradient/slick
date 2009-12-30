@@ -226,7 +226,7 @@ authors:
 		
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
-
+	
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
 		
@@ -852,7 +852,7 @@ __END__
 			\\s* (<unicode>+)  (?:  \\
 				\\s* ([*^$!~|]?=)  (?:  \
 					\\s* (?:\
-					      \"((?:[^\"]|\\\")*)\"\
+					      \"((?:[^\"]|\\\\\")*)\"\
 					    |  '((?:[^'] |\\\\')* )' \
 					    |   (   [^\\]]*?    )  \
 					)\
@@ -868,7 +868,7 @@ __END__
 		)?\
 		)"
 //*/
-		"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
+		"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
 		.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
