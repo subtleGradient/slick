@@ -262,7 +262,8 @@ authors:
 			if (!nodes) break QSA;
 			if (!append) return local.collectionToArray(nodes);
 			
-			if (parsed.raw === '*' && local.starSelectsClosedQSA){
+			// TODO: check if selectors other than '*' will return closed nodes
+			if (local.starSelectsClosedQSA){
 				var node;
 				for(i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
 			} else {
