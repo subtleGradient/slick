@@ -175,7 +175,7 @@ authors:
 			Slick.defineEngine('classNames', 'className');
 		}
 		if(!(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA)){
-			Slick.defineEngine('tagName*','tagName');
+			Slick.defineEngine('tagName*', 'tagName');
 		}
 	};
 	
@@ -398,7 +398,7 @@ authors:
 		node: function(node, selector){
 			var parsed = this.Slick.parse(selector).expressions[0][0];
 			if (!parsed) return true;
-			return this['match:selector'](node, parsed.tag.toUpperCase(), parsed.id, parsed.parts);
+			return this['match:selector'](node, (local.isXMLDocument ? parsed.tag : parsed.tag.toUpperCase()), parsed.id, parsed.parts);
 		},
 
 		pseudo: function(node, name, argument){
@@ -722,6 +722,7 @@ authors:
 		if (!selector || selector === node) return true;
 		if (typeof selector != 'string') return false;
 		local.positions = {};
+		if (local.document !== (node.ownerDocument || node)) local.setDocument(node);
 		return local['match:node'](node, selector);
 	};
 	
