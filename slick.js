@@ -395,12 +395,6 @@ authors:
 	
 	var matchers = {
 		
-		node: function(node, selector){
-			var parsed = this.Slick.parse(selector).expressions[0][0];
-			if (!parsed) return true;
-			return this['match:selector'](node, (local.isXMLDocument ? parsed.tag : parsed.tag.toUpperCase()), parsed.id, parsed.parts);
-		},
-
 		pseudo: function(node, name, argument){
 			var pseudoName = 'pseudo:' + name;
 			if (this[pseudoName]) return this[pseudoName](node, argument);
@@ -576,7 +570,8 @@ authors:
 		},
 
 		'not': function(node, expression){
-			return !this['match:node'](node, expression);
+			var parsed = this.Slick.parse(expression).expressions[0][0];
+			return (parsed) ? !this['match:selector'](node, (this.isXMLDocument ? parsed.tag : parsed.tag.toUpperCase()), parsed.id, parsed.parts) : false;
 		},
 
 		'contains': function(node, text){
@@ -717,18 +712,22 @@ authors:
 	
 	// matcher
 	
-	Slick.match = function(node, selector){
+	Slick.match = function(node, selector, context){
 		if (!(node && selector)) return false;
 		if (!selector || selector === node) return true;
-		if (typeof selector != 'string') return false;
+		if (typeof selector !== 'string') return false;
 		local.positions = {};
 		if (local.document !== (node.ownerDocument || node)) local.setDocument(node);
-		return local['match:node'](node, selector);
+		var parsed = this.parse(selector),
+			firstBit = parsed.expressions[0][0];
+		return (!context && parsed.length === 1 && parsed.expressions[0].length === 1) ?
+			local['match:selector'](node, (local.isXMLDocument ? firstBit.tag : firstBit.tag.toUpperCase()), firstBit.id, firstBit.parts) :
+			this.deepMatch(node, selector, context);
 	};
 	
 	Slick.deepMatch = function(node, expression, context){
 		// FIXME: FPO code only
-		var nodes = Slick.search(context||document, expression);
+		var nodes = this.search(context || local.document, expression);
 		for (var i=0; i < nodes.length; i++){
 			if (nodes[i] === node){
 				return true;
