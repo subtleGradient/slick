@@ -187,11 +187,12 @@ authors:
 	
 	// Slick
 
-	var search = Slick.search = local.search = function(context, expression, append){
+	var search = Slick.search = local.search = function(context, expression, append, justFirst){
 		
 		// setup
 		
-		var parsed, found = append || [], i;
+		var parsed, i, found = justFirst ? null : (append || []);
+
 		local.positions = {};
 
 		// handle input / context:
@@ -217,17 +218,19 @@ authors:
 			parsed = expression;
 
 		} else if (local.contains(context.documentElement || context, expression)){
-			found.push(expression);
+			justFirst ? found = expression : found.push(expression);
 			return found;
 
 		} else {
 			return found;
 		}
 		
+		found = append || [];
+
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
 
-		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
+		if (justFirst || (parsed.length == 1 && parsed.expressions[0].length == 1)) local.push = local.pushArray;
 		else local.push = local.pushUID;
 		
 		var shouldSort = parsed.expressions.length > 1 || (append && append.length);
@@ -240,40 +243,46 @@ authors:
 			
 			local.found = found;
 			if(local[customEngineName](context, parsed) !== false){
+				if(justFirst && found.length) return found[0];
 				if (shouldSort) local.documentSort(found);
 				return found;
 			}
 		}
 		
-		// querySelectorAll
+		// querySelector|querySelectorAll
 		
 		QSA: if (context.querySelectorAll && !(parsed.simple === false || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try {
-				nodes = context.querySelectorAll(parsed.raw);
+				nodes = context[justFirst ? 'querySelector' : 'querySelectorAll'](parsed.raw);
 				parsed.simple = true;
 			} catch(error){
 				parsed.simple = false;
 				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
-			
-			if (!nodes) break QSA;
-			if (!append) return local.collectionToArray(nodes);
-			
-			// TODO: check if selectors other than '*' will return closed nodes
-			if (local.starSelectsClosedQSA){
-				var node;
-				for(i = 0; (node = nodes[i]); i++) if(node.nodeName.charAt(0) !== '/') found.push(node);
-			} else {
-				found.push.apply(found, local.collectionToArray(nodes));
+
+			if(justFirst){
+				if(nodes || nodes == null) return nodes;
 			}
-			
-			if (shouldSort) local.documentSort(found);
-			
-			return found;
-			
+			else{
+				
+				if (!nodes) break QSA;
+				if (!append) return local.collectionToArray(nodes);
+
+				// TODO: check if selectors other than '*' will return closed nodes
+				if (local.starSelectsClosedQSA){
+					var node;
+					for (i = 0; (node = nodes[i]); i++) if (node.nodeName.charAt(0) !== '/') found.push(node);
+				} else {
+					found.push.apply(found, local.collectionToArray(nodes));
+				}
+				
+				if (shouldSort) local.documentSort(found);
+				
+				return found;
+			}
 		}
 		
 		// default engine
@@ -281,12 +290,13 @@ authors:
 		var currentExpression, currentBit;
 		var j, m, n;
 		var combinator, tag, id, parts, classes, attributes, pseudos;
-		var current, items;
-		var tempUniques = {};
+		var currentItems;
 		var expressions = parsed.expressions;
+		var lastBit;
+		var tempUniques = {};
 		
 		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
-			
+
 			combinator = 'combinator:' + currentBit.combinator;
 			tag        = local.isXMLDocument ? currentBit.tag : currentBit.tag.toUpperCase();
 			id         = currentBit.id;
@@ -294,10 +304,11 @@ authors:
 			classes    = currentBit.classes;
 			attributes = currentBit.attributes;
 			pseudos    = currentBit.pseudos;
+			lastBit    = (j === (currentExpression.length - 1));
 		
 			local.localUniques = {};
-		
-			if (j === (currentExpression.length - 1)){
+			
+			if (lastBit){
 				local.uniques = tempUniques;
 				local.found = found;
 			} else {
@@ -305,24 +316,39 @@ authors:
 				local.found = [];
 			}
 
-			if (j == 0){
+			if (j === 0){
 				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
+				if (justFirst && lastBit && found.length) return found[0];
 			} else {
-				items = current;
 				if (local[combinator]){
-					for (m = 0, n = items.length; m < n; m++) local[combinator](items[m], tag, id, parts, classes, attributes, pseudos);
+					if (justFirst && lastBit){
+						for (m = 0, n = currentItems.length; m < n; m++){
+							local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
+							if (found.length){
+								if(shouldSort && found.length > 1) local.documentSort(found);
+								return found[0];
+							}
+						}
+					}
+					else{
+						for (m = 0, n = currentItems.length; m < n; m++) local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
+					}
 				} else {
 					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
 				}
 			}
-		
-			current = local.found;
-		
+			
+			currentItems = local.found;
+
 		}
 		
 		if (shouldSort) local.documentSort(found);
 		
-		return found;
+		return justFirst ? null : found;
+	};
+	
+	var find = Slick.find = local.find = function(context, expression){
+		return Slick.search(context, expression, null, true);
 	};
 	
 	// Utils
@@ -394,6 +420,12 @@ authors:
 	};
 	
 	var matchers = {
+		
+		node: function(node, selector){
+			var parsed = (selector.Slick ? selector : this.Slick.parse(selector)).expressions[0][0];
+			if (!parsed) return true;
+			return this['match:selector'](node, this.isXMLDocument ? parsed.tag : parsed.tag.toUpperCase(), parsed.id, parsed.parts);
+		},
 		
 		pseudo: function(node, name, argument){
 			var pseudoName = 'pseudo:' + name;
@@ -490,7 +522,7 @@ authors:
 
 		'>': function(node, tag, id, parts){ // direct children
 			if ((node = node.firstChild)) do {
-				if (node.nodeType == 1) this.push(node, tag, id, parts);
+				if (node.nodeType === 1) this.push(node, tag, id, parts);
 			} while ((node = node.nextSibling));
 		},
 		
@@ -570,8 +602,7 @@ authors:
 		},
 
 		'not': function(node, expression){
-			var parsed = this.Slick.parse(expression).expressions[0][0];
-			return (parsed) ? !this['match:selector'](node, (this.isXMLDocument ? parsed.tag : parsed.tag.toUpperCase()), parsed.id, parsed.parts) : false;
+			return !this['match:node'](node, expression);
 		},
 
 		'contains': function(node, text){
@@ -620,7 +651,7 @@ authors:
 			} else {
 				if (b < pos) return false;
 			}
-			return ((pos - b) % a) === 0;
+			return ((pos - b) % a) == 0;
 		},
 
 		// custom pseudos
@@ -718,11 +749,10 @@ authors:
 		if (typeof selector !== 'string') return false;
 		local.positions = {};
 		if (local.document !== (node.ownerDocument || node)) local.setDocument(node);
-		var parsed = this.parse(selector),
-			firstBit = parsed.expressions[0][0];
+		var parsed = this.parse(selector);
 		return (!context && parsed.length === 1 && parsed.expressions[0].length === 1) ?
-			local['match:selector'](node, (local.isXMLDocument ? firstBit.tag : firstBit.tag.toUpperCase()), firstBit.id, firstBit.parts) :
-			this.deepMatch(node, selector, context);
+			local['match:node'](node, parsed) :
+			this.deepMatch(node, parsed, context);
 	};
 	
 	Slick.deepMatch = function(node, expression, context){
@@ -897,7 +927,7 @@ __END__
 		| \\.  ( <unicode>+       )     # ClassName          \n\
 		|                               # Attribute          \n\
 		\\[  \
-			\\s* (<unicode>+)  (?:  \\
+			\\s* (<unicode1>+)  (?:  \
 				\\s* ([*^$!~|]?=)  (?:  \
 					\\s* (?:\
 					      \"((?:[^\"]|\\\\\")*)\"\
@@ -964,7 +994,7 @@ __END__
 			var currentSeparator = parsed.expressions[separatorIndex];
 			if (reversed && currentSeparator[combinatorIndex])
 				currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
-			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
+			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', parts: []};
 			partIndex = 0;
 		}
 		
