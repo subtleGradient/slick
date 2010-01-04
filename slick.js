@@ -230,6 +230,8 @@ authors:
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
 		
+		var shouldSort = parsed.expressions.length > 1 || (append && append.length);
+		
 		// custom engines
 		
 		customEngine: {
@@ -237,7 +239,10 @@ authors:
 			if (!local[customEngineName]) break customEngine;
 			
 			local.found = found;
-			if(local[customEngineName](context, parsed) !== false) return found;
+			if(local[customEngineName](context, parsed) !== false){
+				if (shouldSort) local.documentSort(found);
+				return found;
+			}
 		}
 		
 		// querySelectorAll
@@ -263,6 +268,9 @@ authors:
 			} else {
 				found.push.apply(found, local.collectionToArray(nodes));
 			}
+			
+			if (shouldSort) local.documentSort(found);
+			
 			return found;
 			
 		}
@@ -310,6 +318,8 @@ authors:
 			current = local.found;
 		
 		}
+		
+		if (shouldSort) local.documentSort(found);
 		
 		return found;
 	};
@@ -744,6 +754,43 @@ authors:
 		}
 		return append;
 	};
+	
+	// document order sorting
+	// credits to Sizzle (http://sizzlejs.com/)
+	
+	local.documentSort = function(results){
+		if (!documentSort) return results;
+		results.sort(documentSort);		
+		return results;
+	};
+	
+	var documentSort;
+	
+	if (document.documentElement.compareDocumentPosition){
+		documentSort = function(a, b){
+			if (!a.compareDocumentPosition || !b.compareDocumentPosition) return 0;
+			var ret = a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
+			return ret;
+		};
+	} else if ('sourceIndex' in document.documentElement){
+		documentSort = function(a, b){
+			if (!a.sourceIndex || !b.sourceIndex) return 0;
+			var ret = a.sourceIndex - b.sourceIndex;
+			return ret;
+		};
+	} else if (document.createRange){
+		documentSort = function(a, b){
+			if (!a.ownerDocument || !b.ownerDocument) return 0;
+			var aRange = a.ownerDocument.createRange(), bRange = b.ownerDocument.createRange();
+			aRange.setStart(a, 0);
+			aRange.setEnd(a, 0);
+			bRange.setStart(b, 0);
+			bRange.setEnd(b, 0);
+			var ret = aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
+			return ret;
+		};
+	}
+	
 	
 	// debugging
 
