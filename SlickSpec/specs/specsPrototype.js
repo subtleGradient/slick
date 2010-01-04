@@ -181,8 +181,8 @@ function specsPrototype(specs, context){
 			value_of(context.MATCH($('link_1'), 'a[rel^="external"]')).should_be_true();
 			value_of(context.MATCH($('link_1'), "a[rel^='external']")).should_be_true();
 			
-			value_of(context.MATCH(span, { match: function(element) { return true }}), 'custom selector').should_be_true();
-			value_of(!context.MATCH(span, { match: function(element) { return false }}), 'custom selector').should_be_true();
+			//value_of(context.MATCH(span, { match: function(element) { return true }}), 'custom selector').should_be_true();
+			//value_of(!context.MATCH(span, { match: function(element) { return false }}), 'custom selector').should_be_true();
 		};
 
 		it['should SelectorWithSpaceInAttributeValue'] = function(){
