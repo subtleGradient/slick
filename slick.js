@@ -51,6 +51,7 @@ authors:
 		= local.idGetsName
 		= local.brokenMixedCaseQSA
 		= local.cachedGetElementsByClassName
+		= local.brokenSecondClassNameGEBCN
 		= false;
 		
 		if (!(local.isXMLDocument = local.isXML(document))){
@@ -108,77 +109,46 @@ authors:
 			
 		}
 		
-		local.redefineEngines();
+		this.Slick.activateEngines();
 		
 	};
 	
 	// Custom engines
 	
-	Slick.defineEngine = function(name, fn){
-		local['customEngine:' + name] = local['customEngine:' + fn] || fn;
-	};
+	local.customEngines = [];
+	local.defaultCondition = function(){ return true; };
+	local.dontRemoveEngine = {};
 	
-	Slick.removeEngines = function(){
-		for(var i = arguments.length; i--;){
-			delete local['customEngine:' + arguments[i]];
-		}
-	};
-	
-	//Slick.resetEngines = function(){
-	//	var customEngine;
-	//	for(engineName in local){
-	//		customEngine = local[engineName];
-	//		if((/^customEngine:/).test(engineName) && customEngine.removeCustomEngineOnReset) delete customEngine;
-	//	}
-	//};
-	
-	// Document independent custom engines
-	
-	Slick.defineEngine('tagName', function(context, parsed){
-		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
-	});
-	Slick.defineEngine('XML:tagName', 'tagName');
-	
-	Slick.defineEngine('id', function(context, parsed){
-		if(!context.getElementById) return false;
-		var id = parsed.expressions[0][0].id;
-		var el = context.getElementById(id);
-		if(el){
-			if(el.id !== id) return false;
-			this.found.push(el);
+	Slick.registerEngine = function(name, fn, condition){
+		fn = local['customEngine:' + fn] || fn;
+		if(typeof fn !== 'function') return this;
+		var customEngine = {
+			name: 'customEngine:' + name,
+			fn: fn,
+			condition: condition || local.defaultCondition
 		};
-	});
+		local.customEngines.push(customEngine);
+		this.activateEngine(customEngine.name, fn, customEngine.condition);
+		return this;
+	};
 	
-	// Slick.lookupEngine = function(name){
-	// 	var engine = local['customEngine:' + name];
-	// 	if (engine) return function(context, parsed){
-	// 		return engine.call(this, context, parsed);
-	// 	};
-	// };
-	
-	// Slick.defineEngine('id',function(context, parsed){
-	// 	context = context.ownerDocument || context;
-	// 	var el = context.getElementById(parsed.expressions[0][0].id)
-	// 	this.found.push(  );
-	// },function(){
-	// 	return !this.idGetsName;
-	// });
-	
-	// Document dependent custom engines
-	
-	local.redefineEngines = function(){
-		Slick.removeEngines('className', 'classNames', 'tagName*');
-		if(this.document.getElementsByClassName && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN){
-			Slick.defineEngine('className', function(context, parsed){
-				this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
-			});
-			Slick.defineEngine('classNames', 'className');
-		}
-		if(!(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA)){
-			Slick.defineEngine('tagName*', 'tagName');
+	Slick.activateEngine = function(name, fn, condition){
+		if (condition){
+			local[name] = fn;
+			local.dontRemoveEngine[name] = true;
+		} else {
+			if (local[name] && !local.dontRemoveEngine[name]) delete local[name];
 		}
 	};
 	
+	Slick.activateEngines = function(){
+		var customEngine, customEngines = local.customEngines;
+		local.dontRemoveEngine = {};
+		for (var i = 0; customEngine = customEngines[i++];){
+			this.activateEngine(customEngine.name, customEngine.fn, customEngine.condition.call(local));
+		}
+	};
+		
 	// Init
 	
 	local.setDocument(this.document);
@@ -250,7 +220,7 @@ authors:
 		}
 		
 		// querySelector|querySelectorAll
-		
+
 		QSA: if (context.querySelectorAll && !(parsed.simple === false || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
@@ -262,7 +232,7 @@ authors:
 				parsed.simple = false;
 				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
-
+			
 			if(justFirst){
 				if(nodes || nodes == null) return nodes;
 			}
@@ -270,11 +240,11 @@ authors:
 				
 				if (!nodes) break QSA;
 				if (!append) return local.collectionToArray(nodes);
-
+				
 				// TODO: check if selectors other than '*' will return closed nodes
 				if (local.starSelectsClosedQSA){
 					var node;
-					for (i = 0; (node = nodes[i]); i++) if (node.nodeName.charAt(0) !== '/') found.push(node);
+					for (i = 0; node = nodes[i++];) if (node.nodeName.charCodeAt(0) != 47) found.push(node);
 				} else {
 					found.push.apply(found, local.collectionToArray(nodes));
 				}
@@ -284,7 +254,7 @@ authors:
 				return found;
 			}
 		}
-		
+
 		// default engine
 		
 		var currentExpression, currentBit;
@@ -435,21 +405,19 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if (tag && tag === '*' && (node.nodeType !== 1 || node.nodeName.charAt(0) === '/')) return false; // Fix for comment nodes and closed nodes
-			if (tag && tag !== '*' && (!node.nodeName || node.nodeName != tag)) return false;
-			if (id && node.getAttribute('id') != id) return false;
-			for (var i = 0, l = parts.length, part; i < l; i++){
+			if(parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
 				part = parts[i];
 				if (!part) continue;
-				switch (part.type){
-					case 'class': if (classes !== false){
-						var cls = local.getAttribute(node, 'class');
-						if (!cls || !part.regexp.test(cls)) return false;
-					} break;
-					case 'pseudo': if (pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false; break;
-					case 'attribute': if (attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false; break;
+				if (part.type == 'class' && classes !== false){
+					cls = ('className' in node) ? node.className : node.getAttribute('class');	
+					if (!(cls && part.regexp.test(cls))) return false;
 				}
+				if (part.type == 'pseudo' && pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false;
+				if (part.type == 'attribute' && attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false;
 			}
+			if (tag && tag == '*' && (node.nodeType != 1 || node.nodeName.charCodeAt(0) == 47)) return false; // Fix for comment nodes and closed nodes
+			if (id && node.getAttribute('id') != id) return false;
+			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			return true;
 		}
 
@@ -512,7 +480,7 @@ authors:
 				if (!(children && children.length)) break getByTag;
 				if (!(this.starSelectsComments || this.starSelectsClosed)) tag = null;
 				var child;
-				for (i = 0; (child = children[i]); i++) this.push(children[i], tag, id, parts);
+				for (i = 0; child = children[i++];) this.push(child, tag, id, parts);
 			}
 		},
 		
@@ -706,6 +674,61 @@ authors:
 		};
 		return null;
 	};
+	
+	// Id Custom Engines
+	
+	Slick.registerEngine('id', function(context, parsed){
+		if (!context.getElementById) return false;
+		var id = parsed.expressions[0][0].id;
+		var el = context.getElementById(id);
+		if (el){
+			if (el.id !== id) return false;
+			this.found.push(el);
+		};
+	});
+	
+	// TagName Custom Engines
+	
+	Slick.registerEngine('tagName', function(context, parsed){
+		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
+	})
+	.registerEngine('XML:tagName', 'tagName')
+	.registerEngine('tagName*', 'tagName', function(){
+		return !(this.starSelectsComments || this.starSelectsClosed || this.starSelectsClosedQSA);
+	});
+	
+	// ClassName Custom Engines
+	
+	Slick.registerEngine('className', function(context, parts){
+		var results = context.getElementsByTagName(parts.expressions[0][0].tag);
+		parts = parts.expressions[0][0].parts;
+		N: for (var i = 0, j, part, node, className; node = results[i++];) {
+			if (!(className = node.className)) continue N;
+			for (j = 0; part = parts[j++];)
+				if (part.type == 'class' && !part.regexp.test(className)) continue N;
+			this.found.push(node);
+		}
+	}, function(){
+		return !this.root.querySelectorAll && !this.root.getElementsByClassName;
+	})
+	.registerEngine('className', function(context, parsed){
+		if(!context.getElementsByClassName) return false;
+		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
+	}, function(){
+		return this.root.getElementsByClassName && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN;
+	})
+	.registerEngine('classNames', 'className')
+	.registerEngine('tagName:className', 'className', function(){
+		return !this.root.getElementsByClassName;
+	})
+	.registerEngine('tagName:classNames', 'tagName:className');
+	
+	// Slick.lookupEngine = function(name){
+	// 	var engine = local['customEngine:' + name];
+	// 	if (engine) return function(context, parsed){
+	// 		return engine.call(this, context, parsed);
+	// 	};
+	// };
 	
 	// add attributes
 	
