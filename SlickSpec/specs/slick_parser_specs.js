@@ -160,12 +160,12 @@ Describe('CLASS',function(){
 		value_of( s.expressions[0][0].classes ).should_be( '.class1.class2.class3'.split('.').slice(1) );
 		
 	};
-	its['classes array items should have a match property'] = function(){
+	its['classes array items should have a regexp property'] = function(){
 		s = PARSE('.class');
+		console.log(s.expressions[0][0].parts[0]);
 		value_of( s.expressions[0][0].parts[0].type ).should_be( 'class' );
-		value_of( s.expressions[0][0].parts[0].match._type ).should_be( 'String' );
-		value_of( s.expressions[0][0].parts[0].match ).should_match( ' class ' );
-		
+		value_of( s.expressions[0][0].parts[0].regexp._type ).should_be( 'RegExp' );
+		value_of( s.expressions[0][0].parts[0].regexp.test('class') ).should_be_true();
 	};
 	
 	
