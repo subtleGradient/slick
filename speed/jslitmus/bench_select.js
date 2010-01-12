@@ -34,38 +34,36 @@ function benchmarkSelectors(specs,context){
 		throw error;
 	};
 	
-	it['THIS'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
-	it['LAST'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors, function(){global.SlickLast.disableQSA = true;}); 
-	
 	if (context.document.querySelectorAll) {
-		it['THIS qsa'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
-		it['LAST qsa'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors, function(){global.SlickLast.disableQSA = false;});
-		
-		// it['QSA'] = _benchmarkSelectors(function(searchContext,selector){
-		// 	try{
-		// 		return searchContext.querySelectorAll.call(searchContext,selector);
-		// 	}catch(e){}
-		// }, context, selectors);
-		
 		it['QSA Array'] = _benchmarkSelectors(function(searchContext,selector){
 			try{
 				return local.collectionToArray(searchContext.querySelectorAll.call(searchContext,selector));
 			}catch(e){}
 		}, context, selectors);
+		
+		it['Slick WIP'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis.search(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = false;});
+		it['Slick Stable'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast.search(searchContext,selector); }, context, selectors, function(){global.SlickLast.disableQSA = false;});
 	}
+	
+	it['Slick WIP noQSA'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis.search(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
+	it['Slick Stable noQSA'] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast.search(searchContext,selector); }, context, selectors, function(){global.SlickLast.disableQSA = true;}); 
 	
 	if (global.Sizzle) {
 		it['Sizzle'] = _benchmarkSelectors(function(searchContext,selector){ return global.Sizzle(selector,searchContext); }, context, selectors);
 	}
 	
 	if (global.NW) {
-		global.NW.Dom.setCache(false);
+		// global.NW.Dom.setCache(false);
 		it['NWm'] = _benchmarkSelectors(function(searchContext,selector){ return global.NW.Dom.select(selector,searchContext); }, context, selectors);
 	}
 	
-	if (global.yass) {
-		// global.yass.setCache(false);
-		it['YASS'] = _benchmarkSelectors(function(doc,selector){ return global.yass(selector,doc,true); }, context, selectors);
+	// if (global.yass) {
+	// 	// global.yass.setCache(false);
+	// 	it['YASS'] = _benchmarkSelectors(function(doc,selector){ return global.yass(selector,doc,true); }, context, selectors);
+	// }
+	
+	if (global.Sly) {
+		it['Sly'] = _benchmarkSelectors(function(doc,selector){ return global.Sly.search(selector,doc); }, context, selectors);
 	}
 }
 
@@ -95,6 +93,8 @@ function _benchmarkSelectors(SELECT,context,selectors,before,after){
 					results[selectors[ii]] = SELECT(document, selectors[ii]).length;
 				}catch(error){
 					results[selectors[ii]] = error;
+					try{console.log( selectors[ii] );}catch(e){};
+					setTimeout(function(){throw error}, 0);
 				}
 				
 			}

@@ -90,6 +90,19 @@
 	});
 	
 })();
+(function(){
+	var uidx = 0;
+	var node, uid;
+	JSLitmus.test('no fn IE2', function(count) {
+		while (count--){
+			node = document.documentElement;
+			uid = node._slickUID || (node._slickUID = {id: uidx++}).id;
+			
+			document.documentElement._slickUID = null;
+		}
+	});
+	
+})();
 
 
 </script>

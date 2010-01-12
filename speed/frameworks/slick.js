@@ -10,19 +10,111 @@ authors:
 - Thomas Aylott
 - Valerio Proietti
 - Fabio M Costa
+- Jan Kassens
 ...
 */
 (function(){
 	
 	var local = {};
 	
-	var window = this, document = this.document, root = document.documentElement;
-
-	local.document = document;
+	var Slick = local.Slick = this.Slick = this.Slick || {};
+	
+	// Feature / Bug detection
+	
+	Slick.isXML = local.isXML = function(element){
+		var ownerDocument = element.ownerDocument || element;
+		return (!!ownerDocument.xmlVersion)
+			|| (!!ownerDocument.xml)
+			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
+			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
+	};
+	
+	local.setBrowser = function(document){
+		var root = local.root;
+		var testNode = document.createElement('div');
+		root.appendChild(testNode);
+		
+		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
+		try {
+			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
+			local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
+		} catch(e){};
+		
+		try {
+			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+			testNode.getElementsByClassName('b').length;
+			testNode.firstChild.className = 'b';
+			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+		} catch(e){};
+		
+		root.removeChild(testNode);
+		testNode = null;
+		return this;
+	};
+	
+	local.setDocument = function(document){
+		if (local.document == document) return;
+		
+		if (document.nodeType === 9);
+		else if (document.ownerDocument) document = document.ownerDocument; // node
+		else if ('document' in document) document = document.document; // window
+		else return;
+		
+		if (local.document == document) return;
+		local.document = document;
+		local.root = document.documentElement;
+		
+		if (!(local.isXMLDocument = local.isXML(document))){
+			
+			var testNode = document.createElement('div');
+			local.root.appendChild(testNode);
+			var selected, id;
+			
+			// IE returns comment nodes for getElementsByTagName('*') for some documents
+			testNode.appendChild(document.createComment(''));
+			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+			
+			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
+			try {
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.getElementsByTagName('*');
+				local.starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			if (testNode.querySelectorAll) try {
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.querySelectorAll('*');
+				local.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			// IE returns elements with the name instead of just id for getElementById for some documents
+			try {
+				testNode.innerHTML = '<a name=idgetsname></a><b id=idgetsname></b>';
+				local.idGetsName = testNode.ownerDocument.getElementById('idgetsname') === testNode.firstChild;
+				id = 'getelementbyid';
+				testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
+				local.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
+			} catch(e){
+			};
+			
+			local.root.removeChild(testNode);
+			testNode = null;
+			
+		}
+	};
+	
+	// Init
+	
+	local.setDocument(this.document);
+	
+	local.setBrowser(local.document);
+	
+	var window = this, document = local.document, root = local.root;
 	
 	// Slick
+	local.isSimple = {};
 	
-	var Slick = local.Slick = function(context, expression, append){
+	var search = Slick.search = local.search = function(context, expression, append){
 		
 		// setup
 		
@@ -30,29 +122,37 @@ authors:
 		local.positions = {};
 		
 		// handle input / context:
-		
-		if (expression == null){
-			return found;
 
-		} else if (typeof expression == 'string'){
+		// No context
+		if (!context) return found;
+
+		// Convert the node from a window to a document
+		if (!context.nodeType && context.document) context = context.document;
+
+		// Reject misc junk input
+		if (!context.nodeType) return found;
+
+		// expression input
+		if (typeof expression == 'string'){
 			parsed = Slick.parse(expression);
 			if (!parsed.length) return found;
+
+		} else if (expression == null){
+			return found;
 
 		} else if (expression.Slick){
 			parsed = expression;
 
-		} else if (local.contains(context, expression)){
+		} else if (local.contains(context.documentElement || context, expression)){
 			found.push(expression);
 			return found;
 
 		} else {
 			return found;
-
 		}
-
-		var document = (context.ownerDocument || context);
-		if (document != local.document) Slick.setDocument(document);
-		local.document = document;
+		
+		if (local.document != context.ownerDocument || context) local.setDocument(context);
+		var document = local.document;
 
 		if (parsed.length === 1 && parsed.expressions[0].length === 1) local.push = local.pushArray;
 		else local.push = local.pushUID;
@@ -71,14 +171,16 @@ authors:
 		
 		// querySelectorAll
 		
-		QSA: if (context.querySelectorAll && !(!parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
+		QSA: if (context.querySelectorAll && !(parsed.simple === false || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA)){
 			if (context.nodeType !== 9) break QSA; // FIXME: Make querySelectorAll work with a context that isn't a document
 			
 			var nodes;
 			try {
-				nodes = context.querySelectorAll(expression);
+				nodes = context.querySelectorAll(parsed.raw);
+				parsed.simple = true;
 			} catch(error){
-				if (Slick.debug) Slick.debug('QSA Fail ' + expression, error);
+				parsed.simple = false;
+				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
 			if (!nodes) break QSA;
@@ -138,57 +240,6 @@ authors:
 		return found;
 	};
 	
-	// Feature / Bug detection
-	
-	Slick.setBrowser = function(document){
-		var testNode = document.createElement('div');
-		root.appendChild(testNode);
-		
-		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>'; local.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
-		
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			local.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-		
-		root.removeChild(testNode);
-		testNode = null;
-	};
-	
-	Slick.setDocument = function(document){
-		if (!(local.isXMLDocument = local.isXML(document))){
-			var testNode = document.createElement('div');
-			root.appendChild(testNode);
-			
-			// IE returns comment nodes for getElementsByTagName('*')
-			testNode.appendChild(document.createComment(''));
-			local.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
-			
-			// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*')
-			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosed = (testNode.getElementsByTagName('*')[0].nodeName.charAt(0) == '/'); 
-			} catch(e){};
-
-			try {
-				testNode.innerHTML = 'foo</foo>'; local.starSelectsClosedQSA = (testNode.querySelectorAll('*')[0].nodeName.charAt(0) == '/');
-			} catch(e){};
-			
-			// getElementById selects name attribute?
-			try {
-				testNode.innerHTML = '<a name=idgetsname>';
-				local.idGetsName = !!(testNode.ownerDocument.getElementById && testNode.ownerDocument.getElementById('idgetsname'));
-			} catch(e){}
-			
-			root.removeChild(testNode);
-			testNode = null;
-		}
-	};
-	
 	// Utils
 	
 	local.uidx = 1;
@@ -200,7 +251,7 @@ authors:
 	};
 	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	local.contains = (root.contains) ? function(context, node){
+	Slick.contains = local.contains = (root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
@@ -233,12 +284,8 @@ authors:
 		var parsed = argument.match(this.matchNTH);
 		if (!parsed) return false;
 		var special = parsed[2] || false;
-		var a = parsed[1];
-		switch (a){
-			case '': a = 1; break;
-			case '-': a = -1; break;
-			default: a = +a;
-		}
+		var a = parsed[1] || 1;
+		if(a == '-') a = -1;
 		var b = parseInt(parsed[3], 10) || 0;
 		switch (special){
 			case 'n':    parsed = {a: a, b: b}; break;
@@ -259,14 +306,6 @@ authors:
 			this.uniques[uid] = true;
 			this.found.push(node);
 		}
-	};
-	
-	local.isXML = function(element){
-		var ownerDocument = element.ownerDocument || element;
-		return (!!ownerDocument.xmlVersion)
-			|| (!!ownerDocument.xml)
-			|| (Object.prototype.toString.call(ownerDocument) == '[object XMLDocument]')
-			|| (ownerDocument.nodeType == 9 && ownerDocument.documentElement.nodeName != 'HTML');
 	};
 	
 	var matchers = {
@@ -312,7 +351,7 @@ authors:
 			var i, l, item, children;
 
 			if (!this.isXMLDocument){
-				getById: if (id){
+				getById: if (id && node.nodeType === 9){
 					// if node == document then we don't need to use contains
 					if (!node.getElementById) break getById;
 					item = node.getElementById(id);
@@ -320,11 +359,11 @@ authors:
 					this.push(item, tag, null, parts);
 					return;
 				}
-				getById: if (id){
+				getById: if (id && node.nodeType !== 9){
 					if (!this.document.getElementById) break getById;
 					item = this.document.getElementById(id);
 					if (!item || item.id != id) break getById;
-					if (!this.contains(node.documentElement||node, item)) break getById;
+					if (!this.contains(node, item)) break getById;
 					this.push(item, tag, null, parts);
 					return;
 				}
@@ -334,11 +373,32 @@ authors:
 					for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
 					return;
 				}
+/*
+				QSA: if (node.querySelectorAll && !Slick.disableQSA){
+					var query = [];
+					if (tag && tag != '*') query.push(tag.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\'));
+					if (id){ query.push('#');query.push(id.replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\')); }
+					if (classes){ query.push('.');query.push(classes.join('').replace(/(?=[^\\w\\u00a1-\\uFFFF-])/ig,'\\').replace(/\\/,'.')); }
+					try {
+						children = node.querySelectorAll(query.join(''));
+					} catch(e){
+						Slick.debug && Slick.debug(query, e);
+						break QSA;
+					}
+					if (node.nodeType === 9) for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
+					
+					else for (i = 0, l = children.length; i < l; i++)
+						if (this.contains(node, children[i])) this.push(children[i], tag, id, parts);
+					
+					return;
+				}
+*/
 			}
 			getByTag: {
 				children = node.getElementsByTagName(tag);
 				if (!(children && children.length)) break getByTag;
-				for (i = 0, l = children.length; i < l; i++) this.push(children[i], null, id, parts);
+				if (!(this.starSelectsComments || this.starSelectsClosed)) tag = null;
+				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts);
 			}
 		},
 		
@@ -482,21 +542,32 @@ authors:
 
 		// custom pseudos
 
+		'index': function(node, index){
+			return this['pseudo:nth-child'](node, '' + index + 1);
+		},
+
 		'even': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n+1');
 		},
 
 		'odd': function(node, argument){
 			return this['pseudo:nth-child'](node, '2n');
-		}
+		},
 
+		'enabled': function(node){
+			return (node.disabled === false);
+		},
+
+		'checked': function(node){
+			return node.checked;
+		},
+
+		'selected': function(node){
+			return node.selected;
+		}
 	};
 
 	for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
-	
-	// Slick contains
-	
-	Slick.contains = local.contains;
 	
 	// add pseudos
 	
@@ -575,7 +646,7 @@ authors:
 	};
 	
 	Slick.defineAttribute('class', function(){
-		return ('className'in this) ? this.className : this.getAttribute('class');
+		return ('className' in this) ? this.className : this.getAttribute('class');
 	}).defineAttribute('for', function(){
 		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	}).defineAttribute('href', function(){
@@ -599,7 +670,7 @@ authors:
 	
 	Slick.deepMatch = function(node, expression, context){
 		// FIXME: FPO code only
-		var nodes = Slick(context||document, expression);
+		var nodes = Slick.search(context||document, expression);
 		for (var i=0; i < nodes.length; i++){
 			if (nodes[i] === node){
 				return true;
@@ -628,10 +699,6 @@ authors:
 		return append;
 	};
 	
-	// utils
-	
-	Slick.isXML = local.isXML;
-	
 	// debugging
 	var displayName;
 	for (displayName in local)
@@ -639,15 +706,6 @@ authors:
 
 	for (displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
-	
-	// init
-	
-	Slick.setBrowser(document);
-	Slick.setDocument(document);
-	
-	// public
-	
-	this.Slick = Slick;
 	
 }).apply(this);
 
@@ -669,7 +727,9 @@ authors:
 
 (function(){
 	
-	function SlickParser(expression){
+	var Slick = this.Slick = this.Slick || {};
+	
+	Slick.parse = function(expression){
 		return parse(expression);
 	};
 	
@@ -678,8 +738,8 @@ authors:
 		combinatorIndex,
 		partIndex,
 		reversed,
-		cache = {},
-		reverseCache = {}
+		cache = Slick.parse.cache = {},
+		reverseCache = Slick.parse.reverseCache = {}
 	;
 	
 	var parse = function(expression, isReversed){
@@ -722,27 +782,46 @@ authors:
 		return expression;
 	};
 	
-	var escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
+	var escapeRegExp = Slick.parse.escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
 	var regexp = new RegExp(
-		("(?x)^(?:"
-		+"  \\s* ( , | $ ) \\s*         " // Separator
-		+"| \\s* ( <combinator>+ ) \\s* " // Combinator
-		+"|      ( \\s+ )               " // CombinatorChildren
-		+"|      ( <unicode>+ | \\* )   " // Tag
-		+"| \\#  ( <unicode>+       )   " // ID
-		+"| \\.  ( <unicode>+       )   " // ClassName
-		+"| \\[  ( <unicode>+       )(?: ([*^$!~|]?=) (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\]]*) )     )?  \\](?!\\])" // Attribute
-		+"|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?"             // Pseudo
-		+")")
-		.replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
-		.replace(/<combinator>/, '[' + escapeRegExp(">+~" + "`!@$%^&={}\\;</") + ']')
+/*
+#!/usr/bin/env ruby
+puts "\t\t" + DATA.read.gsub(/\(\?x\)|\s+#.*$|\s+|\\$|\\n/,'')
+__END__
+		"(?x)^(?:\
+		  \\s* ( , | $ ) \\s*                           # Separator              \n\
+		| \\s* ( <combinator>+ ) \\s*                   # Combinator             \n\
+		|      ( \\s+ )                                 # CombinatorChildren     \n\
+		|      ( <unicode>+ | \\* )                     # Tag                    \n\
+		| \\#  ( <unicode>+       )                     # ID                     \n\
+		| \\.  ( <unicode>+       )                     # ClassName              \n\
+		|                                               # Attribute \n\
+		\\[  \
+			\\s* (<unicode>+)  (?:  \
+				\\s* ([*^$!~|]?=)  (?:  \
+					\\s* (?:\
+					      \"((?:[^\"]|\\\")*)\"\
+					    |  '((?:[^'] |\\')* )' \
+					    |   (   [^\\]]*?    )  \
+					)\
+				)  \
+			)?  \\s*  \
+		\\](?!\\]) \n\
+		|   :+ ( <unicode>+       )(            \\( (?: \"((?:[^\"]|\\\")*)\" | '((?:[^']|\\')*)' | ([^\\)]*) ) \\) )?             # Pseudo    \n\
+		)"
+// *///
+		"^(?:\\s*(,|$)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
+		// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
+		.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 		.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	);
 	
-	var qsaCombinators = (/^(\s|[~+>])$/);
+	var qsaCombinators = (/^[\s~+>]$/);
+	
+	var simpleAttributeOperators = (/^[*^$~|]?=$/);
 	
 	var map = {
 		rawMatch: 0,
@@ -767,7 +846,8 @@ authors:
 		pseudoClassValue: 16
 	};
 	
-	var rmap = {}; for (var p in map) rmap[map[p]] = p;
+	var rmap = {};
+	for (var p in map) rmap[map[p]] = p;
 	
 	function parser(){
 		var a = arguments;
@@ -783,14 +863,14 @@ authors:
 		if (!selectorBitName) return '';
 		
 		
-		if (a[map.tagName]=='*') parsed.type.push('tagName*');
-		
+		if (a[map.tagName]=='*')
+			parsed.type.push('tagName*');
 		else if (parsed.type[parsed.type.length - 1] == selectorBitName && selectorBitName == 'className')
 			parsed.type[parsed.type.length-1] = 'classNames';
-		
 		else if (parsed.type[parsed.type.length - 1] == 'classNames' && selectorBitName == 'className');
-		
-		else parsed.type.push(selectorBitName);
+			// do nothing
+		else
+			parsed.type.push(selectorBitName);
 		
 		
 		var isSeparator = selectorBitName == 'separator';
@@ -807,9 +887,8 @@ authors:
 			var combinator = a[map.combinator] || ' ';
 			if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 			var currentSeparator = parsed.expressions[separatorIndex];
-			if (reversed){
-				if (currentSeparator[combinatorIndex]) currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
-			}
+			if (reversed && currentSeparator[combinatorIndex])
+				currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
 			currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', id: null, parts: []};
 			partIndex = 0;
 			if (isCombinator) return '';
@@ -819,13 +898,13 @@ authors:
 		
 		switch (selectorBitName){
 		
-			case 'tagName': currentParsed.tag = a[map.tagName]; return '';
+			case 'tagName': currentParsed.tag = a[map.tagName].replace(/\\/g,''); return '';
 			
-			case 'id': currentParsed.id = a[map.id]; return '';
+			case 'id': currentParsed.id = a[map.id].replace(/\\/g,''); return '';
 			
 			case 'className':
 
-				var className = a[map.className];
+				var className = a[map.className].replace(/\\/g,'');
 			
 				if (!currentParsed.classes) currentParsed.classes = [className];
 				else currentParsed.classes.push(className);
@@ -840,30 +919,36 @@ authors:
 			
 			case 'pseudoClass':
 
-				parsed.simple = false;
+				// TODO: pseudoClass is only not simple when it's custom or buggy
+				// if (pseudoBuggyOrCustom[pseudoClass])
+				// parsed.simple = false;
 			
 				if (!currentParsed.pseudos) currentParsed.pseudos = [];
-			
+				
+				var value = a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue] || null;
+				if (value) value = value.replace(/\\/g,'')
+				
 				currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
 					type: 'pseudo',
-					key: a[map.pseudoClass],
-					value: a[map.pseudoClassValueDouble] || a[map.pseudoClassValueSingle] || a[map.pseudoClassValue]
+					key: a[map.pseudoClass].replace(/\\/g,''),
+					value: value
 				});
 
 			break;
 			
 			case 'attributeKey':
 
-				parsed.simple = false;
-			
 				if (!currentParsed.attributes) currentParsed.attributes = [];
-			
-				var key = a[map.attributeKey];
+				
+				var key = a[map.attributeKey].replace(/\\/g,'');
 				var operator = a[map.attributeOperator];
-				var attribute = a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '';
-			
+				var attribute = (a[map.attributeValueDouble] || a[map.attributeValueSingle] || a[map.attributeValue] || '').replace(/\\/g,'');
+				
+				// Turn off simple mode for custom attribute operators. This should disable QSA mode
+				if (parsed.simple !== false) parsed.simple = !!simpleAttributeOperators.test(operator);
+				
 				var test, regexp;
-			
+				
 				switch (operator){
 					case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
 					case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
@@ -882,11 +967,11 @@ authors:
 						return !!value;
 					};
 				}
-			
+				
 				if (!test) test = function(value){
 					return value && regexp.test(value);
 				};
-			
+				
 				currentParsed.attributes.push(currentParsed.parts[partIndex] = {
 					type: 'attribute',
 					key: key,
@@ -897,7 +982,6 @@ authors:
 
 			break;
 		}
-		
 		partIndex++;
 		return '';
 	};
@@ -905,19 +989,8 @@ authors:
 	for (var displayName in Slick)
 		if (typeof Slick[displayName] == 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	// public
-	
-	if (this.Slick){
-		
-		this.Slick.parse = SlickParser;
-		
-		this.Slick.reverse = function(expression){
-			return parse((typeof expression == 'string') ? expression : expression.raw, true);
-		};
-		
-		this.Slick.parse.escapeRegExp = escapeRegExp;
-	} else {
-		this.SlickParser = SlickParser;
-	}
+	Slick.parse.reverse = function(expression){
+		return parse((typeof expression == 'string') ? expression : expression.raw, true);
+	};
 	
 }).apply(this);

@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+
+<!-- JSSpec -->
+
+<link rel="stylesheet" type="text/css" href="assets/slickspec.css" />
+<script type="text/javascript" charset="utf-8" src="assets/diff_match_patch.js"></script>
+<script type="text/javascript" charset="utf-8" src="assets/JSSpec.js"></script>
+<script type="text/javascript" charset="utf-8" src="assets/JSSpecHelpers.js"></script>
+<script type="text/javascript" charset="utf-8" src="assets/simple_request.js"></script>
+
+<!-- Specs -->
+<!-- Runner -->
+
+<script type="text/javascript" charset="utf-8">
+
+var defnum = 0;
+
+new Mock('',function(specs, window){
+	
+	if (window.Slick){
+		window['SELECT'] = window.Slick;
+		window['MATCH'] = window.Slick.deepMatch;
+	} else {
+		window['SELECT'] = global.Slick;
+		window['MATCH'] = global.Slick.deepMatch;
+	}
+	
+	console.log('set', defnum++, window, window.Slick == window.SELECT);
+	
+});
+
+new Mock('',function(specs, window){
+	
+	console.log('test', defnum++, window, window.Slick == window.SELECT);
+	
+	it['should define SELECT'] = function(){
+		
+		value_of( window.Slick || global.Slick ).should_not_be_undefined();
+		value_of( window.SELECT ).should_not_be_undefined();
+		value_of( window.MATCH ).should_not_be_undefined();
+		
+		if (window.Slick){
+			value_of( window.SELECT == window.Slick ).should_be(true);
+			value_of( window.MATCH == window.Slick.deepMatch ).should_be(true);
+		} else {
+			value_of( window.SELECT == global.Slick ).should_be(true);
+			value_of( window.MATCH == global.Slick.deepMatch ).should_be(true);
+		}
+		
+	};
+	
+});
+
+
+
+Describe('SlickSpec',function(){
+	
+	Describe('it',function(){
+		
+		it['should be specs'] = function(){
+			value_of( it ).should_be( specs );
+			value_of( its ).should_be( specs );
+		};
+		
+	});
+	
+	
+	Describe('Helpers',function(){
+		
+		Describe('Mock',function(){
+			
+			it['should set global to the global object'] = function(){
+				value_of( global ).should_be( window );
+			};
+			
+			it['should exist'] = function(){
+				
+				value_of( global.Mock ).should_not_be_undefined();
+				
+			};
+			
+		});
+		
+		
+	});
+	
+	
+});
+
+
+new Mock('',function(specs, context){
+	
+	Describe('Mock',function(){
+		
+		it['should change contexts for each mock context'] = function(){
+
+			value_of( context ).should_not_be( global );
+			value_of( context ).should_not_be( global.document );
+			value_of( context.document ).should_not_be( global.document );
+
+		};
+		
+	});
+	
+	
+});
+
+
+</script>
+<title>SlickSpec Own Specs</title></head>
+<body><h1 id="slickspec_logo"><a href="./">Slick<strong>Spec</strong></a></h1>
+<p id="copyright">SlickSpec&mdash;Copyright &copy; MooTools 2009&mdash;MIT License</p>
+
+<!-- mocks -->
+<iframe onload="Mock.register('Generic HTML (standard)',this.contentWindow)" src="mocks/template-standard.html"></iframe>
+<iframe onload="Mock.register('Generic HTML (almost-standard)',this.contentWindow)" src="mocks/template-almost.html"></iframe>
+<iframe onload="Mock.register('Generic HTML (quirks)',this.contentWindow)" src="mocks/template-quirks.html"></iframe>
+
+<!--[if gt IE 8]><!-->
+<iframe onload="Mock.register('Generic XHTML',this.contentWindow)" src="mocks/template.xhtml"></iframe>
+<iframe onload="Mock.register('Generic XML',this.contentWindow)" src="mocks/template.xml"></iframe>
+<iframe onload="Mock.register('SVG',this.contentWindow)" src="mocks/MooTools_Logo.svg"></iframe>
+<!-- <![endif]-->
+
+<!--[if gte IE 8]>
+<iframe onload="Mock.register('Generic HTML (IE8 as IE7)',this.contentWindow)" src="mocks/template-ie7.html"></iframe>
+<![endif]-->
+
+<script type="text/javascript" charset="utf-8">
+
+new Mock.Request('XML responseXML','mocks/xmlmock1.xml');
+new Mock.Request('SVG responseXML','mocks/MooTools_Logo.svg');
+
+</script>
+
+
+</body>
+</html>

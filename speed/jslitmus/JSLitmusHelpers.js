@@ -2,7 +2,7 @@ var describe = function(description, specs){
 	var test;
 	for (var name in specs) {
 		test = JSLitmus.test(description+': '+name, specs[name]);
-		JSLitmus._queueTest(test);
+		// JSLitmus._queueTest(test);
 	}
 };
 

@@ -9,7 +9,7 @@ curl -s http://github.com/dperini/nwmatcher/raw/master/src/nwmatcher.js #*/
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 1.2.0
  * Created: 20070722
- * Release: 20091001
+ * Release: 20091101
  *
  * License:
  *  http://javascript.nwbox.com/NWMatcher/MIT-LICENSE
@@ -17,7 +17,7 @@ curl -s http://github.com/dperini/nwmatcher/raw/master/src/nwmatcher.js #*/
  *  http://javascript.nwbox.com/NWMatcher/nwmatcher.js
  */
 
-window.NW || (window.NW = {});
+window.NW || (window.NW = { });
 
 NW.Dom = (function(global) {
 
@@ -27,7 +27,7 @@ NW.Dom = (function(global) {
   base = global.document,
 
   // script loading context
-  context = global.document,
+  context = base,
 
   // document type node (+DTD)
   docType = context.doctype,
@@ -39,16 +39,37 @@ NW.Dom = (function(global) {
   // detect Safari 2.0.x [object AbstractView]
   view = base.defaultView || base.parentWindow,
 
-  // cache native slice access
-  slice = Array.prototype.slice,
+  // http://www.w3.org/TR/css3-syntax/#characters
+  // unicode/ISO 10646 characters 161 and higher
+  // NOTE: Safari 2.0.x crashes with escaped (\\)
+  // Unicode ranges in regular expressions so we
+  // use a negated character range class instead
+  encoding = '((?:[-\\w]|[^\\x00-\\xa0]|\\\\.)+)',
 
-  // Safari 2 missing document.compatMode property
-  // makes it harder to detect Quirks vs. Strict
-  compatMode = context.compatMode ||
-    (function() {
-      var el; (el = document.createElement('div')).style.width = 1;
-      return el.style.width == '1px' ? 'BackCompat' : 'CSS1Compat';
-    })(),
+  // used to skip [ ] or ( ) groups in token tails
+  skipgroup = '(?:\\[.*\\]|\\(.*\\))',
+
+  // discard invalid chars found in passed selector
+  reValidator = /([.:#*\w]|[^\x00-\xa0])/,
+
+  // split comma separated selector groups, exclude commas inside '' "" () []
+  // example: (#div a, ul > li a) group 1 is (#div a) group 2 is (ul > li a)
+  reSplitGroup = /([^,()[\]]+|\([^()]+\)|\(.*\)|\[(?:\[[^[\]]*\]|["'][^'"]*["']|[^'"[\]]+)+\]|\[.*\]|\\.)+/g,
+
+  // split last, right most, selector group token
+  reSplitToken = /([^ >+~,\\()[\]]+|\([^()]+\)|\(.*\)|\[[^[\]]+\]|\[.*\]|\\.)+/g,
+
+  // Only five characters can occur in whitespace, they are:
+  // \x20 \t \n \r \f, checks now uniformed through the code
+  // http://www.w3.org/TR/css3-selectors/#selector-syntax
+
+  reClassValue = /([-\w]+)/,
+  reIdSelector = /\#([-\w]+)$/,
+  reTrimSpaces = /^[\x20\t\n\r\f]+|[\x20\t\n\r\f]+$/g,
+
+  /*----------------------------- UTILITY METHODS ----------------------------*/
+
+  slice = Array.prototype.slice,
 
   // Safari 2 bug with innerText (gasp!)
   // used to strip tags from innerHTML
@@ -56,16 +77,30 @@ NW.Dom = (function(global) {
     return s.replace(/<\/?("[^\"]*"|'[^\']*'|[^>])+>/gi, '');
   },
 
-  // Only five characters can occur in whitespace, they are:
-  // \x20 \t \n \r \f, checks now uniformed through the code
-  // http://www.w3.org/TR/css3-selectors/#selector-syntax
+  /*------------------------------- DEBUGGING --------------------------------*/
 
-  // trim leading/trailing whitespaces
-  trim = String.prototype.trim && !' \t\n\r\f'.trim() ?
-    String.prototype.trim :
-    function() { return this.replace(/^[\x20\t\n\r\f]+|[\x20\t\n\r\f]+$/g, ''); },
+  // enable/disable notifications
+  VERBOSE = false,
 
-  /* BEGIN FEATURE TESTING */
+  // a way to control user notification
+  emit =
+    function(message) {
+      if (VERBOSE) {
+        var console = global.console;
+        if (console && console.log) {
+          console.log(message);
+        } else {
+          if (/exception/i.test(message)) {
+            global.status = message;
+            global.defaultStatus = message;
+          } else {
+            global.status += message;
+          }
+        }
+      }
+    },
+
+  /*----------------------------- FEATURE TESTING ----------------------------*/
 
   // detect native methods
   isNative = (function() {
@@ -78,9 +113,14 @@ NW.Dom = (function(global) {
 
   // NOTE: NATIVE_XXXXX check for existance of method only
   // so through the code read it as "supported", maybe BUGGY
+
+  // supports lowercase node names
+  NATIVE_TAG_MATCH =
+    typeof context.createElementNS == 'function' ? '.toUpperCase()' : '',
+
+  // supports the new traversal API
   NATIVE_TRAVERSAL_API =
-    'nextElementSibling' in root &&
-    'previousElementSibling' in root,
+    'nextElementSibling' in root && 'previousElementSibling' in root,
 
   // detect native getAttribute/hasAttribute methods,
   // frameworks extend these to elements, but it seems
@@ -94,50 +134,22 @@ NW.Dom = (function(global) {
   NATIVE_GEBTN = isNative(root, 'getElementsByTagName'),
   NATIVE_GEBCN = isNative(root, 'getElementsByClassName'),
 
-  // get name of best children collection property available
-  // detect Safari 2.0.x different children implementation
-  CHILD_NODES =
-    'children' in root ?
-      (view && global !== view ?
-        'childNodes' :
-        'children') :
-      'childNodes',
-
   // nodeList can be converted by native .slice()
   // Opera 9.27 and an id="length" will fold this
   NATIVE_SLICE_PROTO =
     (function() {
-      var isSupported = false, div = context.createElement('div');
+      var isSupported, div = context.createElement('div');
       try {
         div.innerHTML = '<div id="length"></div>';
         root.insertBefore(div, root.firstChild);
-        isSupported = !!slice.call(div.childNodes, 0)[0];
+        isSupported = slice.call(div.childNodes, 0)[0];
       } catch(e) {
       } finally {
         root.removeChild(div).innerHTML = '';
+        div = null;
       }
-      return isSupported;
-    })(),
-
-  // check for Mutation Events, DOMAttrModified should be
-  // enough to ensure DOMNodeInserted/DOMNodeRemoved exist
-  NATIVE_MUTATION_EVENTS = root.addEventListener ?
-    (function() {
-      var isSupported, id = root.id,
-      handler = function() {
-        root.removeEventListener('DOMAttrModified', handler, false);
-        isSupported = true;
-      };
-
-      // add listener and modify attribute
-      root.addEventListener('DOMAttrModified', handler, false);
-      root.id = 'nw';
-
-      root.id = id;
-      handler = null;
       return !!isSupported;
-    })() :
-    false,
+    })(),
 
   // NOTE: BUGGY_XXXXX check both for existance and no known bugs.
 
@@ -146,11 +158,10 @@ NW.Dom = (function(global) {
       var isBuggy, div = context.createElement('div');
       div.innerHTML = '<a name="Z"></a>';
       root.insertBefore(div, root.firstChild);
-      isBuggy = !!div.ownerDocument.getElementById('Z');
-      div.innerHTML = '';
-      root.removeChild(div);
+      isBuggy = div.ownerDocument.getElementById('Z');
+      root.removeChild(div).innerHTML = '';
       div = null;
-      return isBuggy;
+      return !!isBuggy;
     })() :
     true,
 
@@ -162,7 +173,7 @@ NW.Dom = (function(global) {
       isBuggy = div.getElementsByTagName('*')[0];
       div.innerHTML = '';
       div = null;
-      return isBuggy;
+      return !!isBuggy;
     })() :
     true,
 
@@ -171,18 +182,15 @@ NW.Dom = (function(global) {
   // tests are based on the jQuery selector test suite
   BUGGY_GEBCN = NATIVE_GEBCN ?
     (function() {
-      var isBuggy,
-        div = context.createElement('div'),
-        method = 'getElementsByClassName',
-        test = /\u53f0\u5317/;
+      var isBuggy, div = context.createElement('div'), test = '\u53f0\u5317';
 
       // Opera tests
       div.innerHTML = '<span class="' + test + 'abc ' + test + '"></span><span class="x"></span>';
-      isBuggy = !div[method](test)[0];
+      isBuggy = !div.getElementsByClassName(test)[0];
 
       // Safari test
       div.lastChild.className = test;
-      if (!isBuggy) isBuggy = div[method](test).length !== 2;
+      if (!isBuggy) isBuggy = div.getElementsByClassName(test).length !== 2;
 
       div.innerHTML = '';
       div = null;
@@ -191,8 +199,8 @@ NW.Dom = (function(global) {
     true,
 
   // check Seletor API implementations
-  BUGGY_QSAPI = NATIVE_QSAPI ? (function() {
-    var pattern = [ ], div = context.createElement('div');
+  RE_BUGGY_QSAPI = NATIVE_QSAPI ? (function() {
+    var pattern = [ '!=', ':contains', ':selected' ], div = context.createElement('div');
 
     // WebKit treats case insensitivity correctly with classNames (when no DOCTYPE)
     // obsolete bug https://bugs.webkit.org/show_bug.cgi?id=19047
@@ -230,20 +238,36 @@ NW.Dom = (function(global) {
   })() :
   true,
 
-  /* END FEATURE TESTING */
+  // Safari 2 missing document.compatMode property
+  // makes it harder to detect Quirks vs. Strict
+  compatMode = context.compatMode ||
+    (function() {
+      var div = document.createElement('div'),
+        isStrict = div.style &&
+          (div.style.width = 1) &&
+          div.style.width != '1px';
+      div = null;
+      return !!isStrict ? 'CSS1Compat' : 'BackCompat';
+    })(),
 
-  // See Niels Leenheer blog http://rakaz.nl/item/css_selector_bugs_case_sensitivity
-  //
-  XHTML_TABLE = {
-    // the following attributes must be treated case insensitive in XHTML
-    'accept': 1, 'accept-charset': 1, 'alink': 1, 'axis': 1,
-    'bgcolor': 1, 'charset': 1, 'codetype': 1, 'color': 1,
-    'enctype': 1, 'face': 1, 'hreflang': 1, 'http-equiv': 1,
-    'lang': 1, 'language': 1, 'link': 1, 'media': 1, 'rel': 1,
-    'rev': 1, 'target': 1, 'text': 1, 'type': 1, 'vlink': 1
+  // matches simple id, tagname & classname selectors
+  RE_SIMPLE_SELECTOR = BUGGY_GEBTN || BUGGY_GEBCN ?
+    /^#?[-\w]+$/ : /^[.#*]?[-\w]*$/,
+
+  /*----------------------------- LOOKUP OBJECTS -----------------------------*/
+
+  LINK_NODES = { 'a': 1, 'A': 1, 'area': 1, 'AREA': 1, 'link': 1, 'LINK': 1 },
+
+  QSA_NODE_TYPES = { '9': 1, '11': 1 },
+
+  // attribute referencing URI values need special treatment in IE
+  ATTRIBUTES_URI = {
+    'action': 2, 'cite': 2, 'codebase': 2, 'data': 2, 'href': 2,
+    'longdesc': 2, 'lowsrc': 2, 'src': 2, 'usemap': 2
   },
 
-  // HTML 5 draft specifications http://www.whatwg.org/specs/web-apps/current-work/#selectors
+  // HTML 5 draft specifications
+  // http://www.whatwg.org/specs/web-apps/current-work/#selectors
   HTML_TABLE = {
     // class attribute must be treated case-insensitive in HTML quirks mode
     'class': compatMode.indexOf('CSS') > -1 ? 0 : 1,
@@ -257,48 +281,24 @@ NW.Dom = (function(global) {
     'text': 1, 'type': 1, 'valign': 1, 'valuetype': 1, 'vlink': 1
   },
 
-  INSENSITIVE_TABLE = docType && docType.systemId && docType.systemId.indexOf('xhtml') > -1 ?
-    XHTML_TABLE : HTML_TABLE,
-
-  // attribute referencing URI values need special treatment in IE
-  attributesURI = {
-    'action': 2, 'cite': 2, 'codebase': 2, 'data': 2, 'href': 2,
-    'longdesc': 2, 'lowsrc': 2, 'src': 2, 'usemap': 2
+  // the following attributes must be treated case insensitive in XHTML
+  // See Niels Leenheer blog
+  // http://rakaz.nl/item/css_selector_bugs_case_sensitivity
+  XHTML_TABLE = {
+    'accept': 1, 'accept-charset': 1, 'alink': 1, 'axis': 1,
+    'bgcolor': 1, 'charset': 1, 'codetype': 1, 'color': 1,
+    'enctype': 1, 'face': 1, 'hreflang': 1, 'http-equiv': 1,
+    'lang': 1, 'language': 1, 'link': 1, 'media': 1, 'rel': 1,
+    'rev': 1, 'target': 1, 'text': 1, 'type': 1, 'vlink': 1
   },
 
-  // selection functions returning collections
-  compiledSelectors = { },
-
-  // matching functions returning booleans
-  compiledMatchers = { },
+  INSENSITIVE_TABLE = docType && docType.systemId && docType.systemId.indexOf('xhtml') > -1 ?
+    XHTML_TABLE : HTML_TABLE,
 
   // shortcut for the frequently checked case sensitivity of the class attribute
   isClassNameLowered = INSENSITIVE_TABLE['class'],
 
-  // http://www.w3.org/TR/css3-syntax/#characters
-  // unicode/ISO 10646 characters 161 and higher
-  // NOTE: Safari 2.0.x crashes with escaped (\\)
-  // Unicode ranges in regular expressions so we
-  // use a negated character range class instead
-  encoding = '((?:[-\\w]|[^\\x00-\\xa0]|\\\\.)+)',
-
-  // used to skip [ ] or ( ) groups in token tails
-  skipgroup = '(?:\\[.*\\]|\\(.*\\))',
-
-  // discard invalid chars found in passed selector
-  validator = /([.:#*\w]|[^\x00-\xa0])/,
-
-  // matches simple id, tagname & classname selectors
-  simpleSelector = /^[.#]?[-\w]+$/,
-
-  // split id, tagname & classname in simple selectors
-  noncomplex = /([-\w]+)?(?:\#([-\w]+))?(?:\.([-\w]+))?/,
-
-  // split comma separated selector groups, exclude commas inside '' "" () []
-  // example: (#div a, ul > li a) group 1 is (#div a) group 2 is (ul > li a)
-  group = /([^,()[\]]+|\([^()]+\)|\(.*\)|\[(?:\[[^[\]]*\]|["'][^'"]*["']|[^'"[\]]+)+\]|\[.*\]|\\.)+/g,
-
-  // place to add exotic functionalities
+  // placeholder to add functionalities
   Selectors = {
     // as a simple example this will check
     // for chars not in standard ascii table
@@ -306,7 +306,7 @@ NW.Dom = (function(global) {
     // 'mySpecialSelector': {
     //  'Expression': /\u0080-\uffff/,
     //  'Callback': mySelectorCallback
-    //}
+    // }
     //
     // 'mySelectorCallback' will be invoked
     // only after passing all other standard
@@ -332,29 +332,21 @@ NW.Dom = (function(global) {
     '$=': "%p.substr(%p.length - '%m'.length) === '%m'"
   },
 
+  TAGS = "(?:^|[>+~\\x20\\t\\n\\r\\f])",
+
   // optimization expressions
   Optimize = {
-    ID: new RegExp("#" + encoding + "|" + skipgroup + "*"),
-    TAG: new RegExp(encoding + "|" + skipgroup + "*"),
-    CLASS: new RegExp("\\." + encoding + "|" + skipgroup + "*"),
-    // split last, right most, selector group token
-    TOKEN: /([^ >+~,\\()[\]]+|\([^()]+\)|\(.*\)|\[[^[\]]+\]|\[.*\]|\\.)+/g
+    ID: new RegExp("#" + encoding + "|" + skipgroup),
+    TAG: new RegExp(TAGS + encoding + "|" + skipgroup),
+    CLASS: new RegExp("\\." + encoding + "|" + skipgroup)
   },
-
-  rePositionals = /:(nth|of-type)/,
-  reDescendants = /[^> \w]/,
-  reClassValue = /([-\w]+)/,
-  reSiblings = /[^+~\w]/,
-  reTrim = /^[\x20\t\n\r\f]+|[\x20\t\n\r\f]+$/g,
-
-  reIdSelector  = /\#([-\w]+)$/,
 
   // precompiled Regular Expressions
   Patterns = {
     // element attribute matcher
     attribute: /^\[[\x20\t\n\r\f]*([-\w]*:?(?:[-\w])+)[\x20\t\n\r\f]*(?:([~*^$|!]?=)[\x20\t\n\r\f]*(["']*)([^'"()]*?)\3)?[\x20\t\n\r\f]*\](.*)/,
     // structural pseudo-classes
-    spseudos: /^\:(root|empty|nth)?-?(first|last|only)?-?(child)?-?(of-type)?(\((?:even|odd|[^\)]*)\))?(.*)/,
+    spseudos: /^\:(root|empty|nth)?-?(first|last|only)?-?(child)?-?(of-type)?(?:\((even|odd|[^\)]*)\))?(.*)/,
     // uistates + dynamic + negation pseudo-classes
     dpseudos: /^\:([\w]+|[^\x00-\xa0]+)(?:\((["']*)(.*?(\(.*\))?[^'"()]*?)\2\))?(.*)/,
     // E > F
@@ -394,28 +386,194 @@ NW.Dom = (function(global) {
     // we have grouped them to optimize a bit size+speed
     // all are going through the same code path (switch)
     Others: {
-    //UIElementStates: {
-    // we group them to optimize
+      // UIElementStates (grouped to optimize)
       'checked': 3, 'disabled': 3, 'enabled': 3, 'selected': 2, 'indeterminate': '?',
-    //},
-    //Dynamic: {
+      // Dynamic pseudo classes
       'active': 3, 'focus': 3, 'hover': 3, 'link': 3, 'visited': 3,
-    //},
-    // Target: {
-      'target': 3,
-    //},
-    // Language: {
-      'lang': 3,
-    //},
-    // Negation: {
-      'not': 3,
-    //},
-    // Content: {
-    // http://www.w3.org/TR/2001/CR-css3-selectors-20011113/#content-selectors
+      // Target, Language and Negated pseudo classes
+      'target': 3, 'lang': 3, 'not': 3,
+      // http://www.w3.org/TR/2001/CR-css3-selectors-20011113/#content-selectors
       'contains': '?'
-    //}
     }
   },
+
+  /*------------------------------ DOM METHODS -------------------------------*/
+
+  concatList =
+    function(listout, listin) {
+      var i = -1, element;
+      if (listout.length === 0 && Array.slice)
+        return Array.slice(listin);
+      while ((element = listin[++i]))
+        listout[listout.length] = element;
+      return listout;
+    },
+
+  concatCall =
+    function(listout, listin, callback) {
+      var i = -1, element;
+      while ((element = listin[++i]))
+        callback(listout[listout.length] = element);
+      return listout;
+    },
+
+  // element by id
+  // @return element reference or null
+  byId =
+    function(id, from) {
+      var i = -1, element, names, node, result;
+      from || (from = context);
+      id = id.replace(/\\/g, '');
+      if (from.getElementById) {
+        if ((result = from.getElementById(id)) &&
+          id != getAttribute(result, 'id') && from.getElementsByName) {
+          names = from.getElementsByName(id);
+          result = null;
+          while ((element = names[++i])) {
+            if ((node = element.getAttributeNode('id')) &&
+              node.value == id) {
+              result = element;
+              break;
+            }
+          }
+        }
+      } else {
+        result = select('[id="' + id + '"]', from)[0] || null;
+      }
+      return result;
+    },
+
+  // elements by tag
+  // @return nodeList (live)
+  byTag =
+    function(tag, from) {
+      return (from || context).getElementsByTagName(tag);
+    },
+
+  // elements by name
+  // @return array
+  byName =
+    function(name, from) {
+      return select('[name="' + name.replace(/\\/g, '') + '"]', from || context);
+    },
+
+  // elements by class
+  // @return array
+  byClass = !BUGGY_GEBCN ?
+    function(className, from) {
+      return (from || context).getElementsByClassName(className.replace(/\\/g, ''));
+    } :
+    function(className, from) {
+      // context is handled in byTag for non native gEBCN
+      var i = -1, j = i, results = [ ], element,
+        elements = (from || context).getElementsByTagName('*'),
+        cn = isClassNameLowered ? className.toLowerCase() : className;
+      className = ' ' + cn.replace(/\\/g, '') + ' ';
+      while ((element = elements[++i])) {
+        if ((cn = element.className)) {
+          if ((' ' + (isClassNameLowered ? cn.toLowerCase() : cn).
+            replace(/[\t\n\r\f]/g, ' ') + ' ').indexOf(className) > -1) {
+            results[++j] = element;
+          }
+        }
+      }
+      return results;
+    },
+
+  // children position by nodeType
+  // @return number
+  getIndexesByNodeType =
+    function(element) {
+      var i = 0, indexes, node,
+        id = element[CSS_INDEX] || (element[CSS_INDEX] = ++CSS_ID);
+      if (!indexesByNodeType[id]) {
+        indexes = { };
+        node = element.firstChild;
+        while (node) {
+          if (/^[A-Za-z]/.test(node.nodeName)) {
+            indexes[node[CSS_INDEX] || (node[CSS_INDEX] = ++CSS_ID)] = ++i;
+          }
+          node = node.nextSibling;
+        }
+        indexes.length = i;
+        indexesByNodeType[id] = indexes;
+      }
+      return indexesByNodeType[id];
+    },
+
+  // children position by nodeName
+  // @return number
+  getIndexesByNodeName =
+    function(element, name) {
+      var i = 0, indexes, node,
+        id = element[CSS_INDEX] || (element[CSS_INDEX] = ++CSS_ID);
+      if (!indexesByNodeName[id] || !indexesByNodeName[id][name]) {
+        indexes = { };
+        node = element.firstChild;
+        while (node) {
+          if (node.nodeName.toUpperCase() == name) {
+            indexes[node[CSS_INDEX] || (node[CSS_INDEX] = ++CSS_ID)] = ++i;
+          }
+          node = node.nextSibling;
+        }
+        indexes.length = i;
+        indexesByNodeName[id] ||
+          (indexesByNodeName[id] = { });
+        indexesByNodeName[id][name] = indexes;
+      }
+      return indexesByNodeName[id];
+    },
+
+  // attribute value
+  // @return string
+  getAttribute = NATIVE_HAS_ATTRIBUTE ?
+    function(element, attribute) {
+      return element.getAttribute(attribute) + '';
+    } :
+    function(element, attribute) {
+      // specific URI attributes (parameter 2 to fix IE bug)
+      if (ATTRIBUTES_URI[attribute.toLowerCase()]) {
+        return element.getAttribute(attribute, 2) + '';
+      }
+      var node = element.getAttributeNode(attribute);
+      return (node && node.value) + '';
+    },
+
+  // attribute presence
+  // @return boolean
+  hasAttribute = NATIVE_HAS_ATTRIBUTE ?
+    function(element, attribute) {
+      return element.hasAttribute(attribute);
+    } :
+    function(element, attribute) {
+      // need to get at AttributeNode first on IE
+      var node = element.getAttributeNode(attribute);
+      // use both "specified" & "nodeValue" properties
+      return !!(node && (node.specified || node.nodeValue));
+    },
+
+  // check if element matches the :link pseudo
+  // @return boolean
+  isLink =
+    function(element) {
+        return hasAttribute(element,'href') && LINK_NODES[element.nodeName];
+    },
+
+  isDisconnected = 'compareDocumentPosition' in root ?
+    function(element, container) {
+      return (container.compareDocumentPosition(element) & 1) == 1;
+    } : 'contains' in root ?
+    function(element, container) {
+      return !container.contains(element);
+    } :
+    function(element, container) {
+      while ((element = element.parentNode)) {
+        if (element === container) return false;
+      }
+      return true;
+    },
+
+  /*---------------------------- COMPILER METHODS ----------------------------*/
 
   // conditionals optimizers for the compiler
 
@@ -423,7 +581,7 @@ NW.Dom = (function(global) {
   ACCEPT_NODE = 'f&&f(N);r[r.length]=N;continue main;',
 
   // fix for IE gEBTN('*') returning collection with comment nodes
-  SKIP_COMMENTS = BUGGY_GEBTN ? 'if(e.nodeType!=1){continue;}' : '',
+  SKIP_COMMENTS = BUGGY_GEBTN ? 'if(!/^[A-Za-z]/.test(e.nodeName)){continue;}' : '',
 
   // use the textContent or innerText property to check CSS3 :contains
   // Safari 2 has a bug with innerText and hidden content, using an
@@ -445,11 +603,11 @@ NW.Dom = (function(global) {
   // @return function (compiled)
   compileGroup =
     function(selector, source, mode) {
-      var i = 0, seen = { }, parts, token;
-      if ((parts = selector.match(group))) {
+      var i = -1, seen = { }, parts, token;
+      if ((parts = selector.match(reSplitGroup))) {
         // for each selector in the group
-        while ((token = parts[i++])) {
-          token = token.replace(reTrim, '');
+        while ((token = parts[++i])) {
+          token = token.replace(reTrimSpaces, '');
           // avoid repeating the same token in comma separated group (p, p)
           if (!seen[token]) source += 'e=N;' + compileSelector(token, mode ? ACCEPT_NODE : 'return true;');
           seen[token] = true;
@@ -457,15 +615,17 @@ NW.Dom = (function(global) {
       }
       if (mode) {
         // for select method
-        return new Function('c,s,d,h,g,f', 'var k,e,r,n,C,N,T,x=0;main:for(k=0,r=[];e=N=c[k];k++){' + SKIP_COMMENTS + source + '}return r;');
+        return new Function('c,s,r,d,h,g,f',
+          'var n,N,x=0,k=0,e;main:while(N=e=c[k++]){' +
+          SKIP_COMMENTS + source + '}return r;');
       } else {
         // for match method
-        return new Function('e,s,d,h,g,f', 'var n,C,N=e,T,x=0;' + source + 'return false;');
+        return new Function('e,s,r,d,h,g,f',
+          'var n,N,x=0;N=e;' + source + 'return false;');
       }
     },
 
-  // compile a CSS3 string selector into
-  // ad-hoc javascript matching function
+  // compile a CSS3 string selector into ad-hoc javascript matching function
   // @return string (to be compiled)
   compileSelector =
     function(selector, source) {
@@ -489,11 +649,8 @@ NW.Dom = (function(global) {
         else if ((match = selector.match(Patterns.id))) {
           // document can contain conflicting elements (id/name)
           // prototype selector unit need this method to recover bad HTML forms
-          if (base.getElementsByName('id')[0] || base.getElementById('id')) {
-            source = 'if((e.submit?s.getAttribute(e,"id"):e.id)=="' + match[1] + '"){' + source + '}';
-          } else {
-            source = 'if(e.id=="' + match[1] + '"){' + source + '}';
-          }
+          source = 'if((e.submit?s.getAttribute(e,"id"):e.id)=="' +
+            match[1] + '"){' + source + '}';
         }
 
         // *** Type selector
@@ -501,7 +658,8 @@ NW.Dom = (function(global) {
         else if ((match = selector.match(Patterns.tagName))) {
           // both tagName and nodeName properties may be upper or lower case
           // depending on their creation NAMESPACE in createElementNS()
-          source = 'if(e.nodeName=="' + match[1].toUpperCase() + '"||e.nodeName=="' + match[1].toLowerCase() + '"){' + source + '}';
+          source = 'if(e.nodeName' + NATIVE_TAG_MATCH + '=="' +
+            match[1].toUpperCase() + '"){' + source + '}';
         }
 
         // *** Class selector
@@ -510,7 +668,11 @@ NW.Dom = (function(global) {
           // W3C CSS3 specs: element whose "class" attribute has been assigned a
           // list of whitespace-separated values, see section 6.4 Class selectors
           // and notes at the bottom; explicitly non-normative in this specification.
-          source = 'if((" "+e.className+" ").replace(/[\\t\\n\\r\\f]/g," ").indexOf(" ' + match[1] + ' ")>-1){' + source + '}';
+          source = 'if((" "+e.className+" ")' +
+            (isClassNameLowered ? '.toLowerCase()' : '') +
+            '.replace(/[\\t\\n\\r\\f]/g," ").indexOf(" ' +
+            (isClassNameLowered ? match[1].toLowerCase() : match[1]) +
+            ' ")>-1){' + source + '}';
         }
 
         // *** Attribute selector
@@ -526,8 +688,8 @@ NW.Dom = (function(global) {
             match[4] = match[4].toLowerCase();
           }
 
-          source = (match[2] ? 'T=s.getAttribute(e,"' + match[1] + '");' : '') +
-            'if(' + (match[2] ? Operators[match[2]].replace(/\%p/g, 'T' +
+          source = (match[2] ? 'n=s.getAttribute(e,"' + match[1] + '");' : '') +
+            'if(' + (match[2] ? Operators[match[2]].replace(/\%p/g, 'n' +
               (expr ? '' : '.toLowerCase()')).replace(/\%m/g, match[4]) :
               's.hasAttribute(e,"' + match[1] + '")') +
             '){' + source + '}';
@@ -536,39 +698,29 @@ NW.Dom = (function(global) {
         // *** Adjacent sibling combinator
         // E + F (F adiacent sibling of E)
         else if ((match = selector.match(Patterns.adjacent))) {
-          if (NATIVE_TRAVERSAL_API) {
-            source = 'if((e=e.previousElementSibling)){' + source + '}';
-          } else {
-            source = 'while((e=e.previousSibling)){if(e.nodeType==1){' + source + 'break;}}';
-          }
+          source = NATIVE_TRAVERSAL_API ?
+            'if((e=e.previousElementSibling)){' + source + '}' :
+            'while((e=e.previousSibling)){if(e.nodeType==1){' + source + 'break;}}';
         }
 
         // *** General sibling combinator
         // E ~ F (F relative sibling of E)
         else if ((match = selector.match(Patterns.relative))) {
-          k++;
-          if (NATIVE_TRAVERSAL_API) {
-            // previousSibling particularly slow on Gecko based browsers prior to FF3.1
-            source =
-              'var N' + k + '=e;e=e.parentNode.firstElementChild;' +
-              'while(e!=N' + k +'){if(e){' + source + '}e=e.nextElementSibling;}';
-          } else {
-            source =
-              'var N' + k + '=e;e=e.parentNode.firstChild;' +
-              'while(e!=N' + k +'){if(e.nodeType==1){' + source + '}e=e.nextSibling;}';
-          }
+          source = NATIVE_TRAVERSAL_API ?
+            'while((e=e.previousElementSibling)){' + source + '}' :
+            'while((e=e.previousSibling)){if(e.nodeType==1){' + source + '}}';
         }
 
         // *** Child combinator
         // E > F (F children of E)
         else if ((match = selector.match(Patterns.children))) {
-          source = 'if((e=e.parentNode)&&e.nodeType==1){' + source + '}';
+          source = 'if(e!==g&&(e=e.parentNode)&&e.nodeType==1){' + source + '}';
         }
 
         // *** Descendant combinator
         // E F (E ancestor of F)
         else if ((match = selector.match(Patterns.ancestor))) {
-          source = 'while((e=e.parentNode)&&e.nodeType==1&&e!==g){' + source + '}';
+          source = 'while(e!==g&&(e=e.parentNode)&&e.nodeType==1){' + source + '}';
         }
 
         // *** Structural pseudo-classes
@@ -584,16 +736,14 @@ NW.Dom = (function(global) {
               // element root of the document
               source = 'if(e===h){' + source + '}';
               break;
+
             case 'empty':
               // element that has no children
               source = 'if(!e.firstChild){' + source + '}';
               break;
-            default:
-              type = match[4] == 'of-type' ? 'OfType' : 'Element';
 
+            default:
               if (match[1] && match[5]) {
-                // remove the ( ) grabbed above
-                match[5] = match[5].replace(/\(|\)/g, '');
                 if (match[5] == 'even') {
                   a = 2;
                   b = 0;
@@ -607,10 +757,11 @@ NW.Dom = (function(global) {
                   b = 0 || ((n = match[5].match(/(-?\d{1,})$/)) ? parseInt(n[1], 10) : 0);
                 }
 
+                // shortcut check for of-type selectors
+                type = (match[4] ? '[e.nodeName' + NATIVE_TAG_MATCH + ']' : '')
+
                 // executed after the count is computed
-                expr = match[2] == 'last' ? (match[4] ?
-                    '(e==h?1:s.TwinsCount[e.parentNode._cssId][e.nodeName.toLowerCase()])' :
-                    '(e==h?1:s.ChildCount[e.parentNode._cssId])') + '-' + (b - 1) : b;
+                expr = match[2] == 'last' ? 'n' + type + '.length-' + (b - 1) : b;
 
                 test =
                   b < 0 ?
@@ -625,32 +776,24 @@ NW.Dom = (function(global) {
                     '';
 
                 // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
-                source = 'if(s.' + match[1] + type + '(e)' + test + '){' + source + '}';
+                source = 'if(e!==h){n=s.getIndexesBy' + (match[4] ? 'NodeName' : 'NodeType') +
+                  '(e.parentNode' + (match[4] ? ',e.nodeName' + NATIVE_TAG_MATCH : '') + ');' +
+                  'if(n' + type + '[e.' + CSS_INDEX + ']' + test + '){' + source + '}}';
+
               } else {
                 // 6 cases: 3 (first, last, only) x 1 (child) x 2 (-of-type)
-                // too much overhead calling functions out of the main loop ?
-                //source = 'if(s.' + match[2] + type + '(e)){' + source + '}';
-                source = NATIVE_TRAVERSAL_API ?
-                  ((match[4] ? 'T=e.nodeName;' : '') +
-                    'n=e;while((n=n.' + (match[2] == 'first' ? 'previous' : 'next') + 'ElementSibling)){' +
-                      (match[4] ? 'if(n.nodeName==T)' : '') + 'break;}' +
-                    'if(!n){' + (match[2] == 'first' || match[2] == 'last' ? source :
-                    'n=e;while((n=n.' + (match[2] == 'only' ? 'previous' : 'next') + 'ElementSibling)){' +
-                      (match[4] ? 'if(n.nodeName==T)' : '') + 'break;}' +
-                    'if(!n){' + source + '}') +
-                    '}') :
-                  ((match[4] ? 'T=e.nodeName;' : '') +
-                    'n=e;while((n=n.' + (match[2] == 'first' ? 'previous' : 'next') + 'Sibling)&&' +
-                      'n.node' + (match[4] ? 'Name!=T' : 'Type!=1') + ');' +
-                    'if(!n){' + (match[2] == 'first' || match[2] == 'last' ? source :
-                    'n=e;while((n=n.' + (match[2] == 'only' ? 'previous' : 'next') + 'Sibling)&&' +
-                      'n.node' + (match[4] ? 'Name!=T' : 'Type!=1') + ');' +
-                    'if(!n){' + source + '}') +
-                    '}');
+                a = match[2] == 'first' ? 'previous' : 'next';
+                n = match[2] == 'only' ? 'previous' : 'next';
+                b = match[2] == 'first' || match[2] == 'last';
+
+                type = match[4] ? '&&n.nodeName!=e.nodeName' : '&&!/^[A-Za-z]/i.test(n.nodeName)';
+
+                source = 'if(e!==h){' +
+                  ( 'n=e;while((n=n.' + a + 'Sibling)' + type + ');if(!n){' + (b ? source :
+                    'n=e;while((n=n.' + n + 'Sibling)' + type + ');if(!n){' + source + '}') + '}' ) + '}';
               }
               break;
           }
-
         }
 
         // *** negation, user action and target pseudo-classes
@@ -722,6 +865,7 @@ NW.Dom = (function(global) {
               }
               source = 'if("form" in e&&e.selected===true){' + source + '}';
               break;
+
             default:
               break;
           }
@@ -729,7 +873,9 @@ NW.Dom = (function(global) {
 
           // this is where external extensions are
           // invoked if expressions match selectors
+          expr = false;
           status = true;
+
           for (expr in Selectors) {
             if ((match = selector.match(Selectors[expr].Expression))) {
               result = Selectors[expr].Callback(match, source);
@@ -763,31 +909,12 @@ NW.Dom = (function(global) {
       return source;
     },
 
-  // enable/disable notifications
-  VERBOSE = false,
-
-  // a way to control user notification
-  emit =
-    function(message) {
-      if (VERBOSE) {
-        var console = global.console;
-        if (console && console.log) {
-          console.log(message);
-        } else {
-          if (/exception/i.test(message)) {
-            global.status = message;
-            global.defaultStatus = message;
-          } else {
-            global.status += message;
-          }
-        }
-      }
-    },
+  /*----------------------------- QUERY METHODS ------------------------------*/
 
   // match element with selector
   // @return boolean
   match =
-    function(element, selector, from) {
+    function(element, selector, from, data, callback) {
       // make sure an element node was passed
       if (element && element.nodeType == 1) {
         if (typeof selector == 'string' && selector.length) {
@@ -798,7 +925,7 @@ NW.Dom = (function(global) {
             compiledMatchers[selector] = compileGroup(selector, '', false);
           }
           // result of compiled matcher
-          return compiledMatchers[selector](element, snap, base, root, from || base);
+          return compiledMatchers[selector](element, snap, data, base, root, from || base, callback);
         } else {
           emit('DOMException: "' + selector + '" is not a valid CSS selector.');
         }
@@ -806,30 +933,64 @@ NW.Dom = (function(global) {
       return false;
     },
 
+  native_api =
+    function(selector, from, data, callback) {
+      var element, elements;
+      switch (selector.charAt(0)) {
+        case '#':
+          if ((element = byId(selector.slice(1), from))) {
+            callback && callback(element);
+            data[data.length] = element;
+          }
+          return data;
+        case '.':
+          elements = byClass(selector.slice(1), from);
+          break;
+        default:
+          elements = byTag(selector, from);
+          break;
+      }
+      return callback ?
+        concatCall(data, elements, callback) :
+        data || !NATIVE_SLICE_PROTO ?
+          concatList(data, elements) :
+          slice.call(elements);
+    },
+
   // select elements matching selector
   // version using new Selector API
   // @return array
   select_qsa =
-    function (selector, from, data, callback) {
+    function(selector, from, data, callback) {
 
-      var elements;
+      if (RE_SIMPLE_SELECTOR.test(selector))
+        return native_api(selector, from, data || [ ], callback);
 
-      if (!simpleSelector.test(selector) &&
-          (!from || from.nodeType == 9 || from.nodeType == 11) &&
-          !BUGGY_QSAPI.test(selector)) {
+      if (!compiledSelectors[selector] &&
+        !RE_BUGGY_QSAPI.test(selector) &&
+        (!from || QSA_NODE_TYPES[from.nodeType])) {
+
+        var elements;
         try {
-          elements = (from || context).querySelectorAll(selector);
-          if (elements.length == 1) {
-            callback && callback(elements[0]);
-            return [ elements[0] ];
-          }
+          elements = (from || base).querySelectorAll(selector);
         } catch(e) { }
 
         if (elements) {
-          if (callback) return concatCall(data || [ ], elements, callback);
-          return NATIVE_SLICE_PROTO ?
-            slice.call(elements) :
-            concatList(data || [ ], elements);
+          switch (elements.length) {
+            case 0:
+              return data || [ ];
+            case 1:
+              callback && callback(elements[0]);
+              if (data) data[data.length] = elements[0];
+              else data = [ elements[0] ];
+              return data;
+            default:
+              return callback ?
+                concatCall(data || [ ], elements, callback) :
+                data || !NATIVE_SLICE_PROTO ?
+                  concatList(data || [ ], elements) :
+                  slice.call(elements);
+          }
         }
       }
 
@@ -838,198 +999,151 @@ NW.Dom = (function(global) {
     },
 
   lastSelector,
+  lastPosition,
   lastContext,
-  lastCalled,
   lastSlice,
 
   // select elements matching selector
   // version using cross-browser client API
   // @return array
   client_api =
-    function client_api(selector, from, data, callback) {
+    function(selector, from, data, callback) {
 
-      var i = 0, done, now, disconnected, className,
-        element, elements, parts, token, isCacheable,
-        concat = callback ? concatCall : concatList;
+      var done, element, elements, parts, token, hasChanged, isSingle;
 
-      // storage setup
-      data || (data = [ ]);
+      if (RE_SIMPLE_SELECTOR.test(selector))
+        return native_api(selector, from, data || [ ], callback);
 
       // ensure context is set
       from || (from = context);
 
       // extract context if changed
-      if (!from || lastContext != from) {
+      if (lastContext != from) {
         // save passed context
         lastContext = from;
         // reference context ownerDocument and document root (HTML)
         root = (base = from.ownerDocument || from).documentElement;
       }
 
-      selector = selector.replace(reTrim, '');
-
-      if (lastSelector != selector) {
+      if (hasChanged = lastSelector != selector) {
         // process valid selector strings
-        if (validator.test(selector)) {
+        if (reValidator.test(selector)) {
           // save passed selector
           lastSelector = selector;
-          // get right most selector token
-          parts = selector.match(Optimize.TOKEN);
-          // only last slice before :not rules
-          lastSlice = parts[parts.length - 1].split(':not')[0];
+          selector = selector.replace(reTrimSpaces, '');
         } else {
           emit('DOMException: "' + selector + '" is not a valid CSS selector.');
-          return data;
+          return data || [ ];
         }
       }
 
-      // nodes not in the document
-      disconnected = from != base && isDisconnected(from, root);
+      // storage setup
+      data || (data = [ ]);
 
-      isCacheable = cachingEnabled && !cachingPaused && !disconnected;
-
-      // avoid caching disconnected nodes
-      if (isCacheable) {
-        snap = base.snapshot;
-        // valid base context storage
-        if (snap && !snap.isExpired) {
-          if (snap.Results[selector] &&
-            snap.Roots[selector] == from) {
-            return callback ?
-              concat(data, snap.Results[selector], callback) :
-              snap.Results[selector];
-          }
-        } else {
-          // temporarily pause caching while we are getting hammered with dom mutations (jdalton)
-          now = new Date;
-          if ((now - lastCalled) < minCallThreshold) {
-            cachingPaused =
-              (base.snapshot = new Snapshot).isExpired = true;
-            setTimeout(function() { cachingPaused = false; }, 10);
-          } else setCache(true, base);
-          snap = base.snapshot;
-          lastCalled = now;
-        }
-      } else {
-        if (rePositionals.test(selector)) {
-          // need to clear storage
-          snap = new Snapshot;
-        }
-      }
+      // reinitialize indexes
+      indexesByNodeType = { };
+      indexesByNodeName = { };
 
       // pre-filtering pass allow to scale proportionally with big DOM trees;
-      // this block can be safely removed, it is a speed booster on big pages
-      // and will still maintain the mandatory "document ordered" result set
 
-      if (simpleSelector.test(selector)) {
-        switch (selector.charAt(0)) {
-          case '.': data = concat(data, byClass(selector.slice(1), from), callback); break;
-          case '#': data = concat(data, [ byId(selector.slice(1), from) ], callback); break;
-          default: data = concat(data, byTag(selector, from), callback); break;
+      // commas separators are treated sequentially to maintain order
+      if ((isSingle = selector.match(reSplitGroup).length < 2)) {
+
+        if (hasChanged) {
+          // get right most selector token
+          parts = selector.match(reSplitToken);
+
+          // position where token was found
+          lastPosition = RegExp.leftContext.length;
+
+          // only last slice before :not rules
+          lastSlice = parts[parts.length - 1].split(':not')[0];
         }
-        snap.Roots[selector] = from;
-        snap.Results[selector] = data;
-        return data;
-      }
-
-      // commas separators are treated
-      // sequentially to maintain order
-      if (selector.indexOf(',') < 0) {
 
         // reduce selection context
         if ((parts = selector.match(Optimize.ID))) {
-          if ((element = context.getElementById(parts[1]))) {
-            from = element.parentNode;
+          if ((element = base.getElementById(parts[1]))) {
+            //from = element.parentNode;
+            if (!/[>+~]/.test(selector)) {
+              selector = selector.replace('#' + token, '*');
+              from = element;
+            } else from = element.parentNode;
           }
         }
 
         // ID optimization RTL
         if ((parts = lastSlice.match(Optimize.ID)) &&
-          (token = parts[parts.length - 1]) && NATIVE_GEBID) {
-          if ((element = byId(token, context))) {
+          (token = parts[1]) && base.getElementById) {
+          if ((element = byId(token, base))) {
             if (match(element, selector)) {
               elements = [ element ];
               done = true;
+            } else {
+              from = element;
+              //elements = concatList([ element ], byTag('*', element));
+              //selector = selector.substr(0, lastPosition) +
+              //  selector.substr(lastPosition).replace('#' + token, '*');
             }
-          } else return data;
+          }
         }
 
         // CLASS optimization RTL
         else if ((parts = lastSlice.match(Optimize.CLASS)) &&
-          (token = parts[parts.length - 1]) && NATIVE_GEBCN) {
+          (token = parts[1])) {
           elements = byClass(token, from);
+          if (elements.length === 0) return data;
           if (selector == '.' + token) done = true;
+          else selector = selector.substr(0, lastPosition) +
+            selector.substr(lastPosition).replace('.' + token, '*');
         }
 
         // TAG optimization RTL
         else if ((parts = lastSlice.match(Optimize.TAG)) &&
-          (token = parts[parts.length - 1]) && NATIVE_GEBTN) {
+          (token = parts[1]) && from.getElementsByTagName) {
           elements = byTag(token, from);
+          if (elements.length === 0) return data;
           if (selector == token) done = true;
+          else selector = selector.substr(0, lastPosition) +
+            selector.substr(lastPosition).replace(token, '*');
         }
+
+        // ID optimization LTR
+        else if ((parts = selector.match(Optimize.ID)) &&
+          (token = parts[1]) && base.getElementById) {
+          if ((element = byId(token, base))) {
+            //from = element.parentNode;
+            if (!/[>+~]/.test(selector)) {
+              selector = selector.replace('#' + token, '*');
+              from = element;
+            } else from = element.parentNode;
+          }
+        }
+
+        //else console.log(selector);
 
       }
 
-      if (!done) {
+      if (!elements) {
+        elements = from.getElementsByTagName('*');
+      }
+      // end of prefiltering pass
 
-        if (!elements || elements.length === 0) {
-
-          elements = from.getElementsByTagName('*');
-
-          if ((parts = lastSlice.match(reIdSelector)) && selector == '#' + parts[1]) {
-            while ((element = elements[i++])) {
-              if (element.id == parts[1]) {
-                callback && callback(element);
-                data.push(element);
-                return data;
-              }
-            }
-            return data;
-          }
-          else if ((parts = lastSlice.match(/\b([-\w]+)?(\.|#)([-\w]+)/))) {
-            // normalize tagName
-            parts[1] = parts[1].toUpperCase();
-
-            // normalize className
-            if (parts[2] == '.' && isClassNameLowered)
-              parts[3] = parts[3].toLowerCase();
-
-            while ((element = elements[i++])) {
-              if (
-                  (!parts[1] || element.nodeName.toUpperCase() == parts[1]) && (
-                  ( parts[2] == '#' && element.id == parts[3]) ||
-                  ( parts[2] == '.' && (className = element.className) &&
-                  (isClassNameLowered ? className.length && className.toLowerCase() :
-                   className) == parts[3]))) {
-                callback && callback(element);
-                data.push(element);
-                return data;
-              }
-            }
-          }
-        }
-        // end of prefiltering pass
-
-        // save compiled selectors
-        if (!compiledSelectors[selector]) {
+      // save compiled selectors
+      if (!done && !compiledSelectors[selector]) {
+        if (isSingle) {
+          compiledSelectors[selector] =
+            new Function('c,s,r,d,h,g,f',
+              'var n,N,x=0,k=0,e;main:while(N=e=c[k++]){' +
+              SKIP_COMMENTS + compileSelector(selector, ACCEPT_NODE) +
+              '}return r;');
+        } else {
           compiledSelectors[selector] = compileGroup(selector, '', true);
         }
-
       }
 
-      if (isCacheable) {
-        // a cached result set for the requested selector
-        snap.Results[selector] = done ?
-          concat(data, elements, callback) :
-          concat(data, compiledSelectors[selector](elements, snap, base, root, from), callback);
-        snap.Roots[selector] = from;
-        return snap.Results[selector];
-      }
-
-      // a fresh result set for the requested selector
       return done ?
-        concat(data, elements, callback) :
-        concat(data, compiledSelectors[selector](elements, snap, base, root, from), callback);
+        (callback ? concatCall(data, elements, callback) : concatList(data, elements)) :
+        compiledSelectors[selector](elements, snap, data, base, root, from, callback);
     },
 
   // use the new native Selector API if available,
@@ -1039,356 +1153,35 @@ NW.Dom = (function(global) {
     select_qsa :
     client_api,
 
-  // ELEMENTS HANDLING
+  /*-------------------------------- STORAGE ---------------------------------*/
 
-  // element by id
-  // @return element reference or null
-  byId =
-    function(id, from) {
-      var i = 0, element, names, result;
-      from || (from = context);
-      id = id.replace(/\\/g, '');
-      if (from.getElementById) {
-        result = from.getElementById(id);
-        if (result && id != getAttribute(result, 'id') && from.getElementsByName) {
-          names = from.getElementsByName(id);
-          result = null;
-          while ((element = names[i++])) {
-            if (element.getAttributeNode('id').value == id) {
-              result = element;
-              break;
-            }
-          }
-        }
-      } else {
-        result = select('[id="' + id + '"]', from)[0] || null;
-      }
-      return result;
-    },
-
-  // elements by tag
-  // @return nodeList (live)
-  byTag =
-    function(tag, from) {
-      return (from || context).getElementsByTagName(tag);
-    },
-
-  // elements by name
-  // @return array
-  byName =
-    function(name, from) {
-      return select('[name="' + name.replace(/\\/g, '') + '"]', from || context);
-    },
-
-  // elements by class
-  // @return nodeList (native GEBCN)
-  // @return array (non native GEBCN)
-  byClass = !BUGGY_GEBCN ?
-    function(className, from) {
-      return from.getElementsByClassName(className.replace(/\\/g, ''));
-    } :
-    function(className, from) {
-      // context is handled in byTag for non native gEBCN
-      var cn, element, original, i = 0, j = 0, results = [ ],
-        elements = from.getElementsByTagName('*');
-
-      className = className.replace(/\\/g, '');
-      if (isClassNameLowered) className = className.toLowerCase();
-
-      while ((element = elements[i++])) {
-        if ((original = element.className).length) {
-          cn = original.replace(/[\t\n\r\f]/g, ' ');
-          if ((' ' + (isClassNameLowered ? cn.toLowerCase() : cn) + ' ')
-            .indexOf(' ' + className + ' ') > -1) {
-            // normalize to optimize future checks
-            // if (cn !== original) element.className = cn;
-            results[j++] = element;
-          }
-        }
-      }
-      return results;
-    },
-
-  // ATTRIBUTES HANDLING
-
-  // attribute value
-  // @return string
-  getAttribute = NATIVE_HAS_ATTRIBUTE ?
-    function(element, attribute) {
-      return element.getAttribute(attribute) + '';
-    } :
-    function(element, attribute) {
-      var node;
-      // specific URI attributes (parameter 2 to fix IE bug)
-      if (attributesURI[attribute.toLowerCase()]) {
-        return element.getAttribute(attribute, 2) + '';
-      }
-      node = element.getAttributeNode(attribute);
-      return (node && node.value) + '';
-    },
-
-  // attribute presence
-  // @return boolean
-  hasAttribute = NATIVE_HAS_ATTRIBUTE ?
-    function(element, attribute) {
-      return element.hasAttribute(attribute);
-    } :
-    function(element, attribute) {
-      // need to get at AttributeNode first on IE
-      var node = element.getAttributeNode(attribute);
-      // use both "specified" & "nodeValue" properties
-      return !!(node && (node.specified || node.nodeValue));
-    },
-
-  // check if element matches the :link pseudo
-  // @return boolean
-  isLink =
-    (function() {
-      var LINK_NODES = { 'a': 1, 'area': 1, 'link': 1 };
-      return function(element) {
-        return hasAttribute(element,'href') && LINK_NODES[element.nodeName.toLowerCase()];
-      };
-    })(),
-
-  // child position by nodeType
-  // @return number
-  nthElement =
-    function(element) {
-      var i, j, node, nodes, parent, cache = snap.ChildIndex;
-      if (!element._cssId || !cache[element._cssId]) {
-        if ((parent = element.parentNode).nodeType == 1) {
-          i = 0;
-          j = 0;
-          nodes = parent[CHILD_NODES];
-          while ((node = nodes[i++])) {
-            if (node.nodeType == 1) {
-              cache[node._cssId || (node._cssId = ++cssId)] = ++j;
-            }
-          }
-          snap.ChildCount[parent._cssId || (parent._cssId = ++cssId)] = j;
-        } else {
-          // does not have a parent (ex.: document)
-          return 0;
-        }
-      }
-      return cache[element._cssId];
-    },
-
-  // child position by nodeName
-  // @return number
-  nthOfType =
-    function(element) {
-      var i, j, name, node, nodes, pid, parent, cache = snap.TwinsIndex;
-      if (!element._cssId || !cache[element._cssId]) {
-        if ((parent = element.parentNode).nodeType == 1) {
-          i = 0;
-          j = 0;
-          nodes = parent[CHILD_NODES];
-          name = element.nodeName.toLowerCase();
-          while ((node = nodes[i++])) {
-            if (node.nodeName.toLowerCase() == name) {
-              cache[node._cssId || (node._cssId = ++cssId)] = ++j;
-            }
-          }
-          pid = (parent._cssId || (parent._cssId = ++cssId));
-          snap.TwinsCount[pid] || (snap.TwinsCount[pid] = { });
-          snap.TwinsCount[pid][name] = j;
-        } else {
-          // does not have a parent (ex.: document)
-          return 0;
-        }
-      }
-      return cache[element._cssId];
-    },
-
-  concatList =
-    function(listout, listin) {
-      var i = 0, element;
-      while ((element = listin[i++])) listout[listout.length] = element;
-      return listout;
-    },
-
-  concatCall =
-    function(listout, listin, fn) {
-      var i = 0, element;
-      while ((element = listin[i++])) fn(listout[listout.length] = element);
-      return listout;
-    },
-
-  getElements =
-    function(tag, from) {
-      var element = from.firstChild, elements = [ ];
-      if (!tag) return elements;
-      tag = tag.toLowerCase();
-      while (element) {
-        if ((element.nodeType == 1 && tag == '*') ||
-            element.nodeName.toLowerCase() == tag) {
-            elements[elements.length] = element;
-        }
-        getElements(tag, element, elements);
-        element = element.nextSibling;
-      }
-      return elements;
-    },
-
-  isDisconnected = 'compareDocumentPosition' in root ?
-    function(element, container) {
-      return (container.compareDocumentPosition(element) & 1) == 1;
-    } : 'contains' in root ?
-    function(element, container) {
-      return !container.contains(element);
-    } :
-    function(element, container) {
-      while ((element = element.parentNode)) {
-        if (element === container) return false;
-      }
-      return true;
-    },
-
-  sortByContextOrder = (function() {
-    var sorter =
-      'compareDocumentPosition' in root ?
-        function (a, b) {
-          return (a.compareDocumentPosition(b) & 2) ? 1 : a === b ? 0 : -1;
-        } :
-      'createRange' in context ?
-        function(a, b) {
-          var start = context.createRange(), end = context.createRange();
-          start.selectNode(a); start.collapse(true);
-          end.selectNode(b); end.collapse(true);
-          return start.compareBoundaryPoints(Range.START_TO_END, end);
-        } :
-      'sourceIndex' in root ?
-        function (a, b) {
-          return a.sourceIndex - b.sourceIndex;
-        } :
-        function (a, b) {
-          return false;
-        };
-
-    return function(nodeList) {
-      return nodeList.sort(sorter);
-    };
-  })(),
-
-  unique =
-    function(elements, data, callback, accepted) {
-      var i = 0, id, element;
-      while ((element = elements[i++])) {
-        id = (element._cssId || (element._cssId = ++cssId));
-        if (!accepted[id]) {
-          accepted[id] = true;
-          callback && callback(element);
-          data[data.length] = element;
-        }
-      }
-      return data;
-    },
-
-  // cssId expando on elements,
+  // CSS_ID expando on elements,
   // used to keep child indexes
   // during a selection session
-  cssId = 1,
+  CSS_ID = 1,
 
-  // BEGIN: local context caching system
+  CSS_INDEX = 'sourceIndex' in root ? 'sourceIndex' : 'CSS_ID',
 
-  // ****************** CACHING ******************
-  // keep caching states for each context document
-  // set manually by using setCache(true, context)
-  cachingEnabled = NATIVE_MUTATION_EVENTS,
+  // ordinal position by nodeType or nodeName
+  indexesByNodeType = { },
+  indexesByNodeName = { },
 
-  cachingPaused = false,
+  // compiled select functions returning collections
+  compiledSelectors = { },
 
-  // minimum time allowed, in milliseconds, between calls to the cache initialization
-  minCallThreshold = 15,
+  // compiled match functions returning booleans
+  compiledMatchers = { },
 
-  snap,
+  // used to pass methods to compiled functions
+  snap = {
 
-  // indexes/count of elements contained in rootElement
-  // expired by Mutation Events on DOM tree changes
-  Snapshot =
-    function() {
-      // count of siblings by nodeType or nodeName
-      this.ChildCount = [ ];
-      this.TwinsCount = [ ];
-
-      // ordinal position by nodeType or nodeName
-      this.ChildIndex = [ ];
-      this.TwinsIndex = [ ];
-
-      // result sets and related root contexts
-      this.Results = [ ];
-      this.Roots   = [ ];
-    },
-
-  // enable/disable context caching system
-  // @d optional document context (iframe, xml document)
-  // script loading context will be used as default context
-  setCache =
-    function(enable, d) {
-      d || (d = context);
-      if (!!enable) {
-        d.snapshot = new Snapshot;
-        startMutation(d);
-      } else {
-        stopMutation(d);
-      }
-      cachingEnabled = !!enable;
-    },
-
-  // invoked by mutation events to expire cached parts
-  mutationWrapper =
-    function(event) {
-      var d = event.target.ownerDocument || event.target;
-      stopMutation(d);
-      expireCache(d);
-    },
-
-  // append mutation events
-  startMutation =
-    function(d) {
-      if (!d.isCaching) {
-        // FireFox/Opera/Safari/KHTML have support for Mutation Events
-        d.addEventListener('DOMAttrModified', mutationWrapper, false);
-        d.addEventListener('DOMNodeInserted', mutationWrapper, false);
-        d.addEventListener('DOMNodeRemoved', mutationWrapper, false);
-        d.isCaching = true;
-      }
-    },
-
-  // remove mutation events
-  stopMutation =
-    function(d) {
-      if (d.isCaching) {
-        d.removeEventListener('DOMAttrModified', mutationWrapper, false);
-        d.removeEventListener('DOMNodeInserted', mutationWrapper, false);
-        d.removeEventListener('DOMNodeRemoved', mutationWrapper, false);
-        d.isCaching = false;
-      }
-    },
-
-  // expire complete cache
-  // can be invoked by Mutation Events or
-  // programmatically by other code/scripts
-  // document context is mandatory no checks
-  expireCache =
-    function(d) {
-      if (d && d.snapshot) {
-        d.snapshot.isExpired = true;
-      }
-    };
-
-  // must exist for compiled functions
-  Snapshot.prototype = {
-    // validation flag, creating if already expired,
-    // code validation will set it valid first time
-    isExpired: false,
+    // element indexing methods (nodeType/nodeName)
+    getIndexesByNodeType: getIndexesByNodeType,
+    getIndexesByNodeName: getIndexesByNodeName,
 
     // element inspection methods
     getAttribute: getAttribute,
     hasAttribute: hasAttribute,
-    nthElement: nthElement,
-    nthOfType: nthOfType,
 
     // element selection methods
     byClass: byClass,
@@ -1405,50 +1198,9 @@ NW.Dom = (function(global) {
     match: match
   };
 
-  // local indexes, cleared
-  // between selection calls
-  snap = new Snapshot;
-
-  // END: local context caching system
+  /*------------------------------- PUBLIC API -------------------------------*/
 
   return {
-
-    // for testing purposes !
-    compile:
-      function(selector, mode) {
-        return compileGroup(selector, '', mode || false).toString();
-      },
-
-    // enable/disable cache
-    setCache: setCache,
-
-    // forced expire of DOM tree cache
-    expireCache: expireCache,
-
-    // element match selector, return boolean true/false
-    match: match,
-
-    // elements matching selector, starting from element
-    select: select,
-
-    // add selector patterns for user defined callbacks
-    registerSelector:
-      function (name, rexp, func) {
-        if (!Selectors[name]) {
-          Selectors[name] = { };
-          Selectors[name].Expression = rexp;
-          Selectors[name].Callback = func;
-        }
-      },
-
-    // add or overwrite user defined operators
-    // TODO: check when overwriting standard operators
-    registerOperator:
-      function (symbol, resolver) {
-        if (!Operators[symbol]) {
-          Operators[symbol] = resolver;
-        }
-      },
 
     // retrieve element by id attr
     byId: byId,
@@ -1468,8 +1220,45 @@ NW.Dom = (function(global) {
 
     // check for the attribute presence
     // as was in the original HTML code
-    hasAttribute: hasAttribute
+    hasAttribute: hasAttribute,
 
+    // element match selector, return boolean true/false
+    match: match,
+
+    // elements matching selector, starting from element
+    select: select,
+
+    // for testing purposes !
+    compile:
+      function(selector, mode) {
+        return compileGroup(selector, '', mode || false).toString();
+      },
+
+    // add or overwrite user defined operators
+    registerOperator:
+      function(symbol, resolver) {
+        if (!Operators[symbol]) {
+          Operators[symbol] = resolver;
+        }
+      },
+
+    // add selector patterns for user defined callbacks
+    registerSelector:
+      function(name, rexp, func) {
+        if (!Selectors[name]) {
+          Selectors[name] = { };
+          Selectors[name].Expression = rexp;
+          Selectors[name].Callback = func;
+        }
+      },
+
+    // for testing purposes only
+    setQSA:
+      function(enable) {
+        this.select = enable && NATIVE_QSAPI ?
+          select_qsa :
+          client_api;
+      }
   };
 
 })(this);
