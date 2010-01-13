@@ -11,7 +11,7 @@ function specsMockTemplate(specs, context){
 				value_of( selected === selectedArray[0] ).should_be_true();
 			}
 			else{
-				value_of( selected ).should_be_null();
+				value_of( selected == null ).should_be_true();
 			}
 			delete context.SELECT.disableQSA;
 		};
