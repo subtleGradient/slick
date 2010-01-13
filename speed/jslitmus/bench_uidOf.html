@@ -11,104 +11,111 @@
 <script type="text/javascript">
 
 (function(){
-	var local0 = {
-		uidx0:0,
-		uidOf0: function(node){
-			return (node._slickUID || (node._slickUID = [this.uidx0++]))[0];
+	var local = {
+		uidx:0,
+		uidOf: function(node){
+			return node._slickUID || (node._slickUID = this.uidx++);
 		}
 	}
-	
-	JSLitmus.test('local0.uidOf0 IE', function(count) {
+	JSLitmus.test('_slickUID', function(count) {
 		while (count--){
-			local0.uidOf0(document.documentElement); document.documentElement._slickUID = null;
+			local.uidOf(document.createElement('div'));
 		}
 	});
-	
 })();
+
 (function(){
-	var local1 = {
-		uidx1:0,
-		uidOf1: function(node){
-			return node._slickUID || (node._slickUID = this.uidx1++);
+	var local = {
+		uidx:0,
+		uidOf: function(node){
+			return node._slickUID || (node._slickUID = [this.uidx++])[0];
 		}
 	}
-	
-	JSLitmus.test('local.uidOf1', function(count) {
+	JSLitmus.test('_slickUID Array', function(count) {
 		while (count--){
-			local1.uidOf1(document.documentElement); document.documentElement._slickUID = null;
+			local.uidOf(document.createElement('div'));
 		}
 	});
-	
 })();
+
 (function(){
-	var uidx2 = 0;
-	function uidOf2(node){
-		return node._slickUID || (node._slickUID = uidx2++);
+	var local = {
+		uidx:0,
+		uidOf: function(node){
+			return node.uniqueID || (node.uniqueID = this.uidx++);
+		}
 	}
-	JSLitmus.test('uidOf2', function(count) {
+	JSLitmus.test('uniqueID', function(count) {
 		while (count--){
-			uidOf2(document.documentElement); document.documentElement._slickUID = null;
+			local.uidOf(document.createElement('div'));
 		}
 	});
-	
 })();
+
 (function(){
-	window.uidx3 = 0;
-	window.uidOf3 = function(node){
-		return node._slickUID || (node._slickUID = uidx3++);
+	var local = {
+		uidx:0,
+		uidOf: function(node){
+			return node.uniqueNumber || (node.uniqueNumber = this.uidx++);
+		}
 	}
-	JSLitmus.test('window.uidOf3', function(count) {
+	JSLitmus.test('uniqueNumber', function(count) {
 		while (count--){
-			uidOf3(document.documentElement); document.documentElement._slickUID = null;
+			local.uidOf(document.createElement('div'));
 		}
 	});
-	
 })();
+
+
+
 (function(){
 	var uidx = 0;
-	var node, uid;
-	JSLitmus.test('no fn IE', function(count) {
+	JSLitmus.test('no FN _slickUID', function(count) {
+		var node;
 		while (count--){
-			node = document.documentElement;
-			uid = (node._slickUID || (node._slickUID = [uidx++]))[0];
-			
-			document.documentElement._slickUID = null;
+			node = document.createElement('div');
+			node._slickUID || (node._slickUID = uidx++);
 		}
 	});
-	
 })();
+
 (function(){
 	var uidx = 0;
-	var node, uid;
-	JSLitmus.test('no fn', function(count) {
+	JSLitmus.test('no FN _slickUID Array', function(count) {
+		var node;
 		while (count--){
-			node = document.documentElement;
-			uid = node._slickUID || (node._slickUID = uidx++);
-			
-			document.documentElement._slickUID = null;
+			node = document.createElement('div');
+			node._slickUID || (node._slickUID = [uidx++])[0];
 		}
 	});
-	
 })();
+
 (function(){
 	var uidx = 0;
-	var node, uid;
-	JSLitmus.test('no fn IE2', function(count) {
+	JSLitmus.test('no FN uniqueID', function(count) {
+		var node;
 		while (count--){
-			node = document.documentElement;
-			uid = node._slickUID || (node._slickUID = {id: uidx++}).id;
-			
-			document.documentElement._slickUID = null;
+			node = document.createElement('div');
+			node.uniqueID || (node.uniqueID = uidx++);
 		}
 	});
-	
+})();
+
+(function(){
+	var uidx = 0;
+	JSLitmus.test('no FN uniqueNumber', function(count) {
+		var node;
+		while (count--){
+			node = document.createElement('div');
+			node.uniqueNumber || (node.uniqueNumber = uidx++);
+		}
+	});
 })();
 
 
 </script>
 </head>
 <body onload="JSLitmus.runAll(event);">
-<p>Compare various ways of aborting the rest of the operations</p>
   <div id="test_element" style="overflow:hidden; width: 1px; height:1px;"></div>
 </body>
 </html>
