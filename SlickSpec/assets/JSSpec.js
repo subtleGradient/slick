@@ -73,7 +73,7 @@ JSSpec.Executor = function(target, onSuccess, onException) {
 	this.onSuccess = typeof onSuccess == 'function' ? onSuccess : JSSpec.EMPTY_FUNCTION;
 	this.onException = typeof onException == 'function' ? onException : JSSpec.EMPTY_FUNCTION;
 	
-	if(JSSpec.Browser.Trident) {
+	if(JSSpec.useGlobalOnerror) {
 		// Exception handler for Trident. It helps to collect exact line number where exception occured.
 		window.onerror = function(message, fileName, lineNumber) {
 			var self = window._curExecutor;
@@ -116,7 +116,7 @@ JSSpec.Executor.prototype.run = function() {
 	window.setTimeout(
 		function() {
 			var result;
-			if(JSSpec.Browser.Trident) {
+			if(JSSpec.useGlobalOnerror) {
 				window._curExecutor = self;
 				
 				result = self.target();
