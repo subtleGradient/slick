@@ -121,7 +121,7 @@ authors:
 	
 	Slick.registerEngine = function(name, fn, condition){
 		fn = local['customEngine:' + fn] || fn;
-		if(typeof fn !== 'function') return this;
+		if (typeof fn !== 'function') return this;
 		var customEngine = {
 			name: 'customEngine:' + name,
 			fn: fn,
@@ -212,8 +212,8 @@ authors:
 			if (!local[customEngineName]) break customEngine;
 			
 			local.found = found;
-			if(local[customEngineName](context, parsed) !== false){
-				if(justFirst && found.length) return found[0];
+			if (local[customEngineName](context, parsed) !== false){
+				if (justFirst && found.length) return found[0];
 				if (shouldSort) local.documentSort(found);
 				return found;
 			}
@@ -233,8 +233,8 @@ authors:
 				if (Slick.debug) Slick.debug('QSA Fail ' + parsed.raw, error);
 			}
 			
-			if(justFirst){
-				if(nodes || nodes == null) return nodes;
+			if (justFirst){
+				if (nodes || nodes == null) return nodes;
 			}
 			else{
 				
@@ -295,7 +295,7 @@ authors:
 						for (m = 0, n = currentItems.length; m < n; m++){
 							local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
 							if (found.length){
-								if(shouldSort && found.length > 1) local.documentSort(found);
+								if (shouldSort && found.length > 1) local.documentSort(found);
 								return found[0];
 							}
 						}
@@ -343,11 +343,11 @@ authors:
 	};
 	
 	local.collectionToArray = function(node){
-	   return Array.prototype.slice.call(node);
+		return Array.prototype.slice.call(node);
 	};
 
 	try {
-	    local.collectionToArray(root.childNodes);
+		local.collectionToArray(root.childNodes);
 	} catch(e){
 		local.collectionToArray = function(node){
 			if (objectPrototypeToString.call(node) === '[object Array]') return node;
@@ -366,7 +366,7 @@ authors:
 		if (!parsed) return false;
 		var special = parsed[2] || false;
 		var a = parsed[1] || 1;
-		if(a == '-') a = -1;
+		if (a == '-') a = -1;
 		var b = parseInt(parsed[3], 10) || 0;
 		switch (special){
 			case 'n':    parsed = {a: a, b: b}; break;
@@ -405,7 +405,7 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if(parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
+			if (parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
 				part = parts[i];
 				if (!part) continue;
 				if (part.type == 'class' && classes !== false){
@@ -702,7 +702,7 @@ authors:
 	Slick.registerEngine('className', function(context, parts){
 		var results = context.getElementsByTagName(parts.expressions[0][0].tag);
 		parts = parts.expressions[0][0].parts;
-		N: for (var i = 0, j, part, node, className; node = results[i++];) {
+		N: for (var i = 0, j, part, node, className; node = results[i++];){
 			if (!(className = node.className)) continue N;
 			for (j = 0; part = parts[j++];)
 				if (part.type == 'class' && !part.regexp.test(className)) continue N;
@@ -712,7 +712,7 @@ authors:
 		return !this.root.querySelectorAll && !this.root.getElementsByClassName;
 	})
 	.registerEngine('className', function(context, parsed){
-		if(!context.getElementsByClassName) return false;
+		if (!context.getElementsByClassName) return false;
 		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByClassName(parsed.expressions[0][0].classes.join(' '))));
 	}, function(){
 		return this.root.getElementsByClassName && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN;
@@ -749,17 +749,16 @@ authors:
 	}).defineAttribute('for', function(){
 		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	}).defineAttribute('href', function(){
-        return this.getAttribute('href', 2);
-    }).defineAttribute('style', function(){
-        return this.style.cssText;
-    });
-    
-	
+		return this.getAttribute('href', 2);
+	}).defineAttribute('style', function(){
+		return this.style.cssText;
+	});
+
 	local.getAttribute = function(node, name){
 		// FIXME: check if getAttribute() will get input elements on a form on this browser
 		// getAttribute is faster than getAttributeNode().nodeValue
 		var method = this.attributeMethods[name];
-		if(method) return method.call(node);
+		if (method) return method.call(node);
 		var attributeNode = node.getAttributeNode(name);
 		return attributeNode ? attributeNode.nodeValue : null;
 	};
