@@ -176,6 +176,74 @@ dt{
 			<strong>Some specs are currently commented out</strong><br />
 			We're working on supporting those additional specs in an upcoming version.
 		</li>
+		<li>
+			<strong>Tons of specs fail, but only sometimes</strong><br />
+			Sometimes specs fail simple because they haven't fully loaded before the runner tried to run them.
+			This is on our TODO to get fixed. Currently we use SlickSpec mostly on our localhost. Try waiting until everyhing fully loads and then refreshing the runner.
+		</li>
+	</ul>
+	
+	<h3>Roadmap</h3>
+	<ul>
+		<li>
+			<strong>SlickSpec Pre-release <em>(current)</em></strong><br />
+			Get it done enough to be useful for selector engine developers.
+		</li>
+		<li>
+			<strong>SlickSpec 1.0 <em>(next)</em></strong>
+			<ol>
+				<li>
+					Switch from JSSpec to another JavaScript testing library.<br />
+					Probly Jasmine, but that is subject to change.
+				</li>
+				<li>
+					Separate out all the specs into separate groups<br />
+					<ul>
+						<li>W3C CSS 1</li>
+						<li>W3C CSS 2.1</li>
+						<li>W3C CSS 3</li>
+						<li>W3C CSS Draft</li>
+						<li>Library-specific Extensions<br />
+							<ul>
+								<li>jQuery's <code>:first</code></li>
+								<li>SlickJS's reverse combinators</li>
+								<li>etc&hellip;</li>
+							</ul>
+						</li>
+						<li>etc&hellip;</li>
+					</ul>
+				</li>
+			</ol>
+		</li>
+		<li>
+			<strong>SlickSpec 2.0 <em>(eventually)</em></strong>
+			<ul>
+				<li>
+					ServerSide JS support
+					<ul>
+						<li>Env.js</li>
+						<li>Jaxer</li>
+						<li>JScript.NET ActiveX "htmlfile"</li>
+						<li>etc&hellip;</li>
+					</ul>
+				</li>
+				<li>
+					Support multiple testing frameworks?
+				</li>
+				<li>
+					Store results and generate reports?
+				</li>
+				<li>
+					More integration with TestSwarm?
+				</li>
+				<li>
+					Bootstraps/Wrappers to map any selector engine's api to any other selector engine's api?
+				</li>
+				<li>
+					Other crazy awesome stuff!
+				</li>
+			</ul>
+		</li>
 	</ul>
 </div>
 
