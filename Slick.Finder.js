@@ -24,7 +24,7 @@ authors:
 	
 	// Feature / Bug detection
 
-	Slick.isXML = local.isXML = function(element){
+	exports.Slick.isXML = local.isXML = function(element){
 		var ownerDocument = element.ownerDocument || element;
 		return (!!ownerDocument.xmlVersion)
 			|| (!!ownerDocument.xml)
@@ -158,7 +158,7 @@ authors:
 	
 	// Slick
 
-	var search = Slick.search = local.search = function(context, expression, append, justFirst){
+	var search = exports.Slick.search = local.search = function(context, expression, append, justFirst){
 		
 		// setup
 		
@@ -318,7 +318,7 @@ authors:
 		return justFirst ? null : found;
 	};
 	
-	var find = Slick.find = local.find = function(context, expression){
+	var find = exports.Slick.find = local.find = function(context, expression){
 		return Slick.search(context, expression, null, true);
 	};
 	
@@ -333,7 +333,7 @@ authors:
 	};
 	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	Slick.contains = local.contains = (root && root.contains) ? function(context, node){
+	exports.Slick.contains = local.contains = (root && root.contains) ? function(context, node){
 		return (context !== node && context.contains(node));
 	} : (root && root.compareDocumentPosition) ? function(context, node){
 		return !!(context.compareDocumentPosition(node) & 16);
@@ -659,7 +659,7 @@ authors:
 	
 	// add pseudos
 	
-	Slick.definePseudo = function(name, fn){
+	exports.Slick.definePseudo = function(name, fn){
 		fn.displayName = "Slick Pseudo:" + name;
 		name = 'pseudo:' + name;
 		local[name] = function(node, argument){
@@ -669,7 +669,7 @@ authors:
 		return this;
 	};
 	
-	Slick.lookupPseudo = function(name){
+	exports.Slick.lookupPseudo = function(name){
 		var pseudo = local['pseudo:' + name];
 		if (pseudo) return function(argument){
 			return pseudo.call(this, argument);
@@ -736,13 +736,13 @@ authors:
 	
 	local.attributeMethods = {};
 	
-	Slick.defineAttribute = function(name, fn){
+	exports.Slick.defineAttribute = function(name, fn){
 		local.attributeMethods[name] = fn;
 		fn.displayName = "Slick Attribute:" + name;
 		return this;
 	};
 	
-	Slick.lookupAttribute = function(name){
+	exports.Slick.lookupAttribute = function(name){
 		return local.attributeMethods[name];
 	};
 	
@@ -767,7 +767,7 @@ authors:
 	
 	// matcher
 	
-	Slick.match = function(node, selector, context){
+	exports.Slick.match = function(node, selector, context){
 		if (!(node && selector)) return false;
 		if (!selector || selector === node) return true;
 		if (typeof selector !== 'string') return false;
@@ -779,7 +779,7 @@ authors:
 			this.deepMatch(node, parsed, context);
 	};
 	
-	Slick.deepMatch = function(node, expression, context){
+	exports.Slick.deepMatch = function(node, expression, context){
 		// FIXME: FPO code only
 		var nodes = this.search(context || local.document, expression);
 		for (var i=0; i < nodes.length; i++){
@@ -790,14 +790,14 @@ authors:
 		return false;
 	};
 	
-	// Slick.reverseMatch = function(node, selector){
+	// exports.Slick.reverseMatch = function(node, selector){
 		
 		// var selector = Slick.reverse(selector);
 		
 		// return Slick(node, );
 	// };
 	
-	Slick.uniques = function(nodes, append){
+	exports.Slick.uniques = function(nodes, append){
 		var uniques = {};
 		if (!append) append = [];
 		for (var i = 0, l = nodes.length; i < l; i++){
