@@ -871,9 +871,9 @@ authors:
 - Thomas Aylott
 - Valerio Proietti
 - Fabio M Costa
+- Jan Kassens
 ...
 */
-
 (function(){
 	
 	var Slick = this.Slick = this.Slick || {};
