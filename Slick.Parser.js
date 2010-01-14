@@ -13,8 +13,9 @@ authors:
 ...
 */
 (function(){
+	var exports = this;
 	
-	var Slick = this.Slick = this.Slick || {};
+	var Slick = exports.Slick = exports.Slick || {};
 	
 	Slick.parse = function(expression){
 		return parse(expression);
@@ -269,4 +270,4 @@ __END__
 		return parse((typeof expression === 'string') ? expression : expression.raw, true);
 	};
 	
-}).apply(this);
+}).apply(typeof exports != 'undefined' ? exports : this);

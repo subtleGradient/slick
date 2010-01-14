@@ -14,10 +14,11 @@ authors:
 ...
 */
 (function(){
+	var exports = this;
 	
 	var local = {};
 	
-	var Slick = local.Slick = this.Slick = this.Slick || {};
+	var Slick = local.Slick = exports.Slick = exports.Slick || {};
 	
 	var objectPrototypeToString = Object.prototype.toString;
 	
@@ -857,4 +858,4 @@ authors:
 	setDisplayName(local);
 	setDisplayName(Slick, 'Slick.');
 	
-}).apply(this);
+}).apply(typeof exports != 'undefined' ? exports : this);
