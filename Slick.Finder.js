@@ -161,7 +161,7 @@ authors:
 	
 	// Slick
 
-	var search = exports.Slick.search = local.search = function(context, expression, append, justFirst){
+	exports.Slick.search = local.search = function(context, expression, append, justFirst){
 		
 		// setup
 		
@@ -321,7 +321,7 @@ authors:
 		return justFirst ? null : found;
 	};
 	
-	var find = exports.Slick.find = local.find = function(context, expression){
+	exports.Slick.find = local.find = function(context, expression){
 		return Slick.search(context, expression, null, true);
 	};
 	
