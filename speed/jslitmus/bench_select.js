@@ -62,9 +62,9 @@ function benchmarkSelectors(specs,context){
 	// 	it['YASS'] = _benchmarkSelectors(function(doc,selector){ return global.yass(selector,doc,true); }, context, selectors);
 	// }
 	
-	if (global.Sly) {
-		it['Sly'] = _benchmarkSelectors(function(doc,selector){ return global.Sly.search(selector,doc); }, context, selectors);
-	}
+	// if (global.Sly) {
+	// 	it['Sly'] = _benchmarkSelectors(function(doc,selector){ return global.Sly.search(selector,doc); }, context, selectors);
+	// }
 }
 
 function _benchmarkSelectors(SELECT,context,selectors,before,after){
