@@ -156,9 +156,10 @@ authors:
 		
 	// Init
 	
-	local.setDocument(this.document);
+	if (typeof document != 'undefined') 
+		local.setDocument(document);
 	
-	var window = this, document = local.document, root = local.root;
+	var document = local.document;
 	
 	// Slick
 
