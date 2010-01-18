@@ -66,8 +66,8 @@ Returns: true or false
 	Slick.match(<div class=lame>, <div class=rocks>) → false
 
 
-### context `includes` node?
-Does this context include this node? Is the context a parent of this node?
+### context `contains` node?
+Does this context contain this node? Is the context a parent of this node?
 
 Expects:
 * context: document or node
@@ -75,8 +75,8 @@ Expects:
 
 Returns: true or false
 
-	Slick.includes(<ul>, <li>) → true
-	Slick.includes(<body>, <html>) → false
+	Slick.contains(<ul>, <li>) → true
+	Slick.contains(<body>, <html>) → false
 
 
 ---
