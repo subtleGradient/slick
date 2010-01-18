@@ -785,13 +785,6 @@ authors:
 		return false;
 	};
 	
-	// exports.Slick.reverseMatch = function(node, selector){
-		
-		// var selector = Slick.reverse(selector);
-		
-		// return Slick(node, );
-	// };
-	
 	exports.Slick.uniques = function(nodes, append){
 		var uniques = {};
 		if (!append) append = [];
