@@ -113,6 +113,7 @@ authors:
 		
 		local.activateEngines();
 		
+		local.setContains(local.root);
 		local.setSorter(local.document);
 		
 	};
@@ -336,15 +337,22 @@ authors:
 	};
 	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	exports.Slick.contains = local.contains = (root && root.contains) ? function(context, node){
-		return (context !== node && context.contains(node));
-	} : (root && root.compareDocumentPosition) ? function(context, node){
-		return !!(context.compareDocumentPosition(node) & 16);
-	} : function(context, node){
-		if (node) while ((node = node.parentNode))
-			if (node === context) return true;
-		return false;
+	
+	local.setContains = function(root){
+		
+		exports.Slick.contains = local.contains = (root && root.contains) ? function(context, node){
+			return (context !== node && context.contains(node));
+		} : (root && root.compareDocumentPosition) ? function(context, node){
+			return !!(context.compareDocumentPosition(node) & 16);
+		} : function(context, node){
+			if (node) while ((node = node.parentNode))
+				if (node === context) return true;
+			return false;
+		};
+		
 	};
+	
+	local.setContains(local.root);
 	
 	local.collectionToArray = function(collection){
 		return Array.prototype.slice.call(collection);
