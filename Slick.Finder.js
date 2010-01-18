@@ -113,6 +113,20 @@ authors:
 		
 		local.activateEngines();
 		
+		local.collectionToArray = function(collection){
+			return Array.prototype.slice.call(collection);
+		};
+		try {
+			local.collectionToArray(local.root.childNodes);
+		} catch(e){
+			local.collectionToArray = function(collection){
+				if (objectPrototypeToString.call(collection) === '[object Array]') return collection;
+				var i = collection.length, array = new Array(i);
+				while (i--) array[i] = node[i];
+				return array;
+			};
+		}
+		
 		local.setContains(local.root);
 		local.setSorter(local.document);
 		
@@ -337,21 +351,6 @@ authors:
 	};
 	
 	local.setContains(local.root);
-	
-	local.collectionToArray = function(collection){
-		return Array.prototype.slice.call(collection);
-	};
-
-	try {
-		local.collectionToArray(root.childNodes);
-	} catch(e){
-		local.collectionToArray = function(collection){
-			if (objectPrototypeToString.call(collection) === '[object Array]') return collection;
-			var i = collection.length, array = new Array(i);
-			while (i--) array[i] = node[i];
-			return array;
-		};
-	}
 	
 	local.cacheNTH = {};
 	
