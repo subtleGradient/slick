@@ -346,16 +346,16 @@ authors:
 		return false;
 	};
 	
-	local.collectionToArray = function(node){
-		return Array.prototype.slice.call(node);
+	local.collectionToArray = function(collection){
+		return Array.prototype.slice.call(collection);
 	};
 
 	try {
 		local.collectionToArray(root.childNodes);
 	} catch(e){
-		local.collectionToArray = function(node){
-			if (objectPrototypeToString.call(node) === '[object Array]') return node;
-			var i = node.length, array = new Array(i);
+		local.collectionToArray = function(collection){
+			if (objectPrototypeToString.call(collection) === '[object Array]') return collection;
+			var i = collection.length, array = new Array(i);
 			while (i--) array[i] = node[i];
 			return array;
 		};
