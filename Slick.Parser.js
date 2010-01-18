@@ -1,6 +1,7 @@
 /*
 ---
 provides: SlickParser
+version: 0.9wip
 description: Standalone CSS3 Selector parser
 
 license: MIT-style
@@ -20,6 +21,8 @@ authors:
 	exports.Slick.parse = function(expression){
 		return parse(expression);
 	};
+	
+	exports.Slick.parse.version = "0.9wip";
 	
 	var parsed,
 		separatorIndex,

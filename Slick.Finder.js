@@ -1,6 +1,7 @@
 /*
 ---
 provides: Slick
+version: 0.9wip
 description: The new, superfast css selector engine.
 requires: SlickParser
 
@@ -20,6 +21,8 @@ authors:
 	var local = {};
 	
 	var Slick = local.Slick = exports.Slick = exports.Slick || {};
+	
+	exports.Slick.version = "0.9wip";
 	
 	var objectPrototypeToString = Object.prototype.toString;
 	
