@@ -111,7 +111,7 @@ authors:
 			
 		}
 		
-		this.Slick.activateEngines();
+		local.activateEngines();
 		
 	};
 	
@@ -121,7 +121,7 @@ authors:
 	local.defaultCondition = function(){ return true; };
 	local.dontRemoveEngine = {};
 	
-	Slick.registerEngine = function(name, fn, condition){
+	local.registerEngine = function(name, fn, condition){
 		fn = local['customEngine:' + fn] || fn;
 		if (typeof fn !== 'function') return this;
 		var customEngine = {
@@ -134,7 +134,7 @@ authors:
 		return this;
 	};
 	
-	Slick.activateEngine = function(name, fn, condition){
+	local.activateEngine = function(name, fn, condition){
 		if (condition){
 			local[name] = fn;
 			local.dontRemoveEngine[name] = true;
@@ -143,7 +143,7 @@ authors:
 		}
 	};
 	
-	Slick.activateEngines = function(){
+	local.activateEngines = function(){
 		var customEngine, customEngines = local.customEngines;
 		local.dontRemoveEngine = {};
 		for (var i = 0; customEngine = customEngines[i++];){
@@ -680,7 +680,7 @@ authors:
 	
 	// Id Custom Engines
 	
-	Slick.registerEngine('id', function(context, parsed){
+	local.registerEngine('id', function(context, parsed){
 		if (!context.getElementById) return false;
 		var id = parsed.expressions[0][0].id;
 		var el = context.getElementById(id);
@@ -692,7 +692,7 @@ authors:
 	
 	// TagName Custom Engines
 	
-	Slick.registerEngine('tagName', function(context, parsed){
+	local.registerEngine('tagName', function(context, parsed){
 		this.found.push.apply(this.found, this.collectionToArray(context.getElementsByTagName(parsed.expressions[0][0].tag)));
 	})
 	.registerEngine('XML:tagName', 'tagName')
@@ -702,7 +702,7 @@ authors:
 	
 	// ClassName Custom Engines
 	
-	Slick.registerEngine('className', function(context, parts){
+	local.registerEngine('className', function(context, parts){
 		var results = context.getElementsByTagName(parts.expressions[0][0].tag);
 		parts = parts.expressions[0][0].parts;
 		N: for (var i = 0, j, part, node, className; node = results[i++];){
