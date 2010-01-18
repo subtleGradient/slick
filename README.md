@@ -29,13 +29,14 @@ Usage
 Search this context for any nodes that match this selector.
 
 Expects: 
-* context: document or node
+* context: document or node or array of documents or nodes
 * selector: String or SelectorObject
 * (**optional**) append: Array or Object with a push method
 
 Returns: append argument or Array of 0 or more nodes
 
 	Slick.search(document, "#foo > bar.baz") → [<bar>, <bar>, <bar>]
+	Slick.search([<ol>, <ul>], "li > a") → [<a>, <a>, <a>]
 	Slick.search(document, "#foo > bar.baz", { push:function(){} }) → { push:function(){}, 0:<bar>, 1:<bar>, 2:<bar> }
 
 
@@ -43,13 +44,13 @@ Returns: append argument or Array of 0 or more nodes
 Find the first node in document that matches selector or null if none are found.
 
 Expects:
-* context: document or node
+* context: document or node or array of documents or nodes
 * selector: String or SelectorObject
 
 Returns: Element or null
 
 	Slick.find(document, "#foo > bar.baz") → <bar>
-	Slick.find(document, "#does-not-exist") → null
+	Slick.find(node, "#does-not-exist") → null
 
 
 ### node `match` selector?
