@@ -320,12 +320,6 @@ authors:
 	
 	local.uidx = 1;
 	
-	local.uidOf = (window.ActiveXObject) ? function(node){
-		return (node._slickUID || (node._slickUID = [this.uidx++]))[0];
-	} : function(node){
-		return node._slickUID || (node._slickUID = this.uidx++);
-	};
-	
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
 	
 	local.setContains = function(root){
@@ -384,7 +378,7 @@ authors:
 	};
 	
 	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
-		var uid = this.uidOf(node);
+		var uid = node.uniqueID || (node.uniqueID = this.uidx++);
 		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
 			this.uniques[uid] = true;
 			this.found.push(node);
@@ -535,7 +529,7 @@ authors:
 		'~': function(node, tag, id, parts){ // next siblings
 			while ((node = node.nextSibling)){
 				if (node.nodeType !== 1) continue;
-				var uid = this.uidOf(node);
+				var uid = node.uniqueID || (node.uniqueID = this.uidx++);
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
 				this.push(node, tag, id, parts);
@@ -545,7 +539,7 @@ authors:
 		'!~': function(node, tag, id, parts){ // previous siblings
 			while ((node = node.previousSibling)){
 				if (node.nodeType !== 1) continue;
-				var uid = this.uidOf(node);
+				var uid = node.uniqueID || (node.uniqueID = this.uidx++);
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
 				this.push(node, tag, id, parts);
@@ -601,12 +595,12 @@ authors:
 		'nth-child': function(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-			var uid = this.uidOf(node);
+			var uid = node.uniqueID || (node.uniqueID = this.uidx++);
 			if (!this.positions[uid]){
 				var count = 1;
 				while ((node = node.previousSibling)){
 					if (node.nodeType !== 1) continue;
-					var position = this.positions[this.uidOf(node)];
+					var position = this.positions[node.uniqueID || (node.uniqueID = this.uidx++)];
 					if (position != null){
 						count = position + count;
 						break;
@@ -802,7 +796,7 @@ authors:
 		var uniques = {};
 		if (!append) append = [];
 		for (var i = 0, l = nodes.length; i < l; i++){
-			var node = nodes[i], uid = local.uidOf(node);
+			var node = nodes[i], uid = node.uniqueID || (node.uniqueID = local.uidx++);
 			if (!uniques[uid]){
 				uniques[uid] = true;
 				append.push(node);
