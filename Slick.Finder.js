@@ -341,7 +341,7 @@ authors:
 	
 	local.setContains = function(root){
 		
-		exports.Slick.contains = local.contains = (root && root.contains) ? function(context, node){
+		Slick.contains = local.contains = (root && root.contains) ? function(context, node){
 			return (context !== node && context.contains(node));
 		} : (root && root.compareDocumentPosition) ? function(context, node){
 			return !!(context.compareDocumentPosition(node) & 16);
