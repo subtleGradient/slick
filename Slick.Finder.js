@@ -113,6 +113,8 @@ authors:
 		
 		local.activateEngines();
 		
+		local.setSorter(local.document);
+		
 	};
 	
 	// Custom engines
@@ -815,27 +817,25 @@ authors:
 	// credits to Sizzle (http://sizzlejs.com/)
 	
 	local.documentSort = function(results){
-		if (!documentSort) return results;
-		results.sort(documentSort);		
+		if (!this.documentSorter) return results;
+		results.sort(this.documentSorter);
 		return results;
 	};
 	
-	var documentSort;
-	
-	if (document.documentElement.compareDocumentPosition){
-		documentSort = function(a, b){
+	local.setSorter = function(document){
+		if (!document) return;
+		
+		if (document.documentElement.compareDocumentPosition) this.documentSorter = function(a, b){
 			if (!a.compareDocumentPosition || !b.compareDocumentPosition) return 0;
 			var ret = a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
 			return ret;
 		};
-	} else if ('sourceIndex' in document.documentElement){
-		documentSort = function(a, b){
+		else if ('sourceIndex' in document.documentElement) this.documentSorter = function(a, b){
 			if (!a.sourceIndex || !b.sourceIndex) return 0;
 			var ret = a.sourceIndex - b.sourceIndex;
 			return ret;
 		};
-	} else if (document.createRange){
-		documentSort = function(a, b){
+		else if (document.createRange) this.documentSorter = function(a, b){
 			if (!a.ownerDocument || !b.ownerDocument) return 0;
 			var aRange = a.ownerDocument.createRange(), bRange = b.ownerDocument.createRange();
 			aRange.setStart(a, 0);
@@ -845,11 +845,12 @@ authors:
 			var ret = aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 			return ret;
 		};
-	}
+	};
 	
-	
-	// debugging
+	local.setSorter(local.document);
 
+	// debugging
+	
 	var setDisplayName = function(obj, prefix){
 		prefix = prefix || '';
 		for (displayName in obj)
