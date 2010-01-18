@@ -271,7 +271,7 @@ authors:
 		var lastBit;
 		var tempUniques = {};
 		
-		for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
+		search: for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
 
 			combinator = 'combinator:' + currentBit.combinator;
 			tag        = local.isXMLDocument ? currentBit.tag : currentBit.tag.toUpperCase();
@@ -294,33 +294,22 @@ authors:
 
 			if (j === 0){
 				local[combinator](context, tag, id, parts, classes, attributes, pseudos);
-				if (justFirst && lastBit && found.length) return found[0];
+				if (justFirst && lastBit && found.length) break search;
 			} else {
-				if (local[combinator]){
-					if (justFirst && lastBit){
-						for (m = 0, n = currentItems.length; m < n; m++){
-							local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
-							if (found.length){
-								if (shouldSort && found.length > 1) local.documentSort(found);
-								return found[0];
-							}
-						}
-					}
-					else{
-						for (m = 0, n = currentItems.length; m < n; m++) local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
-					}
-				} else {
-					if (Slick.debug) Slick.debug("Tried calling non-existant combinator: '" + currentBit.combinator + "'", currentExpression);
+				if (justFirst && lastBit) for (m = 0, n = currentItems.length; m < n; m++){
+					local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
+					if (found.length) break search;
 				}
+				else for (m = 0, n = currentItems.length; m < n; m++)
+					local[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
 			}
 			
 			currentItems = local.found;
-
 		}
 		
 		if (shouldSort) local.documentSort(found);
 		
-		return justFirst ? null : found;
+		return justFirst ? (found[0] || null) : found;
 	};
 	
 	exports.Slick.find = local.find = function(context, expression){
