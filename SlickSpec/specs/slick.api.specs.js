@@ -80,4 +80,24 @@ function specsSlickAPI(){
 		
 	});
 	
+	Describe('uniques',function(specs,context){
+		var Slick = (context.Slick || global.Slick);
+		
+		it['should return uniques from `uniques` with append'] = function(){
+			var append = Slick.search(document, '*');
+			var duplicates = append.concat(append);
+			
+			value_of(Slick.uniques(duplicates)).should_not_be(duplicates.length);
+			
+			value_of(
+				Slick.uniques(duplicates, append).length
+			).should_be(
+				Slick.uniques(duplicates).length
+			);
+			
+		};
+		
+	});
+	
+	
 };
