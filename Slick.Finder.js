@@ -182,6 +182,16 @@ authors:
 
 	exports.Slick.search = local.search = function(context, expression, append, justFirst){
 		
+		// Multiple contexts
+		if ({}.toString.call(context) == '[object Array]'){
+			if (!append) append = [];
+			for (var i=0, this_context; this_context = context[i]; i++)
+				Slick.search(this_context, expression, append);
+			
+			if (justFirst) append = append[0] || null;
+			return append;
+		}
+
 		// setup
 		
 		var parsed, i, found = justFirst ? null : (append || []);
