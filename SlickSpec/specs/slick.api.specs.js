@@ -83,17 +83,70 @@ function specsSlickAPI(){
 	Describe('uniques',function(specs,context){
 		var Slick = (context.Slick || global.Slick);
 		
+		it['should return uniques from `search` with append'] = function(){
+			var append = [];
+			var l1 = Slick.search(document, '*', append);
+			value_of( l1.length ).should_be( append.length );
+			value_of( l1.length ).should_be( Slick.uniques(append).length );
+			
+			// Should not add any more elements to append
+			var l2 = Slick.search(document, '*', append);
+			value_of( l2.length ).should_be( Slick.uniques(append).length );
+			
+			// value_of( l2 ).should_be( Slick.uniques(append).length );
+			// value_of( l1 ).should_be( l2 );
+		};
+		
+		it['should not recurse context with context == append'] = function(){
+			var append = Slick.search(document, '*');
+			
+			var l1 = Slick.search(append, '*').length;
+			
+			Slick.search(append, '*', append);
+			var l2 = append.length;
+			
+			value_of( l1 ).should_be( l2 );
+		};
+		
+		it['should support multiple contexts'] = function(){
+			var l1 = Slick.search(document, '* *').length;
+			
+			var append = Slick.search(document, '*');
+			var l2 = Slick.search(append, '*').length;
+			
+			value_of( l1 ).should_be( l2 );
+		};
+		
 		it['should return uniques from `uniques` with append'] = function(){
 			var append = Slick.search(document, '*');
+			var append_length = append.length;
 			var duplicates = append.concat(append);
 			
-			value_of(Slick.uniques(duplicates)).should_not_be(duplicates.length);
+			console.group('search with append');
+			console.log(append.length);
+			var results = Slick.search(document, 'a', append);
+			console.log(results.length);
+			console.groupEnd('search with append');
 			
-			value_of(
-				Slick.uniques(duplicates, append).length
-			).should_be(
-				Slick.uniques(duplicates).length
-			);
+			
+			value_of( results ).should_be( append );
+			value_of( append.length ).should_be( append_length );
+			
+			value_of( Slick.uniques(results).length ).should_be( append_length );
+			
+			// value_of(Slick.uniques(duplicates).length).should_not_be(duplicates.length);
+			// 
+			// value_of(
+			// 	Slick.uniques(duplicates, append).length
+			// ).should_be(
+			// 	append.length
+			// );
+			// 
+			// value_of(
+			// 	Slick.uniques(duplicates, append).length
+			// ).should_be(
+			// 	Slick.uniques(duplicates).length
+			// );
 			
 		};
 		

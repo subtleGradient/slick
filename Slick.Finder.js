@@ -235,8 +235,13 @@ authors:
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
 
-		if (justFirst || (parsed.length == 1 && parsed.expressions[0].length == 1)) local.push = local.pushArray;
-		else local.push = local.pushUID;
+		local.push = local.pushUID;
+		if (!append && (justFirst || (parsed.length == 1 && parsed.expressions[0].length == 1)))
+			local.push = local.pushArray;
+		
+		uniques = {};
+		if (append) for (i = 0; node = append[i++];)
+			uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)] = true;
 		
 		var shouldSort = parsed.expressions.length > 1 || (append && append.length);
 		
@@ -249,6 +254,7 @@ authors:
 			local.found = found;
 			if (local[customEngineName](context, parsed) !== false){
 				if (justFirst && found.length) return found[0];
+				if (append) found = Slick.uniques(found, append);
 				if (shouldSort) local.documentSort(found);
 				return found;
 			}
@@ -284,6 +290,7 @@ authors:
 					found.push.apply(found, local.collectionToArray(nodes));
 				}
 				
+				if (append) found = Slick.uniques(found, append);
 				if (shouldSort) local.documentSort(found);
 				
 				return found;
@@ -338,6 +345,7 @@ authors:
 			currentItems = local.found;
 		}
 		
+		if (append) found = Slick.uniques(found, append);
 		if (shouldSort) local.documentSort(found);
 		
 		return justFirst ? (found[0] || null) : found;
@@ -392,6 +400,8 @@ authors:
 	local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
 		if (this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
 	};
+	
+	var uniques;
 	
 	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
 		var uid = node.uniqueNumber || (node.uniqueNumber = this.uidx++);
