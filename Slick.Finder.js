@@ -303,6 +303,8 @@ authors:
 		search: for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
 
 			combinator = 'combinator:' + currentBit.combinator;
+			if (!local[combinator]) continue search;
+			
 			tag        = local.isXMLDocument ? currentBit.tag : currentBit.tag.toUpperCase();
 			id         = currentBit.id;
 			parts      = currentBit.parts;
