@@ -184,6 +184,8 @@ authors:
 		
 		// Multiple contexts
 		if ({}.toString.call(context) == '[object Array]'){
+			if (context == append) context = context.slice();
+			
 			if (!append) append = [];
 			for (var i=0, this_context; this_context = context[i]; i++)
 				Slick.search(this_context, expression, append);
