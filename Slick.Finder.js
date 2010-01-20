@@ -323,10 +323,10 @@ authors:
 			local.localUniques = {};
 			
 			if (lastBit){
-				local.uniques = tempUniques;
+				local.uniques = uniques;
 				local.found = found;
 			} else {
-				local.uniques = {};
+				local.uniques = tempUniques;
 				local.found = [];
 			}
 
