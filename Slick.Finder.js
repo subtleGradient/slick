@@ -805,8 +805,11 @@ authors:
 	exports.Slick.uniques = function(nodes, append){
 		var uniques = {};
 		if (!append) append = [];
-		for (var i = 0, l = nodes.length; i < l; i++){
-			var node = nodes[i], uid = node.uniqueNumber || (node.uniqueNumber = local.uidx++);
+		var i, node, uid;
+		for (i = 0; node = append[i++];)
+			uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)] = true;
+		for (i = 0; node = nodes[i++];){
+			uid = node.uniqueNumber || (node.uniqueNumber = local.uidx++);
 			if (!uniques[uid]){
 				uniques[uid] = true;
 				append.push(node);
