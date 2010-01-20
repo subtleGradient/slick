@@ -411,6 +411,7 @@ authors:
 				part = parts[i];
 				if (!part) continue;
 				if (part.type == 'class' && classes !== false){
+					if (!node.getAttribute) return false;
 					cls = ('className' in node) ? node.className : node.getAttribute('class');	
 					if (!(cls && part.regexp.test(cls))) return false;
 				}
