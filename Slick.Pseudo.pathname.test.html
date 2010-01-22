@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<title>Slick.Pseudo.pathname.test</title>
+
+<script src="Slick.Finder.js" type="text/javascript" charset="utf-8"></script>
+<script src="Slick.Parser.js" type="text/javascript" charset="utf-8"></script>
+<script src="Slick.Pseudo.pathname.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" charset="utf-8">
+
+var bases = [
+	"",
+	// ".",
+	// "..",
+	// "file://",
+	"http://website.com"
+];
+var folders = [
+	"",
+	// "/.",
+	// "/..",
+	"/~",
+	"/foldername1",
+	"/foldername1/foldername2"
+];
+
+var files = [
+	"",
+	"/",
+	"/index",
+	"/default",
+	"/filename"
+];
+
+var exts = [
+	"",
+	".asp",
+	".html"
+];
+ // .aspx\
+ // .php\
+ // .cfm\
+ // .htm\
+
+var ends = [
+	"",
+	"?querystring",
+	"#hash"
+];
+
+function init(){
+	var log = document.createElement('table');
+	// var tb = document.createElement('tbody');
+	// log.appendChild(tb);
+	// log = tb;
+
+	var url = '';
+	var A;
+	var row, cell;
+	
+	row = document.createElement('tr');
+	
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('#')); row.appendChild(cell);
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('URL')); row.appendChild(cell);
+	
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('Base  ')); row.appendChild(cell);
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('Folder')); row.appendChild(cell);
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('File  ')); row.appendChild(cell);
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('Ext   ')); row.appendChild(cell);
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('End   ')); row.appendChild(cell);
+	
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('pathname')); row.appendChild(cell);
+	cell = document.createElement('th'); cell.appendChild(document.createTextNode('match')); row.appendChild(cell);
+	
+	log.appendChild(row);
+	
+	var rows = {};
+	var rowNodes = [];
+	var urls = [];
+	var i = 0;
+	
+	for (var e=0; e < ends    .length; e++)
+	for (var d=0; d < exts    .length; d++)
+	for (var c=0; c < files   .length; c++)
+	for (var b=0; b < folders .length; b++)
+	for (var a=0; a < bases   .length; a++)
+	{
+		i++;
+		
+		url = ''
+		+ bases   [a]
+		+ folders [b]
+		+ files   [c]
+		+ exts    [d]
+		+ ends    [e]
+		;
+		
+		if (!rows[url]){
+			rows[url] = true;
+			urls.push(url);
+			
+			A = document.createElement('a');
+			A.setAttribute('href', url);
+			A.appendChild(document.createTextNode('"' + url + '"'));
+			
+			row = document.createElement('tr');
+			cell = document.createElement('th'); row.appendChild(cell);
+			
+			cell = document.createElement('td'); cell.appendChild(A); row.appendChild(cell);
+			
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"'+ bases   [a] +'"')); row.appendChild(cell);
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"'+ folders [b] +'"')); row.appendChild(cell);
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"'+ files   [c] +'"')); row.appendChild(cell);
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"'+ exts    [d] +'"')); row.appendChild(cell);
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"'+ ends    [e] +'"')); row.appendChild(cell);
+			
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"' + A.pathname + '"')); row.appendChild(cell);
+			
+			row.p = String(A.pathname || A.href || '').replace(/^(https?|file):\/\/.*?\/|[\?#].*$/g,'').replace(/^(?!\/)/,'/');
+			
+			cell = document.createElement('td'); cell.appendChild(document.createTextNode('"' + row.p + '"')); row.appendChild(cell);
+			
+			rowNodes.push(row);
+		}
+	}
+	
+	// document.getElementById('raw').innerHTML = urls.sort().join(', ');
+	
+	rowNodes.sort(function(a,b){
+		a = a.p || 0;
+		b = b.p || 0;
+		if (a > b) return -1;
+		if (a < b) return 1;
+		return 0;
+	}).reverse();
+	
+	for (var i=0; i < rowNodes.length; i++){
+		row.firstChild.appendChild(document.createTextNode(i));
+		if (row = rowNodes[i]) log.appendChild(row);
+	}
+	
+	document.getElementById('pathname').value = decodeURIComponent(document.location.search.replace('?pathname=',''));
+	
+	var found = Slick.search(log, 'a');
+	document.getElementById('total').innerHTML = found.length;
+	
+	var found = Slick.search(log, 'a:pathname("'+decodeURIComponent(document.location.search.replace('?pathname=','') || ' ')+'") ! tr');
+	// var found = Slick.search(document, 'a:pathname("/") ! tr');
+	document.getElementById('count').innerHTML = found.length;
+	
+	setTimeout(function(){
+		for (var i=0, node; node = found[i++];){
+			log.insertBefore(node, log.firstChild);
+		}
+	}, 0);
+	
+	setTimeout(function(){
+		for (var i=0, node; node = found[i++];){
+			node.style.backgroundColor = "#cfc";
+		}
+	}, 0);
+	
+	setTimeout(function(){
+		document.body.appendChild(log);
+		log.outerHTML = log.outerHTML;
+	}, 10);
+};
+</script>
+<!-- <script src="SlickSpec/assets/moobugger/debugger.js" type="text/javascript" charset="utf-8"></script> -->
+
+</head>
+<body onload="init()">
+<form action="">
+	<input value="pathname" name="pathname" id="pathname" autofocus size="50">
+</form>
+
+<div id="raw"></div>
+
+
+<hr />
+
+<p>Matches: <span id="count">0</span></p>
+<p>Total: <span id="total">0</span></p>
+</body>
+</html>
