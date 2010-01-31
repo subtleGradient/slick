@@ -715,7 +715,7 @@ authors:
 		var id = parsed.expressions[0][0].id;
 		var el = context.getElementById(id);
 		if (el){
-			if (el.id !== id) return false;
+			if (el.getAttribute && el.getAttribute('id') !== id) return false;
 			this.found.push(el);
 		};
 	});
