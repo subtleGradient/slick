@@ -152,6 +152,19 @@ function specsSlickAPI(){
 			
 		};
 		
+		it['should add results to append'] = function(){
+			var append;
+			
+			append = [];
+			Slick.search(document, '*', append);
+			value_of( append.length ).should_be( Slick.search(document, '*').length );
+			
+			append = [];
+			Slick.search(document, '*', append);
+			value_of( append.length ).should_be( Slick.search(document, '*').length );
+			
+		};
+		
 	});
 	
 	
