@@ -187,7 +187,7 @@ authors:
 			if (context == append) context = context.slice();
 			
 			if (!append) append = [];
-			for (var i=0, this_context; this_context = context[i]; i++)
+			for (var c = 0, this_context; this_context = context[c]; c++)
 				Slick.search(this_context, expression, append);
 			
 			if (justFirst) append = append[0] || null;
