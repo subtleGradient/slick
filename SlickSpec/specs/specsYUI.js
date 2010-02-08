@@ -4,8 +4,8 @@ function specsYUI(specs, context){
 	};
 	
 	
-	var Y = (context.YAHOO || global.YAHOO).util || {};
-	Y.each = Y.each || function(iterable, fn){
+	var Y = {};
+	Y.each = function(iterable, fn){
 		if('length' in iterable){
 			for(var i = 0, len = iterable.length; i < len; i++){
 				fn.call(iterable[i], iterable[i]);
@@ -135,48 +135,54 @@ function specsYUI(specs, context){
 			}
 			return ret;
 		},
-		test: function(node, expression){
-			return MATCH(node, expression);
+		test: function(node, expression, root){
+			return MATCH(node, expression, root);
 		},
 		query: function(expression, context, first){
-			return (first ? SELECT1 : SELECT)(context, expression);
+			return (first ? SELECT1 : SELECT)(context || document, expression);
 		}
+	};
+	
+	var uid = 1;
+	
+	var generateSpec = function(message, fn){
+		specs[(uid++) + ': ' +(message || '')] = fn;
 	};
 	
 	//var Assert = Y.Assert;
 	var Assert = {
 		isTrue: function(a, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(!!a).should_be_true();
-			};
+			});
 		},
 		isFalse: function(a, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(!!a).should_be_false();
-			};
+			});
 		},
 		isNull: function(a, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(a == null).should_be_true();
-			};
+			});
 		},
 		areEqual: function(a, b, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				if (!a) value_of( a == b ).should_be_true();
 				else value_of(a).should_be(b);
-			};
+			});
 		}
 	};
 	
 	//var ArrayAssert = Y.ArrayAssert;
 	var ArrayAssert = {
 		itemsAreEqual: function(a, b, message){
-			specs[message] = function(){
+			generateSpec(message, function(){
 				value_of(a.length).should_be(b.length);
 				for(var i = 0, len = a.length; i < len; i++){
 					value_of(a[i]).should_be(b[i]);
 				}
-			};
+			});
 		}
 	};
 
@@ -246,7 +252,7 @@ function specsYUI(specs, context){
 
 		testRootQuery: function() {
 			var all = Y.Dom.get('nth-test').getElementsByTagName('li');
-
+			
 			ArrayAssert.itemsAreEqual(all, $('li', document), 'document');
 			ArrayAssert.itemsAreEqual(all, $('#root-test li'), 'document');
 			ArrayAssert.itemsAreEqual([], $('#root-tes li', Y.DOM.byId('demo')), 'false id document');
@@ -268,8 +274,8 @@ function specsYUI(specs, context){
 			ArrayAssert.itemsAreEqual([], $('body p', document.body), "$('body p', document.body)");
 			ArrayAssert.itemsAreEqual([], $('#root-test li', Y.Dom.get('nth-test')), 'id selector w/root false pos');
 		},
-
-/*
+		
+		/*
 		testNthLastChild: function() {
 			var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 			var odd = Y.Dom.getElementsByClassName('even', 'li', 'nth-test');
@@ -283,8 +289,8 @@ function specsYUI(specs, context){
 			ArrayAssert.itemsAreEqual(odd, $('li:nth-last-child(2n+1)'), '2n+1');
 			ArrayAssert.itemsAreEqual(four1, $('li:nth-last-child(4n+1)'), '4n+1');
 		},
-*/
-
+		*/
+		
 		testNthType: function() {
 			var all = Y.Dom.get('nth-test').getElementsByTagName('li');
 			var odd = Y.Dom.getElementsByClassName('odd', 'li', 'nth-test');
@@ -377,9 +383,9 @@ function specsYUI(specs, context){
 
 			ArrayAssert.itemsAreEqual([demoFirstChild, Y.DOM.next(demoFirstChild)], $('#demo > p:not(.last)'), '#demo > p:not(.last)');
 			Assert.areEqual(Y.DOM.byId('foo-bar'), $("[id^='foo-']", null, true), "[id^='foo-'], null, true");
-			// Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("#test-custom-attr[foo=bar]", null, true), "#test-custom-attr[foo=bar], null, true");
+			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("#test-custom-attr[foo=bar]", null, true), "#test-custom-attr[foo=bar], null, true");
 			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo=bar]", null, true), "div[foo=bar], null, true");
-			// Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div#test-custom-attr[foo=bar]", null, true), "div#test-custom-attr[foo=bar], null, true");
+			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div#test-custom-attr[foo=bar]", null, true), "div#test-custom-attr[foo=bar], null, true");
 
 			Assert.areEqual(Y.DOM.byId('test-custom-attr'), $("div[foo]", null, true), "div[foo], null, true");
 			ArrayAssert.itemsAreEqual([Y.DOM.byId('test-custom-attr')], $("[foo]"), "[foo]");

@@ -3,7 +3,16 @@ function specsMockTemplate(specs, context){
 	function makeSlickTestSearch(selector, count, disableQSA) {
 		return function(){
 			context.SELECT.disableQSA = !!disableQSA;
-			value_of( context.SELECT(context.document, selector).length ).should_be( count );
+			var selectedArray = context.SELECT(context.document, selector);
+			var selected = context.SELECT1(context.document, selector);
+			value_of( selectedArray.length ).should_be( count );
+			if(count){
+				value_of( selected ).should_not_be_null();
+				value_of( selected === selectedArray[0] ).should_be_true();
+			}
+			else{
+				value_of( selected == null ).should_be_true();
+			}
 			delete context.SELECT.disableQSA;
 		};
 	}
@@ -16,7 +25,10 @@ function specsMockTemplate(specs, context){
 	it_should_find(1, 'html');
 	it_should_find(1, 'body');
 	
-	it_should_find(1821, '*:not([href^=tel:])');
+	// removes 'tel:' 'a' tags that are just grabbed by iphone
+	//   and the META tag that puts IE8 in compatible mode <meta http-equiv="X-UA-Compatible" content="IE=7" />
+	//   and script tags
+	it_should_find(1819, '*:not([href^=tel:]):not([http-equiv="X-UA-Compatible"]):not(script)');
 	it_should_find(1814, 'body *:not([href^=tel:])');
 	
 	it_should_find(1, 'html');

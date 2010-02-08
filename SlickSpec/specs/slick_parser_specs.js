@@ -162,10 +162,10 @@ Describe('CLASS',function(){
 	};
 	its['classes array items should have a regexp property'] = function(){
 		s = PARSE('.class');
+		console.log(s.expressions[0][0].parts[0]);
 		value_of( s.expressions[0][0].parts[0].type ).should_be( 'class' );
 		value_of( s.expressions[0][0].parts[0].regexp._type ).should_be( 'RegExp' );
-		value_of( s.expressions[0][0].parts[0].regexp.source ).should_match( 'class' );
-		
+		value_of( s.expressions[0][0].parts[0].regexp.test('class') ).should_be_true();
 	};
 	
 	

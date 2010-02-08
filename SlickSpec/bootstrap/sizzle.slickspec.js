@@ -1,20 +1,28 @@
 function setupMethods(specs, window){
-	var Slick = window.Slick || global.Slick;
+	global.cannotDisableQSA = true;
+	
+	var jQuery = window.jQuery || global.jQuery || function(){};
+	var Sizzle = window.Sizzle || global.Sizzle || jQuery() && function(selector, context, append, seed){
+		if (seed) return Array.prototype.slice.call(jQuery(seed).filter(selector).get());
+		return Array.prototype.slice.call(jQuery(append || []).add(selector, context).get());
+	};
+	
+	var isXML = jQuery.isXMLDoc || function(elem){
+		return elem.nodeType === 9 && elem.documentElement.nodeName !== "HTML" ||
+			!!elem.ownerDocument && isXML( elem.ownerDocument );
+	};
 	
 	window.SELECT = function(context, selector, append){
-		return Slick.search(context, selector, append);
+		return Sizzle(selector, context, append);
 	};
 	window.SELECT1 = function(context, selector){
-		return Slick.find(context, selector);
+		return Sizzle(selector + ':first', context)[0];
 	};
 	window.MATCH = function(context, selector, root){
-		return Slick.match(context, selector, root);
+		return !!Sizzle(selector, null, null, [context]).length;
 	};
 	window.isXML = function(document){
-		return Slick.isXML(document);
-	};
-	window.PARSE = function(selector){
-		return Slick.parse(selector);
+		return isXML(document);
 	};
 }
 
@@ -35,12 +43,6 @@ function verifySetupMethods(specs, window){
 		it['should define isXML'] = function(){
 			value_of( typeof window.isXML ).should_be('function');
 			value_of( typeof window.isXML(window.document) ).should_be('boolean');
-		};
-		it['should define PARSE'] = function(){
-			value_of( typeof window.PARSE ).should_be('function');
-			value_of( typeof window.PARSE('*') ).should_be('object');
-			value_of( window.PARSE('*').expressions.length ).should_be(1);
-			value_of( window.PARSE('*').expressions[0].length ).should_be(1);
 		};
 	});
 };

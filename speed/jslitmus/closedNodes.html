@@ -9,8 +9,8 @@ iframe{display:none;}
 </style>
 
 <!-- JSSpec -->
-<script type="text/javascript" src="../../test/assets/JSSpec.js"></script>
-<script type="text/javascript" src="../../test/assets/JSSpecHelpers.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpec.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpecHelpers.js"></script>
 
 <!-- Slick -->
 <script> document.write('<scr'+'ipt src="../../Slick.Parser.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
@@ -26,55 +26,58 @@ var SlickLast = Slick;
 this.Slick = null;
 </script>
 
-<script type="text/javascript" src="../../test/assets/JSSpecHelpers_slick.js" charset="utf-8"></script>
-
 <!-- benchmarker -->
 <script src="JSLitmus.js" type="text/javascript" charset="utf-8"></script>
 <script src="JSLitmusHelpers.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- Runner -->
-<script type="text/javascript" src="../../test/assets/simple_request.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
-
-Slick.disableQSA = true;
-SlickLast.disableQSA = true;
-
-var local_collectionToArray1 = function(nodes){
-	var i = nodes.length, array = new Array(i);
-	while (i--) array[i] = nodes[i];
-	return array;
-};
-var local_collectionToArray2 = function(nodes) {
-	var i = 0, element, array = [];
-	while ((element = nodes[i++])) array[i] = element;
-	return array;
-};
-var local_collectionToArray3 = function(nodes) {
-	for (var i = 0, element, array = []; element = nodes[i++];) array[i] = element;
-	return array;
-};
 
 var elements = context.document.getElementsByTagName('*');
 
 new Mock('', function(){
 	
-	spec ['local_collectionToArray1'] = function(count){
+	spec ['nodeName.charAt'] = function(count){
+		var i, node, result=0;
 		while(count--){
-			local_collectionToArray1(elements);
+			for (i=0; node = elements[i++];) {
+				node.nodeName.charAt(0) == '/' && result++;
+			}
 		}
+		return result;
 	};
 	
-	spec ['local_collectionToArray2'] = function(count){
+	spec ['nodeName.charCodeAt'] = function(count){
+		var i, node, result=0;
 		while(count--){
-			local_collectionToArray2(elements);
+			for (i=0; node = elements[i++];) {
+				node.nodeName.charCodeAt(0) == 47 && result++;
+			}
 		}
+		return result;
 	};
 	
-	spec ['local_collectionToArray3'] = function(count){
+	spec ['nodeName.indexOf'] = function(count){
+		var i, node, result=0;
 		while(count--){
-			local_collectionToArray3(elements);
+			for (i=0; node = elements[i++];) {
+				node.nodeName.indexOf('/') !== -1 && result++;
+			}
+		}
+		return result;
+	};
+	
+/*
+	spec ['nodeName.split'] = function(count){
+		var i, node;
+		while(count--){
+			for (i=0; node = elements[i++];) {
+				node.nodeName.split('/').length > 1
+			}
 		}
 	};
+*/
 	
 });
 
@@ -83,7 +86,7 @@ new Mock('', function(){
 <body>
 
 <!-- mocks -->
-<iframe onload="Mock.register('template html quirks',this.contentWindow)" src="../../test/tools/template-quirks.html"></iframe>
+<iframe onload="Mock.register('template html quirks',this.contentWindow)" src="../../SlickSpec/mocks/template-quirks.html"></iframe>
 
 </body>
 </html>

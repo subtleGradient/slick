@@ -16,17 +16,17 @@ window.scripts_to_get = [];
 <!-- <script type="text/javascript" src="../../SlickSpec/assets/getgetter.js"></script> -->
 
 <!-- Slick -->
-<!-- Slick -->
-<script> document.write('<scr'+'ipt src="../../slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script> document.write('<scr'+'ipt src="../../Slick.Parser.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script> document.write('<scr'+'ipt src="../../Slick.Finder.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
 <script type="text/javascript">
 var SlickThis = Slick;
-delete this.Slick;
+this.Slick = null;
 </script>
 
-<script> document.write('<scr'+'ipt src="../frameworks/slick.js?'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script> document.write('<scr'+'ipt src="../frameworks/slick.js?last&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
 <script type="text/javascript">
 var SlickLast = Slick;
-delete this.Slick;
+this.Slick = null;
 </script>
 
 <script src="../frameworks/nwmatcher.js" type="text/javascript" charset="utf-8"></script>

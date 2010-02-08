@@ -34,7 +34,7 @@ Object format
 			[
 				{
 					parts: [
-						{ type: "class",                    value: "class", regexp: /regexp/ },
+						{ type: "class",                    value: "class", match: " class " },
 						{ type: "attribute", key: "attrib",                                      test: function(){} },
 						{ type: "attribute", key: "attrib", value: "attribvalue", operator: "=", test: function(){} },
 						{ type: "pseudo",    key: "pseudo" },
