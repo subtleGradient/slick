@@ -26,8 +26,6 @@ var SlickLast = Slick;
 this.Slick = null;
 </script>
 
-<script type="text/javascript" src="../../SlickSpec/assets/JSSpecHelpers.js" charset="utf-8"></script>
-
 <!-- benchmarker -->
 <script src="JSLitmus.js" type="text/javascript" charset="utf-8"></script>
 <script src="JSLitmusHelpers.js" type="text/javascript" charset="utf-8"></script>
@@ -36,32 +34,51 @@ this.Slick = null;
 <script type="text/javascript" src="../../SlickSpec/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-Slick.disableQSA = true;
-SlickLast.disableQSA = true;
-
-var local_getAttribute1 = function(node){
-	return ('className' in node) ? node.className : node.getAttribute('class');
-};
-var local_getAttribute2 = function(node) {
-	return node.className || node.getAttribute('class');
-};
-
-var element = context.document.getElementsByTagName('*')[2];
+var elements = context.document.getElementsByTagName('*');
 
 new Mock('', function(){
 	
-	spec ['local_getAttribute1'] = function(count){
+	spec ['nodeName.charAt'] = function(count){
+		var i, node, result=0;
 		while(count--){
-			local_getAttribute1(element);
+			for (i=0; node = elements[i++];) {
+				node.nodeName.charAt(0) == '/' && result++;
+			}
 		}
+		return result;
 	};
 	
-	spec ['local_getAttribute2'] = function(count){
+	spec ['nodeName.charCodeAt'] = function(count){
+		var i, node, result=0;
 		while(count--){
-			local_getAttribute2(element);
+			for (i=0; node = elements[i++];) {
+				node.nodeName.charCodeAt(0) == 47 && result++;
+			}
+		}
+		return result;
+	};
+	
+	spec ['nodeName.indexOf'] = function(count){
+		var i, node, result=0;
+		while(count--){
+			for (i=0; node = elements[i++];) {
+				node.nodeName.indexOf('/') !== -1 && result++;
+			}
+		}
+		return result;
+	};
+	
+/*
+	spec ['nodeName.split'] = function(count){
+		var i, node;
+		while(count--){
+			for (i=0; node = elements[i++];) {
+				node.nodeName.split('/').length > 1
+			}
 		}
 	};
-
+*/
+	
 });
 
 </script>

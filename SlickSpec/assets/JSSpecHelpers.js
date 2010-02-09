@@ -301,3 +301,6 @@ function newFakeWinFromDoc(document){
 	return fakeWin;
 };
 
+JSSpec.useGlobalOnerror = JSSpec.Browser.Trident;
+if ("console" in window) JSSpec.useGlobalOnerror = false;
+
