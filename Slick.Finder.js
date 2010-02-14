@@ -405,6 +405,9 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
+			if (tag && tag == '*' && (node.nodeType != 1 || node.nodeName.charCodeAt(0) == 47)) return false; // Fix for comment nodes and closed nodes
+			if (id && node.getAttribute('id') != id) return false;
+			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			if (parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
 				part = parts[i];
 				if (!part) continue;
@@ -415,9 +418,6 @@ authors:
 				if (part.type == 'pseudo' && pseudos !== false && (!this['match:pseudo'](node, part.key, part.value))) return false;
 				if (part.type == 'attribute' && attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false;
 			}
-			if (tag && tag == '*' && (node.nodeType != 1 || node.nodeName.charCodeAt(0) == 47)) return false; // Fix for comment nodes and closed nodes
-			if (id && node.getAttribute('id') != id) return false;
-			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
 			return true;
 		}
 
