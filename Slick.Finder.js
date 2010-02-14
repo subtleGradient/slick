@@ -241,7 +241,7 @@ authors:
 		
 		uniques = {};
 		if (append) for (i = 0; node = append[i++];)
-			uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)] = true;
+			uniques[!local.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = local.uidx++) : node.getAttribute(local.uidKey) || (node.setAttribute(local.uidKey, local.uidx++), node.getAttribute(local.uidKey))] = true;
 		
 		var shouldSort = parsed.expressions.length > 1 || (append && append.length);
 		
@@ -254,7 +254,7 @@ authors:
 			local.found = found;
 			if (local[customEngineName](context, parsed) !== false){
 				if (justFirst && found.length) return found[0];
-				if (append) found = Slick.uniques(found, append);
+				if (append) found = Slick.uniques(found, append, local.isXMLDocument);
 				if (shouldSort) local.documentSort(found);
 				return found;
 			}
@@ -290,7 +290,7 @@ authors:
 					found.push.apply(found, local.collectionToArray(nodes));
 				}
 				
-				if (append) found = Slick.uniques(found, append);
+				if (append) found = Slick.uniques(found, append, local.isXMLDocument);
 				if (shouldSort) local.documentSort(found);
 				
 				return found;
@@ -345,7 +345,7 @@ authors:
 			currentItems = local.found;
 		}
 		
-		if (append) found = Slick.uniques(found, append);
+		if (append) found = Slick.uniques(found, append, local.isXMLDocument);
 		if (shouldSort) local.documentSort(found);
 		
 		return justFirst ? (found[0] || null) : found;
@@ -404,7 +404,7 @@ authors:
 	var uniques;
 	
 	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
-		var uid = node.uniqueNumber || (node.uniqueNumber = this.uidx++);
+		var uid = !this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey));
 		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
 			this.uniques[uid] = true;
 			this.found.push(node);
@@ -554,7 +554,7 @@ authors:
 		'~': function(node, tag, id, parts){ // next siblings
 			while ((node = node.nextSibling)){
 				if (node.nodeType !== 1) continue;
-				var uid = node.uniqueNumber || (node.uniqueNumber = this.uidx++);
+				var uid = !this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey));
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
 				this.push(node, tag, id, parts);
@@ -564,7 +564,7 @@ authors:
 		'!~': function(node, tag, id, parts){ // previous siblings
 			while ((node = node.previousSibling)){
 				if (node.nodeType !== 1) continue;
-				var uid = node.uniqueNumber || (node.uniqueNumber = this.uidx++);
+				var uid = !this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey));
 				if (this.localUniques[uid]) break;
 				this.localUniques[uid] = true;
 				this.push(node, tag, id, parts);
@@ -620,12 +620,12 @@ authors:
 		'nth-child': function(node, argument){
 			argument = (!argument) ? 'n' : argument;
 			var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-			var uid = node.uniqueNumber || (node.uniqueNumber = this.uidx++);
+			var uid = !this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey));
 			if (!this.positions[uid]){
 				var count = 1;
 				while ((node = node.previousSibling)){
 					if (node.nodeType !== 1) continue;
-					var position = this.positions[node.uniqueNumber || (node.uniqueNumber = this.uidx++)];
+					var position = this.positions[!this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey))];
 					if (position != null){
 						count = position + count;
 						break;
@@ -810,21 +810,25 @@ authors:
 		return false;
 	};
 	
-	exports.Slick.uniques = function(nodes, append){
+	local.uidKey = 'SlickJS_uniqueNumber';
+	
+	exports.Slick.uniques = function(nodes, append, noExpandos){
 		var uniques = {};
 		if (!append) append = [];
 		var i, node, uid;
 		for (i = 0; node = append[i++];)
-			uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)] = true;
+			uniques[!noExpandos ? node.uniqueNumber || (node.uniqueNumber = local.uidx++) : node.getAttribute(local.uidKey) || (node.setAttribute(local.uidKey, local.uidx++), node.getAttribute(local.uidKey))] = true;
 		for (i = 0; node = nodes[i++];){
-			uid = node.uniqueNumber || (node.uniqueNumber = local.uidx++);
+			uid = !noExpandos ? node.uniqueNumber || (node.uniqueNumber = local.uidx++) : node.getAttribute(local.uidKey) || (node.setAttribute(local.uidKey, local.uidx++), node.getAttribute(local.uidKey));
 			if (!uniques[uid]){
 				uniques[uid] = true;
 				append.push(node);
 			}
 		}
+		if (noExpandos) for (uid in uniques) uniques[uid] && typeof uniques[uid].removeAttribute == 'function' && uniques[uid].removeAttribute('uniqueNumber');
 		return append;
 	};
+	
 	
 	// document order sorting
 	// credits to Sizzle (http://sizzlejs.com/)
