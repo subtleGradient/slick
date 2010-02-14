@@ -405,6 +405,7 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
+			if ((id || parts) && typeof node.getAttribute != 'function') return false;
 			if (tag && tag == '*' && (node.nodeType != 1 || node.nodeName.charCodeAt(0) == 47)) return false; // Fix for comment nodes and closed nodes
 			if (id && node.getAttribute('id') != id) return false;
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
