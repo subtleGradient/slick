@@ -1,9 +1,10 @@
 /*
 ---
-provides: Slick
-version: 0.9wip
-description: Standalone DOM Selector Engine
-requires: SlickParser
+name: Slick.Finder
+provides: Slick.Finder
+requires: Slick.Parser
+
+description: The new, superfast css selector engine.
 
 license: MIT-style
 
@@ -14,6 +15,7 @@ authors:
 - Jan Kassens
 ...
 */
+
 (function(){
 	
 	var exports = this;
@@ -549,7 +551,7 @@ authors:
 			node = node.firstChild;
 			if (node){
 				if (node.nodeType === 1) this.push(node, tag, id, parts);
-				else this['combinator:+>'](node, tag, id, parts);
+				else this['combinator:+'](node, tag, id, parts);
 			}
 		},
 
@@ -557,7 +559,7 @@ authors:
 			node = node.lastChild;
 			if (node){
 				if (node.nodeType === 1) this.push(node, tag, id, parts);
-				else this['combinator:<+'](node, tag, id, parts);
+				else this['combinator:!+'](node, tag, id, parts);
 			}
 		},
 
