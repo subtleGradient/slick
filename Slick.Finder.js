@@ -2,7 +2,7 @@
 ---
 provides: Slick
 version: 0.9wip
-description: The new, superfast css selector engine.
+description: Standalone DOM Selector Engine
 requires: SlickParser
 
 license: MIT-style
