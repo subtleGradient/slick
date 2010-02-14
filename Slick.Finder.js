@@ -417,7 +417,6 @@ authors:
 		},
 
 		selector: function(node, tag, id, parts, classes, attributes, pseudos){
-			if ((id || parts) && typeof node.getAttribute != 'function') return false;
 			if (tag && tag == '*' && (node.nodeType != 1 || node.nodeName.charCodeAt(0) == 47)) return false; // Fix for comment nodes and closed nodes
 			if (id && node.getAttribute('id') != id) return false;
 			if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
@@ -425,7 +424,6 @@ authors:
 				part = parts[i];
 				if (!part) continue;
 				if (part.type == 'class' && classes !== false){
-					if (!node.getAttribute) return false;
 					cls = ('className' in node) ? node.className : node.getAttribute('class');	
 					if (!(cls && part.regexp.test(cls))) return false;
 				}
