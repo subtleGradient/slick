@@ -251,13 +251,15 @@ authors:
 			var customEngineName = 'customEngine:' + (local.isXMLDocument ? 'XML:' : '') + parsed.type.join(':');
 			if (!local[customEngineName]) break customEngine;
 			
-			local.found = found;
+			local.found = [];
 			if (local[customEngineName](context, parsed) !== false){
-				if (justFirst && found.length) return found[0];
-				if (append) found = Slick.uniques(found, append, local.isXMLDocument);
+				if (justFirst && local.found.length) return local.found[0];
+				if (append) found = Slick.uniques(local.found, append, local.isXMLDocument);
+				else found = local.found;
 				if (shouldSort) local.documentSort(found);
 				return found;
 			}
+			local.found = found;
 		}
 		
 		// querySelector|querySelectorAll
@@ -285,9 +287,10 @@ authors:
 				// TODO: check if selectors other than '*' will return closed nodes
 				if (local.starSelectsClosedQSA){
 					var node;
-					for (i = 0; node = nodes[i++];) if (node.nodeName.charCodeAt(0) != 47) found.push(node);
+					for (i = 0; node = nodes[i++];) if (node.nodeName.charCodeAt(0) != 47) append ? local.pushRawUID(node) : found.push(node);
 				} else {
-					found.push.apply(found, local.collectionToArray(nodes));
+					if (append) for (i = 0, node; node = found[i++];) local.pushRawUID(node);
+					else found.push.apply(found, local.collectionToArray(nodes));
 				}
 				
 				if (append) found = Slick.uniques(found, append, local.isXMLDocument);
@@ -406,6 +409,14 @@ authors:
 	local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
 		var uid = !this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey));
 		if (!this.uniques[uid] && this['match:selector'](node, tag, id, selector, classes, attributes, pseudos)){
+			this.uniques[uid] = true;
+			this.found.push(node);
+		}
+	};
+	
+	local.pushRawUID = function(node){
+		var uid = !this.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = this.uidx++) : node.getAttribute(this.uidKey) || (node.setAttribute(this.uidKey, this.uidx++), node.getAttribute(this.uidKey));
+		if (!this.uniques[uid]){
 			this.uniques[uid] = true;
 			this.found.push(node);
 		}

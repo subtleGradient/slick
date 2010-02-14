@@ -100,7 +100,7 @@ function specsSlickAPI(){
 		it['should not recurse context with context == append'] = function(){
 			var append = Slick.search(document, '*');
 			
-			var l1 = Slick.search(append, '*').length;
+			var l1 = Slick.search(append, '*', Slick.search(document, ':root')).length;
 			
 			Slick.search(append, '*', append);
 			var l2 = append.length;
@@ -118,7 +118,9 @@ function specsSlickAPI(){
 		};
 		
 		it['should return uniques from `uniques` with append'] = function(){
+			console.group('search');
 			var append = Slick.search(document, '*');
+			console.groupEnd('search');
 			var append_length = append.length;
 			var duplicates = append.concat(append);
 			
