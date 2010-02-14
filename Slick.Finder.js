@@ -230,7 +230,7 @@ authors:
 			return found;
 		}
 		
-		found = append || [];
+		local.found = found = append || [];
 
 		if (local.document !== (context.ownerDocument || context)) local.setDocument(context);
 		var document = local.document;
@@ -239,7 +239,7 @@ authors:
 		if (!append && (justFirst || (parsed.length == 1 && parsed.expressions[0].length == 1)))
 			local.push = local.pushArray;
 		
-		uniques = {};
+		local.uniques = uniques = {};
 		if (append) for (i = 0; node = append[i++];)
 			uniques[!local.isXMLDocument ? node.uniqueNumber || (node.uniqueNumber = local.uidx++) : node.getAttribute(local.uidKey) || (node.setAttribute(local.uidKey, local.uidx++), node.getAttribute(local.uidKey))] = true;
 		
@@ -259,7 +259,6 @@ authors:
 				if (shouldSort) local.documentSort(found);
 				return found;
 			}
-			local.found = found;
 		}
 		
 		// querySelector|querySelectorAll
@@ -289,7 +288,7 @@ authors:
 					var node;
 					for (i = 0; node = nodes[i++];) if (node.nodeName.charCodeAt(0) != 47) append ? local.pushRawUID(node) : found.push(node);
 				} else {
-					if (append) for (i = 0, node; node = found[i++];) local.pushRawUID(node);
+					if (append) for (i = 0, node; node = nodes[i++];) local.pushRawUID(node);
 					else found.push.apply(found, local.collectionToArray(nodes));
 				}
 				
@@ -827,6 +826,7 @@ authors:
 		var uniques = {};
 		if (!append) append = [];
 		var i, node, uid;
+		
 		for (i = 0; node = append[i++];)
 			uniques[!noExpandos ? node.uniqueNumber || (node.uniqueNumber = local.uidx++) : node.getAttribute(local.uidKey) || (node.setAttribute(local.uidKey, local.uidx++), node.getAttribute(local.uidKey))] = true;
 		for (i = 0; node = nodes[i++];){
