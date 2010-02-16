@@ -30,11 +30,10 @@ function specsPrototype(specs, context){
 		return reduce(ret);
 	};
 
-	function slick_search(expression, root, append){
+	var $$ = function(expression, root, append){
 		root = root || context.document;
 		return context.SELECT(root, expression, append||[]);
 	};
-	var $$ = slick_search;
 
 
 	Describe('Select',function(){
