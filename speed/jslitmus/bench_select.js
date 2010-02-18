@@ -62,9 +62,9 @@ function benchmarkSelectors(specs,context){
 	// 	it['YASS'] = _benchmarkSelectors(function(doc,selector){ return global.yass(selector,doc,true); }, context, selectors);
 	// }
 	
-	if (global.Sly) {
-		it['Sly'] = _benchmarkSelectors(function(doc,selector){ return global.Sly.search(selector,doc); }, context, selectors);
-	}
+	// if (global.Sly) {
+	// 	it['Sly'] = _benchmarkSelectors(function(doc,selector){ return global.Sly.search(selector,doc); }, context, selectors);
+	// }
 }
 
 function _benchmarkSelectors(SELECT,context,selectors,before,after){
@@ -88,7 +88,7 @@ function _benchmarkSelectors(SELECT,context,selectors,before,after){
 		while(count--){
 			for (ii=0; ii < selectors.length; ii++) if (selectors[ii]){
 				
-				for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
+				// for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
 				try{
 					results[selectors[ii]] = SELECT(document, selectors[ii]).length;
 				}catch(error){

@@ -1,6 +1,7 @@
 /*
 ---
-provides: SlickParser
+name: Slick.Parser
+provides: Slick.Parser
 description: Standalone CSS3 Selector parser
 
 license: MIT-style
@@ -12,21 +13,25 @@ authors:
 - Jan Kassens
 ...
 */
+
 (function(){
+	var exports = this;
 	
-	var Slick = this.Slick = this.Slick || {};
+	var Slick = exports.Slick = exports.Slick || {};
 	
-	Slick.parse = function(expression){
+	exports.Slick.parse = function(expression){
 		return parse(expression);
 	};
+	
+	exports.Slick.parse.version = "0.9wip";
 	
 	var parsed,
 		separatorIndex,
 		combinatorIndex,
 		partIndex,
 		reversed,
-		cache = Slick.parse.cache = {},
-		reverseCache = Slick.parse.reverseCache = {}
+		cache = exports.Slick.parse.cache = {},
+		reverseCache = exports.Slick.parse.reverseCache = {}
 	;
 	
 	var parse = function(expression, isReversed){
@@ -69,7 +74,7 @@ authors:
 		return expression;
 	};
 	
-	var escapeRegExp = Slick.parse.escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
+	var escapeRegExp = exports.Slick.parse.escapeRegExp = function(string){// Credit: XRegExp 0.6.1 (c) 2007-2008 Steven Levithan <http://stevenlevithan.com/regex/xregexp/> MIT License
 		return string.replace(/[-[\]{}()*+?.\\^$|,#\s]/g, "\\$&");
 	};
 	
@@ -265,8 +270,8 @@ __END__
 	for (var displayName in Slick)
 		if (typeof Slick[displayName] === 'function') Slick[displayName].displayName = "Slick." + displayName;
 	
-	Slick.parse.reverse = function(expression){
+	exports.Slick.parse.reverse = function(expression){
 		return parse((typeof expression === 'string') ? expression : expression.raw, true);
 	};
 	
-}).apply(this);
+}).apply(typeof exports != 'undefined' ? exports : this);
