@@ -168,10 +168,26 @@ local.search = function(context, expression, append, first){
 	var parsed, i;
 
 	this.positions = {};
+	var uniques = this.uniques = {};
+	
+	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
 
 	// expression checks
 	
 	if (typeof expression == 'string'){ // expression is a string
+		
+		// Overrides
+
+		for (i = this.overrides.length - 1; i >= 0; i--){
+			var override = this.overrides[i];
+			if (override.regexp.test(expression)){
+				var result = override.method.call(context, expression, found, first);
+				if (result === false) continue;
+				if (result === true) return found;
+				return result;
+			}
+		}
+		
 		parsed = this.Slick.parse(expression);
 		if (!parsed.length) return found;
 	} else if (expression == null){ // there is no expression
@@ -184,10 +200,6 @@ local.search = function(context, expression, append, first){
 	} else { // other junk
 		return found;
 	}
-
-	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
-	
-	var uniques = this.uniques = {};
 		
 	// should sort if there are nodes in append and if you pass multiple expressions.
 	// should remove duplicates if append already has items
@@ -201,16 +213,6 @@ local.search = function(context, expression, append, first){
 	
 	// avoid duplicating items already in the append array
 	if (shouldUniques) for (i = 0, l = found.length; i < l; i++) this.uniques[this.getUID(found[i])] = true;
-	
-	// Overrides
-
-	for (i = this.overrides.length - 1; i >= 0; i--){
-		var override = this.overrides[i];
-		var result = override.method.call(context, parsed, found, first);
-		if (result === false) continue;
-		if (result === true) return found;
-		return result;
-	}
 	
 	// default engine
 	
@@ -616,23 +618,20 @@ local.getAttribute = function(node, name){
 
 local.overrides = [];
 
-local.getOverride = function(name){
-	for (var i = 0, override; override = this.overrides[i++];) if (override.name == name) return override;
-	return null;
+local.override = function(regexp, method){
+	local.overrides.push({regexp: regexp, method: method});
 };
 
-local.setOverride = function(name, method){
-	local.overrides.push({name: name, method: method});
-};
+local.override(/./, function(expression, found, first){ //querySelectorAll override
 
-local.setOverride('querySelector', function(parsed, found, first){
-
-	if (!this.querySelectorAll || this.nodeType != 9 || !parsed.simple || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
+	if (!this.querySelectorAll || this.nodeType != 9 || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
+	
+	// console.log('entering qsa override');
 
 	var nodes, node;
 	try {
-		if (first) return this.querySelector(parsed.raw) || null;
-		else nodes = this.querySelectorAll(parsed.raw);
+		if (first) return this.querySelector(expression) || null;
+		else nodes = this.querySelectorAll(expression);
 	} catch(error){
 		return false;
 	}
@@ -651,9 +650,8 @@ local.setOverride('querySelector', function(parsed, found, first){
 
 });
 
-local.setOverride('tag', function(parsed, found, first){
-	if (parsed.type != 'tag') return false;
-	var tag = parsed.expressions[0][0].tag;
+local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag override
+	var tag = expression;
 	if (tag == '*' && local.starSelectsComments || local.starSelectsClosed) return false;
 	
 	// console.log('entering tag override');
@@ -672,13 +670,13 @@ local.setOverride('tag', function(parsed, found, first){
 	return true;
 });
 
-local.setOverride('class', function(parsed, found, first){
-	if (local.isXMLDocument || parsed.type != 'class') return false;
+local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
+	if (local.isXMLDocument) return false;
 	
 	// console.log('entering class override');
 	
-	var nodes, node, i, hasOthers = !!(found.length), className = parsed.expressions[0][0].classes[0];
-	if (this.getElementsByClassName && !this.cachedGetElementsByClassName){
+	var nodes, node, i, hasOthers = !!(found.length), className = expression.substring(1);
+	if (this.getElementsByClassName && !local.cachedGetElementsByClassName){
 		nodes = this.getElementsByClassName(className);
 		if (first) return nodes[0] || null;
 		for (i = 0; node = nodes[i++];){
@@ -698,12 +696,12 @@ local.setOverride('class', function(parsed, found, first){
 	return (first) ? null : true;
 });
 
-local.setOverride('id', function(parsed, found, first){
-	if (local.isXMLDocument || !this.getElementById || parsed.type != 'id') return false;
+local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
+	if (local.isXMLDocument || !this.getElementById) return false;
 	
 	// console.log('entering id override');
 	
-	var id = parsed.expressions[0][0].id, el = this.getElementById(id);
+	var id = expression.substring(1), el = this.getElementById(id);
 	if (!el) return found;
 	if (first) return el || null;
 	var hasOthers = !!(found.length) ;
@@ -783,17 +781,10 @@ Slick.lookupPseudo = function(name){
 
 // Slick overrides accessor
 
-Slick.defineOverride = function(name, fn){
+Slick.override = function(regexp, fn){
 	if (!fn) fn = function(){return false;};
-	var override = local.getOverride(name);
-	if (override) override.method = fn;
-	else local.setOverride(name, fn);
+	local.override(regexp, fn);
 	return this;
-};
-
-Slick.lookupOverride = function(name){
-	var override = local.getOverride(name);
-	return (override) ? override.method : null;
 };
 
 Slick.isXML = local.isXML;
