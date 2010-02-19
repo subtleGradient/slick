@@ -18,6 +18,8 @@ authors:
 
 (function(){
 	
+var exports = this;
+	
 var local = {};
 
 // Feature / Bug detection
@@ -658,7 +660,7 @@ local.setOverride('tag', function(parsed, found, first){
 	
 	var nodes = this.getElementsByTagName(tag);
 	
-	if (first) return nodes[0];
+	if (first) return nodes[0] || null;
 	var i, node, hasOthers = !!(found.length);
 	
 	for (i = 0; node = nodes[i++];){
@@ -714,7 +716,7 @@ if (typeof document != 'undefined') local.setDocument(document);
 
 // Slick
 
-var Slick = local.Slick = this.Slick || {};
+var Slick = local.Slick = exports.Slick || {};
 
 Slick.version = '0.9dev';
 
@@ -798,6 +800,6 @@ Slick.isXML = local.isXML;
 
 // export Slick
 
-if (!this.Slick) this.Slick = Slick;
+if (!exports.Slick) exports.Slick = Slick;
 	
-}).apply(this);
+}).apply((typeof exports != 'undefined') ? exports : this);
