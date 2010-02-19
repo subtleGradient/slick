@@ -782,7 +782,6 @@ Slick.lookupPseudo = function(name){
 // Slick overrides accessor
 
 Slick.override = function(regexp, fn){
-	if (!fn) fn = function(){return false;};
 	local.override(regexp, fn);
 	return this;
 };
