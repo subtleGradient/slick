@@ -111,10 +111,6 @@ __END__
 	.replace(/<unicode1>/g, '(?:[:\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 );
 
-var qsaCombinators = (/^[\s~+>]$/);
-
-var simpleAttributeOperators = (/^[*^$~|]?=$/);
-
 function parser(
 	rawMatch,
 	
@@ -148,7 +144,6 @@ function parser(
 	
 	if (combinator || combinatorChildren || combinatorIndex === -1){
 		combinator = combinator || ' ';
-		if (parsed.simple && !qsaCombinators.test(combinator)) parsed.simple = false;
 		var currentSeparator = parsed.expressions[separatorIndex];
 		if (reversed && currentSeparator[combinatorIndex])
 			currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
@@ -186,9 +181,6 @@ function parser(
 		};
 	} else if (pseudoClass){
 		parsed.type.push('pseudo');
-		// TODO: pseudoClass is only not simple when it's custom or buggy
-		// if (pseudoBuggyOrCustom[pseudoClass])
-		// parsed.simple = false;
 	
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
 		
@@ -207,9 +199,6 @@ function parser(
 		var key = attributeKey.replace(/\\/g,'');
 		var operator = attributeOperator;
 		var attribute = (attributeValueDouble || attributeValueSingle || attributeValue || '').replace(/\\/g,'');
-		
-		// Turn off simple mode for custom attribute operators. This should disable QSA mode
-		if (parsed.simple !== false && operator) parsed.simple = !!simpleAttributeOperators.test(operator);
 		
 		var test, regexp;
 		
