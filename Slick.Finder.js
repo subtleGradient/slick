@@ -626,8 +626,6 @@ local.override(/./, function(expression, found, first){ //querySelectorAll overr
 
 	if (!this.querySelectorAll || this.nodeType != 9 || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
 	
-	// console.log('entering qsa override');
-
 	var nodes, node;
 	try {
 		if (first) return this.querySelector(expression) || null;
@@ -654,8 +652,6 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 	var tag = expression;
 	if (tag == '*' && local.starSelectsComments || local.starSelectsClosed) return false;
 	
-	// console.log('entering tag override');
-	
 	var nodes = this.getElementsByTagName(tag);
 	
 	if (first) return nodes[0] || null;
@@ -672,8 +668,6 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 
 local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
 	if (local.isXMLDocument) return false;
-	
-	// console.log('entering class override');
 	
 	var nodes, node, i, hasOthers = !!(found.length), className = expression.substring(1);
 	if (this.getElementsByClassName && !local.cachedGetElementsByClassName){
@@ -698,8 +692,6 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 
 local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
 	if (local.isXMLDocument || !this.getElementById) return false;
-	
-	// console.log('entering id override');
 	
 	var id = expression.substring(1), el = this.getElementById(id);
 	if (!el) return found;
