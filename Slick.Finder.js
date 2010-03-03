@@ -159,7 +159,7 @@ local.search = function(context, expression, append, first){
 	// context checks
 
 	if (!context) return found; // No context
-	if (context.document) context = context.document; // Convert the node from a window to a document
+	if (context.navigator) context = context.document; // Convert the node from a window to a document
 	else if (!context.nodeType) return found; // Reject misc junk input
 
 	// setup
