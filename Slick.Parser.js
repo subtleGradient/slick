@@ -87,24 +87,20 @@ __END__
 		\\s* (<unicode1>+)  (?:  \
 			\\s* ([*^$!~|]?=)  (?:  \
 				\\s* (?:\
-				      \"((?:[^\"]|\\\\\")*)\"\
-				    |  '((?:[^'] |\\\\')* )' \
-				    |   (   [^\\]]*?    )  \
+					([\"']?)(.*?)\\9 \
 				)\
 			)  \
 		)?  \\s*  \
 	\\](?!\\]) \n\
 	|   :+ ( <unicode>+ )(?:\
 	\\( (?:\
-		 \"((?:[^\"]|\\\")*)\"\
-		| '((?:[^']|\\'  )*)'\
-		|  (   [^\\)]*     )\
+		 ([\"']?)((?:\\([^\\)]+\\)|[^\\(\\)]*)+)\\12\
 	) \\)\
 	)?\
 	)"
-//*/
-	"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
-	// .replace(/\(\?x\)|\s+#.*$|\s+/gim, '')
+*/
+	"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:([\"']?)(.*?)\\9)))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:([\"']?)((?:\\([^\\)]+\\)|[^\\(\\)]*)+)\\12)\\))?)"
+	//"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 	.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 	.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	.replace(/<unicode1>/g, '(?:[:\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
@@ -123,13 +119,11 @@ function parser(
 	
 	attributeKey,
 	attributeOperator,
-	attributeValueDouble,
-	attributeValueSingle,
+	attributeQuote,
 	attributeValue,
 	
 	pseudoClass,
-	pseudoClassValueDouble,
-	pseudoClassValueSingle,
+	pseudoQuote,
 	pseudoClassValue
 ){
 	if (separator || separatorIndex === -1){
@@ -172,7 +166,7 @@ function parser(
 	} else if (pseudoClass){
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
 		
-		var value = pseudoClassValueDouble || pseudoClassValueSingle || pseudoClassValue || null;
+		var value = pseudoClassValue || null;
 		if (value) value = value.replace(/\\/g,'');
 		
 		currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
@@ -185,7 +179,7 @@ function parser(
 		
 		var key = attributeKey.replace(/\\/g,'');
 		var operator = attributeOperator;
-		var attribute = (attributeValueDouble || attributeValueSingle || attributeValue || '').replace(/\\/g,'');
+		var attribute = (attributeValue || '').replace(/\\/g,'');
 		
 		var test, regexp;
 		
