@@ -678,9 +678,10 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 			}
 		}
 	} else {
+		var matchClass = new RegExp('(^|\\s)'+ Slick.escapeRegExp(className) +'(\\s|$)');
 		nodes = this.getElementsByTagName('*');
 		for (i = 0; node = nodes[i++];){
-			if (node.className != className) continue;
+			if (!matchClass.test(node.className)) continue;
 			if (first) return node;
 			if (!hasOthers || !local.uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)]) found.push(node);
 		}
