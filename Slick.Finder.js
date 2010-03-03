@@ -340,9 +340,20 @@ local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
 };
 
 local.matchNode = function(node, selector){
-	var parsed = ((selector.Slick) ? selector : this.Slick.parse(selector)).expressions[0][0];
+	var parsed = ((selector.Slick) ? selector : this.Slick.parse(selector));
 	if (!parsed) return true;
-	return this.matchSelector(node, (this.isXMLDocument) ? parsed.tag : parsed.tag.toUpperCase(), parsed.id, parsed.parts);
+	
+	// simple (single) selectors
+	if(parsed.length == 1 && parsed.expressions[0].length == 1){
+		var exp = parsed.expressions[0][0];
+		return this.matchSelector(node, (this.isXMLDocument) ? exp.tag : exp.tag.toUpperCase(), exp.id, exp.parts);
+	}
+	
+	var nodes = this.search(this.document, parsed);
+	for (var i=0, item; item = nodes[i++];){
+		if (item === node) return true;
+	}
+	return false;
 };
 
 local.matchPseudo = function(node, name, argument){
