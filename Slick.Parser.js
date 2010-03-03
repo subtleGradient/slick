@@ -160,6 +160,8 @@ function parser(
 			value: className,
 			regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
 		};
+		partIndex++;
+		
 	} else if (pseudoClass){
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
 		
@@ -171,6 +173,8 @@ function parser(
 			key: pseudoClass.replace(/\\/g,''),
 			value: value
 		});
+		partIndex++;
+		
 	} else if (attributeKey){
 		if (!currentParsed.attributes) currentParsed.attributes = [];
 		
@@ -210,9 +214,10 @@ function parser(
 			value: attribute,
 			test: test
 		});
+		partIndex++;
+		
 	}
-
-	partIndex++;
+	
 	return '';
 };
 
