@@ -130,12 +130,10 @@ local.setDocument = function(document){
 	
 	if (root.compareDocumentPosition) this.documentSorter = function(a, b){
 		if (!a.compareDocumentPosition || !b.compareDocumentPosition) return 0;
-		var ret = a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
-		return ret;
+		return a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
 	}; else if ('sourceIndex' in root) this.documentSorter = function(a, b){
 		if (!a.sourceIndex || !b.sourceIndex) return 0;
-		var ret = a.sourceIndex - b.sourceIndex;
-		return ret;
+		return a.sourceIndex - b.sourceIndex;
 	}; else if (document.createRange) this.documentSorter = function(a, b){
 		if (!a.ownerDocument || !b.ownerDocument) return 0;
 		var aRange = a.ownerDocument.createRange(), bRange = b.ownerDocument.createRange();
@@ -143,8 +141,7 @@ local.setDocument = function(document){
 		aRange.setEnd(a, 0);
 		bRange.setStart(b, 0);
 		bRange.setEnd(b, 0);
-		var ret = aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
-		return ret;
+		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	};
 	
 	this.getUID = (this.isXMLDocument) ? this.getUIDXML : this.getUIDHTML;
