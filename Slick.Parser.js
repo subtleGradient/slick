@@ -32,7 +32,7 @@ var parse = function(expression, isReversed){
 	var currentCache = (reversed) ? reverseCache : cache;
 	if (currentCache[expression]) return currentCache[expression];
 	expression = expression.replace(/^\s+|\s+$/g, '');
-	parsed = {Slick: true, simple: true, type: [], expressions: [], raw: expression, reverse: function(){
+	parsed = {Slick: true, type: [], expressions: [], raw: expression, reverse: function(){
 		return parse(this.raw, true);
 	}};
 	separatorIndex = -1;
