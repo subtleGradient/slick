@@ -376,15 +376,14 @@ var combinators = {
 		var i, l, item, children;
 
 		if (!this.isXMLDocument){
-			getById: if (id && node.nodeType === 9){
+			getById: if (id && node.getElementById){
 				// if node == document then we don't need to use contains
-				if (!node.getElementById) break getById;
 				item = node.getElementById(id);
 				if (!item || item.getAttributeNode('id').nodeValue != id) break getById;
 				this.push(item, tag, null, parts);
 				return;
 			}
-			getById: if (id && node.nodeType !== 9){
+			getById: if (id){
 				if (!this.document.getElementById) break getById;
 				item = this.document.getElementById(id);
 				if (!item || item.getAttributeNode('id').nodeValue != id) break getById;
