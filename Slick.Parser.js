@@ -38,7 +38,6 @@ var parse = function(expression, isReversed){
 	separatorIndex = -1;
 	while (exp != (exp = exp.replace(regexp, parser)));
 	parsed.length = parsed.expressions.length;
-	parsed.type = parsed.type.join(':');
 	return currentCache[expression] = (reversed) ? reverse(parsed) : parsed;
 };
 
@@ -154,21 +153,12 @@ function parser(
 	var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
 
 	if (tagName){
-		// if (tagName == '*') parsed.type.push('tagName*');
-		// else parsed.type.push('tagName');
-		parsed.type.push('tag');
-		
 		currentParsed.tag = tagName.replace(/\\/g,'');
 		return '';
 	} else if (id){
-		parsed.type.push('id');
 		currentParsed.id = id.replace(/\\/g,'');
 		return '';
 	} else if (className){
-		if ((/classNames?/).test(parsed.type[parsed.type.length - 1]))
-			parsed.type[parsed.type.length - 1] = 'classNames';
-		else parsed.type.push('class');
-		
 		className = className.replace(/\\/g,'');
 	
 		if (!currentParsed.classes) currentParsed.classes = [className];
@@ -180,8 +170,6 @@ function parser(
 			regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
 		};
 	} else if (pseudoClass){
-		parsed.type.push('pseudo');
-	
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
 		
 		var value = pseudoClassValueDouble || pseudoClassValueSingle || pseudoClassValue || null;
@@ -193,7 +181,6 @@ function parser(
 			value: value
 		});
 	} else if (attributeKey){
-		parsed.type.push('attribute');
 		if (!currentParsed.attributes) currentParsed.attributes = [];
 		
 		var key = attributeKey.replace(/\\/g,'');
@@ -232,8 +219,6 @@ function parser(
 			value: attribute,
 			test: test
 		});
-	} else if (combinator){
-		parsed.type.push(combinator);
 	}
 
 	partIndex++;
