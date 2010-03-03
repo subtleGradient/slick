@@ -37,7 +37,7 @@ local.setDocument = function(document){
 	
 	if (document.nodeType === 9); // document
 	else if (document.ownerDocument) document = document.ownerDocument; // node
-	else if ('document' in document) document = document.document; // window
+	else if (document.navigator) document = document.document; // window
 	else return;
 	
 	// check if it's the old document
