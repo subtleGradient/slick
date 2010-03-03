@@ -221,7 +221,6 @@ local.search = function(context, expression, append, first){
 	var currentItems;
 	var expressions = parsed.expressions;
 	var lastBit;
-	var tempUniques = {};
 	
 	search: for (i = 0; (currentExpression = expressions[i]); i++) for (j = 0; (currentBit = currentExpression[j]); j++){
 
@@ -242,7 +241,7 @@ local.search = function(context, expression, append, first){
 			this.uniques = uniques;
 			this.found = found;
 		} else {
-			this.uniques = tempUniques;
+			this.uniques = {};
 			this.found = [];
 		}
 
