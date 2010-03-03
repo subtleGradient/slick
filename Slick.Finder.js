@@ -215,8 +215,6 @@ local.search = function(context, expression, append, first){
 	
 	// default engine
 	
-	var shouldSort = !!(parsed.expressions.length > 1) || shouldUniques;
-	
 	var currentExpression, currentBit;
 	var j, m, n;
 	var combinator, tag, id, parts, classes, attributes, pseudos;
@@ -261,7 +259,7 @@ local.search = function(context, expression, append, first){
 		currentItems = this.found;
 	}
 	
-	if (shouldSort) this.sort(found);
+	if ((parsed.expressions.length > 1) || shouldUniques) this.sort(found);
 	
 	return (first) ? (found[0] || null) : found;
 };
