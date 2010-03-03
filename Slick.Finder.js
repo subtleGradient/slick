@@ -667,7 +667,7 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 	if (local.isXMLDocument) return false;
 	
 	var nodes, node, i, hasOthers = !!(found.length), className = expression.substring(1);
-	if (this.getElementsByClassName && !local.cachedGetElementsByClassName){
+	if (this.getElementsByClassName && !local.cachedGetElementsByClassName && !local.brokenSecondClassNameGEBCN){
 		nodes = this.getElementsByClassName(className);
 		if (first) return nodes[0] || null;
 		for (i = 0; node = nodes[i++];){
