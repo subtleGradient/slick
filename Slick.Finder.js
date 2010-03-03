@@ -692,7 +692,7 @@ local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
 	
 	var id = expression.substring(1), el = this.getElementById(id);
 	if (!el) return found;
-	if (el.getAttributeNode('id').nodeValue != id) return false;
+	if (local.idGetsName && el.getAttributeNode('id').nodeValue != id) return false;
 	if (first) return el || null;
 	var hasOthers = !!(found.length) ;
 	if (!hasOthers || !local.uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)]) found.push(el);
