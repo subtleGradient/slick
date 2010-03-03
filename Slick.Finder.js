@@ -19,8 +19,10 @@ authors:
 (function(){
 	
 var exports = this;
-	
+
 var local = {};
+
+var timeStamp = +new Date();
 
 // Feature / Bug detection
 
