@@ -666,7 +666,7 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
 	if (local.isXMLDocument) return false;
 	
-	var nodes, node, i, hasOthers = !!(found.length), className = expression.substring(1);
+	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
 	if (this.getElementsByClassName && !local.cachedGetElementsByClassName && !local.brokenSecondClassNameGEBCN){
 		nodes = this.getElementsByClassName(className);
 		if (first) return nodes[0] || null;
