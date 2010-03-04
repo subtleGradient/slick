@@ -27,11 +27,10 @@ var parsed,
 	reverseCache = {};
 
 var parse = function(expression, isReversed){
-	expression = '' + expression;
+	expression = ('' + expression).replace(/^\s+|\s+$/g, '');
 	reversed = !!isReversed;
 	var currentCache = (reversed) ? reverseCache : cache;
 	if (currentCache[expression]) return currentCache[expression];
-	expression = expression.replace(/^\s+|\s+$/g, '');
 	parsed = {Slick: true, expressions: [], raw: expression, reverse: function(){
 		return parse(this.raw, true);
 	}};
@@ -229,7 +228,7 @@ Slick.parse = function(expression){
 	return parse(expression);
 };
 
-Slick.escapeRegExp = escapeRegExp;
+Slick.parse.escapeRegExp = escapeRegExp;
 
 if (!exports.Slick) exports.Slick = Slick;
 	

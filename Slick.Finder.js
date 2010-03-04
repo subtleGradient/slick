@@ -692,7 +692,7 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 			}
 		}
 	} else {
-		var matchClass = new RegExp('(^|\\s)'+ Slick.escapeRegExp(className) +'(\\s|$)');
+		var matchClass = new RegExp('(^|\\s)'+ Slick.parse.escapeRegExp(className) +'(\\s|$)');
 		nodes = this.getElementsByTagName('*');
 		for (i = 0; node = nodes[i++];){
 			if (!matchClass.test(node.className)) continue;
