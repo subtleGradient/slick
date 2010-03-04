@@ -52,7 +52,7 @@ div #title\n\
 		it['THIS '+selectors[i]] = function(count){
 			var Slick = SlickThis.search;
 			var document = context.document;
-			var i=0, node;
+			var node;
 			Slick.disableQSA = true;
 			while(count--){
 				Slick(document,selectors[i]);
@@ -61,7 +61,7 @@ div #title\n\
 		it['LAST '+selectors[i]] = function(count){
 			var Slick = SlickLast.search;
 			var document = context.document;
-			var i=0, node;
+			var node;
 			Slick.disableQSA = true;
 			while(count--){
 				Slick(document,selectors[i]);
@@ -92,7 +92,7 @@ div #title\n\
 			it['THIS testNode '+selectors[i]] = function(count){
 				var Slick = SlickThis.search;
 				var document = context.document;
-				var i=0, node;
+				var node;
 				Slick.disableQSA = false;
 				while(count--){
 					Slick(testNode,selectors[i]);
@@ -101,7 +101,7 @@ div #title\n\
 			it['LAST testNode '+selectors[i]] = function(count){
 				var Slick = SlickLast.search;
 				var document = context.document;
-				var i=0,node;
+				var node;
 				Slick.disableQSA = false;
 				while(count--){
 					Slick(testNode,selectors[i]);
