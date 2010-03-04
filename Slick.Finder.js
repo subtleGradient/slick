@@ -609,11 +609,11 @@ local.attributeGetters = {
 	},
 	
 	'href': function(){
-		return this.getAttribute('href', 2);
+		return ('href' in this) ? this.getAttribute('href', 2) : this.getAttribute('href');
 	},
 	
 	'style': function(){
-		return this.style.cssText;
+		return ('style' in this) ? this.style.cssText : this.getAttribute('style');
 	}
 
 };
