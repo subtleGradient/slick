@@ -49,24 +49,29 @@ div #title\n\
 	for (var i=0, l=selectors.length; i < l; i++) {
 		if (!selectors[i]) continue;
 		
-		it['THIS '+selectors[i]] = function(count){
-			var Slick = SlickThis.search;
-			var document = context.document;
-			var node;
-			Slick.disableQSA = true;
-			while(count--){
-				Slick(document,selectors[i]);
-			}
-		};
-		it['LAST '+selectors[i]] = function(count){
-			var Slick = SlickLast.search;
-			var document = context.document;
-			var node;
-			Slick.disableQSA = true;
-			while(count--){
-				Slick(document,selectors[i]);
-			}
-		};
+		it['THIS '+selectors[i]] = (function(selector){
+			return function(count){
+				var Slick = SlickThis.search;
+				var document = context.document;
+				var node;
+				Slick.disableQSA = true;
+				while(count--){
+					Slick(document, selector);
+				}
+			};
+		})(selectors[i]);
+		
+		it['LAST '+selectors[i]] = (function(selector){
+			return function(count){
+				var Slick = SlickLast.search;
+				var document = context.document;
+				var node;
+				Slick.disableQSA = true;
+				while(count--){
+					Slick(document, selector);
+				}
+			};
+		})(selectors[i]);
 /*
 		if (context.document.querySelectorAll){
 			
@@ -89,24 +94,29 @@ div #title\n\
 */
 		if (testNode){
 			
-			it['THIS testNode '+selectors[i]] = function(count){
-				var Slick = SlickThis.search;
-				var document = context.document;
-				var node;
-				Slick.disableQSA = false;
-				while(count--){
-					Slick(testNode,selectors[i]);
-				}
-			};
-			it['LAST testNode '+selectors[i]] = function(count){
-				var Slick = SlickLast.search;
-				var document = context.document;
-				var node;
-				Slick.disableQSA = false;
-				while(count--){
-					Slick(testNode,selectors[i]);
-				}
-			};
+			it['THIS testNode '+selectors[i]] =  (function(selector){
+				return function(count){
+					var Slick = SlickThis.search;
+					var document = context.document;
+					var node;
+					Slick.disableQSA = false;
+					while(count--){
+						Slick(testNode,selector);
+					}
+				};
+			})(selectors[i]);
+			
+			it['LAST testNode '+selectors[i]] =  (function(selector){
+				return function(count){
+					var Slick = SlickLast.search;
+					var document = context.document;
+					var node;
+					Slick.disableQSA = false;
+					while(count--){
+						Slick(testNode,selector);
+					}
+				};
+			})(selectors[i]);
 			
 		}
 	}
