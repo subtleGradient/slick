@@ -177,7 +177,7 @@ local.search = function(context, expression, append, first){
 		
 		// Overrides
 
-		for (i = this.overrides.length - 1; i >= 0; i--){
+		for (i = this.overrides.length; i--;){
 			var override = this.overrides[i];
 			if (override.regexp.test(expression)){
 				var result = override.method.call(context, expression, found, first);
