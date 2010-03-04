@@ -180,7 +180,7 @@ local.search = function(context, expression, append, first){
 		for (i = this.overrides.length; i--;){
 			var override = this.overrides[i];
 			if (override.regexp.test(expression)){
-				var result = override.method.call(context, expression, found, first);
+				var result = override.method(context, expression, found, first);
 				if (result === false) continue;
 				if (result === true) return found;
 				return result;
@@ -635,14 +635,14 @@ local.override = function(regexp, method){
 	local.overrides.push({regexp: regexp, method: method});
 };
 
-local.override(/./, function(expression, found, first){ //querySelectorAll override
+local.override(/./, function(context, expression, found, first){ //querySelectorAll override
 
-	if (!this.querySelectorAll || this.nodeType != 9 || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
+	if (!context.querySelectorAll || context.nodeType != 9 || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
 	
 	var nodes, node;
 	try {
-		if (first) return this.querySelector(expression) || null;
-		else nodes = this.querySelectorAll(expression);
+		if (first) return context.querySelector(expression) || null;
+		else nodes = context.querySelectorAll(expression);
 	} catch(error){
 		return false;
 	}
@@ -661,11 +661,11 @@ local.override(/./, function(expression, found, first){ //querySelectorAll overr
 
 });
 
-local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag override
+local.override(/^[\w-]+$|^\*$/, function(context, expression, found, first){ // tag override
 	var tag = expression;
 	if (tag == '*' && local.starSelectsComments || local.starSelectsClosed) return false;
 	
-	var nodes = this.getElementsByTagName(tag);
+	var nodes = context.getElementsByTagName(tag);
 	
 	if (first) return nodes[0] || null;
 	var i, node, hasOthers = !!(found.length);
@@ -679,12 +679,12 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 	return true;
 });
 
-local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
+local.override(/^\.[\w-]+$/, function(context, expression, found, first){ // class override
 	if (local.isXMLDocument) return false;
 	
 	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
-	if (this.getElementsByClassName && !local.cachedGetElementsByClassName && !local.brokenSecondClassNameGEBCN){
-		nodes = this.getElementsByClassName(className);
+	if (context.getElementsByClassName && !local.cachedGetElementsByClassName && !local.brokenSecondClassNameGEBCN){
+		nodes = context.getElementsByClassName(className);
 		if (first) return nodes[0] || null;
 		for (i = 0; node = nodes[i++];){
 			if (!hasOthers || !local.uniques[node.uniqueNumber || (node.uniqueNumber = local.uidx++)]){
@@ -693,7 +693,7 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 		}
 	} else {
 		var matchClass = new RegExp('(^|\\s)'+ Slick.parse.escapeRegExp(className) +'(\\s|$)');
-		nodes = this.getElementsByTagName('*');
+		nodes = context.getElementsByTagName('*');
 		for (i = 0; node = nodes[i++];){
 			if (!matchClass.test(node.className)) continue;
 			if (first) return node;
@@ -704,10 +704,10 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 	return (first) ? null : true;
 });
 
-local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
-	if (local.isXMLDocument || !this.getElementById) return false;
+local.override(/^#[\w-]+$/, function(context, expression, found, first){ // ID override
+	if (local.isXMLDocument || !context.getElementById) return false;
 	
-	var id = expression.substring(1), el = this.getElementById(id);
+	var id = expression.substring(1), el = context.getElementById(id);
 	if (!el) return found;
 	if (local.idGetsName && el.getAttributeNode('id').nodeValue != id) return false;
 	if (first) return el || null;
