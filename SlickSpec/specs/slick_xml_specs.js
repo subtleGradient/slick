@@ -22,6 +22,8 @@ function specsAssetsTemplateXML(specs,context){
 		it_should_find(3, '[class=class_classNode]');
 		it_should_find(0, '[className=class_classNode]');
 		it_should_find(3, 'camelCasedTag');
+		it_should_find(1, '#node[style=border]');
+		it_should_find(1, '[href^=http://]');
 		
 	});
 	
