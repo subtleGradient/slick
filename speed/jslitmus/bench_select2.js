@@ -45,12 +45,12 @@ function benchmarkSelectors(specs,context){
 			// 	}catch(e){}
 			// }, context, selectors);
 			
-			it['Slick WIP '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors[ii], function(){global.SlickThis.disableQSA = false;});
-			it['Slick Stable '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors[ii], function(){global.SlickLast.disableQSA = false;});
+			it['Slick WIP '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis.search(searchContext,selector); }, context, selectors[ii], function(){global.SlickThis.disableQSA = false;});
+			it['Slick Stable '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast.search(searchContext,selector); }, context, selectors[ii], function(){global.SlickLast.disableQSA = false;});
 		}
 		else {
-			it['Slick WIP '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors[ii], function(){global.SlickThis.disableQSA = true;});
-			it['Slick Stable '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors[ii], function(){global.SlickLast.disableQSA = true;});
+			it['Slick WIP '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis.search(searchContext,selector); }, context, selectors[ii], function(){global.SlickThis.disableQSA = true;});
+			it['Slick Stable '+selectors[ii]] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast.search(searchContext,selector); }, context, selectors[ii], function(){global.SlickLast.disableQSA = true;});
 		}
 		// it['Slick WIP noQSA '] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickThis(searchContext,selector); }, context, selectors, function(){global.SlickThis.disableQSA = true;});
 		// it['Slick Stable noQSA '] = _benchmarkSelectors(function(searchContext,selector){ return global.SlickLast(searchContext,selector); }, context, selectors, function(){global.SlickLast.disableQSA = true;}); 
@@ -88,7 +88,10 @@ function _benchmarkSelectors(SELECT,context,selector,before,after){
 		
 		while(count--){
 				
-				for (i=0; node = elements[i++];) { node._slickUID = node._cssId = null; };
+				for (i=0; node = elements[i++];) { 
+					//node.uniqueNumber = 
+					node._cssId = null;
+				};
 				try{
 					results = SELECT(document, selector).length;
 				}catch(error){

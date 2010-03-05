@@ -53,7 +53,6 @@ div #title\n\
 			return function(count){
 				var Slick = SlickThis.search;
 				var document = context.document;
-				var node;
 				Slick.disableQSA = true;
 				while(count--){
 					Slick(document, selector);
@@ -65,7 +64,6 @@ div #title\n\
 			return function(count){
 				var Slick = SlickLast.search;
 				var document = context.document;
-				var node;
 				Slick.disableQSA = true;
 				while(count--){
 					Slick(document, selector);
@@ -98,7 +96,6 @@ div #title\n\
 				return function(count){
 					var Slick = SlickThis.search;
 					var document = context.document;
-					var node;
 					Slick.disableQSA = false;
 					while(count--){
 						Slick(testNode,selector);
@@ -110,7 +107,6 @@ div #title\n\
 				return function(count){
 					var Slick = SlickLast.search;
 					var document = context.document;
-					var node;
 					Slick.disableQSA = false;
 					while(count--){
 						Slick(testNode,selector);
