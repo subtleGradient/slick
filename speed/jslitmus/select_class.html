@@ -31,7 +31,7 @@ this.Slick = null;
 <script src="JSLitmusHelpers.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- Runner -->
-<script type="text/javascript" src="../../test/assets/simple_request.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
 new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
@@ -44,36 +44,36 @@ var selectors = "\n\
 	for (var i = selectors.length - 1; i >= 0; i--){
 		if (!selectors[i]) continue;
 		
-		it['THIS '+selectors[i]] = function(count){
-			var Slick=global.SlickThis;var document=context.document;var i=0,node;
+		it['THIS '+selectors[i]] = (function(selector){return function(count){
+			var Slick=global.SlickThis;var document=context.document;
 			Slick.disableQSA = true;
 			while(count--){
-				Slick(document,selectors[i]);
+				Slick.search(document, selector);
 			}
-		};
+		};})(selectors[i]);
 		if (context.document.querySelectorAll)
-		it['THIS qsa '+selectors[i]] = function(count){
-			var Slick=global.SlickThis;var document=context.document;var i=0,node;
+		it['THIS qsa '+selectors[i]] = (function(selector){return function(count){
+			var Slick=global.SlickThis;var document=context.document;
 			Slick.disableQSA = false;
 			while(count--){
-				Slick(document,selectors[i]);
+				Slick.search(document, selector);
 			}
-		};
-		it['LAST '+selectors[i]] = function(count){
-			var Slick=global.SlickLast;var document=context.document;var i=0,node;		
+		};})(selectors[i]);
+		it['LAST '+selectors[i]] = (function(selector){return function(count){
+			var Slick=global.SlickLast;var document=context.document;
 			Slick.disableQSA = true;
 			while(count--){
-				Slick(document,selectors[i]);
+				Slick.search(document, selector);
 			}
-		};
+		};})(selectors[i]);
 		if (context.document.querySelectorAll)
-		it['LAST qsa '+selectors[i]] = function(count){
-			var Slick=global.SlickLast;var document=context.document;var i=0,node;		
+		it['LAST qsa '+selectors[i]] = (function(selector){return function(count){
+			var Slick=global.SlickLast;var document=context.document;
 			Slick.disableQSA = false;
 			while(count--){
-				Slick(document,selectors[i]);
+				Slick.search(document, selector);
 			}
-		};
+		};})(selectors[i]);
 	}
 
 });
