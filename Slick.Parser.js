@@ -228,7 +228,7 @@ Slick.parse = function(expression){
 	return parse(expression);
 };
 
-Slick.parse.escapeRegExp = escapeRegExp;
+Slick.escapeRegExp = escapeRegExp;
 
 if (!exports.Slick) exports.Slick = Slick;
 	
