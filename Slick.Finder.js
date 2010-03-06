@@ -338,17 +338,17 @@ local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
 	}
 };
 
-local.matchNode = function(node, selector, context){
+local.matchNode = function(node, selector){
 	var parsed = ((selector.Slick) ? selector : this.Slick.parse(selector));
 	if (!parsed) return true;
 	
 	// simple (single) selectors
-	if(!context && parsed.length == 1 && parsed.expressions[0].length == 1){
+	if(parsed.length == 1 && parsed.expressions[0].length == 1){
 		var exp = parsed.expressions[0][0];
 		return this.matchSelector(node, (this.isXMLDocument) ? exp.tag : exp.tag.toUpperCase(), exp.id, exp.parts);
 	}
 
-	var nodes = this.search(context || this.document, parsed);
+	var nodes = this.search(this.document, parsed);
 	for (var i=0, item; item = nodes[i++];){
 		if (item === node) return true;
 	}
@@ -752,12 +752,12 @@ Slick.getAttribute = function(node, name){
 
 // Slick matcher
 
-Slick.match = function(node, selector, context){
+Slick.match = function(node, selector){
 	if (!(node && selector)) return false;
 	if (!selector || selector === node) return true;
 	if (typeof selector != 'string') return false;
 	local.setDocument(node);
-	return local.matchNode(node, selector, context);
+	return local.matchNode(node, selector);
 };
 
 // Slick attribute accessor
