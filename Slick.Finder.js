@@ -387,25 +387,27 @@ var combinators = {
 
 		if (!this.isXMLDocument){
 			getById: if (id){
-				// if node === document then we don't need to use contains
 				var context = node;
 				if (!context.getElementById) context = this.document;
 				item = context.getElementById(id);
-				if (!item || (this.idGetsName && item.getAttributeNode('id').nodeValue != id)) break getById;
-				if (node.nodeType !== 9 && !this.contains(node, item)) return;
+				if (this.idGetsName && item && item.getAttributeNode('id').nodeValue != id){
+					// all[id] returns all the elements with that name or id inside node
+					// if theres just one it will return the element, else it will be a collection
+					if(!node.all) break getById;
+					children = node.all[id];
+					if (!children) return;
+					if (!children[0]) children = [children];
+					for (i = 0; item = children[i++];) if (item.getAttributeNode('id').nodeValue == id){
+						this.push(item, tag, null, parts);
+						break;
+					} 
+					return;
+				}
+				// if the context is not in the dom
+				if (!item && !context.ownerDocument) break getById;
+				// if node === document then we don't need to use contains
+				if (!item || (node.nodeType !== 9 && !this.contains(node, item))) return;
 				this.push(item, tag, null, parts);
-				return;
-			}
-			getById: if (id && node.all){
-				// all[id] returns all the elements with that name or id inside node
-				// if theres just one it will return the element, else it will be a collection
-				children = node.all[id];
-				if (!children) return;
-				if (!children[0]) children = [children];
-				for (i = 0; item = children[i++];) if (item.getAttributeNode('id').nodeValue == id){
-					this.push(item, tag, null, parts);
-					break;
-				} 
 				return;
 			}
 			getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN){
