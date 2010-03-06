@@ -613,7 +613,7 @@ local.attributeGetters = {
 	},
 	
 	'style': function(){
-		return ('style' in this) ? this.style.cssText : this.getAttribute('style');
+		return (this.style) ? this.style.cssText : this.getAttribute('style');
 	}
 
 };
