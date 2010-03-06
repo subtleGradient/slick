@@ -258,7 +258,7 @@ local.search = function(context, expression, append, first){
 		currentItems = this.found;
 	}
 	
-	if ((parsed.expressions.length > 1) || shouldUniques) this.sort(found);
+	if (shouldUniques || (parsed.expressions.length > 1)) this.sort(found);
 	
 	return (first) ? (found[0] || null) : found;
 };
