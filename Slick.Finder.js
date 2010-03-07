@@ -164,7 +164,7 @@ local.search = function(context, expression, append, first){
 
 	// setup
 	
-	var parsed, i;
+	var parsed, i, l;
 
 	this.positions = {};
 	var uniques = this.uniques = {};
