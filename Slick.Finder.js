@@ -48,14 +48,15 @@ local.setDocument = function(document){
 	
 	// document sort
 	
-	this.starSelectsClosed
-	= this.starSelectsComments
+	this.brokenStarGEBTN
 	= this.starSelectsClosedQSA
 	= this.idGetsName
 	= this.brokenMixedCaseQSA
-	= this.cachedGetElementsByClassName
-	= this.brokenSecondClassNameGEBCN
+	= this.brokenGEBCN
 	= false;
+	
+	var starSelectsClosed, starSelectsComments,
+		brokenSecondClassNameGEBCN, cachedGetElementsByClassName;
 	
 	if (!(this.isXMLDocument = this.isXML(document))){
 		
@@ -65,14 +66,16 @@ local.setDocument = function(document){
 		
 		// IE returns comment nodes for getElementsByTagName('*') for some documents
 		testNode.appendChild(document.createComment(''));
-		this.starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+		starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
 		
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
 		try {
 			testNode.innerHTML = 'foo</foo>';
 			selected = testNode.getElementsByTagName('*');
-			this.starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
+			starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 		} catch(e){};
+		
+		this.brokenStarGEBTN = starSelectsComments || starSelectsClosed;
 		
 		// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
 		if (testNode.querySelectorAll) try {
@@ -98,14 +101,16 @@ local.setDocument = function(document){
 			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 			testNode.getElementsByClassName('b').length;
 			testNode.firstChild.className = 'b';
-			this.cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+			cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 		} catch(e){};
 		
 		// Opera 9.6 GEBCN doesnt detects the class if its not the first one
 		try {
 			testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
-			this.brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
+			brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
 		} catch(e){};
+		
+		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
 		
 		this.root.removeChild(testNode);
 		testNode = null;
@@ -408,7 +413,7 @@ var combinators = {
 				this.push(item, tag, null, parts);
 				return;
 			}
-			getByClass: if (node.getElementsByClassName && classes && !this.cachedGetElementsByClassName && !this.brokenSecondClassNameGEBCN){
+			getByClass: if (node.getElementsByClassName && classes && !this.brokenGEBCN){
 				children = node.getElementsByClassName(classes.join(' '));
 				if (!(children && children.length)) break getByClass;
 				for (i = 0, l = children.length; i < l; i++) this.push(children[i], tag, id, parts, false);
@@ -418,7 +423,7 @@ var combinators = {
 		getByTag: {
 			children = node.getElementsByTagName(tag);
 			if (!(children && children.length)) break getByTag;
-			if (!(this.starSelectsComments || this.starSelectsClosed)) tag = null;
+			if (!this.brokenStartGEBTN) tag = null;
 			var child;
 			for (i = 0; child = children[i++];) this.push(child, tag, id, parts);
 		}
@@ -663,7 +668,7 @@ local.override(/./, function(expression, found, first){ //querySelectorAll overr
 
 local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag override
 	var tag = expression;
-	if (tag == '*' && local.starSelectsComments || local.starSelectsClosed) return false;
+	if (tag == '*' && local.brokenStarGEBTN) return false;
 	
 	var nodes = this.getElementsByTagName(tag);
 	
@@ -683,7 +688,7 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 	if (local.isXMLDocument) return false;
 	
 	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
-	if (this.getElementsByClassName && !local.cachedGetElementsByClassName && !local.brokenSecondClassNameGEBCN){
+	if (this.getElementsByClassName && !local.brokenGEBCN){
 		nodes = this.getElementsByClassName(className);
 		if (first) return nodes[0] || null;
 		for (i = 0; node = nodes[i++];){
