@@ -4,7 +4,7 @@ BASE = File.dirname(__FILE__)
 
 File.open(BASE + '/slick.js', 'w') do |file|
   
-  file << File.read(BASE + '/Slick.Parser.js')
-  file << File.read(BASE + '/Slick.Finder.js')
+  file << File.read(BASE + '/Source/Slick.Parser.js')
+  file << File.read(BASE + '/Source/Slick.Finder.js')
   
 end

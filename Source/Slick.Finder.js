@@ -1,18 +1,9 @@
 /*
 ---
 name: Slick.Finder
+description: The new, superfast css selector engine.
 provides: Slick.Finder
 requires: Slick.Parser
-
-description: The new, superfast css selector engine.
-
-license: MIT-style
-
-authors:
-- Thomas Aylott
-- Valerio Proietti
-- Fabio M Costa
-- Jan Kassens
 ...
 */
 
