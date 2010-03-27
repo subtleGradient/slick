@@ -24,7 +24,7 @@ local.isXML = function(document){
 
 local.setDocument = function(document){
 	
-	// filter out junk
+	// convert elements / window arguments to document
 	
 	if (document.nodeType === 9); // document
 	else if (document.ownerDocument) document = document.ownerDocument; // node
