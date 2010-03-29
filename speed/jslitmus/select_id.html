@@ -9,12 +9,12 @@ iframe{display:none;}
 </style>
 
 <!-- JSSpec -->
-<script type="text/javascript" src="../../test/assets/JSSpec.js"></script>
-<script type="text/javascript" src="../../test/assets/JSSpecHelpers.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpec.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/JSSpecHelpers.js"></script>
 
 <!-- Slick -->
-<script> document.write('<scr'+'ipt src="../../Slick.Parser.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
-<script> document.write('<scr'+'ipt src="../../Slick.Finder.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script> document.write('<scr'+'ipt src="../../Source/Slick.Parser.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
+<script> document.write('<scr'+'ipt src="../../Source/Slick.Finder.js?this&'+Math.random().toString(32).slice(2)+'" type="text/javascript"><\/scr'+'ipt>');</script>
 <script type="text/javascript">
 var SlickThis = Slick;
 this.Slick = null;
@@ -31,10 +31,10 @@ this.Slick = null;
 <script src="JSLitmusHelpers.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- Runner -->
-<script type="text/javascript" src="../../test/assets/simple_request.js"></script>
+<script type="text/javascript" src="../../SlickSpec/assets/simple_request.js"></script>
 <script type="text/javascript" charset="utf-8">
 
-new Mock(/\b(xml|svg|xhtml|html)\b/i, function(specs,context){
+new Mock(/\b(xml|svg|xhtml|html)\b/i, function(){
 
 var selectors = "\n\
 #title\n\
@@ -44,25 +44,32 @@ div #title\n\
 * #title\n\
 ".split("\n");
 	
-	var testNode = global.SlickThis(context.document, '#title !> * !> *')[0];
+	var testNode = SlickThis.search(context.document, '#title !> * !> *')[0];
 	
 	for (var i=0, l=selectors.length; i < l; i++) {
 		if (!selectors[i]) continue;
 		
-		it['THIS '+selectors[i]] = function(count){
-			var Slick=global.SlickThis;var document=context.document;var i=0,node;
-			Slick.disableQSA = true;
-			while(count--){
-				Slick(document,selectors[i]);
-			}
-		};
-		it['LAST '+selectors[i]] = function(count){
-			var Slick=global.SlickLast;var document=context.document;var i=0,node;		
-			Slick.disableQSA = true;
-			while(count--){
-				Slick(document,selectors[i]);
-			}
-		};
+		it['THIS '+selectors[i]] = (function(selector){
+			return function(count){
+				var Slick = SlickThis.search;
+				var document = context.document;
+				Slick.disableQSA = true;
+				while(count--){
+					Slick(document, selector);
+				}
+			};
+		})(selectors[i]);
+		
+		it['LAST '+selectors[i]] = (function(selector){
+			return function(count){
+				var Slick = SlickLast.search;
+				var document = context.document;
+				Slick.disableQSA = true;
+				while(count--){
+					Slick(document, selector);
+				}
+			};
+		})(selectors[i]);
 /*
 		if (context.document.querySelectorAll){
 			
@@ -85,20 +92,27 @@ div #title\n\
 */
 		if (testNode){
 			
-			it['THIS testNode '+selectors[i]] = function(count){
-				var Slick=global.SlickThis;var document=context.document;var i=0,node;
-				Slick.disableQSA = false;
-				while(count--){
-					Slick(testNode,selectors[i]);
-				}
-			};
-			it['LAST testNode '+selectors[i]] = function(count){
-				var Slick=global.SlickLast;var document=context.document;var i=0,node;		
-				Slick.disableQSA = false;
-				while(count--){
-					Slick(testNode,selectors[i]);
-				}
-			};
+			it['THIS testNode '+selectors[i]] =  (function(selector){
+				return function(count){
+					var Slick = SlickThis.search;
+					var document = context.document;
+					Slick.disableQSA = false;
+					while(count--){
+						Slick(testNode,selector);
+					}
+				};
+			})(selectors[i]);
+			
+			it['LAST testNode '+selectors[i]] =  (function(selector){
+				return function(count){
+					var Slick = SlickLast.search;
+					var document = context.document;
+					Slick.disableQSA = false;
+					while(count--){
+						Slick(testNode,selector);
+					}
+				};
+			})(selectors[i]);
 			
 		}
 	}
@@ -111,9 +125,9 @@ div #title\n\
 
 
 <!-- mocks -->
-<iframe onload="Mock.register('HTML',this.contentWindow)" src="../../test/tools/template-standard.html"></iframe>
+<iframe onload="Mock.register('HTML',this.contentWindow)" src="../../SlickSpec/mocks/template-standard.html"></iframe>
 <script type="text/javascript" charset="utf-8">
-// new Mock.Request('XML','../../test/tools/template.xml');
+// new Mock.Request('XML','../../SlickSpec/mocks/template.xml');
 </script>
 </body>
 </html>
