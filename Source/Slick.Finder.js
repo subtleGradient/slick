@@ -17,6 +17,10 @@ var timeStamp = +new Date();
 
 // Feature / Bug detection
 
+local.isNativeCode = function(fn){
+	return (/\{\s*\[native code\]\s*\}/).test('' + fn);
+};
+
 local.isXML = function(document){
 	return (!!document.xmlVersion) || (!!document.xml) || (Object.prototype.toString.call(document) === '[object XMLDocument]') ||
 	(document.nodeType === 9 && document.documentElement.nodeName !== 'HTML');
@@ -110,7 +114,7 @@ local.setDocument = function(document){
 	
 	// contains
 	
-	this.contains = (root && root.contains) ? function(context, node){ // FIXME: Add specs: local.contains should be different for xml and html documents?
+	this.contains = (root && this.isNativeCode(root.contains)) ? function(context, node){ // FIXME: Add specs: local.contains should be different for xml and html documents?
 		return context.contains(node);
 	} : (root && root.compareDocumentPosition) ? function(context, node){
 		return context === node || !!(context.compareDocumentPosition(node) & 16);
