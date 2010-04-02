@@ -169,6 +169,7 @@ function specsSelectorEngineBugs(specs,context){ Describe('Bugs',function(){
 	};
 	
 	it['should return the element with passed id even if the context is not in the DOM'] = function(){
+		teardown();setup();
 		testNode.parentNode.removeChild(testNode);
 		tmpNode = context.document.createElement('input');tmpNode.setAttribute('id', 'someuniqueid');tmpNode.setAttribute('type','text');testNode.appendChild(tmpNode);
 		
