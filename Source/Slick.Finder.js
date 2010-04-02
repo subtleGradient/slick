@@ -397,7 +397,7 @@ var combinators = {
 		getByTag: {
 			children = node.getElementsByTagName(tag);
 			if (!(children && children.length)) break getByTag;
-			if (!this.brokenStartGEBTN) tag = null;
+			if (!this.brokenStarGEBTN) tag = null;
 			var child;
 			for (i = 0; child = children[i++];) this.push(child, tag, id, parts);
 		}
