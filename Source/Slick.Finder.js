@@ -112,6 +112,15 @@ local.setDocument = function(document){
 		
 	}
 	
+	// hasAttribute
+	
+	this.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
+		return node.hasAttribute(attribute);
+	} : function(node, attribute) {
+		node = node.getAttributeNode(attribute);
+		return !!(node && (node.specified || node.nodeValue));
+	};
+	
 	// contains
 	
 	this.contains = (root && this.isNativeCode(root.contains)) ? function(context, node){ // FIXME: Add specs: local.contains should be different for xml and html documents?
@@ -362,7 +371,7 @@ local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudo
 			if (!(cls && part.regexp.test(cls))) return false;
 		}
 		if (part.type == 'pseudo' && pseudos !== false && (!this.matchPseudo(node, part.key, part.value))) return false;
-		if (part.type == 'attribute' && attributes !== false && (!part.test(this.getAttribute(node, part.key)))) return false;
+		if (part.type == 'attribute' && attributes !== false && (part.operator ? !part.test(this.getAttribute(node, part.key)) : !this.hasAttribute(node, part.key))) return false;
 	}
 	return true;
 };
