@@ -154,6 +154,13 @@ local.search = function(context, expression, append, first){
 	
 	var found = this.found = (first) ? null : (append || []);
 	
+	// no need to pass a context if its the current document
+	
+	if (expression == null){
+		expression = context;
+		context = document; // the current document, not local.document, cause it would be confusing
+	}
+	
 	// context checks
 
 	if (!context) return found; // No context
