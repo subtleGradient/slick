@@ -503,7 +503,8 @@ for (var c in combinators) local['combinator:' + c] = combinators[c];
 var pseudos = {
 
 	'empty': function(node){
-		return !node.firstChild && !(node.innerText || node.textContent || '').length;
+		var child = node.firstChild;
+		return !(child && child.nodeType == 1) && !(node.innerText || node.textContent || '').length;
 	},
 
 	'not': function(node, expression){
