@@ -212,26 +212,6 @@ function parser(
 	return '';
 };
 
-var cacheNTH = {},
-	matchNTH = /^([+-]?\d*)?([a-z]+)?([+-]\d+)?$/;
-
-var parseNTHArgument = function(argument){
-	if (cacheNTH[argument]) return cacheNTH[argument];
-	var parsed = argument.match(matchNTH);
-	if (!parsed) return false;
-	var special = parsed[2] || false;
-	var a = parsed[1] || 1;
-	if (a == '-') a = -1;
-	var b = parseInt(parsed[3], 10) || 0;
-	switch (special){
-		case 'n':    parsed = {a: a, b: b}; break;
-		case 'odd':  parsed = {a: 2, b: 1}; break;
-		case 'even': parsed = {a: 2, b: 0}; break;
-		default:     parsed = {a: 0, b: a};
-	}
-	return (cacheNTH[argument] = parsed);
-};
-
 // Slick NS
 
 var Slick = exports.Slick || {};
@@ -239,8 +219,6 @@ var Slick = exports.Slick || {};
 Slick.parse = function(expression){
 	return parse(expression);
 };
-
-Slick.parseNTHArgument = parseNTHArgument;
 
 Slick.escapeRegExp = escapeRegExp;
 
