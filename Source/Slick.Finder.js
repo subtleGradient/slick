@@ -517,7 +517,8 @@ var pseudos = {
 	},
 
 	'first-child': function(node){
-		return this['pseudo:nth-child'](node, '1');
+		while ((node = node.previousSibling)) if (node.nodeType === 1) return false;
+		return true;
 	},
 
 	'last-child': function(node){
