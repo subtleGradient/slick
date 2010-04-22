@@ -328,10 +328,11 @@ local.nthPseudo = function(child, sibling, node, argument){
 	if (!this.positions[uid]){
 		var parent = node.parentNode;
 		if (!parent) return false;
-		for (var el = parent[child], count = 1; el !== node && (el = el[sibling]);){
+		var el = parent[child], count = 1;
+		do {
 			if (el.nodeType !== 1) continue;
 			this.positions[this.getUID(el)] = count++;
-		}
+		} while (el !== node && (el = el[sibling]));
 	}
 	argument = argument || 'n';
 	var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
