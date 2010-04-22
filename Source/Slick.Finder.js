@@ -313,13 +313,12 @@ local.parseNTHArgument = function(argument){
 	var special = parsed[2] || false;
 	var a = parsed[1] || 1;
 	if (a == '-') a = -1;
-	var b = parseInt(parsed[3], 10) || 0;
-	switch (special){
-		case 'n':    parsed = {a: a, b: b}; break;
-		case 'odd':  parsed = {a: 2, b: 1}; break;
-		case 'even': parsed = {a: 2, b: 0}; break;
-		default:     parsed = {a: 0, b: a};
-	}
+	var b = +parsed[3] || 0;
+	parsed =
+		(special == 'n')	? {a: a, b: b} :
+		(special == 'odd')	? {a: 2, b: 1} :
+		(special == 'even')	? {a: 2, b: 0} : {a: 0, b: a};
+		
 	return (this.cacheNTH[argument] = parsed);
 };
 
