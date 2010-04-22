@@ -323,24 +323,12 @@ local.parseNTHArgument = function(argument){
 	return (this.cacheNTH[argument] = parsed);
 };
 
-local.nthProperties = {
-	'nth-last': {
-		child: 'lastChild',
-		sibling: 'previousSibling'
-	},
-	nth: {
-		child: 'firstChild',
-		sibling: 'nextSibling'
-	}
-};
-
-local.nthPseudo = function(type, node, argument){
-	var prop = this.nthProperties[type];
+local.nthPseudo = function(child, sibling, node, argument){
 	var uid = this.getUID(node);
 	if (!this.positions[uid]){
 		var parent = node.parentNode;
 		if (!parent) return false;
-		for (var el = parent[prop.child], count = 1; el !== node && (el = el[prop.sibling]);){
+		for (var el = parent[child], count = 1; el !== node && (el = el[sibling]);){
 			if (el.nodeType !== 1) continue;
 			this.positions[this.getUID(el)] = count++;
 		}
@@ -569,11 +557,11 @@ var pseudos = {
 	},
 
 	'nth-child': function(node, argument){
-		return this.nthPseudo('nth', node, argument);
+		return this.nthPseudo('firstChild', 'nextSibling', node, argument);
 	},
 	
 	'nth-last-child': function(node, argument){
-		return this.nthPseudo('nth-last', node, argument);
+		return this.nthPseudo('lastChild', 'previousSibling', node, argument);
 	},
 
 	// custom pseudos
