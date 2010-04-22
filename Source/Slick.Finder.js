@@ -323,6 +323,40 @@ local.parseNTHArgument = function(argument){
 	return (this.cacheNTH[argument] = parsed);
 };
 
+local.nthProperties = {
+	'nth-last': {
+		child: 'lastChild',
+		sibling: 'previousSibling'
+	},
+	nth: {
+		child: 'firstChild',
+		sibling: 'nextSibling'
+	}
+};
+
+local.nthPseudo = function(type, node, argument){
+	var prop = this.nthProperties[type];
+	var uid = this.getUID(node);
+	if (!this.positions[uid]){
+		var parent = node.parentNode;
+		if (!parent) return false;
+		for (var el = parent[prop.child], count = 1; el !== node && (el = el[prop.sibling]);){
+			if (el.nodeType !== 1) continue;
+			this.positions[this.getUID(el)] = count++;
+		}
+	}
+	argument = argument || 'n';
+	var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
+	var a = parsed.a, b = parsed.b, pos = this.positions[uid];
+	if (a == 0) return b == pos;
+	if (a > 0){
+		if (pos < b) return false;
+	} else {
+		if (b < pos) return false;
+	}
+	return ((pos - b) % a) == 0;
+};
+
 local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
 	if (this.matchSelector(node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
 };
@@ -535,31 +569,11 @@ var pseudos = {
 	},
 
 	'nth-child': function(node, argument){
-		argument = (!argument) ? 'n' : argument;
-		var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-		var uid = this.getUID(node);
-		if (!this.positions[uid]){
-			var count = 1;
-			while ((node = node.previousSibling)){
-				if (node.nodeType !== 1) continue;
-				var puid = this.getUID(node);
-				var position = this.positions[puid];
-				if (position != null){
-					count = position + count;
-					break;
-				}
-				count++;
-			}
-			this.positions[uid] = count;
-		}
-		var a = parsed.a, b = parsed.b, pos = this.positions[uid];
-		if (a == 0) return b == pos;
-		if (a > 0){
-			if (pos < b) return false;
-		} else {
-			if (b < pos) return false;
-		}
-		return ((pos - b) % a) == 0;
+		return this.nthPseudo('nth', node, argument);
+	},
+	
+	'nth-last-child': function(node, argument){
+		return this.nthPseudo('nth-last', node, argument);
 	},
 
 	// custom pseudos
