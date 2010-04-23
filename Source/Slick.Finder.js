@@ -335,6 +335,7 @@ local.nthPseudo = function(child, sibling, node, argument){
 	}
 	argument = argument || 'n';
 	var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
+	if (!parsed) return false;
 	var a = parsed.a, b = parsed.b, pos = this.positions[uid];
 	if (a == 0) return b == pos;
 	if (a > 0){
