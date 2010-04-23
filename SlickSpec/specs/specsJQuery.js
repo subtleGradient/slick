@@ -399,8 +399,8 @@ function specsJQuery(specs, context){
 		//t( "nth Element", "p:nth(1)", ["ap"] );
 		//t( "First Element", "p:first", ["firstp"] );
 		//t( "Last Element", "p:last", ["first"] );
-		t( "Odd Elements", "p:odd", ["firstp","sndp","sap"] );
-		t( "Even Elements", "p:even", ["ap","en","first"] );
+		t( "Odd Elements", "p:odd", ["firstp","sndp","sap", "first"] );
+		t( "Even Elements", "p:even", ["ap","en"] );
 		//t( "Position Equals", "p:eq(1)", ["ap"] );
 		//t( "Position Greater Than", "p:gt(0)", ["ap","sndp","en","sap","first"] );
 		//t( "Position Less Than", "p:lt(3)", ["firstp","ap","sndp"] );
