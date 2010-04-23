@@ -323,16 +323,23 @@ local.parseNTHArgument = function(argument){
 	return (this.cacheNTH[argument] = parsed);
 };
 
-local.nthPseudo = function(child, sibling, positions, node, argument){
+local.nthPseudo = function(child, sibling, positions, node, argument, nodeName){
 	var uid = this.getUID(node);
 	if (!this[positions][uid]){
 		var parent = node.parentNode;
 		if (!parent) return false;
 		var el = parent[child], count = 1;
-		do {
-			if (el.nodeType !== 1) continue;
-			this[positions][this.getUID(el)] = count++;
-		} while (el !== node && (el = el[sibling]));
+		if (nodeName){
+			do {
+				if (el.nodeName !== nodeName) continue;
+				this[positions][this.getUID(el)] = count++;
+			} while (el !== node && (el = el[sibling]));
+		} else {
+			do {
+				if (el.nodeType !== 1) continue;
+				this[positions][this.getUID(el)] = count++;
+			} while (el !== node && (el = el[sibling]));
+		}
 	}
 	argument = argument || 'n';
 	var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
@@ -564,6 +571,22 @@ var pseudos = {
 	
 	'nth-last-child': function(node, argument){
 		return this.nthPseudo('lastChild', 'previousSibling', 'positionsReverse', node, argument);
+	},
+	
+	'nth-of-type': function(node, argument){
+		return this.nthPseudo('firstChild', 'nextSibling', 'positions', node, argument, node.nodeName);
+	},
+	
+	'nth-last-of-type': function(node, argument){
+		return this.nthPseudo('lastChild', 'previousSibling', 'positionsReverse', node, argument, node.nodeName);
+	},
+	
+	'first-of-type': function(node, argument){
+		return this['pseudo:nth-of-type'](node, '1');
+	},
+	
+	'last-of-type': function(node, argument){
+		return this['pseudo:nth-last-of-type'](node, '1');
 	},
 
 	// custom pseudos
