@@ -181,6 +181,7 @@ local.search = function(context, expression, append, first){
 	var parsed, i, l;
 
 	this.positions = {};
+	this.positionsReverse = {};
 	var uniques = this.uniques = {};
 	
 	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
@@ -322,21 +323,21 @@ local.parseNTHArgument = function(argument){
 	return (this.cacheNTH[argument] = parsed);
 };
 
-local.nthPseudo = function(child, sibling, node, argument){
+local.nthPseudo = function(child, sibling, positions, node, argument){
 	var uid = this.getUID(node);
-	if (!this.positions[uid]){
+	if (!this[positions][uid]){
 		var parent = node.parentNode;
 		if (!parent) return false;
 		var el = parent[child], count = 1;
 		do {
 			if (el.nodeType !== 1) continue;
-			this.positions[this.getUID(el)] = count++;
+			this[positions][this.getUID(el)] = count++;
 		} while (el !== node && (el = el[sibling]));
 	}
 	argument = argument || 'n';
 	var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
 	if (!parsed) return false;
-	var a = parsed.a, b = parsed.b, pos = this.positions[uid];
+	var a = parsed.a, b = parsed.b, pos = this[positions][uid];
 	if (a == 0) return b == pos;
 	if (a > 0){
 		if (pos < b) return false;
@@ -390,7 +391,7 @@ local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudo
 		part = parts[i];
 		if (!part) continue;
 		if (part.type == 'class' && classes !== false){
-			cls = ('className' in node) ? node.className : node.getAttribute('class');	
+			cls = ('className' in node) ? node.className : node.getAttribute('class');
 			if (!(cls && part.regexp.test(cls))) return false;
 		}
 		if (part.type == 'pseudo' && pseudos !== false && (!this.matchPseudo(node, part.key, part.value))) return false;
@@ -558,11 +559,11 @@ var pseudos = {
 	},
 
 	'nth-child': function(node, argument){
-		return this.nthPseudo('firstChild', 'nextSibling', node, argument);
+		return this.nthPseudo('firstChild', 'nextSibling', 'positions', node, argument);
 	},
 	
 	'nth-last-child': function(node, argument){
-		return this.nthPseudo('lastChild', 'previousSibling', node, argument);
+		return this.nthPseudo('lastChild', 'previousSibling', 'positionsReverse', node, argument);
 	},
 
 	// custom pseudos

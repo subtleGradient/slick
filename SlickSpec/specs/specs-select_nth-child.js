@@ -61,6 +61,9 @@ function specsSelectNthChild(){
 			should_select(':nth-child(2n):nth-child(3n+1)', [4, 10]);
 			should_select(':nth-child(n+3):nth-child(-n+5)', [3, 4, 5]);
 		};
+		it['should work with both nth-child and nth-last-child'] = function(){
+			should_select(':nth-child(odd):nth-last-child(odd)', []);
+		};
 	});
 	
 };
