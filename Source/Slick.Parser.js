@@ -16,7 +16,8 @@ var parsed,
 	partIndex,
 	reversed,
 	cache = {},
-	reverseCache = {};
+	reverseCache = {},
+	reUnescape = /\\/g;
 
 var parse = function(expression, isReversed){
 	expression = ('' + expression).replace(/^\s+|\s+$/g, '');
@@ -135,13 +136,13 @@ function parser(
 	var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
 
 	if (tagName){
-		currentParsed.tag = tagName.replace(/\\/g,'');
+		currentParsed.tag = tagName.replace(reUnescape, '');
 		return '';
 	} else if (id){
-		currentParsed.id = id.replace(/\\/g,'');
+		currentParsed.id = id.replace(reUnescape, '');
 		return '';
 	} else if (className){
-		className = className.replace(/\\/g,'');
+		className = className.replace(reUnescape, '');
 	
 		if (!currentParsed.classes) currentParsed.classes = [className];
 		else currentParsed.classes.push(className);
@@ -157,11 +158,11 @@ function parser(
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
 		
 		var value = pseudoClassValue || null;
-		if (value) value = value.replace(/\\/g,'');
+		if (value) value = value.replace(reUnescape, '');
 		
 		currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
 			type: 'pseudo',
-			key: pseudoClass.replace(/\\/g,''),
+			key: pseudoClass.replace(reUnescape, ''),
 			value: value
 		});
 		partIndex++;
@@ -169,9 +170,9 @@ function parser(
 	} else if (attributeKey){
 		if (!currentParsed.attributes) currentParsed.attributes = [];
 		
-		var key = attributeKey.replace(/\\/g,'');
+		var key = attributeKey.replace(reUnescape, '');
 		var operator = attributeOperator;
-		var attribute = (attributeValue || '').replace(/\\/g,'');
+		var attribute = (attributeValue || '').replace(reUnescape, '');
 		
 		var test, regexp;
 		
