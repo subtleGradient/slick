@@ -156,37 +156,35 @@ function parser(
 	} else if (pseudoClass){
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
 		
-		var value = pseudoClassValue || null;
-		if (value) value = value.replace(reUnescape, '');
-		
+		pseudoClassValue = pseudoClassValue ? pseudoClassValue.replace(reUnescape, '') : null;
+
 		currentParsed.pseudos.push(currentParsed.parts[++partIndex] = {
 			type: 'pseudo',
 			key: pseudoClass.replace(reUnescape, ''),
-			value: value
+			value: pseudoClassValue
 		});
 		
 	} else if (attributeKey){
 		if (!currentParsed.attributes) currentParsed.attributes = [];
 		
-		var key = attributeKey.replace(reUnescape, '');
-		var operator = attributeOperator;
-		var attribute = (attributeValue || '').replace(reUnescape, '');
+		attributeKey = attributeKey.replace(reUnescape, '');
+		attributeValue = (attributeValue || '').replace(reUnescape, '');
 		
 		var test, regexp;
 		
-		switch (operator){
-			case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute)            ); break;
-			case '$=' : regexp = new RegExp(            escapeRegExp(attribute) +'$'       ); break;
-			case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attribute) +'(\\s|$)' ); break;
-			case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attribute) +'(-|$)'   ); break;
+		switch (attributeOperator){
+			case '^=' : regexp = new RegExp(       '^'+ escapeRegExp(attributeValue)            ); break;
+			case '$=' : regexp = new RegExp(            escapeRegExp(attributeValue) +'$'       ); break;
+			case '~=' : regexp = new RegExp( '(^|\\s)'+ escapeRegExp(attributeValue) +'(\\s|$)' ); break;
+			case '|=' : regexp = new RegExp(       '^'+ escapeRegExp(attributeValue) +'(-|$)'   ); break;
 			case  '=' : test = function(value){
-				return attribute == value;
+				return attributeValue == value;
 			}; break;
 			case '*=' : test = function(value){
-				return value && value.indexOf(attribute) > -1;
+				return value && value.indexOf(attributeValue) > -1;
 			}; break;
 			case '!=' : test = function(value){
-				return attribute != value;
+				return attributeValue != value;
 			}; break;
 			default   : test = function(value){
 				return !!value;
@@ -199,9 +197,9 @@ function parser(
 		
 		currentParsed.attributes.push(currentParsed.parts[++partIndex] = {
 			type: 'attribute',
-			key: key,
-			operator: operator,
-			value: attribute,
+			key: attributeKey,
+			operator: attributeOperator,
+			value: attributeValue,
 			test: test
 		});
 		
