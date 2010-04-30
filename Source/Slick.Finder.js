@@ -586,11 +586,15 @@ var pseudos = {
 	},
 	
 	'first-of-type': function(node, argument){
-		return this['pseudo:nth-of-type'](node, '1');
+		var nodeName = node.nodeName;
+		while ((node = node.previousSibling)) if (node.nodeName === nodeName) return false;
+		return true;
 	},
 	
 	'last-of-type': function(node, argument){
-		return this['pseudo:nth-last-of-type'](node, '1');
+		var nodeName = node.nodeName;
+		while ((node = node.nextSibling)) if (node.nodeName === nodeName) return false;
+		return true;
 	},
 
 	// custom pseudos
