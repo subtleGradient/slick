@@ -731,7 +731,8 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 		var matchClass = new RegExp('(^|\\s)'+ Slick.escapeRegExp(className) +'(\\s|$)');
 		nodes = this.getElementsByTagName('*');
 		for (i = 0; node = nodes[i++];){
-			if (!node.className || !matchClass.test(node.className)) continue;
+			className = node.className;
+			if (!className || !matchClass.test(className)) continue;
 			if (first) return node;
 			if (!hasOthers || !local.uniques[local.getUIDHTML(node)]) found.push(node);
 		}
