@@ -327,35 +327,38 @@ local.parseNTHArgument = function(argument){
 	return (this.cacheNTH[argument] = parsed);
 };
 
-local.nthPseudo = function(child, sibling, positions, node, argument, nodeName){
-	var uid = this.getUID(node);
-	if (!this[positions][uid]){
-		var parent = node.parentNode;
-		if (!parent) return false;
-		var el = parent[child], count = 1;
-		if (nodeName){
-			do {
-				if (el.nodeName !== nodeName) continue;
-				this[positions][this.getUID(el)] = count++;
-			} while ((el = el[sibling]));
-		} else {
-			do {
-				if (el.nodeType !== 1) continue;
-				this[positions][this.getUID(el)] = count++;
-			} while ((el = el[sibling]));
+local.createNTHPseudo = function(child, sibling, positions, ofType){
+	return function(node, argument){
+		var uid = this.getUID(node);
+		if (!this[positions][uid]){
+			var parent = node.parentNode;
+			if (!parent) return false;
+			var el = parent[child], count = 1;
+			if (ofType){
+				var nodeName = node.nodeName;
+				do {
+					if (el.nodeName !== nodeName) continue;
+					this[positions][this.getUID(el)] = count++;
+				} while ((el = el[sibling]));
+			} else {
+				do {
+					if (el.nodeType !== 1) continue;
+					this[positions][this.getUID(el)] = count++;
+				} while ((el = el[sibling]));
+			}
 		}
+		argument = argument || 'n';
+		var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
+		if (!parsed) return false;
+		var a = parsed.a, b = parsed.b, pos = this[positions][uid];
+		if (a == 0) return b == pos;
+		if (a > 0){
+			if (pos < b) return false;
+		} else {
+			if (b < pos) return false;
+		}
+		return ((pos - b) % a) == 0;
 	}
-	argument = argument || 'n';
-	var parsed = this.cacheNTH[argument] || this.parseNTHArgument(argument);
-	if (!parsed) return false;
-	var a = parsed.a, b = parsed.b, pos = this[positions][uid];
-	if (a == 0) return b == pos;
-	if (a > 0){
-		if (pos < b) return false;
-	} else {
-		if (b < pos) return false;
-	}
-	return ((pos - b) % a) == 0;
 };
 
 local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
@@ -572,21 +575,13 @@ var pseudos = {
 		return true;
 	},
 
-	'nth-child': function(node, argument){
-		return this.nthPseudo('firstChild', 'nextSibling', 'posNTH', node, argument);
-	},
+	'nth-child': local.createNTHPseudo('firstChild', 'nextSibling', 'posNTH'),
 	
-	'nth-last-child': function(node, argument){
-		return this.nthPseudo('lastChild', 'previousSibling', 'posNTHLast', node, argument);
-	},
+	'nth-last-child': local.createNTHPseudo('lastChild', 'previousSibling', 'posNTHLast'),
 	
-	'nth-of-type': function(node, argument){
-		return this.nthPseudo('firstChild', 'nextSibling', 'posNTHType', node, argument, node.nodeName);
-	},
+	'nth-of-type': local.createNTHPseudo('firstChild', 'nextSibling', 'posNTHType', true),
 	
-	'nth-last-of-type': function(node, argument){
-		return this.nthPseudo('lastChild', 'previousSibling', 'posNTHTypeLast', node, argument, node.nodeName);
-	},
+	'nth-last-of-type': local.createNTHPseudo('lastChild', 'previousSibling', 'posNTHTypeLast', true),
 	
 	'first-of-type': function(node){
 		var nodeName = node.nodeName;
