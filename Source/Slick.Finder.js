@@ -396,8 +396,13 @@ local.matchPseudo = function(node, name, argument){
 };
 
 local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudos){
-	if (tag && tag == '*' && (node.nodeType != 1 || node.nodeName.charCodeAt(0) == 47)) return false; // Fix for comment nodes and closed nodes
-	if (tag && tag != '*' && (!node.nodeName || node.nodeName != tag)) return false;
+	if (tag){
+		if (tag == '*'){
+			if (node.nodeName < '@') return false; // Fix for comment nodes and closed nodes
+		} else {
+			if (node.nodeName != tag) return false;
+		}
+	}
 	if (id && node.getAttribute('id') != id) return false;
 	if (parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
 		part = parts[i];
