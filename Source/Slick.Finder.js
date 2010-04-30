@@ -548,8 +548,7 @@ var pseudos = {
 	},
 
 	'contains': function(node, text){
-		var inner = node.innerText || node.textContent || '';
-		return (inner) ? inner.indexOf(text) > -1 : false;
+		return (node.innerText || node.textContent || '').indexOf(text) > -1;
 	},
 
 	'first-child': function(node){
