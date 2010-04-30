@@ -180,8 +180,6 @@ local.search = function(context, expression, append, first){
 	
 	var parsed, i, l;
 
-	this.positions = {};
-	this.positionsReverse = {};
 	var uniques = this.uniques = {};
 	
 	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
@@ -214,7 +212,14 @@ local.search = function(context, expression, append, first){
 	} else { // other junk
 		return found;
 	}
-		
+	
+	// cache elements for the nth selectors
+	
+	this.posNTH = {};
+	this.posNTHLast = {};
+	this.posNTHType = {};
+	this.posNTHTypeLast = {};
+	
 	// should sort if there are nodes in append and if you pass multiple expressions.
 	// should remove duplicates if append already has items
 	var shouldUniques = !!(append && append.length);
@@ -333,12 +338,12 @@ local.nthPseudo = function(child, sibling, positions, node, argument, nodeName){
 			do {
 				if (el.nodeName !== nodeName) continue;
 				this[positions][this.getUID(el)] = count++;
-			} while (el !== node && (el = el[sibling]));
+			} while ((el = el[sibling]));
 		} else {
 			do {
 				if (el.nodeType !== 1) continue;
 				this[positions][this.getUID(el)] = count++;
-			} while (el !== node && (el = el[sibling]));
+			} while ((el = el[sibling]));
 		}
 	}
 	argument = argument || 'n';
@@ -566,19 +571,19 @@ var pseudos = {
 	},
 
 	'nth-child': function(node, argument){
-		return this.nthPseudo('firstChild', 'nextSibling', 'positions', node, argument);
+		return this.nthPseudo('firstChild', 'nextSibling', 'posNTH', node, argument);
 	},
 	
 	'nth-last-child': function(node, argument){
-		return this.nthPseudo('lastChild', 'previousSibling', 'positionsReverse', node, argument);
+		return this.nthPseudo('lastChild', 'previousSibling', 'posNTHLast', node, argument);
 	},
 	
 	'nth-of-type': function(node, argument){
-		return this.nthPseudo('firstChild', 'nextSibling', 'positions', node, argument, node.nodeName);
+		return this.nthPseudo('firstChild', 'nextSibling', 'posNTHType', node, argument, node.nodeName);
 	},
 	
 	'nth-last-of-type': function(node, argument){
-		return this.nthPseudo('lastChild', 'previousSibling', 'positionsReverse', node, argument, node.nodeName);
+		return this.nthPseudo('lastChild', 'previousSibling', 'posNTHTypeLast', node, argument, node.nodeName);
 	},
 	
 	'first-of-type': function(node, argument){
