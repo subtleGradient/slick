@@ -178,7 +178,7 @@ local.search = function(context, expression, append, first){
 
 	// setup
 	
-	var parsed, i, l;
+	var parsed, i;
 
 	var uniques = this.uniques = {};
 	
@@ -230,7 +230,7 @@ local.search = function(context, expression, append, first){
 	if (found == null) found = [];
 	
 	// avoid duplicating items already in the append array
-	if (shouldUniques) for (i = 0, l = found.length; i < l; i++) this.uniques[this.getUID(found[i])] = true;
+	if (shouldUniques) for (i = found.length; i--;) this.uniques[this.getUID(found[i])] = true;
 	
 	// default engine
 	
