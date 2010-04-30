@@ -225,8 +225,7 @@ local.search = function(context, expression, append, first){
 	var shouldUniques = !!(append && append.length);
 	
 	// if append is null and there is only a single selector with one expression use pushArray, else use pushUID
-	this.push = this.pushUID;
-	if (!shouldUniques && (first || (parsed.length == 1 && parsed.expressions[0].length == 1))) this.push = this.pushArray;
+	this.push = (!shouldUniques && (first || (parsed.length == 1 && parsed.expressions[0].length == 1))) ? this.pushArray : this.pushUID;
 	
 	if (found == null) found = [];
 	
@@ -748,7 +747,7 @@ local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
 	if (!el) return found;
 	if (local.idGetsName && el.getAttributeNode('id').nodeValue != id) return false;
 	if (first) return el || null;
-	var hasOthers = !!(found.length) ;
+	var hasOthers = !!(found.length);
 	if (!hasOthers || !local.uniques[local.getUIDHTML(el)]) found.push(el);
 	if (hasOthers) local.sort(found);
 	return true;
