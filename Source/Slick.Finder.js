@@ -588,15 +588,23 @@ var pseudos = {
 		return this.nthPseudo('lastChild', 'previousSibling', 'posNTHTypeLast', node, argument, node.nodeName);
 	},
 	
-	'first-of-type': function(node, argument){
+	'first-of-type': function(node){
 		var nodeName = node.nodeName;
 		while ((node = node.previousSibling)) if (node.nodeName === nodeName) return false;
 		return true;
 	},
 	
-	'last-of-type': function(node, argument){
+	'last-of-type': function(node){
 		var nodeName = node.nodeName;
 		while ((node = node.nextSibling)) if (node.nodeName === nodeName) return false;
+		return true;
+	},
+	
+	'only-of-type': function(node){
+		var prev = node, nodeName = node.nodeName;
+		while ((prev = prev.previousSibling)) if (prev.nodeName === nodeName) return false;
+		var next = node;
+		while ((next = next.nextSibling)) if (next.nodeName === nodeName) return false;
 		return true;
 	},
 
