@@ -406,7 +406,6 @@ local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudo
 	if (id && node.getAttribute('id') != id) return false;
 	if (parts) for (var i = 0, l = parts.length, part, cls; i < l; i++){
 		part = parts[i];
-		if (!part) continue;
 		if (part.type == 'class' && classes !== false){
 			cls = ('className' in node) ? node.className : node.getAttribute('class');
 			if (!(cls && part.regexp.test(cls))) return false;
