@@ -130,29 +130,28 @@ function parser(
 		if (reversed && currentSeparator[combinatorIndex])
 			currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
 		currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', parts: []};
-		partIndex = 0;
+		partIndex = -1;
 	}
 	
 	var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
 
 	if (tagName){
 		currentParsed.tag = tagName.replace(reUnescape, '');
-		return '';
+
 	} else if (id){
 		currentParsed.id = id.replace(reUnescape, '');
-		return '';
+
 	} else if (className){
 		className = className.replace(reUnescape, '');
 	
 		if (!currentParsed.classes) currentParsed.classes = [className];
 		else currentParsed.classes.push(className);
 	
-		currentParsed.parts[partIndex] = {
+		currentParsed.parts[++partIndex] = {
 			type: 'class',
 			value: className,
 			regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
 		};
-		partIndex++;
 		
 	} else if (pseudoClass){
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
@@ -160,12 +159,11 @@ function parser(
 		var value = pseudoClassValue || null;
 		if (value) value = value.replace(reUnescape, '');
 		
-		currentParsed.pseudos.push(currentParsed.parts[partIndex] = {
+		currentParsed.pseudos.push(currentParsed.parts[++partIndex] = {
 			type: 'pseudo',
 			key: pseudoClass.replace(reUnescape, ''),
 			value: value
 		});
-		partIndex++;
 		
 	} else if (attributeKey){
 		if (!currentParsed.attributes) currentParsed.attributes = [];
@@ -199,14 +197,13 @@ function parser(
 			return value && regexp.test(value);
 		};
 		
-		currentParsed.attributes.push(currentParsed.parts[partIndex] = {
+		currentParsed.attributes.push(currentParsed.parts[++partIndex] = {
 			type: 'attribute',
 			key: key,
 			operator: operator,
 			value: attribute,
 			test: test
 		});
-		partIndex++;
 		
 	}
 	
