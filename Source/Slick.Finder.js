@@ -688,7 +688,7 @@ local.override(/./, function(expression, found, first){ //querySelectorAll overr
 	var i, hasOthers = !!(found.length);
 
 	if (local.starSelectsClosedQSA) for (i = 0; node = nodes[i++];){
-		if (node.nodeName.charCodeAt(0) != 47 && (!hasOthers || !local.uniques[local.getUIDHTML(node)])) found.push(node);
+		if (node.nodeName > '@' && (!hasOthers || !local.uniques[local.getUIDHTML(node)])) found.push(node);
 	} else for (i = 0; node = nodes[i++];){
 		if (!hasOthers || !local.uniques[local.getUIDHTML(node)]) found.push(node);
 	}
