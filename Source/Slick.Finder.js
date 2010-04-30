@@ -361,6 +361,24 @@ local.createNTHPseudo = function(child, sibling, positions, ofType){
 	}
 };
 
+local.createOnlyChildPseudo = function(sibling1, sibling2, prop, compareTo){
+	return function(node){
+		var prev = node, value = compareTo || node[prop];
+		while ((prev = prev[sibling1])) if (prev[prop] === value) return false;
+		var next = node;
+		while ((next = next[sibling2])) if (next[prop] === value) return false;
+		return true;
+	};
+};
+
+local.createChildPseudo = function(sibling, prop, compareTo){
+	return function(node){
+		var value = compareTo || node[prop];
+		while ((node = node[sibling])) if (node[prop] === value) return false;
+		return true;
+	};
+};
+
 local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
 	if (this.matchSelector(node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
 };
@@ -557,24 +575,18 @@ var pseudos = {
 		return (node.innerText || node.textContent || '').indexOf(text) > -1;
 	},
 
-	'first-child': function(node){
-		while ((node = node.previousSibling)) if (node.nodeType === 1) return false;
-		return true;
-	},
+	'first-child': local.createChildPseudo('previousSibling', 'nodeType', 1),
 
-	'last-child': function(node){
-		while ((node = node.nextSibling)) if (node.nodeType === 1) return false;
-		return true;
-	},
+	'last-child': local.createChildPseudo('nextSibling', 'nodeType', 1),
 
-	'only-child': function(node){
-		var prev = node;
-		while ((prev = prev.previousSibling)) if (prev.nodeType === 1) return false;
-		var next = node;
-		while ((next = next.nextSibling)) if (next.nodeType === 1) return false;
-		return true;
-	},
+	'only-child': local.createOnlyChildPseudo('previousSibling', 'nextSibling', 'nodeType', 1),
 
+	'first-of-type': local.createChildPseudo('previousSibling', 'nodeName'),
+	
+	'last-of-type': local.createChildPseudo('nextSibling', 'nodeName'),
+	
+	'only-of-type': local.createOnlyChildPseudo('previousSibling', 'nextSibling', 'nodeName'),
+	
 	'nth-child': local.createNTHPseudo('firstChild', 'nextSibling', 'posNTH'),
 	
 	'nth-last-child': local.createNTHPseudo('lastChild', 'previousSibling', 'posNTHLast'),
@@ -582,26 +594,6 @@ var pseudos = {
 	'nth-of-type': local.createNTHPseudo('firstChild', 'nextSibling', 'posNTHType', true),
 	
 	'nth-last-of-type': local.createNTHPseudo('lastChild', 'previousSibling', 'posNTHTypeLast', true),
-	
-	'first-of-type': function(node){
-		var nodeName = node.nodeName;
-		while ((node = node.previousSibling)) if (node.nodeName === nodeName) return false;
-		return true;
-	},
-	
-	'last-of-type': function(node){
-		var nodeName = node.nodeName;
-		while ((node = node.nextSibling)) if (node.nodeName === nodeName) return false;
-		return true;
-	},
-	
-	'only-of-type': function(node){
-		var prev = node, nodeName = node.nodeName;
-		while ((prev = prev.previousSibling)) if (prev.nodeName === nodeName) return false;
-		var next = node;
-		while ((next = next.nextSibling)) if (next.nodeName === nodeName) return false;
-		return true;
-	},
 
 	// custom pseudos
 
