@@ -236,7 +236,7 @@ local.search = function(context, expression, append, first){
 	
 	var currentExpression, currentBit;
 	var j, m, n;
-	var combinator, tag, id, parts, classes, attributes, pseudos;
+	var combinator, tag, id, parts, classes;
 	var currentItems;
 	var expressions = parsed.expressions;
 	var lastBit;
@@ -250,8 +250,6 @@ local.search = function(context, expression, append, first){
 		id         = currentBit.id;
 		parts      = currentBit.parts;
 		classes    = currentBit.classes;
-		attributes = currentBit.attributes;
-		pseudos    = currentBit.pseudos;
 		lastBit    = (j === (currentExpression.length - 1));
 	
 		this.bitUniques = {};
@@ -265,13 +263,13 @@ local.search = function(context, expression, append, first){
 		}
 
 		if (j === 0){
-			this[combinator](context, tag, id, parts, classes, attributes, pseudos);
+			this[combinator](context, tag, id, parts, classes);
 			if (first && lastBit && found.length) break search;
 		} else {
 			if (first && lastBit) for (m = 0, n = currentItems.length; m < n; m++){
-				this[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
+				this[combinator](currentItems[m], tag, id, parts, classes);
 				if (found.length) break search;
-			} else for (m = 0, n = currentItems.length; m < n; m++) this[combinator](currentItems[m], tag, id, parts, classes, attributes, pseudos);
+			} else for (m = 0, n = currentItems.length; m < n; m++) this[combinator](currentItems[m], tag, id, parts, classes);
 		}
 		
 		currentItems = this.found;
@@ -361,13 +359,13 @@ local.createNTHPseudo = function(child, sibling, positions, ofType){
 	}
 };
 
-local.pushArray = function(node, tag, id, selector, classes, attributes, pseudos){
-	if (this.matchSelector(node, tag, id, selector, classes, attributes, pseudos)) this.found.push(node);
+local.pushArray = function(node, tag, id, selector, classes){
+	if (this.matchSelector(node, tag, id, selector, classes)) this.found.push(node);
 };
 
-local.pushUID = function(node, tag, id, selector, classes, attributes, pseudos){
+local.pushUID = function(node, tag, id, selector, classes){
 	var uid = this.getUID(node);
-	if (!this.uniques[uid] && this.matchSelector(node, tag, id, selector, classes, attributes, pseudos)){
+	if (!this.uniques[uid] && this.matchSelector(node, tag, id, selector, classes)){
 		this.uniques[uid] = true;
 		this.found.push(node);
 	}
@@ -397,7 +395,7 @@ local.matchPseudo = function(node, name, argument){
 	return (argument) ? argument == attribute : !!attribute;
 };
 
-local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudos){
+local.matchSelector = function(node, tag, id, parts, classes){
 	if (tag){
 		if (tag == '*'){
 			if (node.nodeName < '@') return false; // Fix for comment nodes and closed nodes
@@ -412,15 +410,15 @@ local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudo
 			cls = ('className' in node) ? node.className : node.getAttribute('class');
 			if (!(cls && part.regexp.test(cls))) return false;
 		}
-		if (part.type == 'pseudo' && pseudos !== false && (!this.matchPseudo(node, part.key, part.value))) return false;
-		if (part.type == 'attribute' && attributes !== false && (part.operator ? !part.test(this.getAttribute(node, part.key)) : !this.hasAttribute(node, part.key))) return false;
+		if (part.type == 'pseudo' && (!this.matchPseudo(node, part.key, part.value))) return false;
+		if (part.type == 'attribute' && (part.operator ? !part.test(this.getAttribute(node, part.key)) : !this.hasAttribute(node, part.key))) return false;
 	}
 	return true;
 };
 
 var combinators = {
 
-	' ': function(node, tag, id, parts, classes, attributes, pseudos){ // all child nodes, any level
+	' ': function(node, tag, id, parts, classes){ // all child nodes, any level
 		
 		var i, l, item, children;
 
