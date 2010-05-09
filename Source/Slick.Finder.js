@@ -870,23 +870,6 @@ Slick.override = function(regexp, fn){
 	return this;
 };
 
-// De-duplication of an array of HTML elements.
-
-Slick.uniques = function(nodes, append){
-	var uniques = {}, i, node, uid;
-	if (!append) append = [];
-	for (i = 0; node = append[i++];) uniques[local.getUIDHTML(node)] = true;
-	
-	for (i = 0; node = nodes[i++];){
-		uid = local.getUIDHTML(node);
-		if (!uniques[uid]){
-			uniques[uid] = true;
-			append.push(node);
-		}
-	}
-	return append;
-};
-
 Slick.isXML = local.isXML;
 
 Slick.uidOf = function(node){
