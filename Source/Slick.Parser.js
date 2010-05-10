@@ -13,7 +13,6 @@ var exports = this;
 var parsed,
 	separatorIndex,
 	combinatorIndex,
-	partIndex,
 	reversed,
 	cache = {},
 	reverseCache = {},
@@ -129,8 +128,7 @@ function parser(
 		var currentSeparator = parsed.expressions[separatorIndex];
 		if (reversed && currentSeparator[combinatorIndex])
 			currentSeparator[combinatorIndex].reverseCombinator = reverseCombinator(combinator);
-		currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*', parts: []};
-		partIndex = -1;
+		currentSeparator[++combinatorIndex] = {combinator: combinator, tag: '*'};
 	}
 	
 	var currentParsed = parsed.expressions[separatorIndex][combinatorIndex];
@@ -142,32 +140,26 @@ function parser(
 		currentParsed.id = id.replace(reUnescape, '');
 
 	} else if (className){
-		if (!currentParsed.classes) currentParsed.classes = [];
-		if (!currentParsed.classList) currentParsed.classList = [];
-		
 		className = className.replace(reUnescape, '');
+
+		if (!currentParsed.classList) currentParsed.classList = [];
+		if (!currentParsed.classes) currentParsed.classes = [];
 		currentParsed.classList.push(className);
-	
-		currentParsed.classes.push(currentParsed.parts[++partIndex] = {
-			type: 'class',
+		currentParsed.classes.push({
 			value: className,
 			regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
 		});
 		
 	} else if (pseudoClass){
-		if (!currentParsed.pseudos) currentParsed.pseudos = [];
-		
 		pseudoClassValue = pseudoClassValue ? pseudoClassValue.replace(reUnescape, '') : null;
-
-		currentParsed.pseudos.push(currentParsed.parts[++partIndex] = {
-			type: 'pseudo',
+		
+		if (!currentParsed.pseudos) currentParsed.pseudos = [];
+		currentParsed.pseudos.push({
 			key: pseudoClass.replace(reUnescape, ''),
 			value: pseudoClassValue
 		});
 		
 	} else if (attributeKey){
-		if (!currentParsed.attributes) currentParsed.attributes = [];
-		
 		attributeKey = attributeKey.replace(reUnescape, '');
 		attributeValue = (attributeValue || '').replace(reUnescape, '');
 		
@@ -196,8 +188,8 @@ function parser(
 			return value && regexp.test(value);
 		};
 		
-		currentParsed.attributes.push(currentParsed.parts[++partIndex] = {
-			type: 'attribute',
+		if (!currentParsed.attributes) currentParsed.attributes = [];
+		currentParsed.attributes.push({
 			key: attributeKey,
 			operator: attributeOperator,
 			value: attributeValue,
