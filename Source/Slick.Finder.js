@@ -249,7 +249,7 @@ local.search = function(context, expression, append, first){
 		tag        = (this.isXMLDocument) ? currentBit.tag : currentBit.tag.toUpperCase();
 		id         = currentBit.id;
 		parts      = currentBit.parts;
-		classes    = currentBit.classes;
+		classes    = currentBit.classList;
 		lastBit    = (j === (currentExpression.length - 1));
 	
 		this.bitUniques = {};

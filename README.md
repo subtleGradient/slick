@@ -110,7 +110,7 @@ SelectorObject format
 		"raw":"#foo > bar.baz",
 		"expressions": [[
 			{ "combinator":" ", "tag":"*", "id":"foo", "parts": [] },
-			{ "combinator":">", "tag":"bar", "classes": ["baz"], "parts": [{ "type":"class", "value":"baz", "regexp":RegExp }] }
+			{ "combinator":">", "tag":"bar", "classList": ["baz"], "classes": [{ "type":"class", "value":"baz", "regexp":RegExp }], "parts": [{ "type":"class", "value":"baz", "regexp":RegExp }] }
 		]]
 	}
 
@@ -122,6 +122,6 @@ SelectorObject format
 			[{ "combinator":" ", "tag": "h1", "parts": [] }],
 			[{ "combinator":" ", "tag": "h2", "parts": [] }],
 			[{ "combinator":" ", "tag": "ul", "parts": [] }, { "combinator": ">", "tag": "li", "parts": [] }],
-			[{ "combinator":" ", "tag": "*", "classes": ["things"], "parts": [{ "type": "class", "value": "things", "regexp":RegExp }] }]
+			[{ "combinator":" ", "tag": "*", "classList": ["things"], "classes": [{ "type": "class", "value": "things", "regexp":RegExp }], "parts": [{ "type": "class", "value": "things", "regexp":RegExp }] }]
 		]
 	}
