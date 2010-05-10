@@ -142,16 +142,17 @@ function parser(
 		currentParsed.id = id.replace(reUnescape, '');
 
 	} else if (className){
+		if (!currentParsed.classes) currentParsed.classes = [];
+		if (!currentParsed.classList) currentParsed.classList = [];
+		
 		className = className.replace(reUnescape, '');
+		currentParsed.classList.push(className);
 	
-		if (!currentParsed.classes) currentParsed.classes = [className];
-		else currentParsed.classes.push(className);
-	
-		currentParsed.parts[++partIndex] = {
+		currentParsed.classes.push(currentParsed.parts[++partIndex] = {
 			type: 'class',
 			value: className,
 			regexp: new RegExp('(^|\\s)' + escapeRegExp(className) + '(\\s|$)')
-		};
+		});
 		
 	} else if (pseudoClass){
 		if (!currentParsed.pseudos) currentParsed.pseudos = [];
