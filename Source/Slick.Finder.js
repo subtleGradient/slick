@@ -371,7 +371,7 @@ local.pushUID = function(node, tag, id, classes, attributes, pseudos){
 };
 
 local.matchNode = function(node, selector){
-	var parsed = ((selector.Slick) ? selector : this.Slick.parse(selector));
+	var parsed = this.Slick.parse(selector);
 	if (!parsed) return true;
 	
 	// simple (single) selectors

@@ -19,6 +19,8 @@ var parsed,
 	reUnescape = /\\/g;
 
 var parse = function(expression, isReversed){
+	if (!expression) return null;
+	if (expression.Slick === true) return expression;
 	expression = ('' + expression).replace(/^\s+|\s+$/g, '');
 	reversed = !!isReversed;
 	var currentCache = (reversed) ? reverseCache : cache;
@@ -35,7 +37,7 @@ var parse = function(expression, isReversed){
 var reverseCombinator = function(combinator){
 	if (combinator === '!') return ' ';
 	else if (combinator === ' ') return '!';
-	else if ((/^!/).test(combinator)) return combinator.replace(/^(!)/, '');
+	else if ((/^!/).test(combinator)) return combinator.replace(/^!/, '');
 	else return '!' + combinator;
 };
 
@@ -91,7 +93,6 @@ __END__
 	)"
 */
 	"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:([\"']?)(.*?)\\9)))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:([\"']?)((?:\\([^\\)]+\\)|[^\\(\\)]*)+)\\12)\\))?)"
-	//"^(?:\\s*(,)\\s*|\\s*(<combinator>+)\\s*|(\\s+)|(<unicode>+|\\*)|\\#(<unicode>+)|\\.(<unicode>+)|\\[\\s*(<unicode1>+)(?:\\s*([*^$!~|]?=)(?:\\s*(?:\"((?:[^\"]|\\\\\")*)\"|'((?:[^']|\\\\')*)'|([^\\]]*?))))?\\s*\\](?!\\])|:+(<unicode>+)(?:\\((?:\"((?:[^\"]|\\\")*)\"|'((?:[^']|\\')*)'|([^\\)]*))\\))?)"//*/
 	.replace(/<combinator>/, '[' + escapeRegExp(">+~`!@$%^&={}\\;</") + ']')
 	.replace(/<unicode>/g, '(?:[\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
 	.replace(/<unicode1>/g, '(?:[:\\w\\u00a1-\\uFFFF-]|\\\\[^\\s0-9a-f])')
