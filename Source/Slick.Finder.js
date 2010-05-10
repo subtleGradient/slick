@@ -632,6 +632,10 @@ var pseudos = {
 
 	'selected': function(node){
 		return node.selected;
+	},
+	
+	'focus': function(node){
+		return !this.isXMLDocument && this.document.activeElement === node;
 	}
 };
 
