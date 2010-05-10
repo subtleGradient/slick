@@ -17,10 +17,6 @@ var timeStamp = +new Date();
 
 // Feature / Bug detection
 
-local.isNativeCode = function(fn){
-	return (/\{\s*\[native code\]\s*\}/).test('' + fn);
-};
-
 local.isXML = function(document){
 	return (!!document.xmlVersion) || (!!document.xml) || (Object.prototype.toString.call(document) === '[object XMLDocument]') ||
 	(document.nodeType === 9 && document.documentElement.nodeName !== 'HTML');
@@ -113,17 +109,15 @@ local.setDocument = function(document){
 	}
 	
 	// contains
+	// FIXME: Add specs: local.contains should be different for xml and html documents?
 	
-	this.contains = (root && this.isNativeCode(root.contains)) ? function(context, node){ // FIXME: Add specs: local.contains should be different for xml and html documents?
-		return context.contains(node);
-	} : (root && root.compareDocumentPosition) ? function(context, node){
-		return context === node || !!(context.compareDocumentPosition(node) & 16);
-	} : function(context, node){
-		if (node) do {
-			if (node === context) return true;
-		} while ((node = node.parentNode));
-		return false;
-	};
+	this.contains = contains;
+	
+	if (root && root.contains && !containsCallsItself.call(this))
+		this.contains = containsNative;
+	
+	else if (root && root.compareDocumentPosition)
+		this.contains = containsCompareDocumentPosition;
 	
 	// document order sorting
 	// credits to Sizzle (http://sizzlejs.com/)
@@ -147,7 +141,31 @@ local.setDocument = function(document){
 	this.getUID = (this.isXMLDocument) ? this.getUIDXML : this.getUIDHTML;
 	
 };
-	
+
+
+function contains(context, node){
+	if (node) do {
+		if (node === context) return true;
+	} while ((node = node.parentNode));
+	return false;
+}
+
+function containsCallsItself(){
+	var FAIL;
+	this.contains = function(){FAIL=true};
+	root.contains(root);
+	return FAIL;
+}
+
+function containsNative(context, node){
+	return context.contains(node);
+}
+
+function containsCompareDocumentPosition(context, node){
+	return context === node || !!(context.compareDocumentPosition(node) & 16);
+}
+
+
 // Main Method
 
 local.search = function(context, expression, append, first){
