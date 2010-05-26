@@ -418,7 +418,7 @@ local.matchSelector = function(node, tag, id, parts, classes, attributes, pseudo
 		}
 		if (part.type == 'pseudo' && pseudos !== false && (!this.matchPseudo(node, part.key, part.value))) return false;
 		if (part.type == 'attribute' && attributes !== false &&
-			(part.operator) ? !part.test(this.getAttribute(node, part.key)) : !this.hasAttribute(node, part.key)
+			((part.operator && !part.test(this.getAttribute(node, part.key))) || !this.hasAttribute(node, part.key))
 		) return false;
 	}
 	return true;
