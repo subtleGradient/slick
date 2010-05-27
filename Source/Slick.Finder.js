@@ -449,7 +449,7 @@ var combinators = {
 				this.push(item, tag, null, classes, attributes, pseudos);
 				return;
 			}
-			getByClass: if (node.getElementsByClassName && classes && !this.brokenGEBCN){
+			getByClass: if (classes && node.getElementsByClassName && !this.brokenGEBCN){
 				children = node.getElementsByClassName(classList.join(' '));
 				if (!(children && children.length)) break getByClass;
 				for (i = 0; item = children[i++];) this.push(item, tag, id, null, attributes, pseudos);
