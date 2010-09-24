@@ -1,53 +1,52 @@
-function specsJQuery(specs, context){
+var specsJQuery = function(context){
 	
 	var document = context.document;
 	var SELECT = context.SELECT;
-	var test = Describe;
+	var test = describe;
 	
-	function jQuery(expression, root){
+	var jQuery = function(expression, root){
 		var ret = [];
 		root = root || document;
-		if(typeof root == 'string') root = SELECT(document, root);
-		if('length' in root){
-			for(var i = 0; i < root.length; i++){
-				ret = SELECT(root[i], expression, ret);
+		if (typeof root == 'string') root = SELECT(document, root);
+		if ('length' in root){
+			for (var i = 0, el; (el = root[i++]);){
+				ret = SELECT(el, expression, ret);
 			}
-		}
-		else{
+		} else {
 			ret = SELECT(root, expression);
 		}
 		return ret;
 	};
-	function ok(a, message){
-		specs[message] = function(){
-			value_of(!!a).should_be_true();
-		};
+	var ok = function(a, message){
+		it(message, function(){
+			expect(!!a).toEqual(true);
+		});
 	};
-	function equals(a, b, message){
-		specs[message] = function(){
-			value_of(a).should_be(b);
-		};
+	var equals = function(a, b, message){
+		it(message, function(){
+			expect(a).toEqual(b);
+		});
 	};
-	function same(a, b, message){
-		specs[message] = function(){
-			value_of(a.length).should_be(b.length);
-			for(var i = 0; i < a.length; i++){
-				value_of(a[i]).should_be(b[i]);
+	var same = function(a, b, message){
+		it(message, function(){
+			expect(a.length).toEqual(b.length);
+			for (var i = 0; i < a.length; i++){
+				expect(a[i]).toEqual(b[i]);
 			}
-		}
+		});
 	};
-	function t(message, expression, ids){
-		specs[message] = function(){
+	var t = function(message, expression, ids){
+		it(message, function(){
 			var values = jQuery(expression);
-			value_of(values.length).should_be(ids.length);
-			for(var i = 0; i < values.length; i++){
-				value_of(values[i].getAttributeNode('id').value).should_be(ids[i]);
+			expect(values.length).toEqual(ids.length);
+			for (var i = 0; i < values.length; i++){
+				expect(values[i].getAttributeNode('id').value).toEqual(ids[i]);
 			}
-		};
+		});
 	};
-	function q(){
+	var q = function(){
 		var r = [];
-		for(var i = 0; i < arguments.length; i++){
+		for (var i = 0; i < arguments.length; i++){
 			r.push(document.getElementById(arguments[i]));
 		}
 		return r;
@@ -65,17 +64,17 @@ function specsJQuery(specs, context){
 	test('element', function(specs){
 		ok( jQuery("*").size() >= 30, "Select all" );
 		var all = jQuery("*"), good = true;
-		for ( var i = 0; i < all.length; i++ )
-			if ( all[i].nodeType == 8 )
-				good = false;
+		for ( var i = 0; i < all.length; i++ ){
+			if ( all[i].nodeType == 8 ) good = false;
+		}
+			
 		ok( good, "Select all elements, no comment nodes" );
 		t( "Element Selector", "p", ["firstp","ap","sndp","en","sap","first"] );
 		t( "Element Selector 1", "body", ["body"] );
 		t( "Element Selector 2", "html", ["html"] );
 		t( "Parent Element", "div p", ["firstp","ap","sndp","en","sap","first"] );
 		equals( jQuery("param", "#object1").length, 2, "Object/param as context" );
-
-		//same( jQuery("p", document.getElementsByTagName("div")).get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
+		same( jQuery("p", document.getElementsByTagName("div")).get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
 		same( jQuery("p", "div").get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context." );
 		same( jQuery("p", jQuery("div")).get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context. 1" );
 		same( jQuery("div").find("p").get(), q("firstp","ap","sndp","en","sap","first"), "Finding elements with a context. 2" );
@@ -91,42 +90,6 @@ function specsJQuery(specs, context){
 		//t( "Checking sort order 1", "h2:first, h1:first", ["qunit-header", "qunit-banner"] );
 		t( "Checking sort order 2", "p, p a", ["firstp", "simon1", "ap", "google", "groups", "anchor1", "mark", "sndp", "en", "yahoo", "sap", "anchor2", "simon", "first"] );
 	});
-	
-/*	if ( location.protocol != "file:" ) {
-		test("XML Document Selectors", function() {
-			expect(7);
-			stop();
-			jQuery.get("data/with_fries.xml", function(xml) {
-				equals( jQuery("foo_bar", xml).length, 1, "Element Selector with underscore" );
-				equals( jQuery(".component", xml).length, 1, "Class selector" );
-				equals( jQuery("[class*=component]", xml).length, 1, "Attribute selector for class" );
-				equals( jQuery("property[name=prop2]", xml).length, 1, "Attribute selector with name" );
-				equals( jQuery("[name=prop2]", xml).length, 1, "Attribute selector with name" );
-				equals( jQuery("#seite1", xml).length, 1, "Attribute selector with ID" );
-				equals( jQuery("component#seite1", xml).length, 1, "Attribute selector with ID" );
-				start();
-			});
-		});
-	}
-
-	test("broken", function() {
-		function broken(name, selector) {
-			try {
-				jQuery(selector);
-			}catch(e){
-				ok( typeof e === "string" && e.indexOf("Syntax error") >= 0, name + ": " + selector );
-			}
-		}
-	
-		broken( "Broken Selector", "[", [] );
-		broken( "Broken Selector", "(", [] );
-		broken( "Broken Selector", "{", [] );
-		broken( "Broken Selector", "<", [] );
-		broken( "Broken Selector", "()", [] );
-		broken( "Broken Selector", "<>", [] );
-		broken( "Broken Selector", "{}", [] );
-	});
-*/
 
 	test("id", function(specs) {
 		t( "ID Selector", "#body", ["body"] );
@@ -212,7 +175,7 @@ function specsJQuery(specs, context){
 		t( "Name selector non-input 1", "[name=div]", ["fadein"] );
 		t( "Name selector non-input 2", "*[name=iframe]", ["iframe"] );
 
-		t( "Name selector for grouped input", "input[name='types[]']", ["types_all", "types_anime", "types_movie"] )
+		t( "Name selector for grouped input", "input[name='types[]']", ["types_all", "types_anime", "types_movie"] );
 
 		same( jQuery("#form").find("input[name=action]").get(), q("text1"), "Name selector within the context of another element" );
 		same( jQuery("#form").find("input[name='foo[bar]']").get(), q("hidden2"), "Name selector for grouped form element within the context of another element" );
@@ -268,7 +231,7 @@ function specsJQuery(specs, context){
 		//jQuery("p:first-child").after("<div></div>");
 		//jQuery("p:first-child").before("<div></div>").next().remove();
 
-		t( "First Child", "p:first-child", [] );
+		//t( "First Child", "p:first-child", [] );
 
 		t( "Last Child", "p:last-child", ["sap"] );
 		t( "Last Child 1", "a:last-child", ["simon1","anchor1","mark","yahoo","anchor2","simon","liveLink1","liveLink2"] );
@@ -410,24 +373,23 @@ function specsJQuery(specs, context){
 		//t( "Is Hidden", "#form input:hidden", ["text1","text2","radio1","radio2","check1","check2","hidden1","hidden2","name","search"] );
 		//t( "Is Hidden", "#main:hidden", ["main"] );
 		//t( "Is Hidden", "#dl:hidden", ["dl"] );
-	
-		/*
-		var $div = jQuery('#nothiddendivchild');
-		$div.css({ fontSize: 0, lineHeight: 0 });// IE also needs to set font-size and line-height to 0
-		$div.width(0).height(0);
-		t( "Is Hidden", '#nothiddendivchild:hidden', ['nothiddendivchild'] );
-		t( "Is Not Hidden", '#nothiddendivchild:visible', [] );
-		$div.width(1).height(0);
-		t( "Is Visible", '#nothiddendivchild:visible', ['nothiddendivchild'] );
-		t( "Is Not Visible", '#nothiddendivchild:hidden', [] );
-		$div.width(0).height(1);
-		t( "Is Visible", '#nothiddendivchild:visible', ['nothiddendivchild'] );
-		t( "Is Not Visible", '#nothiddendivchild:hidden', [] );
-		$div.width(1).height(1);
-		t( "Is Visible", '#nothiddendivchild:visible', ['nothiddendivchild'] );
-		t( "Is Not Visible", '#nothiddendivchild:hidden', [] );
-		$div.width('').height('').css({ fontSize: '', lineHeight: '' });
-		*/
+
+
+		//var $div = jQuery('#nothiddendivchild');
+		//$div.css({ fontSize: 0, lineHeight: 0 });// IE also needs to set font-size and line-height to 0
+		//$div.width(0).height(0);
+		//t( "Is Hidden", '#nothiddendivchild:hidden', ['nothiddendivchild'] );
+		//t( "Is Not Hidden", '#nothiddendivchild:visible', [] );
+		//$div.width(1).height(0);
+		//t( "Is Visible", '#nothiddendivchild:visible', ['nothiddendivchild'] );
+		//t( "Is Not Visible", '#nothiddendivchild:hidden', [] );
+		//$div.width(0).height(1);
+		//t( "Is Visible", '#nothiddendivchild:visible', ['nothiddendivchild'] );
+		//t( "Is Not Visible", '#nothiddendivchild:hidden', [] );
+		//$div.width(1).height(1);
+		//t( "Is Visible", '#nothiddendivchild:visible', ['nothiddendivchild'] );
+		//t( "Is Not Visible", '#nothiddendivchild:hidden', [] );
+		//$div.width('').height('').css({ fontSize: '', lineHeight: '' });
 		
 		
 		//t( "Check position filtering", "div#nothiddendiv:eq(0)", ["nothiddendiv"] );
@@ -461,4 +423,41 @@ function specsJQuery(specs, context){
 		//t( "Has Children - :has()", "p:has(a)", ["firstp","ap","en","sap"] );
 	});
 
+/*	if ( location.protocol != "file:" ) {
+		test("XML Document Selectors", function() {
+			expect(7);
+			stop();
+			jQuery.get("data/with_fries.xml", function(xml) {
+				equals( jQuery("foo_bar", xml).length, 1, "Element Selector with underscore" );
+				equals( jQuery(".component", xml).length, 1, "Class selector" );
+				equals( jQuery("[class*=component]", xml).length, 1, "Attribute selector for class" );
+				equals( jQuery("property[name=prop2]", xml).length, 1, "Attribute selector with name" );
+				equals( jQuery("[name=prop2]", xml).length, 1, "Attribute selector with name" );
+				equals( jQuery("#seite1", xml).length, 1, "Attribute selector with ID" );
+				equals( jQuery("component#seite1", xml).length, 1, "Attribute selector with ID" );
+				start();
+			});
+		});
+	}
+
+	test("broken", function() {
+		function broken(name, selector) {
+			try {
+				jQuery(selector);
+			}catch(e){
+				ok( typeof e === "string" && e.indexOf("Syntax error") >= 0, name + ": " + selector );
+			}
+		}
+	
+		broken( "Broken Selector", "[", [] );
+		broken( "Broken Selector", "(", [] );
+		broken( "Broken Selector", "{", [] );
+		broken( "Broken Selector", "<", [] );
+		broken( "Broken Selector", "()", [] );
+		broken( "Broken Selector", "<>", [] );
+		broken( "Broken Selector", "{}", [] );
+	});
+*/
+
 };
+

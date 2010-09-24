@@ -1,48 +1,48 @@
-function specsSlickAPI(){
+var specsSlickAPI = function(context){
 	
-	Describe('Select Inputs',function(specs,context){
+	describe('Select Inputs', function(){
+		
 		var SELECT = (context.SELECT || global.SELECT);
 		
-		Describe('append',function(){
+		describe('append', function(){
 			
-			it['should append results to an existing array if passed in'] = function(){
+			it('should append results to an existing array if passed in', function(){
 				var append = [];
-				value_of( SELECT(context.document, '*', append) === append ).should_be_true();
-			};
+				expect( SELECT(context.document, '*', append) === append ).toEqual(true);
+			});
 			
-			it['should append results to an existing array-like-thing if passed in'] = function(){
+			it('should append results to an existing array-like-thing if passed in',  function(){
 				var append = {
 					length: 0,
 					push: function(item){
 						this[this.length++] = item;
 					}
 				};
-				value_of( SELECT(context.document, '*', append) ).should_be( append );
-			};
+				expect( SELECT(context.document, '*', append) ).toEqual( append );
+			});
 			
 			if (document.querySelectorAll)
-			it['should not fail when using QSA is enabled'] = function(){
+			it('should not fail when using QSA is enabled', function(){
 				context.Slick && (context.Slick.disableQSA = false);
-				value_of( typeof SELECT(context.document, '*').length ).should_be('number');
-				value_of( SELECT(context.document, '*').length ).should_not_be(0);
-			};
+				expect( typeof SELECT(context.document, '*').length ).toEqual('number');
+				expect( SELECT(context.document, '*').length ).not.toEqual(0);
+			});
 			
 		});
 		
-		
-		Describe('context',function(specs,context){
+		describe('context', function(){
 			var SELECT = (context.SELECT || global.SELECT);
 			
-			it['must accept a document'] = function(){
-				value_of( SELECT(context.document, '*', []) ).should_not_be( [] );
-			};
+			it('must accept a document', function(){
+				expect( SELECT(context.document, '*', []) ).not.toEqual( [] );
+			});
 			
-			it['must accept a node'] = function(){
-				value_of( SELECT(context.document.documentElement, '*', []).length ).should_not_be( 0 );
-			};
+			it('must accept a node', function(){
+				expect( SELECT(context.document.documentElement, '*', []).length ).not.toEqual( 0 );
+			});
 			
-			it['must accept any node'] = function(){
-				value_of( SELECT(context.document.documentElement, '*', []).length ).should_not_be( 0 );
+			it('must accept any node',  function(){
+				expect( SELECT(context.document.documentElement, '*', []).length ).not.toEqual( 0 );
 				var timedLog;
 				var elements = context.document.getElementsByTagName('*');
 				for (var i=0, l=elements.length; i < l; i++) {
@@ -54,50 +54,49 @@ function specsSlickAPI(){
 					}, 100);
 					
 					if (elements[i].getElementsByTagName('*').length)
-						value_of( SELECT(elements[i], '*', []).length ).should_not_be( 0 );
+						expect( SELECT(elements[i], '*', []).length ).not.toEqual( 0 );
 					else
-						value_of( SELECT(elements[i], '*', []).length ).should_be( 0 );
+						expect( SELECT(elements[i], '*', []).length ).toEqual( 0 );
 					
 					clearTimeout(timedLog);
 				}
-			};
+			});
 			
-			it['must accept a window'] = function(){
-				value_of( SELECT(global.window, '*', []).length ).should_not_be( 0 );
+			it('must accept a window', function(){
+				expect( SELECT(global.window, '*', []).length ).not.toEqual( 0 );
 				if (context.window && !context.window.fake)
-					value_of( SELECT(context.window, '*', []).length ).should_not_be( 0 );
-			};
+					expect( SELECT(context.window, '*', []).length ).not.toEqual( 0 );
+			});
 			
-			it['must reject null'] = function(){ value_of( SELECT(null, '*', []).length ).should_be( 0 ); };
-			it['must reject Number'] = function(){ value_of( SELECT(1234567891011, '*', []).length ).should_be( 0 ); };
-			it['must reject Array '] = function(){ value_of( SELECT([1,2,3,4,5,6], '*', []).length ).should_be( 0 ); };
-			it['must reject String'] = function(){ value_of( SELECT("string here", '*', []).length ).should_be( 0 ); };
-			it['must reject Object'] = function(){ value_of( SELECT({ foo:'bar' }, '*', []).length ).should_be( 0 ); };
+			it('must reject null', function(){ expect( SELECT(null, '*', []).length ).toEqual( 0 ); });
+			it('must reject Number', function(){ expect( SELECT(1234567891011, '*', []).length ).toEqual( 0 ); });
+			it('must reject Array ', function(){ expect( SELECT([1,2,3,4,5,6], '*', []).length ).toEqual( 0 ); });
+			it('must reject String', function(){ expect( SELECT("string here", '*', []).length ).toEqual( 0 ); });
+			it('must reject Object',  function(){ expect( SELECT({ foo:'bar' }, '*', []).length ).toEqual( 0 ); });
 			
 		});
 		
-		
-		
 	});
 	
-	Describe('uniques',function(specs,context){
+	/*
+	describe('uniques', function(){
 		var Slick = (context.Slick || global.Slick);
 		
-		it['should return uniques from `search` with append'] = function(){
+		it('should return uniques from `search` with append', function(){
 			var append = [];
 			var l1 = Slick.search(document, '*', append);
-			value_of( l1.length ).should_be( append.length );
-			value_of( l1.length ).should_be( Slick.uniques(append).length );
+			expect( l1.length ).toEqual( append.length );
+			expect( l1.length ).toEqual( Slick.uniques(append).length );
 			
 			// Should not add any more elements to append
 			var l2 = Slick.search(document, '*', append);
-			value_of( l2.length ).should_be( Slick.uniques(append).length );
+			expect( l2.length ).toEqual( Slick.uniques(append).length );
 			
-			// value_of( l2 ).should_be( Slick.uniques(append).length );
-			// value_of( l1 ).should_be( l2 );
-		};
+			// expect( l2 ).toEqual( Slick.uniques(append).length );
+			// expect( l1 ).toEqual( l2 );
+		});
 		
-		it['should not recurse context with context == append'] = function(){
+		it('should not recurse context with context == append', function(){
 			var append = Slick.search(document, '*');
 			
 			var l1 = Slick.search(append, '*', Slick.search(document, ':root')).length;
@@ -105,19 +104,19 @@ function specsSlickAPI(){
 			Slick.search(append, '*', append);
 			var l2 = append.length;
 			
-			value_of( l1 ).should_be( l2 );
-		};
+			expect( l1 ).toEqual( l2 );
+		});
 		
-		it['should support multiple contexts'] = function(){
+		it('should support multiple contexts', function(){
 			var l1 = Slick.search(document, '* *').length;
 			
 			var append = Slick.search(document, '*');
 			var l2 = Slick.search(append, '*').length;
 			
-			value_of( l1 ).should_be( l2 );
-		};
+			expect( l1 ).toEqual( l2 );
+		});
 		
-		it['should return uniques from `uniques` with append'] = function(){
+		it('should return uniques from `uniques` with append', function(){
 			console.group('search');
 			var append = Slick.search(document, '*');
 			console.groupEnd('search');
@@ -131,41 +130,38 @@ function specsSlickAPI(){
 			console.groupEnd('search with append');
 			
 			
-			value_of( results ).should_be( append );
-			value_of( append.length ).should_be( append_length );
+			expect( results ).toEqual( append );
+			expect( append.length ).toEqual( append_length );
 			
-			value_of( Slick.uniques(results).length ).should_be( append_length );
+			expect( Slick.uniques(results).length ).toEqual( append_length );
 			
-			// value_of(Slick.uniques(duplicates).length).should_not_be(duplicates.length);
+			// expect(Slick.uniques(duplicates).length).not.toEqual(duplicates.length);
 			// 
-			// value_of(
+			// expect(
 			// 	Slick.uniques(duplicates, append).length
-			// ).should_be(
+			// ).toEqual(
 			// 	append.length
 			// );
 			// 
-			// value_of(
+			// expect(
 			// 	Slick.uniques(duplicates, append).length
-			// ).should_be(
+			// ).toEqual(
 			// 	Slick.uniques(duplicates).length
 			// );
 			
-		};
+		});
 		
-		it['should add results to append'] = function(){
+		it('should add results to append', function(){
 			var append;
 			
 			append = [];
 			Slick.search(document, '*', append);
-			value_of( append.length ).should_be( Slick.search(document, '*').length );
+			expect( append.length ).toEqual( Slick.search(document, '*').length );
 			
 			append = [];
 			Slick.search(document, '*', append);
-			value_of( append.length ).should_be( Slick.search(document, '*').length );
-			
-		};
-		
+			expect( append.length ).toEqual( Slick.search(document, '*').length );
+		});
 	});
-	
-	
+	*/
 };

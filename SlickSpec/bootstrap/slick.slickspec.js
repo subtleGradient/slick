@@ -1,4 +1,4 @@
-function setupMethods(specs, window){
+var setupMethods = function(window){
 	var Slick = window.Slick || global.Slick;
 	
 	window.SELECT = function(context, selector, append){
@@ -16,54 +16,49 @@ function setupMethods(specs, window){
 	window.PARSE = function(selector){
 		return Slick.parse(selector);
 	};
-}
+};
 
-function verifySetupMethods(specs, window){
-	Describe('Verify Setup',function(){
-		it['should define SELECT'] = function(){
-			value_of( typeof window.SELECT ).should_be('function');
-			value_of( window.SELECT(window.document, '*').length ).should_not_be(0);
-		};
-		it['should define SELECT1'] = function(){
-			value_of( typeof window.SELECT1 ).should_be('function');
-			value_of( window.SELECT1(window.document, '*') ).should_not_be_null();
-		};
-		it['should define MATCH'] = function(){
-			value_of( typeof window.MATCH ).should_be('function');
-			value_of( window.MATCH(window.document.documentElement, '*') ).should_be_true();
-		};
-		it['should define isXML'] = function(){
-			value_of( typeof window.isXML ).should_be('function');
-			value_of( typeof window.isXML(window.document) ).should_be('boolean');
-		};
-		it['should define PARSE'] = function(){
-			value_of( typeof window.PARSE ).should_be('function');
-			value_of( typeof window.PARSE('*') ).should_be('object');
-			value_of( window.PARSE('*').expressions.length ).should_be(1);
-			value_of( window.PARSE('*').expressions[0].length ).should_be(1);
-		};
+var verifySetupMethods = function(window){
+	describe('Verify Setup', function(){
+		it('should define SELECT', function(){
+			expect( typeof window.SELECT ).toEqual('function');
+			expect( window.SELECT(window.document, '*').length ).not.toEqual(0);
+		});
+		
+		it('should define SELECT1', function(){
+			expect( typeof window.SELECT1 ).toEqual('function');
+			expect( window.SELECT1(window.document, '*') ).not.toBeNull();
+		});
+		
+		it('should define MATCH', function(){
+			expect( typeof window.MATCH ).toEqual('function');
+			expect( window.MATCH(window.document.documentElement, '*') ).toEqual(true);
+		});
+		
+		it('should define isXML', function(){
+			expect( typeof window.isXML ).toEqual('function');
+			expect( typeof window.isXML(window.document) ).toEqual('boolean');
+		});
+		
+		it('should define PARSE', function(){
+			expect( typeof window.PARSE ).toEqual('function');
+			expect( typeof window.PARSE('*') ).toEqual('object');
+			expect( window.PARSE('*').expressions.length ).toEqual(1);
+			expect( window.PARSE('*').expressions[0].length ).toEqual(1);
+		});
 	});
 };
-function verifySetupContext(specs, context){
-	Describe('Verify Context',function(){
 
-		it['should set the context properly'] = function(){
-			value_of(context.document).should_not_be_undefined();
-			value_of(context.document.nodeType).should_be(9);
-			
+var verifySetupContext = function(context){
+	describe('Verify Context', function(){
+		it('should set the context properly', function(){
+			expect(context.document).toBeDefined();
+			expect(context.document.nodeType).toEqual(9);
 			var title = context.document.getElementsByTagName('title');
-			for (var i=0, l=title.length; i < l; i++)
+			for (var i=0, l=title.length; i < l; i++){
 				if (title[i].firstChild)
-					value_of(title[i].firstChild.nodeValue).should_not_match(404);
-			
-		};
-
+					expect(title[i].firstChild.nodeValue).not.toMatch(404);
+			}
+		});
 	});
 };
-
-setupMethods({},this);
-new Mock('',setupMethods);
-
-verifySetupMethods({},this);
-new Mock('',verifySetupMethods);
-new Mock('',verifySetupContext);

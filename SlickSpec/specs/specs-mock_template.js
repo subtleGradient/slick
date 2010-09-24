@@ -1,25 +1,26 @@
-function specsMockTemplate(specs, context){
+var specsMockTemplate = function(context){
 	
-	function makeSlickTestSearch(selector, count, disableQSA) {
+	var makeSlickTestSearch = function(selector, count, disableQSA) {
 		return function(){
 			context.SELECT.disableQSA = !!disableQSA;
 			var selectedArray = context.SELECT(context.document, selector);
 			var selected = context.SELECT1(context.document, selector);
-			value_of( selectedArray.length ).should_be( count );
+			expect( selectedArray.length ).toEqual( count );
 			if(count){
-				value_of( selected ).should_not_be_null();
-				value_of( selected === selectedArray[0] ).should_be_true();
+				expect( selected ).not.toBeNull();
+				expect( selected === selectedArray[0] ).toEqual(true);
 			}
 			else{
-				value_of( selected == null ).should_be_true();
+				expect( selected == null ).toEqual(true);
 			}
 			delete context.SELECT.disableQSA;
 		};
-	}
-	function it_should_find(count, selector){
+	};
+	
+	var it_should_find = function(count, selector){
 		if (global.document.querySelectorAll && !global.cannotDisableQSA)
-			specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false);
-		specs['should find '+count+' `'+selector+'` ' + (!global.cannotDisableQSA ? '` without QSA' : '') ] = makeSlickTestSearch(selector, count, true);
+			it('should find '+count+' `'+selector+'` with    QSA', makeSlickTestSearch(selector, count, false));
+		it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true));
 	};
 	
 	it_should_find(1, 'html');

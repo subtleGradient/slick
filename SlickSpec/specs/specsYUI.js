@@ -1,8 +1,8 @@
-function specsYUI(specs, context){
-	it['should be the right context'] = function(){
-		value_of( context ).should_be( global.mocks.YUI );
-	};
+var specsYUI = function(context){
 	
+	it('should be the right context', function(){
+		expect( context ).toEqual( global.mocks.YUI );
+	});
 	
 	var Y = {};
 	Y.each = function(iterable, fn){
@@ -13,6 +13,7 @@ function specsYUI(specs, context){
 		}
 		return null;
 	};
+
 	var document = context.document;
 	var SELECT = context.SELECT;
 	var SELECT1 = context.SELECT1;
@@ -38,7 +39,7 @@ function specsYUI(specs, context){
 		},
 		getElementsByClassName: function (clz, tag, root) {
 			root = typeof root === 'string' ?
-						document.getElementById(root) : root || document;
+				document.getElementById(root) : root || document;
 
 			var els = root.getElementsByTagName(tag || '*'),
 				nodes = [],
@@ -107,7 +108,9 @@ function specsYUI(specs, context){
 	Y.DOM = Y.DOM || {
 		next: function(node){
 			var next = node;
-			while ((next = next.nextSibling)) if (next.nodeType === 1) return next;
+			while ((next = next.nextSibling)){
+				if (next.nodeType === 1) return next;
+			}
 			return null;
 		}
 	};
@@ -128,8 +131,8 @@ function specsYUI(specs, context){
 		filter: function(nodes, expression){
 			nodes = nodes || [];
 			var ret = [];
-			for(var i = 0, len = nodes.length; i < len; i++){
-				if(MATCH(nodes[i], expression)){
+			for (var i = 0, len = nodes.length; i < len; i++){
+				if (MATCH(nodes[i], expression)){
 					ret.push(nodes[i]);
 				}
 			}
@@ -146,30 +149,30 @@ function specsYUI(specs, context){
 	var uid = 1;
 	
 	var generateSpec = function(message, fn){
-		specs[(uid++) + ': ' +(message || '')] = fn;
+		it((uid++) + ': ' +(message || ''), fn);
 	};
 	
 	//var Assert = Y.Assert;
 	var Assert = {
 		isTrue: function(a, message){
 			generateSpec(message, function(){
-				value_of(!!a).should_be_true();
+				expect(!!a).toEqual(true);
 			});
 		},
 		isFalse: function(a, message){
 			generateSpec(message, function(){
-				value_of(!!a).should_be_false();
+				expect(!!a).toEqual(false);
 			});
 		},
 		isNull: function(a, message){
 			generateSpec(message, function(){
-				value_of(a == null).should_be_true();
+				expect(a == null).toEqual(true);
 			});
 		},
 		areEqual: function(a, b, message){
 			generateSpec(message, function(){
-				if (!a) value_of( a == b ).should_be_true();
-				else value_of(a).should_be(b);
+				if (!a) expect( a == b ).toEqual(true);
+				else expect(a).toEqual(b);
 			});
 		}
 	};
@@ -178,9 +181,9 @@ function specsYUI(specs, context){
 	var ArrayAssert = {
 		itemsAreEqual: function(a, b, message){
 			generateSpec(message, function(){
-				value_of(a.length).should_be(b.length);
-				for(var i = 0, len = a.length; i < len; i++){
-					value_of(a[i]).should_be(b[i]);
+				expect(a.length).toEqual(b.length);
+				for (var i = 0, len = a.length; i < len; i++){
+					expect(a[i]).toEqual(b[i]);
 				}
 			});
 		}

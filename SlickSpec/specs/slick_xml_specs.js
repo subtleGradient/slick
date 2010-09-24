@@ -1,18 +1,19 @@
-function specsAssetsTemplateXML(specs,context){
+var specsAssetsTemplateXML = function(context){
 	
-	Describe('SELECT Selector Engine on XML file',function(){
+	describe('SELECT Selector Engine on XML file', function(){
 		
-		function makeSlickTestSearch(selector, count, disableQSA) {
+		var makeSlickTestSearch = function(selector, count, disableQSA) {
 			return function(){
 				context.SELECT.disableQSA = !!disableQSA;
-				value_of( context.SELECT(context.document, selector).length ).should_be( count );
+				expect( context.SELECT(context.document, selector).length ).toEqual( count );
 				delete context.SELECT.disableQSA;
 			};
-		}
-		function it_should_find(count,selector){
+		};
+		
+		var it_should_find = function(count, selector){
 			if (global.document.querySelectorAll && !global.cannotDisableQSA)
-				specs['should find '+count+' `'+selector+'` with    QSA' ] = makeSlickTestSearch(selector, count, false);
-			specs['should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : '') ] = makeSlickTestSearch(selector, count, true);
+				it('should find '+count+' `'+selector+'` with    QSA', makeSlickTestSearch(selector, count, false));
+			it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true));
 		};
 		
 		it_should_find(1, 'HTML');

@@ -1,22 +1,21 @@
-function specsDojo(specs, context){
+var specsDojo = function(context){
 	var should = '';
 	var doh = context.doh = global.doh = {};
 	
-	it['should exist'] = function(){
-		value_of( context.SELECT ).should_not_be_undefined();
-	};
+	it('should exist', function(){
+		expect( context.SELECT ).toBeDefined();
+	});
 	
 	doh.is = function(expected, actual){
-		value_of( actual ).should_be( expected );
+		expect( actual ).toEqual( expected );
 	};
 	
 	doh.register = function(name, tests){
 		for (var i=0, test; test = tests[i]; i++){
 			if (!test) continue;
-			specs[should + test] = new Function(test);
+			it(should + test, new Function(test));
 		}
 	};
-	
 	
 	var dojo = context.dojo = global.dojo = {};
 	
@@ -205,7 +204,7 @@ function specsDojo(specs, context){
 			"doh.is(4, dojo.query('#t > span:empty').length);",
 			"doh.is(6, dojo.query('#t span:empty').length);",
 			"doh.is(0, dojo.query('h3 span:empty').length);",
-			"doh.is(1, dojo.query('h3 :not(:empty)').length);",
+			"doh.is(1, dojo.query('h3 :not(:empty)').length);"
 
 /*
 			// escaping of ":" chars inside an ID

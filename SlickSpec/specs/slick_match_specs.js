@@ -1,41 +1,36 @@
-function specsMatch(){
+var specsMatch = function(context){
 
-var nodes = {};
+var nodes = [], testNode;
 
-Describe('Slick Match',function(specs, context){
+describe('Slick Match', function(){
 	
-	specs.before_each = function() {
-		nodeWithoutParent = document.createElement('div');
-		testNode = nodeWithoutParent;
-	};
-	specs.after_each = function() {
-		for (var name in nodes) {
-			delete nodes[name];
+	beforeEach(function() {
+		testNode = document.createElement('div');
+	});
+	
+	afterEach(function() {
+		for (var i = nodes.length; i--;) {
+			if (nodes[i] && nodes[i].parentNode) {
+				nodes[i].parentNode.removeChild(nodes[i]);
+			}
+			nodes.splice(i, 1);
 		}
-	};
+	});
 	
-	its['node should match another node'] = function(){
-		
-		value_of( context.MATCH(testNode, testNode) ).should_be_true();
-		value_of( context.MATCH(testNode, document.createElement('div')) ).should_be_false();
-		
-	};
+	it('node should match another node', function(){
+		expect( context.MATCH(testNode, testNode) ).toEqual(true);
+		expect( context.MATCH(testNode, document.createElement('div')) ).toEqual(false);
+	});
 	
-	its['node should NOT match nothing'] = function(){
-		
-		value_of( context.MATCH(testNode) ).should_be_false();
-		value_of( context.MATCH(testNode, null) ).should_be_false();
-		value_of( context.MATCH(testNode, undefined) ).should_be_false();
-		value_of( context.MATCH(testNode, '') ).should_be_false();
-		
-	};
+	it('node should NOT match nothing', function(){
+		expect( context.MATCH(testNode) ).toEqual(false);
+		expect( context.MATCH(testNode, null) ).toEqual(false);
+		expect( context.MATCH(testNode, undefined) ).toEqual(false);
+		expect( context.MATCH(testNode, '') ).toEqual(false);
+	});
 	
-	
-	
-	Describe('attributes',function(){
-		
+	describe('attributes', function(){
 		var nodes;
-		
 		var AttributeTests = [
 			{ operator:'=',  value:'test you!', matchAgainst:'test you!', shouldBeTrue:true },
 			{ operator:'=',  value:'test you!', matchAgainst:'test me!', shouldBeTrue:false },
@@ -49,38 +44,38 @@ Describe('Slick Match',function(specs, context){
 			{ operator:'!=', value:'test you!', matchAgainst:'test you?', shouldBeTrue:true },
 			{ operator:'!=', value:'test you!', matchAgainst:'test you!', shouldBeTrue:false }
 		];
-		function makeAttributeTest(operator, value, matchAgainst, shouldBeTrue) {
+		
+		var makeAttributeTest = function(operator, value, matchAgainst, shouldBeTrue) {
 			return function(){
 				testNode.setAttribute('attr', matchAgainst);
-				value_of( context.MATCH(testNode, "[attr"+ operator +"'"+ value +"']") )[shouldBeTrue ? 'should_be_true' : 'should_be_false']();
+				expect( context.MATCH(testNode, "[attr"+ operator +"'"+ value +"']") ).toEqual(shouldBeTrue ? true : false);
 				testNode.removeAttribute('attr');
 			};
+		};
+		
+		for (var t=0,J; J=AttributeTests[t]; t++){
+			it('"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +" match \"[attr"+ J.operator +"'"+ String.escapeSingle(J.matchAgainst) +"']\"", 
+				makeAttributeTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue)
+			);
 		}
-		for (var t=0,J; J=AttributeTests[t]; t++)
-			its['"'+J.matchAgainst+'" should '+ (J.shouldBeTrue?'':'NOT') +" match \"[attr"+ J.operator +"'"+ String.escapeSingle(J.matchAgainst) +"']\""] =
-				makeAttributeTest(J.operator, J.value, J.matchAgainst, J.shouldBeTrue);
 	});
 	
-	Describe('classes',function(){
-		
-		// it['should match all possible classes'] = TODO;
-		
+	describe('classes', function(){
+		// it('should match all possible classes', TODO);
 	});
 	
-	Describe('pseudos',function(){
-		
-		// it['should match all standard pseudos'] = TODO;
-		
+	describe('pseudos', function(){
+		// it('should match all standard pseudos', TODO);
 	});
-	
 	
 });
 
-Describe('Slick Deep Match',function(specs, context){
+
+describe('Slick Deep Match', function(){
 	
-	specs.before_each = function() {
-		
+	beforeEach(function(){
 		testNode = context.document.createElement('div');
+		nodes.push(testNode);
 		testNode.innerHTML = '\
 			<b class="b b1" id="b2">\
 				<a class="a"> lorem </a>\
@@ -92,25 +87,22 @@ Describe('Slick Deep Match',function(specs, context){
 			</b>\
 		';
 		context.document.body.appendChild(testNode);
-		
 		nested_a = context.document.getElementById('a_tag1');
-	};
-	specs.after_each = function() {
-		for (var name in nodes) {
-			if (nodes[name] && nodes[name].parentNode) {
-				nodes[name].parentNode.removeChild(nodes[name]);
+	});
+	
+	afterEach(function(){
+		for (var i = nodes.length; i--;) {
+			if (nodes[i] && nodes[i].parentNode) {
+				nodes[i].parentNode.removeChild(nodes[i]);
 			}
-			delete nodes[name];
+			nodes.splice(i, 1);
 		}
-	};
+	});
 	
-	
-	function it_should_match_selector(node, selector, should_be){
-		it['should match selector "' + selector + '"'] = function(){
-			
-			value_of( context.MATCH(global[node], selector) ).should_be(should_be);
-			
-		};
+	var it_should_match_selector = function(node, selector, should_be){
+		it('should match selector "' + selector + '"', function(){
+			expect( context.MATCH(global[node], selector) ).toEqual(should_be);
+		});
 	};
 	
 	it_should_match_selector('nested_a', '*'             ,true  );
@@ -136,9 +128,8 @@ Describe('Slick Deep Match',function(specs, context){
 	it_should_match_selector('nested_a', 'div > b ~ b > a' ,true  );
 	it_should_match_selector('nested_a', 'div a'           ,true  );
 	
-	// it['should match a node outside the DOM'] = TODO;
-	
-	// it['should match a node on a different window/iframe'] = TODO;
+	// it('should match a node outside the DOM', TODO);
+	// it('should match a node on a different window/iframe', TODO);
 	
 });
 
