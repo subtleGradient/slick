@@ -1,0 +1,3 @@
+[submodule "SlickSpec/Runner"]
+	path = SlickSpec/Runner
+	url = git://github.com/mootools/mootools-runner.git
