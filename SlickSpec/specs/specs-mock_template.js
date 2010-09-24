@@ -111,7 +111,7 @@ var specsMockTemplate = function(context){
 	it_should_find(1801 , 'body :not([title]):not([href^=tel:])');
 	;
 	it_should_find(59  , 'body div');
-	it['should not return duplicates for "* *"'] = function(){
+	it('should not return duplicates for "* *"', function(){
 		context.SELECT.disableQSA = true;
 		
 		var dupes = [];
@@ -137,11 +137,11 @@ var specsMockTemplate = function(context){
 			
 			dupe = false;
 		}
-		value_of( dupes.length ).should_be( 0 );
+		expect( dupes.length ).toEqual( 0 );
 		
 		context.SELECT.disableQSA = false;
-	};
-	it['should not return duplicates for "* *[class]"'] = function(){
+	});
+	it('should not return duplicates for "* *[class]"', function(){
 		context.SELECT.disableQSA = true;
 		// console.log('should not return duplicates for "* *[class]"');
 		// window['should not return duplicates for "* *[class]"'] = true;
@@ -168,12 +168,12 @@ var specsMockTemplate = function(context){
 			
 			dupe = false;
 		}
-		// value_of( dupes.length ).should_be( 0 );
+		// expect( dupes.length ).toEqual( 0 );
 		// window['should not return duplicates for "* *[class]"'] = false;
 		// console.log('/should not return duplicates for "* *[class]"');
 		
 		context.SELECT.disableQSA = false;
-	};
+	});
 /*
 	it['should not return duplicates for "* *" manually'] = function(){
 		context.SELECT.disableQSA = true;
@@ -210,7 +210,7 @@ var specsMockTemplate = function(context){
 		context.SELECT.disableQSA = false;
 	};
 */
-	it['should not return duplicates for "div p"'] = function(){
+	it('should not return duplicates for "div p"', function(){
 		context.SELECT.disableQSA = true;
 		
 		var dupes = [];
@@ -234,11 +234,11 @@ var specsMockTemplate = function(context){
 			dupe = false;
 		}
 		
-		value_of( dupes.length ).should_be( 0 );
-		value_of( uniques.length ).should_be( 140 );
+		expect( dupes.length ).toEqual( 0 );
+		expect( uniques.length ).toEqual( 140 );
 		
 		context.SELECT.disableQSA = false;
-	};
+	});
 	it_should_find(140 , 'div p');
 	it_should_find(140 , 'div  p');
 	
@@ -246,20 +246,20 @@ var specsMockTemplate = function(context){
 	it_should_find(22  , 'div + p');
 	it_should_find(183 , 'div ~ p');
 	it_should_find(0   , 'div & p');
-	;
+
 	it_should_find(43  , 'div[class^=exa][class$=mple]');
 	it_should_find(12  , 'div p a:not([href^=tel:])');
 	it_should_find(683 , 'div,p,a:not([href^=tel:])');
-	;
+
 	it_should_find(43 , 'DIV.example');
 	it_should_find(43 , 'DiV.example');
 	it_should_find(12 , 'ul .tocline2');
 	it_should_find(44 , 'div.example,div.note');
-	;
+
 	it_should_find(1 , '#title');
 	it_should_find(1 , 'h1#title');
 	it_should_find(1 , 'body #title');
-	;
+
 	it_should_find(12 , 'ul.toc li.tocline2');
 	it_should_find(12 , 'ul.toc > li.tocline2');
 	it_should_find(0  , 'h1#title + div > p');
