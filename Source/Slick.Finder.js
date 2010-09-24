@@ -180,6 +180,13 @@ local.search = function(context, expression, append, first){
 	
 	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
 
+	// should sort if there are nodes in append and if you pass multiple expressions.
+	// should remove duplicates if append already has items
+	var shouldUniques = !!(append && append.length);
+	
+	// avoid duplicating items already in the append array
+	if (shouldUniques) for (i = found.length; i--;) this.uniques[this.getUID(found[i])] = true;
+
 	// expression checks
 	
 	if (typeof expression == 'string'){ // expression is a string
@@ -220,17 +227,10 @@ local.search = function(context, expression, append, first){
 	
 	/*</nth-pseudo-selectors>*//*</pseudo-selectors>*/
 	
-	// should sort if there are nodes in append and if you pass multiple expressions.
-	// should remove duplicates if append already has items
-	var shouldUniques = !!(append && append.length);
-	
 	// if append is null and there is only a single selector with one expression use pushArray, else use pushUID
 	this.push = (!shouldUniques && (first || (parsed.length == 1 && parsed.expressions[0].length == 1))) ? this.pushArray : this.pushUID;
 	
 	if (found == null) found = [];
-	
-	// avoid duplicating items already in the append array
-	if (shouldUniques) for (i = found.length; i--;) this.uniques[this.getUID(found[i])] = true;
 	
 	// default engine
 	
