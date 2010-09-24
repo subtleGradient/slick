@@ -185,6 +185,10 @@ function parser(
 			};
 		}
 		
+		if ((/^[*$^]=$/).test(attributeOperator) && attributeValue == '') test = function(){
+			return false;
+		};
+		
 		if (!test) test = function(value){
 			return value && regexp.test(value);
 		};

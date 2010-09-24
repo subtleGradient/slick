@@ -32,6 +32,10 @@ var specsAssetsTemplateXML = function(context){
 		it_should_find(1  , 'camelCasedTag ! :root');
 		it_should_find(3  , ':root camelCasedTag');
 		
+		it_should_find(0  , '[attr^=]');
+		it_should_find(0  , '[attr$=]');
+		it_should_find(0  , '[attr*=]');
+		
 	});
 	
 };

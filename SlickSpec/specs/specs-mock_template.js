@@ -327,6 +327,14 @@ var specsMockTemplate = function(context){
 	it_should_find(43, '[class^=exa]');
 	it_should_find(44, '[class$=mple]');
 	
+	it_should_find(0  , '[class^=]');
+	it_should_find(0  , '[class$=]');
+	it_should_find(0  , '[class*=]');
+	
+	it_should_find(0  , '[class^=""]');
+	it_should_find(0  , '[class$=""]');
+	it_should_find(0  , '[class*=""]');
+	
 	// it_should_find((function(){
 	// 	var count = 0;
 	// 	var elements = template.getElementsByTagName('*');

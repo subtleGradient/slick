@@ -12,4 +12,6 @@
 	<camelCasedTag></camelCasedTag>
 	<camelCasedTag></camelCasedTag>
 	<camelCasedTag>text</camelCasedTag>
+	<empty-attr attr=""></empty-attr>
+	<empty-attr attr="some"></empty-attr>
 </HTML>
