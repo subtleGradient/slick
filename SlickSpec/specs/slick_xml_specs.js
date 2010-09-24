@@ -26,6 +26,12 @@ var specsAssetsTemplateXML = function(context){
 		it_should_find(1, '#node[style=border]');
 		it_should_find(1, '[href^=http://]');
 		
+		it_should_find(1  , ':root');
+		it_should_find(0  , 'html:root');
+		it_should_find(1  , 'HTML:root');
+		it_should_find(1  , 'camelCasedTag ! :root');
+		it_should_find(3  , ':root camelCasedTag');
+		
 	});
 	
 };

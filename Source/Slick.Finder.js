@@ -651,6 +651,10 @@ var pseudos = {
 	
 	'focus': function(node){
 		return !this.isXMLDocument && this.document.activeElement === node && (node.href || node.type || this.hasAttribute(node, 'tabindex'));
+	},
+	
+	'root': function(node){
+		return (node === this.root);
 	}
 	
 	/*</pseudo-selectors>*/

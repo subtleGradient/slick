@@ -53,7 +53,7 @@ var specsMockTemplate = function(context){
 	it_should_find(6, '.a1 ~ *');
 	
 /*
-	it["should count '.a1 !  *'"] = function(){
+	it("should count '.a1 !  *'", function(){
 		
 		var result = {};
 		
@@ -88,10 +88,10 @@ var specsMockTemplate = function(context){
 			dupe = false;
 		}
 		
-		value_of( uniques.length ).should_be( 7 );
-		// value_of( dupes.length ).should_be( 0 );
+		expect( uniques.length ).toEqual( 7 );
+		// expect( dupes.length ).toEqual( 0 );
 		// 
-	};
+	});
 */
 	
 	it_should_find(6, '.a1 !  *');
@@ -284,6 +284,13 @@ var specsMockTemplate = function(context){
 	it_should_find(3,   'p:only-child');
 	it_should_find(19,  'p:last-child');
 	it_should_find(54,  'p:first-child');
+	
+	it_should_find(1  , ':root');
+	it_should_find(1  , 'html:root > head:first-child');
+	it_should_find(0  , 'body:root');
+	it_should_find(1  , 'a ! :root');
+	it_should_find(12 , ':root ul .tocline2');
+	it_should_find(0  , 'body :root');
 	
 	// specs['":contains()" elements should actually contain the word'] = function(){
 	// 	var els = context.SELECT(context.document,':contains(selectors)');
