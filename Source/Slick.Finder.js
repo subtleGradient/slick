@@ -516,7 +516,7 @@ var combinators = {
 	
 	'!>': function(node, tag, id, classes, attributes, pseudos){ // direct parent (one level)
 		node = node.parentNode;
-		if (node !== document) this.push(node, tag, id, classes, attributes, pseudos);
+		if (node !== this.document) this.push(node, tag, id, classes, attributes, pseudos);
 	},
 	
 	'!+': function(node, tag, id, classes, attributes, pseudos){ // previous sibling
