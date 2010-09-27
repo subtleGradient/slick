@@ -37,23 +37,31 @@ local.setDocument = function(document){
 	this.document = document;
 	var root = this.root = document.documentElement;
 
-	// document sort
+	this.isXMLDocument = this.isXML(document);
 
 	this.brokenStarGEBTN
 	= this.starSelectsClosedQSA
 	= this.idGetsName
 	= this.brokenMixedCaseQSA
 	= this.brokenGEBCN
+	= this.isHTMLDocument
 	= false;
 
 	var starSelectsClosed, starSelectsComments,
 		brokenSecondClassNameGEBCN, cachedGetElementsByClassName;
 
-	if (!(this.isXMLDocument = this.isXML(document))){
+	var selected, id;
+	var testNode = document.createElement('div');
+	root.appendChild(testNode);
 
-		var testNode = document.createElement('div');
-		this.root.appendChild(testNode);
-		var selected, id;
+	// on non-HTML documents innerHTML and getElementsById doesnt work properly
+	try {
+		id = 'slick_getbyid_test';
+		testNode.innerHTML = '<a id="'+id+'"></a>';
+		this.isHTMLDocument = !!document.getElementById(id);
+	} catch(e){};
+
+	if (this.isHTMLDocument){
 
 		// IE returns comment nodes for getElementsByTagName('*') for some documents
 		testNode.appendChild(document.createComment(''));
@@ -78,8 +86,8 @@ local.setDocument = function(document){
 		// IE returns elements with the name instead of just id for getElementById for some documents
 		try {
 			id = 'slick_id_gets_name';
-			testNode.innerHTML = ('<a name='+id+'></a><b id='+id+'></b>');
-			this.idGetsName = testNode.ownerDocument.getElementById(id) === testNode.firstChild;
+			testNode.innerHTML = '<a name="'+id+'"></a><b id="'+id+'"></b>';
+			this.idGetsName = document.getElementById(id) === testNode.firstChild;
 		} catch(e){};
 
 		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
@@ -103,10 +111,10 @@ local.setDocument = function(document){
 
 		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
 
-		this.root.removeChild(testNode);
-		testNode = null;
-
 	}
+
+	root.removeChild(testNode);
+	testNode = null;
 
 	// hasAttribute
 
@@ -149,7 +157,7 @@ local.setDocument = function(document){
 		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	} : null ;
 
-	this.getUID = (this.isXMLDocument) ? this.getUIDXML : this.getUIDHTML;
+	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
 };
 
@@ -431,7 +439,7 @@ var combinators = {
 
 		var i, item, children;
 
-		if (!this.isXMLDocument){
+		if (this.isHTMLDocument){
 			getById: if (id){
 				item = this.document.getElementById(id);
 				if ((!item && node.all) || (this.idGetsName && item && item.getAttributeNode('id').nodeValue != id)){
@@ -650,7 +658,7 @@ var pseudos = {
 	},
 
 	'focus': function(node){
-		return !this.isXMLDocument && this.document.activeElement === node && (node.href || node.type || this.hasAttribute(node, 'tabindex'));
+		return this.isHTMLDocument && this.document.activeElement === node && (node.href || node.type || this.hasAttribute(node, 'tabindex'));
 	},
 
 	'root': function(node){
@@ -707,7 +715,7 @@ local.override = function(regexp, method){
 
 local.override(/./, function(expression, found, first){ //querySelectorAll override
 
-	if (!this.querySelectorAll || this.nodeType != 9 || local.isXMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
+	if (!this.querySelectorAll || this.nodeType != 9 || !local.isHTMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
 
 	var nodes, node;
 	try {
@@ -758,7 +766,7 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 /*<class-override>*/
 
 local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
-	if (local.isXMLDocument || (!this.getElementsByClassName && this.querySelectorAll)) return false;
+	if (!local.isHTMLDocument || (!this.getElementsByClassName && this.querySelectorAll)) return false;
 
 	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
 	if (this.getElementsByClassName && !local.brokenGEBCN){
@@ -786,7 +794,7 @@ local.override(/^\.[\w-]+$/, function(expression, found, first){ // class overri
 /*<id-override>*/
 
 local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
-	if (local.isXMLDocument || this.nodeType != 9) return false;
+	if (!local.isHTMLDocument || this.nodeType != 9) return false;
 
 	var id = expression.substring(1), el = this.getElementById(id);
 	if (!el) return found;

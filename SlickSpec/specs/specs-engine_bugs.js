@@ -3,7 +3,8 @@ var specsSelectorEngineBugs = function(context){
 	describe('Bugs', function(){
 		var rootElement;
 		var testNode;
-		var isXML = context.isXML(context.document);
+		var isXML = !isHTML(context.document);//context.isXML(context.document);
+		
 		var setup = function(){
 			testNode = context.document.createElement('div');
 			rootElement = context.document.getElementsByTagName('body')[0];
@@ -194,7 +195,7 @@ var specsBrowserBugsFixed = function(context){
 
 		var rootElement;
 		var testNode, tmpNode, tmpNode1, tmpNode2, tmpNode3, tmpNode4, tmpNode5, tmpNode6, tmpNode7, tmpNode8, tmpNode9;
-		var isXML = context.isXML(context.document);
+		var isXML = !isHTML(context.document);
 		var results, resultsArray;
 		var setup = function(){
 			testNode = context.document.createElement('div');

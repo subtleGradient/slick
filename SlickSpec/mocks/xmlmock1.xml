@@ -12,6 +12,7 @@
 	<camelCasedTag></camelCasedTag>
 	<camelCasedTag></camelCasedTag>
 	<camelCasedTag>text</camelCasedTag>
+	<!-- a xml comment -->
 	<empty-attr attr=""></empty-attr>
 	<empty-attr attr="some"></empty-attr>
 </HTML>

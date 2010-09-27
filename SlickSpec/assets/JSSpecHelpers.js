@@ -3,6 +3,16 @@ String.escapeSingle = String.escapeSingle || function(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
 
+var isHTML = function(document){
+	var testNode = document.createElement('div'), isHTML = false;
+	try {
+		var id = 'slick_getbyid_test';
+		testNode.innerHTML = '<a id="'+id+'"></a>';
+		isHTML = !!document.getElementById(id);
+	} catch(e){};
+	return isHTML;
+};
+
 var addEvent = function(obj, event, handler) {
 	if (obj.addEventListener) {
 		obj.addEventListener(event, handler, false);
