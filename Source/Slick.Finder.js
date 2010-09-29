@@ -21,7 +21,6 @@ local.isXML = function(document){
 	return (!!document.xmlVersion) || (!!document.xml) || (Object.prototype.toString.call(document) === '[object XMLDocument]') ||
 	(document.nodeType === 9 && document.documentElement.nodeName !== 'HTML');
 };
-
 local.setDocument = function(document){
 
 	// convert elements / window arguments to document. if document cannot be extrapolated, the function returns.
@@ -44,6 +43,7 @@ local.setDocument = function(document){
 	= this.idGetsName
 	= this.brokenMixedCaseQSA
 	= this.brokenGEBCN
+	= this.brokenCheckedQSA
 	= this.isHTMLDocument
 	= false;
 
@@ -62,7 +62,9 @@ local.setDocument = function(document){
 	} catch(e){};
 
 	if (this.isHTMLDocument){
-
+		
+		testNode.style.display = 'none';
+		
 		// IE returns comment nodes for getElementsByTagName('*') for some documents
 		testNode.appendChild(document.createComment(''));
 		starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
@@ -83,14 +85,14 @@ local.setDocument = function(document){
 			this.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
 		} catch(e){};
 
-		// IE returns elements with the name instead of just id for getElementById for some documents
+		// IE returns elements with the name instead of just id for getElementsById for some documents
 		try {
 			id = 'slick_id_gets_name';
 			testNode.innerHTML = '<a name="'+id+'"></a><b id="'+id+'"></b>';
 			this.idGetsName = document.getElementById(id) === testNode.firstChild;
 		} catch(e){};
 
-		// Safari 3.2 QSA doesnt work with mixedcase on quirksmode
+		// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
 		try {
 			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
 			this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
@@ -103,14 +105,20 @@ local.setDocument = function(document){
 			cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
 		} catch(e){};
 
-		// Opera 9.6 GEBCN doesnt detects the class if its not the first one
+		// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
 		try {
 			testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
 			brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
 		} catch(e){};
 
 		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
-
+		
+		// Webkit dont return selected options on QSA
+		try {
+			testNode.innerHTML = '<select><option selected="selected">a</option></select>';
+			this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
+		} catch(e){};
+		
 	}
 
 	root.removeChild(testNode);
@@ -650,11 +658,7 @@ var pseudos = {
 	},
 
 	'checked': function(node){
-		return node.checked;
-	},
-
-	'selected': function(node){
-		return node.selected;
+		return node.checked || node.selected;
 	},
 
 	'focus': function(node){
@@ -663,6 +667,10 @@ var pseudos = {
 
 	'root': function(node){
 		return (node === this.root);
+	},
+	
+	'selected': function(node){
+		return node.selected;
 	}
 
 	/*</pseudo-selectors>*/
@@ -715,7 +723,8 @@ local.override = function(regexp, method){
 
 local.override(/./, function(expression, found, first){ //querySelectorAll override
 
-	if (!this.querySelectorAll || this.nodeType != 9 || !local.isHTMLDocument || local.brokenMixedCaseQSA || Slick.disableQSA) return false;
+	if (!this.querySelectorAll || this.nodeType != 9 || !local.isHTMLDocument || local.brokenMixedCaseQSA ||
+	(local.brokenCheckedQSA && expression.indexOf(':checked') > -1) || Slick.disableQSA) return false;
 
 	var nodes, node;
 	try {
