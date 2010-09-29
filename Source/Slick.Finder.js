@@ -44,6 +44,7 @@ local.setDocument = function(document){
 	= this.brokenMixedCaseQSA
 	= this.brokenGEBCN
 	= this.brokenCheckedQSA
+	= this.brokenEmptyAttributeQSA
 	= this.isHTMLDocument
 	= false;
 
@@ -113,10 +114,16 @@ local.setDocument = function(document){
 
 		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
 		
-		// Webkit dont return selected options on QSA
+		// Webkit dont return selected options on querySelectorAll
 		try {
 			testNode.innerHTML = '<select><option selected="selected">a</option></select>';
 			this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
+		} catch(e){};
+		
+		// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
+		try {
+			testNode.innerHTML = '<a class=""></a>';
+			this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
 		} catch(e){};
 		
 	}
@@ -721,10 +728,13 @@ local.override = function(regexp, method){
 
 /*<query-selector-override>*/
 
+var reEmptyAttribute = /\[.*[*$^]=(?:["']{2})?\]/;
+
 local.override(/./, function(expression, found, first){ //querySelectorAll override
 
 	if (!this.querySelectorAll || this.nodeType != 9 || !local.isHTMLDocument || local.brokenMixedCaseQSA ||
-	(local.brokenCheckedQSA && expression.indexOf(':checked') > -1) || Slick.disableQSA) return false;
+	(local.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
+	(local.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) return false;
 
 	var nodes, node;
 	try {
