@@ -7,9 +7,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" debug="true">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	
+<?php
+		$time = time();
+		$includes = $_GET['include'];
+		if (is_string($includes)) $includes = array($includes);
+		foreach ($includes as $include):
+		?>
+		
+	<script type="text/javascript" src="../../frameworks/<?php echo $include . '?' . $time; ?>"></script>
 
-	<script type="text/javascript" src="../../frameworks/<?php echo $_GET['include']; ?>"></script>
-
+<?php	endforeach; ?>
+	
 	<script type="text/javascript">
 
 

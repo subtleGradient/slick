@@ -91,9 +91,9 @@
 
 	foreach ($frameworks as $framework => $properties){
 		$time = time();
-
+		
 		$query = http_build_query(array(
-			'include' => $properties['file'] . '?' . $time,
+			'include' => $properties['file'],
 			'function' => $properties['function'],
 			'initialize' => isset($properties['initialize']) ? $properties['initialize'] : '',
 			'special' => $special,
