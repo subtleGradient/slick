@@ -35,7 +35,7 @@ var Sizzle = function(selector, context, results, seed) {
 		return results;
 	}
 
-	var parts = [], m, set, checkSet, extra, prune = true, contextXML = isXML(context),
+	var parts = [], m, set, checkSet, extra, prune = true, contextXML = Sizzle.isXML(context),
 		soFar = selector, ret, cur, pop, i;
 	
 	// Reset the position of the chunker regexp (start from head)
@@ -128,7 +128,7 @@ var Sizzle = function(selector, context, results, seed) {
 			results.push.apply( results, checkSet );
 		} else if ( context && context.nodeType === 1 ) {
 			for ( i = 0; checkSet[i] != null; i++ ) {
-				if ( checkSet[i] && (checkSet[i] === true || checkSet[i].nodeType === 1 && contains(context, checkSet[i])) ) {
+				if ( checkSet[i] && (checkSet[i] === true || checkSet[i].nodeType === 1 && Sizzle.contains(context, checkSet[i])) ) {
 					results.push( set[i] );
 				}
 			}
@@ -206,7 +206,7 @@ Sizzle.find = function(expr, context, isXML){
 
 Sizzle.filter = function(expr, set, inplace, not){
 	var old = expr, result = [], curLoop = set, match, anyFound,
-		isXMLFilter = set && set[0] && isXML(set[0]);
+		isXMLFilter = set && set[0] && Sizzle.isXML(set[0]);
 
 	while ( expr && set.length ) {
 		for ( var type in Expr.filter ) {
@@ -391,7 +391,9 @@ var Expr = Sizzle.selectors = {
 		ID: function(match, context, isXML){
 			if ( typeof context.getElementById !== "undefined" && !isXML ) {
 				var m = context.getElementById(match[1]);
-				return m ? [m] : [];
+				// Check parentNode to catch when Blackberry 4.6 returns
+				// nodes that are no longer in the document #6963
+				return m && m.parentNode ? [m] : [];
 			}
 		},
 		NAME: function(match, context){
@@ -584,7 +586,7 @@ var Expr = Sizzle.selectors = {
 			if ( filter ) {
 				return filter( elem, i, match, array );
 			} else if ( name === "contains" ) {
-				return (elem.textContent || elem.innerText || getText([ elem ]) || "").indexOf(match[3]) >= 0;
+				return (elem.textContent || elem.innerText || Sizzle.getText([ elem ]) || "").indexOf(match[3]) >= 0;
 			} else if ( name === "not" ) {
 				var not = match[3];
 
@@ -750,62 +752,94 @@ try {
 	};
 }
 
-var sortOrder;
+var sortOrder, siblingCheck;
 
 if ( document.documentElement.compareDocumentPosition ) {
 	sortOrder = function( a, b ) {
+		if ( a === b ) {
+			hasDuplicate = true;
+			return 0;
+		}
+
 		if ( !a.compareDocumentPosition || !b.compareDocumentPosition ) {
-			if ( a == b ) {
-				hasDuplicate = true;
-			}
 			return a.compareDocumentPosition ? -1 : 1;
 		}
 
-		var ret = a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
-		if ( ret === 0 ) {
-			hasDuplicate = true;
-		}
-		return ret;
+		return a.compareDocumentPosition(b) & 4 ? -1 : 1;
 	};
-} else if ( "sourceIndex" in document.documentElement ) {
+} else {
 	sortOrder = function( a, b ) {
-		if ( !a.sourceIndex || !b.sourceIndex ) {
-			if ( a == b ) {
-				hasDuplicate = true;
-			}
-			return a.sourceIndex ? -1 : 1;
+		var ap = [], bp = [], aup = a.parentNode, bup = b.parentNode,
+			cur = aup, al, bl;
+
+		// The nodes are identical, we can exit early
+		if ( a === b ) {
+			hasDuplicate = true;
+			return 0;
+
+		// If the nodes are siblings (or identical) we can do a quick check
+		} else if ( aup === bup ) {
+			return siblingCheck( a, b );
+
+		// If no parents were found then the nodes are disconnected
+		} else if ( !aup ) {
+			return -1;
+
+		} else if ( !bup ) {
+			return 1;
 		}
 
-		var ret = a.sourceIndex - b.sourceIndex;
-		if ( ret === 0 ) {
-			hasDuplicate = true;
-		}
-		return ret;
-	};
-} else if ( document.createRange ) {
-	sortOrder = function( a, b ) {
-		if ( !a.ownerDocument || !b.ownerDocument ) {
-			if ( a == b ) {
-				hasDuplicate = true;
-			}
-			return a.ownerDocument ? -1 : 1;
+		// Otherwise they're somewhere else in the tree so we need
+		// to build up a full list of the parentNodes for comparison
+		while ( cur ) {
+			ap.unshift( cur );
+			cur = cur.parentNode;
 		}
 
-		var aRange = a.ownerDocument.createRange(), bRange = b.ownerDocument.createRange();
-		aRange.setStart(a, 0);
-		aRange.setEnd(a, 0);
-		bRange.setStart(b, 0);
-		bRange.setEnd(b, 0);
-		var ret = aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
-		if ( ret === 0 ) {
-			hasDuplicate = true;
+		cur = bup;
+
+		while ( cur ) {
+			bp.unshift( cur );
+			cur = cur.parentNode;
 		}
-		return ret;
+
+		al = ap.length;
+		bl = bp.length;
+
+		// Start walking down the tree looking for a discrepancy
+		for ( var i = 0; i < al && i < bl; i++ ) {
+			if ( ap[i] !== bp[i] ) {
+				return siblingCheck( ap[i], bp[i] );
+			}
+		}
+
+		// We ended someplace up the tree so do a sibling check
+		return i === al ?
+			siblingCheck( a, bp[i], -1 ) :
+			siblingCheck( ap[i], b, 1 );
+	};
+
+	siblingCheck = function( a, b, ret ) {
+		if ( a === b ) {
+			return ret;
+		}
+
+		var cur = a.nextSibling;
+
+		while ( cur ) {
+			if ( cur === b ) {
+				return -1;
+			}
+
+			cur = cur.nextSibling;
+		}
+
+		return 1;
 	};
 }
 
 // Utility function for retreiving the text value of an array of DOM nodes
-function getText( elems ) {
+Sizzle.getText = function( elems ) {
 	var ret = "", elem;
 
 	for ( var i = 0; elems[i]; i++ ) {
@@ -817,12 +851,12 @@ function getText( elems ) {
 
 		// Traverse everything else, except comment nodes
 		} else if ( elem.nodeType !== 8 ) {
-			ret += getText( elem.childNodes );
+			ret += Sizzle.getText( elem.childNodes );
 		}
 	}
 
 	return ret;
-}
+};
 
 // Check to see if the browser returns elements by name when
 // querying by getElementById (and provide a workaround)
@@ -914,7 +948,7 @@ if ( document.querySelectorAll ) {
 
 			// Only use querySelectorAll on non-XML documents
 			// (ID selectors don't work in non-HTML documents)
-			if ( !seed && context.nodeType === 9 && !isXML(context) ) {
+			if ( !seed && context.nodeType === 9 && !Sizzle.isXML(context) ) {
 				try {
 					return makeArray( context.querySelectorAll(query), extra );
 				} catch(e){}
@@ -1028,13 +1062,13 @@ function dirCheck( dir, cur, doneName, checkSet, nodeCheck, isXML ) {
 	}
 }
 
-var contains = document.compareDocumentPosition ? function(a, b){
+Sizzle.contains = document.compareDocumentPosition ? function(a, b){
 	return !!(a.compareDocumentPosition(b) & 16);
 } : function(a, b){
 	return a !== b && (a.contains ? a.contains(b) : true);
 };
 
-var isXML = function(elem){
+Sizzle.isXML = function(elem){
 	// documentElement is verified for cases where it doesn't yet exist
 	// (such as loading iframes in IE - #4833) 
 	var documentElement = (elem ? elem.ownerDocument || elem : 0).documentElement;
