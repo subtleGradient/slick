@@ -8,7 +8,6 @@
 </style>
 
 <!-- JSSpec -->
-<script type="text/javascript" src="../../SlickSpec/assets/JSSpec.js"></script>
 <script type="text/javascript" src="../../SlickSpec/assets/JSSpecHelpers.js"></script>
 <script type="text/javascript" charset="utf-8">
 window.scripts_to_get = [];
@@ -33,7 +32,6 @@ this.Slick = null;
 <script src="../frameworks/sizzle.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/yass.css3.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/sly.js" type="text/javascript" charset="utf-8"></script>
-<script src="../frameworks/domass.js" type="text/javascript" charset="utf-8"></script>
 <script src="../frameworks/dojo-acme.js" type="text/javascript" charset="utf-8"></script>
 
 <!-- benchmarker -->
@@ -169,11 +167,24 @@ document.write('<textarea name="selectors">');
 document.write(global.selectors.join("\n"));
 document.write('</textarea>');
 
+(function(global){
+
+global.runSpecs = function(){};
+Mock.CreateTemplate('Generic HTML (standard)',				'../../SlickSpec/mocks/template-standard.html');
+new Mock(/\b(xml|svg|xhtml|html)\b/i, benchmarkSelectors);
+
+})(window);
+
+
+
 		</script>
 		<p><input type="submit" value="Update Selectors" /></p>
 	</form>
 </div>
 
+
+<script type="text/javascript">
+/*
 <!-- mocks -->
 <iframe class="mock" onload="Mock.register('tmpl html std',this.contentWindow)" src="../../SlickSpec/mocks/template-standard.html"></iframe>
 <!-- <iframe onload="Mock.register('tmpl html almost std',this.contentWindow)" src="../../SlickSpec/mocks/template-almost.html"></iframe> -->
@@ -189,11 +200,10 @@ document.write('</textarea>');
 <![endif]-->
 <!-- <iframe onload="Mock.register('tmpl html IE8 as IE7',this.contentWindow)" src="../../SlickSpec/mocks/template-ie7.html"></iframe> -->
 
-<script type="text/javascript" charset="utf-8">
-
 // new Mock.Request('responseXML','../../SlickSpec/mocks/xmlmock1.xml');
 // new Mock.Request('responseXML','../../SlickSpec/mocks/MooTools_Logo.svg');
 // document.getElementsByTagName('textarea')[0].style.height = global.selectors.length * 12 + 24 + 'px';
+*/
 </script>
 
 <hr />
