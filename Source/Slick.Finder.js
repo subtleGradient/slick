@@ -396,13 +396,19 @@ local.matchNode = function(node, selector){
 	if (!parsed) return true;
 
 	// simple (single) selectors
-	if(parsed.length == 1 && parsed.expressions[0].length == 1){
-		var exp = parsed.expressions[0][0];
-		return this.matchSelector(node, (this.isXMLDocument) ? exp.tag : exp.tag.toUpperCase(), exp.id, exp.classes, exp.attributes, exp.pseudos);
+	var expressions = parsed.expressions, reversedExpressions, simpleExpCounter = 0, i;
+	for (i = 0; (currentExpression = expressions[i]); i++){
+		if (currentExpression.length == 1){
+			var exp = currentExpression[0];
+			if (this.matchSelector(node, (this.isXMLDocument) ? exp.tag : exp.tag.toUpperCase(), exp.id, exp.classes, exp.attributes, exp.pseudos)) return true;
+			simpleExpCounter++;
+		}
 	}
+	
+	if (simpleExpCounter == parsed.length) return false;
 
-	var nodes = this.search(this.document, parsed);
-	for (var i = 0, item; item = nodes[i++];){
+	var nodes = this.search(this.document, parsed), item;
+	for (i = 0; item = nodes[i++];){
 		if (item === node) return true;
 	}
 	return false;
