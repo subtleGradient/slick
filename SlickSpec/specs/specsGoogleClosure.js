@@ -2,10 +2,13 @@
 
 var specsGoogleClosure = function(context){
 	
-	var makeSlickTestSearch = function(selector, count, disableQSA, rootNode) {
+	var makeSlickTestSearch = function(selector, count, disableQSA, rootNode, rootNodeId) {
 		return function(){
 			context.SELECT.disableQSA = !!disableQSA;
-			expect( context.SELECT(rootNode, selector).length ).toEqual( count );
+			var els = context.SELECT(rootNode, selector);
+			var nFoundEls = els.length;
+			expect( nFoundEls ).toEqual( count );
+			if (nFoundEls && !rootNodeId) expect( context.MATCH(els[0], selector) ).toEqual( true );
 			delete context.SELECT.disableQSA;
 		};
 	};
@@ -13,8 +16,8 @@ var specsGoogleClosure = function(context){
 	var it_should_find = function(count, selector, rootNodeId){
 		var rootNode = rootNodeId ? context.document.getElementById(rootNodeId) : context.document;
 		if (global.document.querySelectorAll && !global.cannotDisableQSA)
-			it('should find '+count+' `'+selector+'` with    QSA', makeSlickTestSearch(selector, count, false, rootNode));
-		it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true, rootNode));
+			it('should find '+count+' `'+selector+'` with    QSA', makeSlickTestSearch(selector, count, false, rootNode, rootNodeId));
+		it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true, rootNode, rootNodeId));
 	};
 
 	describe('testBasicSelectors', function(){

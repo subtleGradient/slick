@@ -6,12 +6,12 @@ var specsMockTemplate = function(context){
 			var selectedArray = context.SELECT(context.document, selector);
 			var selected = context.SELECT1(context.document, selector);
 			expect( selectedArray.length ).toEqual( count );
-			if(count){
+			if (count){
 				expect( selected ).not.toBeNull();
-				expect( selected === selectedArray[0] ).toEqual(true);
-			}
-			else{
-				expect( selected == null ).toEqual(true);
+				expect( selected ).toEqual(selectedArray[0]);
+				expect( context.MATCH(selectedArray[0], selector) ).toEqual( true );
+			} else {
+				expect( selected ).toBeNull();
 			}
 			delete context.SELECT.disableQSA;
 		};

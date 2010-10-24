@@ -5,7 +5,10 @@ var specsAssetsTemplateXML = function(context){
 		var makeSlickTestSearch = function(selector, count, disableQSA) {
 			return function(){
 				context.SELECT.disableQSA = !!disableQSA;
-				expect( context.SELECT(context.document, selector).length ).toEqual( count );
+				var els = context.SELECT(context.document, selector);
+				var nFoundEls = els.length;
+				expect( nFoundEls ).toEqual( count );
+				if (nFoundEls) expect( context.MATCH(els[0], selector) ).toEqual( true );
 				delete context.SELECT.disableQSA;
 			};
 		};
