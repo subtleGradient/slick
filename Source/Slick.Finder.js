@@ -173,16 +173,6 @@ local.setDocument = function(document){
 		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	} : null ;
 
-	// Native matchesSelector API
-
-	this.matchesSelector = root.matchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector || root.msMatchesSelector;
-	this.matchesCatchesException = false;
-	try {
-		this.matchesSelector.call(root, ':slick');
-	} catch(e) {
-		this.matchesCatchesException = true;
-	}
-
 	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
 };
@@ -402,10 +392,6 @@ local.pushUID = function(node, tag, id, classes, attributes, pseudos){
 };
 
 local.matchNode = function(node, selector){
-	if (this.matchesSelector && this.isHTMLDocument && this.matchesCatchesException) try {
-		return this.matchesSelector.call(node, selector);
-	} catch(e) {}
-	
 	var parsed = this.Slick.parse(selector);
 	if (!parsed) return true;
 
