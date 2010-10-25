@@ -732,19 +732,32 @@ var reEmptyAttribute = /\[.*[*$^]=(?:["']{2})?\]/;
 
 local.override(/./, function(expression, found, first){ //querySelectorAll override
 
-	if (!this.querySelectorAll || this.nodeType != 9 || !local.isHTMLDocument || local.brokenMixedCaseQSA ||
+	if (!this.querySelectorAll || !local.isHTMLDocument || local.brokenMixedCaseQSA ||
 	(local.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
 	(local.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) return false;
 
-	var nodes, node;
+	var nodes, isDocument = (this.nodeType == 9);
+	if (!isDocument){
+		// non-document rooted QSA
+		// credits to Andrew Dupont
+		var currentId = this.getAttribute('id'), id = 'slick:id';
+		this.setAttribute('id', id);
+		expression = '#' + id + ' ' + expression;
+	}
+	
 	try {
 		if (first) return this.querySelector(expression) || null;
 		else nodes = this.querySelectorAll(expression);
-	} catch(error){
+	} catch(e) {
 		return false;
+	} finally {
+		if (!isDocument){
+			if (currentId) this.setAttribute('id', currentId);
+			else this.removeAttribute('id');
+		}
 	}
 
-	var i, hasOthers = !!(found.length);
+	var i, node, hasOthers = !!(found.length);
 
 	if (local.starSelectsClosedQSA) for (i = 0; node = nodes[i++];){
 		if (node.nodeName > '@' && (!hasOthers || !local.uniques[local.getUIDHTML(node)])) found.push(node);
