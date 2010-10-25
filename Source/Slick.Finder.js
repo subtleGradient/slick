@@ -18,15 +18,15 @@ local.isNativeCode = function(fn){
 };
 
 local.isXML = function(document){
-	return (!!document.xmlVersion) || (!!document.xml) || (Object.prototype.toString.call(document) === '[object XMLDocument]') ||
-	(document.nodeType === 9 && document.documentElement.nodeName !== 'HTML');
+	return (!!document.xmlVersion) || (!!document.xml) || (Object.prototype.toString.call(document) == '[object XMLDocument]') ||
+	(document.nodeType == 9 && document.documentElement.nodeName != 'HTML');
 };
 
 local.setDocument = function(document){
 
 	// convert elements / window arguments to document. if document cannot be extrapolated, the function returns.
 
-	if (document.nodeType === 9); // document
+	if (document.nodeType == 9); // document
 	else if (document.ownerDocument) document = document.ownerDocument; // node
 	else if (document.navigator) document = document.document; // window
 	else return;
@@ -494,12 +494,12 @@ var combinators = {
 
 	'>': function(node, tag, id, classes, attributes, pseudos){ // direct children
 		if ((node = node.firstChild)) do {
-			if (node.nodeType === 1) this.push(node, tag, id, classes, attributes, pseudos);
+			if (node.nodeType == 1) this.push(node, tag, id, classes, attributes, pseudos);
 		} while ((node = node.nextSibling));
 	},
 
 	'+': function(node, tag, id, classes, attributes, pseudos){ // next sibling
-		while ((node = node.nextSibling)) if (node.nodeType === 1){
+		while ((node = node.nextSibling)) if (node.nodeType == 1){
 			this.push(node, tag, id, classes, attributes, pseudos);
 			break;
 		}
@@ -508,14 +508,14 @@ var combinators = {
 	'^': function(node, tag, id, classes, attributes, pseudos){ // first child
 		node = node.firstChild;
 		if (node){
-			if (node.nodeType === 1) this.push(node, tag, id, classes, attributes, pseudos);
+			if (node.nodeType == 1) this.push(node, tag, id, classes, attributes, pseudos);
 			else this['combinator:+'](node, tag, id, classes, attributes, pseudos);
 		}
 	},
 
 	'~': function(node, tag, id, classes, attributes, pseudos){ // next siblings
 		while ((node = node.nextSibling)){
-			if (node.nodeType !== 1) continue;
+			if (node.nodeType != 1) continue;
 			var uid = this.getUID(node);
 			if (this.bitUniques[uid]) break;
 			this.bitUniques[uid] = true;
@@ -543,7 +543,7 @@ var combinators = {
 	},
 
 	'!+': function(node, tag, id, classes, attributes, pseudos){ // previous sibling
-		while ((node = node.previousSibling)) if (node.nodeType === 1){
+		while ((node = node.previousSibling)) if (node.nodeType == 1){
 			this.push(node, tag, id, classes, attributes, pseudos);
 			break;
 		}
@@ -552,14 +552,14 @@ var combinators = {
 	'!^': function(node, tag, id, classes, attributes, pseudos){ // last child
 		node = node.lastChild;
 		if (node){
-			if (node.nodeType === 1) this.push(node, tag, id, classes, attributes, pseudos);
+			if (node.nodeType == 1) this.push(node, tag, id, classes, attributes, pseudos);
 			else this['combinator:!+'](node, tag, id, classes, attributes, pseudos);
 		}
 	},
 
 	'!~': function(node, tag, id, classes, attributes, pseudos){ // previous siblings
 		while ((node = node.previousSibling)){
-			if (node.nodeType !== 1) continue;
+			if (node.nodeType != 1) continue;
 			var uid = this.getUID(node);
 			if (this.bitUniques[uid]) break;
 			this.bitUniques[uid] = true;
@@ -589,20 +589,20 @@ var pseudos = {
 	},
 
 	'first-child': function(node){
-		while ((node = node.previousSibling)) if (node.nodeType === 1) return false;
+		while ((node = node.previousSibling)) if (node.nodeType == 1) return false;
 		return true;
 	},
 
 	'last-child': function(node){
-		while ((node = node.nextSibling)) if (node.nodeType === 1) return false;
+		while ((node = node.nextSibling)) if (node.nodeType == 1) return false;
 		return true;
 	},
 
 	'only-child': function(node){
 		var prev = node;
-		while ((prev = prev.previousSibling)) if (prev.nodeType === 1) return false;
+		while ((prev = prev.previousSibling)) if (prev.nodeType == 1) return false;
 		var next = node;
-		while ((next = next.nextSibling)) if (next.nodeType === 1) return false;
+		while ((next = next.nextSibling)) if (next.nodeType == 1) return false;
 		return true;
 	},
 
@@ -634,21 +634,21 @@ var pseudos = {
 
 	'first-of-type': function(node){
 		var nodeName = node.nodeName;
-		while ((node = node.previousSibling)) if (node.nodeName === nodeName) return false;
+		while ((node = node.previousSibling)) if (node.nodeName == nodeName) return false;
 		return true;
 	},
 
 	'last-of-type': function(node){
 		var nodeName = node.nodeName;
-		while ((node = node.nextSibling)) if (node.nodeName === nodeName) return false;
+		while ((node = node.nextSibling)) if (node.nodeName == nodeName) return false;
 		return true;
 	},
 
 	'only-of-type': function(node){
 		var prev = node, nodeName = node.nodeName;
-		while ((prev = prev.previousSibling)) if (prev.nodeName === nodeName) return false;
+		while ((prev = prev.previousSibling)) if (prev.nodeName == nodeName) return false;
 		var next = node;
-		while ((next = next.nextSibling)) if (next.nodeName === nodeName) return false;
+		while ((next = next.nextSibling)) if (next.nodeName == nodeName) return false;
 		return true;
 	},
 
@@ -657,11 +657,11 @@ var pseudos = {
 	// custom pseudos
 
 	'enabled': function(node){
-		return (node.disabled === false);
+		return !node.disabled;
 	},
 
 	'disabled': function(node){
-		return (node.disabled === true);
+		return node.disabled;
 	},
 
 	'checked': function(node){
