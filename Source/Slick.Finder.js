@@ -728,7 +728,7 @@ local.override = function(regexp, method){
 
 /*<query-selector-override>*/
 
-var reEmptyAttribute = /\[.*[*$^]=(?:["']{2})?\]/;
+var reEmptyAttribute = /\[.+[*$^]=(?:""|'')?\]/;
 
 local.override(/./, function(expression, found, first){ //querySelectorAll override
 
