@@ -353,12 +353,12 @@ local.createNTHPseudo = function(child, sibling, positions, ofType){
 			if (ofType){
 				var nodeName = node.nodeName;
 				do {
-					if (el.nodeName !== nodeName) continue;
+					if (el.nodeName != nodeName) continue;
 					this[positions][this.getUID(el)] = count++;
 				} while ((el = el[sibling]));
 			} else {
 				do {
-					if (el.nodeType !== 1) continue;
+					if (el.nodeType != 1) continue;
 					this[positions][this.getUID(el)] = count++;
 				} while ((el = el[sibling]));
 			}
