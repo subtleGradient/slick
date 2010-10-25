@@ -21,8 +21,6 @@
 	
 	<script type="text/javascript">
 
-
-
 		var get_length = function(elements){
 			return (typeof elements.length == 'function') ? elements.length() : elements.length;
 		}
