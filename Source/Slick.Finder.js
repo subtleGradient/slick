@@ -849,7 +849,7 @@ if (typeof document != 'undefined') local.setDocument(document);
 
 var Slick = local.Slick = (this.Slick || {});
 
-Slick.version = '1.0';
+Slick.version = '1.0dev';
 
 // Slick finder
 
