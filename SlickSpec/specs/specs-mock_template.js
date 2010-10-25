@@ -111,6 +111,8 @@ var specsMockTemplate = function(context){
 	it_should_find(1801 , 'body :not([title]):not([href^=tel:])');
 	;
 	it_should_find(59  , 'body div');
+
+/*
 	it('should not return duplicates for "* *"', function(){
 		context.SELECT.disableQSA = true;
 		
@@ -174,8 +176,7 @@ var specsMockTemplate = function(context){
 		
 		context.SELECT.disableQSA = false;
 	});
-/*
-	it['should not return duplicates for "* *" manually'] = function(){
+	it('should not return duplicates for "* *" manually', function(){
 		context.SELECT.disableQSA = true;
 		
 		var dupes = [];
@@ -208,8 +209,9 @@ var specsMockTemplate = function(context){
 		value_of( dupes.length ).should_be( 0 );
 		
 		context.SELECT.disableQSA = false;
-	};
+	});
 */
+
 	it('should not return duplicates for "div p"', function(){
 		context.SELECT.disableQSA = true;
 		
