@@ -728,15 +728,15 @@ local.override = function(regexp, method){
 
 /*<query-selector-override>*/
 
-var reEmptyAttribute = /\[.+[*$^]=(?:""|'')?\]/;
+var reEmptyAttribute = /\[.+[*$^]=(?:""|'')?\]/, qsaFailExpCache = {};
 
 local.override(/./, function(expression, found, first){ //querySelectorAll override
 
-	if (!this.querySelectorAll || !local.isHTMLDocument || local.brokenMixedCaseQSA ||
+	if (!this.querySelectorAll || !local.isHTMLDocument || local.brokenMixedCaseQSA || qsaFailExpCache[expression] ||
 	(local.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
 	(local.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) return false;
 
-	var nodes, isDocument = (this.nodeType == 9);
+	var nodes, isDocument = (this.nodeType == 9), cacheKey = expression;
 	if (!isDocument){
 		// non-document rooted QSA
 		// credits to Andrew Dupont
@@ -749,6 +749,7 @@ local.override(/./, function(expression, found, first){ //querySelectorAll overr
 		if (first) return this.querySelector(expression) || null;
 		else nodes = this.querySelectorAll(expression);
 	} catch(e) {
+		qsaFailExpCache[cacheKey] = 1;
 		return false;
 	} finally {
 		if (!isDocument){
