@@ -7,6 +7,6 @@
   "contributors"  : ["Valerio Proietti", "Thomas Aylott", "Jan Kassens"],
   "dependencies"  : [],
   "lib"           : "Source",
-  "main"          : "./Source/Slick.Finder.js",
+  "main"          : "./Source/slick.js",
   "version"       : "1.0.0"
 }
