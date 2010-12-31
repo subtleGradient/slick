@@ -1,10 +1,23 @@
 function specsSelectorExhaustive(specs,context){
+	specsSelectorExhaustiveOnTag(specs, context, 'div');
+	if (context.document.createElementNS){
+		specsSelectorExhaustiveOnTag(specs, context, 'rect', 'http://www.w3.org/2000/svg');
+	}
+};
+
+function specsSelectorExhaustiveOnTag(specs,context,tag,ns){
 	
-	Describe('CLASS',function(specs,context){
+	Describe('CLASS on ' + tag, function(specs,context){
+	
+		var createElement = ns ? function(){
+			return context.document.createElementNS(ns, tag);
+		} : function(){
+			return context.document.createElement(tag);
+		};
 		
 		specs.before_each = function(){
-			testNodeOrphaned = context.document.createElement('div');
-			testNode = context.document.createElement('div');
+			testNodeOrphaned = createElement();
+			testNode = createElement();
 			bodyElement = context.document.getElementsByTagName('body')[0];
 			bodyElement = bodyElement || context.document.documentElement;
 			bodyElement.appendChild(testNode);
@@ -23,38 +36,38 @@ function specsSelectorExhaustive(specs,context){
 			
 			it[testName + ' from the document root'] = function(){
 				var tmpNode;
-				tmpNode = context.document.createElement('div');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
-				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
-				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
+				tmpNode = createElement();tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
+				tmpNode = createElement();testNode.appendChild(tmpNode);
+				tmpNode = createElement();testNode.appendChild(tmpNode);
 				
 				value_of(context.SELECT || global.context.SELECT).should_not_be_undefined();
 				var result = (context.SELECT || global.context.SELECT)(testNode.ownerDocument, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
-				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
+				value_of( (typeof result[0].className == 'string') ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' from the parent'] = function(){
 				var tmpNode;
-				tmpNode = context.document.createElement('div');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
-				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
-				tmpNode = context.document.createElement('div');testNode.appendChild(tmpNode);
+				tmpNode = createElement();tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNode.appendChild(tmpNode);
+				tmpNode = createElement();testNode.appendChild(tmpNode);
+				tmpNode = createElement();testNode.appendChild(tmpNode);
 				
 				value_of(context.SELECT || global.context.SELECT).should_not_be_undefined();
 				var result = (context.SELECT || global.context.SELECT)(testNode, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
-				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
+				value_of( (typeof result[0].className == 'string') ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
 			
 			it[testName + ' orphaned'] = function(){
 				var tmpNode;
-				tmpNode = context.document.createElement('div');tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNodeOrphaned.appendChild(tmpNode);
-				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
-				tmpNode = context.document.createElement('div');testNodeOrphaned.appendChild(tmpNode);
+				tmpNode = createElement();tmpNode.setAttribute('class',className);tmpNode.setAttribute('className',className);testNodeOrphaned.appendChild(tmpNode);
+				tmpNode = createElement();testNodeOrphaned.appendChild(tmpNode);
+				tmpNode = createElement();testNodeOrphaned.appendChild(tmpNode);
 				
 				value_of(context.SELECT || global.context.SELECT).should_not_be_undefined();
 				var result = (context.SELECT || global.context.SELECT)(testNodeOrphaned, '.' + CLASSES.join('.'));
 				value_of( result.length ).should_be( 1 );
-				value_of( ('className' in result[0]) ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
+				value_of( (typeof result[0].className == 'string') ? result[0].className : result[0].getAttribute('class') ).should_match( CLASSES.join(' ') );
 			};
 			
 			// it should match this class as a second class
