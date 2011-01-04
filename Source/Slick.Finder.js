@@ -434,7 +434,7 @@ local.matchSelector = function(node, tag, id, classes, attributes, pseudos){
 
 	var i, part, cls;
 	if (classes) for (i = classes.length; i--;){
-		cls = ('className' in node) ? node.className : node.getAttribute('class');
+		cls = node.getAttribute('class') || node.className;
 		if (!(cls && classes[i].regexp.test(cls))) return false;
 	}
 	if (attributes) for (i = attributes.length; i--;){
@@ -690,7 +690,7 @@ for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 local.attributeGetters = {
 
 	'class': function(){
-		return ('className' in this) ? this.className : this.getAttribute('class');
+		return this.getAttribute('class') || this.className;
 	},
 
 	'for': function(){
@@ -879,7 +879,6 @@ Slick.getAttribute = function(node, name){
 Slick.match = function(node, selector){
 	if (!(node && selector)) return false;
 	if (!selector || selector === node) return true;
-	if (typeof selector != 'string') return false;
 	local.setDocument(node);
 	return local.matchNode(node, selector);
 };
