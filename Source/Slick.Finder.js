@@ -879,7 +879,6 @@ Slick.getAttribute = function(node, name){
 Slick.match = function(node, selector){
 	if (!(node && selector)) return false;
 	if (!selector || selector === node) return true;
-	if (typeof selector != 'string') return false;
 	local.setDocument(node);
 	return local.matchNode(node, selector);
 };
