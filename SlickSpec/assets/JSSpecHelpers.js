@@ -158,11 +158,11 @@ var $try = function(){
 		this.rq = new SimpleRequest();
 		Mock.templateCounter++;
 		this.rq.send(this.url, function(html, xml){
-			Mock.register(self.mockName +': '+ String(self.url).replace(/^.*\//, ''), Mock.newFakeWinFromDoc(xml));
+			Mock.register(self.mockName, Mock.newFakeWinFromDoc(xml));
 		});
 	};
 
-	Mock.CreateTemplate = function(name, src){
+	Mock.CreateTemplate = function(name, url){
 		var template = document.createElement('iframe');
 		addEvent(template, 'load', function(){
 			Mock.register(name, template.contentWindow);
@@ -170,7 +170,7 @@ var $try = function(){
 		Mock.templateCounter++;
 		template.style.display = 'none';
 		template.setAttribute('iframeboder', 0);
-		template.src = src;
+		template.src = url;
 		document.getElementsByTagName('body')[0].appendChild(template);
 	};
 

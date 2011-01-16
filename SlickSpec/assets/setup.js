@@ -52,8 +52,8 @@ global.onload = function(){
 	new Mock('Dojo', specsDojo);
 	new Mock('YUI', specsYUI);
 	new Mock(/Generic.*?\bHTML/, specsMockTemplate);
-	new Mock('xmlmock1', specsAssetsTemplateXML);
-	new Mock('slick', specsSlickHtml);
+	new Mock('XML responseXML', specsAssetsTemplateXML);
+	new Mock('Slick', specsSlickHtml);
 
 	// Specific Bugs
 
