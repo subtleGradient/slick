@@ -4,12 +4,12 @@ var specsAssetsTemplateXML = function(context){
 		
 		var makeSlickTestSearch = function(selector, count, disableQSA) {
 			return function(){
-				context.SELECT.disableQSA = !!disableQSA;
+				context.SELECTOR.disableQSA = !!disableQSA;
 				var els = context.SELECT(context.document, selector);
 				var nFoundEls = els.length;
 				expect( nFoundEls ).toEqual( count );
 				if (nFoundEls) expect( context.MATCH(els[0], selector) ).toEqual( true );
-				delete context.SELECT.disableQSA;
+				delete context.SELECTOR.disableQSA;
 			};
 		};
 		
@@ -19,7 +19,7 @@ var specsAssetsTemplateXML = function(context){
 			it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true));
 		};
 		
-		it_should_find(14 , '*');
+		it_should_find(17 , '*');
 		
 		it_should_find(1  , 'HTML');
 		it_should_find(1  , '#id_idnode');
@@ -38,9 +38,9 @@ var specsAssetsTemplateXML = function(context){
 		it_should_find(0  , ':root !>');
 		it_should_find(3  , ':root camelCasedTag');
 		
-		it_should_find(0  , '[attr^=]');
-		it_should_find(0  , '[attr$=]');
-		it_should_find(0  , '[attr*=]');
+		it_should_find(3  , '[tabindex]');
+		it_should_find(2  , 'el[tabindex="0"]');
+		it_should_find(1  , 'el[tabindex="1"]');
 		
 	});
 	

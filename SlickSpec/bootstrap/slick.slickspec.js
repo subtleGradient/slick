@@ -16,6 +16,8 @@ var setupMethods = function(window){
 	window.PARSE = function(selector){
 		return Slick.parse(selector);
 	};
+	
+	window.SELECTOR = Slick;
 };
 
 var verifySetupMethods = function(window){

@@ -108,7 +108,7 @@ var $try = function(){
 		}
 	
 		if (Object.prototype.toString.call(mockName) != '[object RegExp]'){
-			mockName = new RegExp(mockName);
+			mockName = new RegExp(mockName, 'i');
 		}
 	
 		this.mockName = mockName;
@@ -117,6 +117,8 @@ var $try = function(){
 	};
 
 	Mock.mocks = [];
+	
+	Mock.templateCounter = 0;
 	
 	Mock.prototype.run = function(){
 		var globalContextOld = global.context, self = this;
@@ -142,14 +144,10 @@ var $try = function(){
 				Mock.mocks[i].run();
 			} catch(e) {
 				console && console.log(e);
-			} finally {
-				continue;
 			}
 		}
 		global.runSpecs();
 	};
-
-	Mock.templateCounter = 0;
 
 	Mock.Request = function(mockName, url){
 		if (!this instanceof Mock.Request) throw new Error('Mock.Request is not callable directly. Must use `new Mock.Request`');
@@ -177,7 +175,7 @@ var $try = function(){
 	};
 
 	Mock.newFakeWinFromDoc = function(document){
-		var fakeWin = { fake:true };
+		var fakeWin = {fake: true};
 		fakeWin.document = document;
 		fakeWin.SELECT = function(context, expression){
 			return global.SELECT.call(fakeWin, context, expression);

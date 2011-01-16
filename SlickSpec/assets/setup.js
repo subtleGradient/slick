@@ -24,6 +24,7 @@ global.onload = function(){
 	Mock.CreateTemplate('jQuery',								'../mocks/jQuery-query_test.html');
 	Mock.CreateTemplate('Dojo',									'../mocks/dojo-query_test.html');
 	Mock.CreateTemplate('YUI',									'../mocks/yui-query_test.html');
+	Mock.CreateTemplate('Slick',								'../mocks/slick-query_test.html');
 
 	new Mock.Request('XML responseXML',							'../mocks/xmlmock1.xml');
 	new Mock.Request('SVG responseXML',							'../mocks/MooTools_Logo.svg');
@@ -52,6 +53,7 @@ global.onload = function(){
 	new Mock('YUI', specsYUI);
 	new Mock(/Generic.*?\bHTML/, specsMockTemplate);
 	new Mock('xmlmock1', specsAssetsTemplateXML);
+	new Mock('slick', specsSlickHtml);
 
 	// Specific Bugs
 

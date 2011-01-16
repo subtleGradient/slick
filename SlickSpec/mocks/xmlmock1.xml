@@ -15,4 +15,7 @@
 	<!-- a xml comment -->
 	<empty-attr attr=""></empty-attr>
 	<empty-attr attr="some"></empty-attr>
+	<el tabindex="0"></el>
+	<el tabindex="0"></el>
+	<el tabindex="1"></el>
 </HTML>

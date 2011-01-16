@@ -23,12 +23,12 @@ Configuration.sets = {
 		files: [
 			'syntax', 'specs_slick_docs', 'slick_xml_specs', 'specs-engine_bugs',
 			'specs-select_nth-child', 'specs-select_exhaustive', 'specs-mock_template',
-			'slick.api.specs', 'isxml.specs', 'slick_match_specs', 'slick_parser_specs',
+			'slick_html', 'slick.api.specs', 'isxml.specs', 'slick_match_specs', 'slick_parser_specs',
 			'specsGoogleClosure',
 			'specsPrototype',
 			'specsJQuery',
 			'specsDojo',
-			'specsYUI'
+			'specsYUI',
 		]
 	}
 	

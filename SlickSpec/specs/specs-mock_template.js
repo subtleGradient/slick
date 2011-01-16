@@ -2,7 +2,7 @@ var specsMockTemplate = function(context){
 	
 	var makeSlickTestSearch = function(selector, count, disableQSA) {
 		return function(){
-			context.SELECT.disableQSA = !!disableQSA;
+			context.SELECTOR.disableQSA = !!disableQSA;
 			var selectedArray = context.SELECT(context.document, selector);
 			var selected = context.SELECT1(context.document, selector);
 			expect( selectedArray.length ).toEqual( count );
@@ -13,7 +13,7 @@ var specsMockTemplate = function(context){
 			} else {
 				expect( selected ).toBeNull();
 			}
-			delete context.SELECT.disableQSA;
+			delete context.SELECTOR.disableQSA;
 		};
 	};
 	

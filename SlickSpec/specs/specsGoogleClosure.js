@@ -4,12 +4,12 @@ var specsGoogleClosure = function(context){
 	
 	var makeSlickTestSearch = function(selector, count, disableQSA, rootNode, rootNodeId) {
 		return function(){
-			context.SELECT.disableQSA = !!disableQSA;
+			context.SELECTOR.disableQSA = !!disableQSA;
 			var els = context.SELECT(rootNode, selector);
 			var nFoundEls = els.length;
 			expect( nFoundEls ).toEqual( count );
 			if (nFoundEls && !rootNodeId) expect( context.MATCH(els[0], selector) ).toEqual( true );
-			delete context.SELECT.disableQSA;
+			delete context.SELECTOR.disableQSA;
 		};
 	};
 	

@@ -703,6 +703,11 @@ local.attributeGetters = {
 
 	'style': function(){
 		return (this.style) ? this.style.cssText : this.getAttribute('style');
+	},
+	
+	'tabindex': function(){
+		var attributeNode = this.getAttributeNode('tabindex');
+		return (attributeNode && attributeNode.specified) ? attributeNode.nodeValue : null;
 	}
 
 };
@@ -713,7 +718,7 @@ local.getAttribute = function(node, name){
 	var method = this.attributeGetters[name];
 	if (method) return method.call(node);
 	var attributeNode = node.getAttributeNode(name);
-	return attributeNode ? attributeNode.nodeValue : null;
+	return (attributeNode) ? attributeNode.nodeValue : null;
 };
 
 // overrides
