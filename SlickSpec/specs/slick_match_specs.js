@@ -128,6 +128,9 @@ describe('Slick Deep Match', function(){
 	it_should_match_selector('nested_a', 'div > b ~ b > a' ,true  );
 	it_should_match_selector('nested_a', 'div a'           ,true  );
 	
+	it_should_match_selector('nested_a', context.PARSE('div > b ~ b > a') , true );
+	it_should_match_selector('nested_a', context.PARSE('div a')           , true );
+	
 	// it('should match a node outside the DOM', TODO);
 	// it('should match a node on a different window/iframe', TODO);
 	
