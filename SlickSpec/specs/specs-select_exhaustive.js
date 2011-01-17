@@ -1,15 +1,15 @@
-var specsSelectorExhaustive = function(){
-	specsSelectorExhaustiveOnTag('div');
-	if (context.document.createElementNS){
-		specsSelectorExhaustiveOnTag('rect', 'http://www.w3.org/2000/svg');
+var specsSelectorExhaustive = function(context){
+	specsSelectorExhaustiveOnTag(context, 'div');
+	if (context.isXML(context.document)){
+		specsSelectorExhaustiveOnTag(context, 'rect', 'http://www.w3.org/2000/svg');
 	}
 };
 
-function specsSelectorExhaustiveOnTag(tag,ns){
+function specsSelectorExhaustiveOnTag(context, tag, ns){
 	
 	describe('CLASS on ' + tag, function(){
 	
-		var createElement = ns ? function(){
+		var createElement = (ns) ? function(){
 			return context.document.createElementNS(ns, tag);
 		} : function(){
 			return context.document.createElement(tag);
