@@ -423,10 +423,11 @@ local.matchPseudo = function(node, name, argument){
 
 local.matchSelector = function(node, tag, id, classes, attributes, pseudos){
 	if (tag){
+		var nodeName = (this.isXMLDocument) ? node.nodeName : node.nodeName.toUpperCase();
 		if (tag == '*'){
-			if (node.nodeName < '@') return false; // Fix for comment nodes and closed nodes
+			if (nodeName < '@') return false; // Fix for comment nodes and closed nodes
 		} else {
-			if (node.nodeName != tag) return false;
+			if (nodeName != tag) return false;
 		}
 	}
 

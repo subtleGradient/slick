@@ -1,4 +1,4 @@
-var specsSlickHtml = function(context){
+var specsHTML5 = function(context){
 
 var makeSlickTestSearch = function(selector, count, disableQSA) {
 	return function(){
@@ -23,15 +23,12 @@ var itShouldFind = function(count, selector){
 	it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true));
 };
 
-describe('Slick', function(){
+describe('HTML5 new tags', function(){
 
-	itShouldFind(1, 'body a[tabindex="0"]');
-	itShouldFind(1, 'body a[tabindex="1"]');
-	itShouldFind(2, 'body a[tabindex]');
-	itShouldFind(2, 'body [tabindex="0"]');
-	itShouldFind(2, 'body [tabindex="1"]');
-	itShouldFind(4, 'body [tabindex]');
-
+	itShouldFind(2, 'section');
+	itShouldFind(1, '#page header nav');
+	itShouldFind(1, 'header[role="banner"]');
+	
 });
 
 };

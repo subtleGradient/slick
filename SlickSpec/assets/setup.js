@@ -5,9 +5,9 @@ var runnerOnLoad = global.onload;
 
 global.onload = function(){
 
-	Mock.CreateTemplate('Generic HTML (standard)',				'../mocks/template-standard.html');
-	Mock.CreateTemplate('Generic HTML (almost-standard)',		'../mocks/template-almost.html');
-	Mock.CreateTemplate('Generic HTML (quirks)',				'../mocks/template-quirks.html');
+	Mock.CreateTemplate('Generic HTML4 (standard)',				'../mocks/template-standard.html');
+	Mock.CreateTemplate('Generic HTML4 (almost-standard)',		'../mocks/template-almost.html');
+	Mock.CreateTemplate('Generic HTML4 (quirks)',				'../mocks/template-quirks.html');
 
 	if (!Browser.ie || Browser.version > 8){
 		Mock.CreateTemplate('Generic XHTML',					'../mocks/template.xhtml');
@@ -16,7 +16,7 @@ global.onload = function(){
 	}
 
 	if (Browser.ie && Browser.version >= 8){
-		Mock.CreateTemplate('Generic HTML (IE8 as IE7)',		'../mocks/template-ie7.html');
+		Mock.CreateTemplate('Generic HTML4 (IE8 as IE7)',		'../mocks/template-ie7.html');
 	}
 
 	Mock.CreateTemplate('Google Closure',						'../mocks/GoogleClosure-query_test.html');
@@ -25,7 +25,9 @@ global.onload = function(){
 	Mock.CreateTemplate('Dojo',									'../mocks/dojo-query_test.html');
 	Mock.CreateTemplate('YUI',									'../mocks/yui-query_test.html');
 	Mock.CreateTemplate('Slick',								'../mocks/slick-query_test.html');
-
+	Mock.CreateTemplate('HTML5 shim',							'../mocks/html5-shim.html');
+	
+	
 	new Mock.Request('XML responseXML',							'../mocks/xmlmock1.xml');
 	new Mock.Request('SVG responseXML',							'../mocks/MooTools_Logo.svg');
 
@@ -51,20 +53,20 @@ global.onload = function(){
 	new Mock('jQuery', specsJQuery);
 	new Mock('Dojo', specsDojo);
 	new Mock('YUI', specsYUI);
-	new Mock(/Generic.*?\bHTML/, specsMockTemplate);
+	new Mock(/Generic.*?\bHTML4/, specsMockTemplate);
 	new Mock('XML responseXML', specsAssetsTemplateXML);
 	new Mock('Slick', specsSlickHtml);
 
 	// Specific Bugs
 
-	new Mock(/\b(xml|svg|xhtml|html)\b/i, specsSelectorEngineBugs);
-	new Mock(/\b(xml|svg|xhtml|html)\b/i, specsBrowserBugsFixed);
+	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSelectorEngineBugs);
+	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsBrowserBugsFixed);
 	
 	// Selector Tests
 	
-	new Mock(/\b(xml|svg|xhtml|html)\b/i, specsSlickDocs);
-	new Mock(/\b(xml|svg|xhtml|html)\b/i, specsSelectorExhaustive);
-	new Mock(/\b(xml|svg|xhtml|html)\b/i, specsSelectNthChild);
+	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSlickDocs);
+	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSelectorExhaustive);
+	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSelectNthChild);
 	
 	// XML
 	
@@ -83,6 +85,10 @@ global.onload = function(){
 			});
 		});
 	});
+	
+	// HTML5
+	
+	new Mock(/\b(html5)\b/i, specsHTML5);
 	
 };
 
