@@ -47,6 +47,7 @@ local.setDocument = function(document){
 	= this.brokenCheckedQSA
 	= this.brokenEmptyAttributeQSA
 	= this.isHTMLDocument
+	= this.nativeMatchesSelector
 	= false;
 
 	var starSelectsClosed, starSelectsComments,
@@ -64,9 +65,9 @@ local.setDocument = function(document){
 	} catch(e){};
 
 	if (this.isHTMLDocument){
-		
+
 		testNode.style.display = 'none';
-		
+
 		// IE returns comment nodes for getElementsByTagName('*') for some documents
 		testNode.appendChild(document.createComment(''));
 		starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
@@ -114,19 +115,27 @@ local.setDocument = function(document){
 		} catch(e){};
 
 		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
-		
+
 		// Webkit dont return selected options on querySelectorAll
 		try {
 			testNode.innerHTML = '<select><option selected="selected">a</option></select>';
 			this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
 		} catch(e){};
-		
+
 		// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
 		try {
 			testNode.innerHTML = '<a class=""></a>';
 			this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
 		} catch(e){};
-		
+
+		this.nativeMatchesSelector = root.matchesSelector || root.msMatchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector;
+
+		try {
+			this.nativeMatchesSelector.call(root, ':slick');
+			// if matchesSelector trows errors on incorrect sintaxes we can use it
+			this.nativeMatchesSelector = null;
+		} catch(e){}
+
 	}
 
 	root.removeChild(testNode);
@@ -395,6 +404,12 @@ local.matchNode = function(node, selector){
 	var parsed = this.Slick.parse(selector);
 	if (!parsed) return true;
 
+	if (this.isHTMLDocument && this.nativeMatchesSelector){
+		try {
+			return this.nativeMatchesSelector.call(node, parsed.normalized);
+		} catch(matchError) {}
+	}
+
 	// simple (single) selectors
 	var expressions = parsed.expressions, reversedExpressions, simpleExpCounter = 0, i;
 	for (i = 0; (currentExpression = expressions[i]); i++){
@@ -404,7 +419,7 @@ local.matchNode = function(node, selector){
 			simpleExpCounter++;
 		}
 	}
-	
+
 	if (simpleExpCounter == parsed.length) return false;
 
 	var nodes = this.search(this.document, parsed), item;
@@ -534,7 +549,7 @@ var combinators = {
 		this['combinator:!~'](node, tag, id, classes, attributes, pseudos);
 	},
 
-	'!': function(node, tag, id, classes, attributes, pseudos){  // all parent nodes up to document
+	'!': function(node, tag, id, classes, attributes, pseudos){ // all parent nodes up to document
 		while ((node = node.parentNode)) if (node !== this.document) this.push(node, tag, id, classes, attributes, pseudos);
 	},
 
@@ -750,7 +765,7 @@ local.override(/./, function(expression, found, first){ //querySelectorAll overr
 		this.setAttribute('id', id);
 		expression = '#' + id + ' ' + expression;
 	}
-	
+
 	try {
 		if (first) return this.querySelector(expression) || null;
 		else nodes = this.querySelectorAll(expression);
