@@ -401,14 +401,14 @@ local.pushUID = function(node, tag, id, classes, attributes, pseudos){
 };
 
 local.matchNode = function(node, selector){
-	var parsed = this.Slick.parse(selector);
-	if (!parsed) return true;
-
 	if (this.isHTMLDocument && this.nativeMatchesSelector){
 		try {
-			return this.nativeMatchesSelector.call(node, parsed.normalized);
+			return this.nativeMatchesSelector.call(node, selector.replace(/\[([^=]+)=\s*([^'"\]]+?)\s*\]/g, '[$1="$2"]'));
 		} catch(matchError) {}
 	}
+	
+	var parsed = this.Slick.parse(selector);
+	if (!parsed) return true;
 
 	// simple (single) selectors
 	var expressions = parsed.expressions, reversedExpressions, simpleExpCounter = 0, i;

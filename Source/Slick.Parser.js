@@ -14,8 +14,7 @@ var parsed,
 	reversed,
 	cache = {},
 	reverseCache = {},
-	reUnescape = /\\/g,
-	reNormalizeExpression = /\[([^=]+=)\s*([^'"\]]+?)\s*\]/g;
+	reUnescape = /\\/g;
 
 var parse = function(expression, isReversed){
 	if (expression == null) return null;
@@ -28,7 +27,6 @@ var parse = function(expression, isReversed){
 		Slick: true,
 		expressions: [],
 		raw: expression,
-		normalized: expression.replace(reNormalizeExpression, '[$1"$2"]'),
 		reverse: function(){
 			return parse(this.raw, true);
 		}
