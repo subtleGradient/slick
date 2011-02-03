@@ -52,13 +52,12 @@ local.setDocument = function(document){
 	var starSelectsClosed, starSelectsComments,
 		brokenSecondClassNameGEBCN, cachedGetElementsByClassName;
 
-	var selected, id;
+	var selected, id = 'slick_uniqueid';
 	var testNode = document.createElement('div');
 	root.appendChild(testNode);
 
 	// on non-HTML documents innerHTML and getElementsById doesnt work properly
 	try {
-		id = 'slick_getbyid_test';
 		testNode.innerHTML = '<a id="'+id+'"></a>';
 		this.isHTMLDocument = !!document.getElementById(id);
 	} catch(e){};
@@ -89,7 +88,6 @@ local.setDocument = function(document){
 
 		// IE returns elements with the name instead of just id for getElementsById for some documents
 		try {
-			id = 'slick_id_gets_name';
 			testNode.innerHTML = '<a name="'+id+'"></a><b id="'+id+'"></b>';
 			this.idGetsName = document.getElementById(id) === testNode.firstChild;
 		} catch(e){};
