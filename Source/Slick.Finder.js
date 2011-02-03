@@ -70,7 +70,7 @@ local.setDocument = function(document){
 		
 		// IE returns comment nodes for getElementsByTagName('*') for some documents
 		testNode.appendChild(document.createComment(''));
-		starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+		starSelectsComments = (testNode.getElementsByTagName('*').length > 1);
 
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
 		try {
