@@ -854,8 +854,6 @@ local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
 
 /*</overrides>*/
 
-if (typeof document != 'undefined') local.setDocument(document);
-
 // Slick
 
 var Slick = local.Slick = (this.Slick || {});
