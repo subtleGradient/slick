@@ -54,7 +54,9 @@ local.setDocument = function(document){
 
 	var selected, id = 'slick_uniqueid';
 	var testNode = document.createElement('div');
-	root.appendChild(testNode);
+	
+	var testRoot = document.getElementsByTagName('body')[0] || root;
+	testRoot.appendChild(testNode);
 
 	// on non-HTML documents innerHTML and getElementsById doesnt work properly
 	try {
@@ -127,9 +129,9 @@ local.setDocument = function(document){
 		
 	}
 
-	root.removeChild(testNode);
+	testRoot.removeChild(testNode);
 	testNode = null;
-
+	
 	// hasAttribute
 
 	this.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
@@ -173,6 +175,7 @@ local.setDocument = function(document){
 
 	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
+	root = null;
 };
 
 // Main Method
