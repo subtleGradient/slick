@@ -76,61 +76,65 @@ local.setDocument = function(document){
 		try {
 			testNode.innerHTML = 'foo</foo>';
 			selected = testNode.getElementsByTagName('*');
-			starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
+			starSelectsClosed = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
 		} catch(e){};
 
 		this.brokenStarGEBTN = starSelectsComments || starSelectsClosed;
 
-		// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
-		if (testNode.querySelectorAll) try {
-			testNode.innerHTML = 'foo</foo>';
-			selected = testNode.querySelectorAll('*');
-			this.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
-		} catch(e){};
-
 		// IE returns elements with the name instead of just id for getElementsById for some documents
 		try {
-			testNode.innerHTML = '<a name="'+id+'"></a><b id="'+id+'"></b>';
+			testNode.innerHTML = '<a name="'+ id +'"></a><b id="'+ id +'"></b>';
 			this.idGetsName = document.getElementById(id) === testNode.firstChild;
 		} catch(e){};
 
-		// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
-			this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
+		if (testNode.getElementsByClassName){
+			try {
+				testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+				testNode.getElementsByClassName('b').length;
+				testNode.firstChild.className = 'b';
+				cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+			} catch(e){};
 
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-
-		// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
-		try {
-			testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
-			brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
-		} catch(e){};
-
-		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
+			// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
+			if (testNode.getElementsByClassName) try {
+				testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
+				brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
+			} catch(e){};
+			
+			this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
+		}
 		
-		// Webkit dont return selected options on querySelectorAll
-		try {
-			testNode.innerHTML = '<select><option selected="selected">a</option></select>';
-			this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
-		} catch(e){};
-		
-		// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
-		try {
-			testNode.innerHTML = '<a class=""></a>';
-			this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
-		} catch(e){};
+		if (testNode.querySelectorAll){
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			try {
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.querySelectorAll('*');
+				this.starSelectsClosedQSA = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
+			// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
+			try {
+				testNode.innerHTML = '<a class="MiX"></a>';
+				this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiX').length;
+			} catch(e){};
+			
+			// Webkit and Opera dont return selected options on querySelectorAll
+			try {
+				testNode.innerHTML = '<select><option selected="selected">a</option></select>';
+				this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
+			} catch(e){};
+			
+			// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
+			try {
+				testNode.innerHTML = '<a class=""></a>';
+				this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
+			} catch(e){};
+		}
 		
 	}
 
 	testRoot.removeChild(testNode);
-	testNode = null;
+	testNode = selected = null;
 	
 	// hasAttribute
 
