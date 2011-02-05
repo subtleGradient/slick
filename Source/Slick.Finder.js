@@ -810,7 +810,7 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 /*<class-override>*/
 
 local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
-	if (!local.isHTMLDocument || (!this.getElementsByClassName && this.querySelectorAll)) return false;
+	if (!local.isHTMLDocument || ((!this.getElementsByClassName || local.brokenGEBCN) && this.querySelectorAll)) return false;
 
 	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
 	if (this.getElementsByClassName && !local.brokenGEBCN){
