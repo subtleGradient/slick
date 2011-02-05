@@ -53,13 +53,14 @@ local.setDocument = function(document){
 	var starSelectsClosed, starSelectsComments,
 		brokenSecondClassNameGEBCN, cachedGetElementsByClassName;
 
-	var selected, id;
+	var selected, id = 'slick_uniqueid';
 	var testNode = document.createElement('div');
-	root.appendChild(testNode);
+	
+	var testRoot = document.getElementsByTagName('body')[0] || root;
+	testRoot.appendChild(testNode);
 
 	// on non-HTML documents innerHTML and getElementsById doesnt work properly
 	try {
-		id = 'slick_getbyid_test';
 		testNode.innerHTML = '<a id="'+id+'"></a>';
 		this.isHTMLDocument = !!document.getElementById(id);
 	} catch(e){};
@@ -70,77 +71,72 @@ local.setDocument = function(document){
 
 		// IE returns comment nodes for getElementsByTagName('*') for some documents
 		testNode.appendChild(document.createComment(''));
-		starSelectsComments = (testNode.getElementsByTagName('*').length > 0);
+		starSelectsComments = (testNode.getElementsByTagName('*').length > 1);
 
 		// IE returns closed nodes (EG:"</foo>") for getElementsByTagName('*') for some documents
 		try {
 			testNode.innerHTML = 'foo</foo>';
 			selected = testNode.getElementsByTagName('*');
-			starSelectsClosed = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
+			starSelectsClosed = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
 		} catch(e){};
 
 		this.brokenStarGEBTN = starSelectsComments || starSelectsClosed;
 
-		// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
-		if (testNode.querySelectorAll) try {
-			testNode.innerHTML = 'foo</foo>';
-			selected = testNode.querySelectorAll('*');
-			this.starSelectsClosedQSA = (selected && selected.length && selected[0].nodeName.charAt(0) == '/');
-		} catch(e){};
-
 		// IE returns elements with the name instead of just id for getElementsById for some documents
 		try {
-			id = 'slick_id_gets_name';
-			testNode.innerHTML = '<a name="'+id+'"></a><b id="'+id+'"></b>';
+			testNode.innerHTML = '<a name="'+ id +'"></a><b id="'+ id +'"></b>';
 			this.idGetsName = document.getElementById(id) === testNode.firstChild;
 		} catch(e){};
 
-		// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
-		try {
-			testNode.innerHTML = '<a class="MiXedCaSe"></a>';
-			this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiXedCaSe').length;
-		} catch(e){};
+		if (testNode.getElementsByClassName){
+			try {
+				testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
+				testNode.getElementsByClassName('b').length;
+				testNode.firstChild.className = 'b';
+				cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
+			} catch(e){};
 
-		try {
-			testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
-			testNode.getElementsByClassName('b').length;
-			testNode.firstChild.className = 'b';
-			cachedGetElementsByClassName = (testNode.getElementsByClassName('b').length != 2);
-		} catch(e){};
-
-		// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
-		try {
-			testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
-			brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
-		} catch(e){};
-
-		this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
-
-		// Webkit dont return selected options on querySelectorAll
-		try {
-			testNode.innerHTML = '<select><option selected="selected">a</option></select>';
-			this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
-		} catch(e){};
-
-		// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
-		try {
-			testNode.innerHTML = '<a class=""></a>';
-			this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
-		} catch(e){};
-
-		this.nativeMatchesSelector = root.matchesSelector || root.msMatchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector;
-
-		try {
-			this.nativeMatchesSelector.call(root, ':slick');
-			// if matchesSelector trows errors on incorrect sintaxes we can use it
-			this.nativeMatchesSelector = null;
-		} catch(e){}
-
+			// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
+			if (testNode.getElementsByClassName) try {
+				testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
+				brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
+			} catch(e){};
+			
+			this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
+		}
+		
+		if (testNode.querySelectorAll){
+			// IE 8 returns closed nodes (EG:"</foo>") for querySelectorAll('*') for some documents
+			try {
+				testNode.innerHTML = 'foo</foo>';
+				selected = testNode.querySelectorAll('*');
+				this.starSelectsClosedQSA = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
+			} catch(e){};
+			
+			// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
+			try {
+				testNode.innerHTML = '<a class="MiX"></a>';
+				this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiX').length;
+			} catch(e){};
+			
+			// Webkit and Opera dont return selected options on querySelectorAll
+			try {
+				testNode.innerHTML = '<select><option selected="selected">a</option></select>';
+				this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
+			} catch(e){};
+			
+			// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
+			try {
+				testNode.innerHTML = '<a class=""></a>';
+				this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
+			} catch(e){};
+		}
+		
 	}
 
-	root.removeChild(testNode);
-	testNode = null;
-
+	testRoot.removeChild(testNode);
+	testNode = selected = null;
+	
 	// hasAttribute
 
 	this.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
@@ -184,6 +180,7 @@ local.setDocument = function(document){
 
 	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
+	root = null;
 };
 
 // Main Method
@@ -820,7 +817,7 @@ local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag overr
 /*<class-override>*/
 
 local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
-	if (!local.isHTMLDocument || (!this.getElementsByClassName && this.querySelectorAll)) return false;
+	if (!local.isHTMLDocument || ((!this.getElementsByClassName || local.brokenGEBCN) && this.querySelectorAll)) return false;
 
 	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
 	if (this.getElementsByClassName && !local.brokenGEBCN){
@@ -863,8 +860,6 @@ local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
 /*</id-override>*/
 
 /*</overrides>*/
-
-if (typeof document != 'undefined') local.setDocument(document);
 
 // Slick
 

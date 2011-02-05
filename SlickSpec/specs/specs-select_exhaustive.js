@@ -9,7 +9,7 @@ function specsSelectorExhaustiveOnTag(context, tag, ns){
 	
 	describe('CLASS on ' + tag, function(){
 	
-		var createElement = (ns) ? function(){
+		var createElement = (ns && context.document.createElementNS) ? function(){
 			return context.document.createElementNS(ns, tag);
 		} : function(){
 			return context.document.createElement(tag);
