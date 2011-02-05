@@ -320,6 +320,7 @@ var specsPrototype = function(context){
 			compareArrays($$('ul > li:nth-child(odd)'), $$('ul > li:nth-child(2n+1)'));
 			compareArrays($$('ul > li:first-child'), $$('ul > li:nth-child(1)'));
 			compareArrays($$('ul > li:last-child'), $$('ul > li:nth-last-child(1)'));
+			// buggy in Opera
 			compareArrays($$('ul > li:nth-child(n-999)'), $$('ul > li'));
 			compareArrays($$('ul>li'), $$('ul > li'));
 			compareArrays($$('#p a:not(a[rel$="nofollow"])>em'), $$('#p a:not(a[rel$="nofollow"]) > em'));
