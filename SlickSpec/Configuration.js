@@ -21,14 +21,11 @@ Configuration.sets = {
 	'1.0': {
 		path: 'specs/',
 		files: [
-			'syntax', 'specs_slick_docs', 'slick_xml_specs', 'specs-engine_bugs',
-			'specs-select_nth-child', 'specs-select_exhaustive', 'specs-mock_template', 'html5',
-			'slick_html', 'slick.api.specs', 'isxml.specs', 'slick_match_specs', 'slick_parser_specs',
-			'specsGoogleClosure',
-			'specsPrototype',
-			'specsJQuery',
-			'specsDojo',
-			'specsYUI'
+			'syntax', 'api', 'engine_bugs', 'html', 'html5', 
+			'select_nth-child', 'select_exhaustive', 'mock_template', 
+			'isxml', 'xml',
+			'match', 'parser',
+			'google_closure', 'prototype', 'jquery', 'dojo', 'yui'
 		]
 	}
 	

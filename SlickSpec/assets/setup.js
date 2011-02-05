@@ -64,27 +64,13 @@ global.onload = function(){
 	
 	// Selector Tests
 	
-	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSlickDocs);
 	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSelectorExhaustive);
 	new Mock(/\b(xml|svg|xhtml|html4)\b/i, specsSelectNthChild);
 	
 	// XML
 	
-	new Mock(/\b(xml|svg|xhtml)\b/i, function(context){
-		describe('XML', function(){
-			it('should be XML', function(){
-				expect(global.isXML(context.document)).toEqual(true);
-			});
-		});
-	});
-
-	new Mock(/\b(html)\b/i, function(context){
-		describe('HTML', function(){
-			it('should not be XML', function(){
-				expect(global.isXML(context.document)).toEqual(false);
-			});
-		});
-	});
+	new Mock(/\b(xml|svg|xhtml)\b/i, specsIsXML);
+	new Mock(/\b(html)\b/i, specsIsNotXML);
 	
 	// HTML5
 	

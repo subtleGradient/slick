@@ -1,5 +1,5 @@
-new Mock(/\b(xml|svg|xhtml)\b/i, function(context){
-	var SELECT = (context.SELECT || global.SELECT);
+var specsIsXML = function(context){
+
 	describe('is XML',function(){
 		it('should be XML', function(){
 			expect( context.document.nodeType ).toEqual(9);
@@ -7,10 +7,12 @@ new Mock(/\b(xml|svg|xhtml)\b/i, function(context){
 			expect(context.isXML(context.document)).toEqual(true);
 		});
 	});
-});
 
-new Mock(/\b(html)\b/i, function(context){
-	var SELECT = (context.SELECT || global.SELECT);
+};
+
+
+var specsIsNotXML = function(context){
+
 	describe('is not XML',function(){
 		it('should not be XML', function(){
 			expect( context.document.nodeType ).toEqual(9);
@@ -18,4 +20,5 @@ new Mock(/\b(html)\b/i, function(context){
 			expect(context.isXML(context.document)).toEqual(false);
 		});
 	});
-});
+	
+};
