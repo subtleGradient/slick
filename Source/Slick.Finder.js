@@ -89,6 +89,8 @@ local.setDocument = function(document){
 		} catch(e){};
 
 		if (testNode.getElementsByClassName){
+
+			// Safari 3.2 getElementsByClassName caches results
 			try {
 				testNode.innerHTML = '<a class="f"></a><a class="b"></a>';
 				testNode.getElementsByClassName('b').length;
@@ -101,7 +103,7 @@ local.setDocument = function(document){
 				testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
 				brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
 			} catch(e){};
-			
+
 			this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
 		}
 		
@@ -112,30 +114,40 @@ local.setDocument = function(document){
 				selected = testNode.querySelectorAll('*');
 				this.starSelectsClosedQSA = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
-			
+
 			// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
 			try {
 				testNode.innerHTML = '<a class="MiX"></a>';
 				this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiX').length;
 			} catch(e){};
-			
+
 			// Webkit and Opera dont return selected options on querySelectorAll
 			try {
 				testNode.innerHTML = '<select><option selected="selected">a</option></select>';
 				this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
 			} catch(e){};
-			
+
 			// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
 			try {
 				testNode.innerHTML = '<a class=""></a>';
 				this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
 			} catch(e){};
+			
 		}
 		
+		// native matchesSelector function
+
+		this.nativeMatchesSelector = root.matchesSelector || root.msMatchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector;
+		if (this.nativeMatchesSelector) try {
+			// if matchesSelector trows errors on incorrect sintaxes we can use it
+			this.nativeMatchesSelector.call(root, ':slick');
+			this.nativeMatchesSelector = null;
+		} catch(e){};
+
 	}
 
 	testRoot.removeChild(testNode);
-	testNode = selected = null;
+	testNode = selected = testRoot = null;
 	
 	// hasAttribute
 
