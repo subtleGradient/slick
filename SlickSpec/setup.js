@@ -5,6 +5,7 @@ var runnerOnLoad = global.onload;
 
 global.onload = function(){
 
+	Mock.CreateTemplate('Generic HTML4 (transitional)',			'../mocks/template-transitional.html');
 	Mock.CreateTemplate('Generic HTML4 (standard)',				'../mocks/template-standard.html');
 	Mock.CreateTemplate('Generic HTML4 (almost-standard)',		'../mocks/template-almost.html');
 	Mock.CreateTemplate('Generic HTML4 (quirks)',				'../mocks/template-quirks.html');
@@ -12,24 +13,27 @@ global.onload = function(){
 	if (!Browser.ie || Browser.version > 8){
 		Mock.CreateTemplate('Generic XHTML',					'../mocks/template.xhtml');
 		Mock.CreateTemplate('Generic XML',						'../mocks/template.xml');
-		Mock.CreateTemplate('SVG',								'../mocks/MooTools_Logo.svg');
+		Mock.CreateTemplate('SVG',								'../mocks/mootools_logo.svg');
+	}
+	
+	if (Browser.ie){
+		Mock.CreateTemplate('Generic HTML4 (chromeframe)',		'../mocks/template-chromeframe.html');
+		if (Browser.version >= 8){
+			Mock.CreateTemplate('Generic HTML4 (IE8 as IE7)',	'../mocks/template-ie7.html');
+		}
 	}
 
-	if (Browser.ie && Browser.version >= 8){
-		Mock.CreateTemplate('Generic HTML4 (IE8 as IE7)',		'../mocks/template-ie7.html');
-	}
-
-	Mock.CreateTemplate('Google Closure',						'../mocks/GoogleClosure-query_test.html');
-	Mock.CreateTemplate('PrototypeJS',							'../mocks/Prototype-query_test.html');
-	Mock.CreateTemplate('jQuery',								'../mocks/jQuery-query_test.html');
-	Mock.CreateTemplate('Dojo',									'../mocks/dojo-query_test.html');
-	Mock.CreateTemplate('YUI',									'../mocks/yui-query_test.html');
-	Mock.CreateTemplate('Slick',								'../mocks/slick-query_test.html');
+	Mock.CreateTemplate('Google Closure',						'../mocks/query_test-google_closure.html');
+	Mock.CreateTemplate('PrototypeJS',							'../mocks/query_test-prototype.html');
+	Mock.CreateTemplate('jQuery',								'../mocks/query_test-jquery.html');
+	Mock.CreateTemplate('Dojo',									'../mocks/query_test-dojo.html');
+	Mock.CreateTemplate('YUI',									'../mocks/query_test-yui.html');
+	Mock.CreateTemplate('Slick',								'../mocks/query_test-slick.html');
 	Mock.CreateTemplate('HTML5 shim',							'../mocks/html5-shim.html');
 	
 	
-	new Mock.Request('XML responseXML',							'../mocks/xmlmock1.xml');
-	new Mock.Request('SVG responseXML',							'../mocks/MooTools_Logo.svg');
+	new Mock.Request('XML responseXML',							'../mocks/xml.xml');
+	new Mock.Request('SVG responseXML',							'../mocks/mootools_logo.svg');
 
 	// Setup
 	

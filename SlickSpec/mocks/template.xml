@@ -7,9 +7,8 @@
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 
 	<title>template xhtml as xml</title>
-  	<script src="../assets/getgetter.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../assets/getgetter.js" type="text/javascript" charset="utf-8"></script>
 </head>
-
 <body>
 	<div class="head">
 		<p><a href="http://www.w3.org/"><img height="48" alt="W3C" src="http://www.w3.org/Icons/w3c_home" width="72" /></a></p>
