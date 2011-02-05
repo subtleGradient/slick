@@ -5,20 +5,20 @@ var Configuration = context.Configuration = {};
 Configuration.name = 'MooTools Slick';
 
 Configuration.presets = {
-	'slick-1.0': {
-		sets: ['1.0'],
-		source: ['helpers', '1.0']
+	'slick': {
+		sets: ['specs'],
+		source: ['helpers', 'slick']
 	}
 };
 
 Configuration.defaultPresets = {
-	browser: 'slick-1.0',
-	jstd: 'slick-1.0'
+	browser: 'slick',
+	jstd: 'slick'
 };
 
 Configuration.sets = {
 
-	'1.0': {
+	'specs': {
 		path: 'specs/',
 		files: [
 			'syntax', 'api', 'engine_bugs', 'html', 'html5', 
@@ -38,12 +38,12 @@ Configuration.source = {
 		files: [
 			'assets/simple_request',
 			'assets/JSSpecHelpers',
-			'assets/setup',
-			'bootstrap/slick.slickspec'
+			'bootstrap/slick.slickspec',
+			'setup'
 		]
 	},
 
-	'1.0': {
+	'slick': {
 		path: '../Source/',
 		files: [
 			'Slick.Finder',

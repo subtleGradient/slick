@@ -1,4 +1,3 @@
-
 String.escapeSingle = String.escapeSingle || function(string){
 	return (''+string).replace(/(?=[\\\n'])/g,'\\');
 };
