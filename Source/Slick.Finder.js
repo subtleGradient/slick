@@ -877,7 +877,7 @@ local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
 
 var Slick = local.Slick = (this.Slick || {});
 
-Slick.version = '1.0.0';
+Slick.version = '1.1.0';
 
 // Slick finder
 
