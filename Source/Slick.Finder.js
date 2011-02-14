@@ -25,10 +25,9 @@ local.isXML = function(document){
 local.setDocument = function(document){
 
 	// convert elements / window arguments to document. if document cannot be extrapolated, the function returns.
-
-	if (document.nodeType == 9); // document
-	else if (document.ownerDocument) document = document.ownerDocument; // node
-	else if (document.navigator) document = document.document; // window
+	var nodeType = document.nodeType;
+	if (nodeType == 9); // document
+	else if (nodeType) document = document.ownerDocument; // node
 	else return;
 
 	// check if it's the old document
@@ -197,46 +196,125 @@ local.setDocument = function(document){
 
 // Main Method
 
+var reSimpleSelector = /^([#.]?)([\w*-]+)$/,
+	reEmptyAttribute = /\[.+[*$^]=(?:""|'')?\]/,
+	qsaFailExpCache = {};
+
 local.search = function(context, expression, append, first){
 
-	var found = this.found = (first) ? null : (append || []);
+	var found = this.found = append || [];
 
-	// context checks
-
-	if (!context) return found; // No context
-	if (context.navigator) context = context.document; // Convert the node from a window to a document
-	else if (!context.nodeType) return found; // Reject misc junk input
+	if (!context || !context.nodeType) return found;
 
 	// setup
 
-	var parsed, i;
-
-	var uniques = this.uniques = {};
+	var parsed, i,
+		uniques = this.uniques = {},
+		hasOthers = !!(append && append.length);
 
 	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
 
-	// should sort if there are nodes in append and if you pass multiple expressions.
-	// should remove duplicates if append already has items
-	var shouldUniques = !!(append && append.length);
-
 	// avoid duplicating items already in the append array
-	if (shouldUniques) for (i = found.length; i--;) this.uniques[this.getUID(found[i])] = true;
+	if (hasOthers) for (i = found.length; i--;) uniques[this.getUID(found[i])] = true;
 
 	// expression checks
 
 	if (typeof expression == 'string'){ // expression is a string
 
-		// Overrides
+		/*<simple-selectors-override>*/
+		var simpleSelector = expression.match(reSimpleSelector);
+		simpleSelectors: if (simpleSelector) {
 
-		for (i = this.overrides.length; i--;){
-			var override = this.overrides[i];
-			if (override.regexp.test(expression)){
-				var result = override.method.call(context, expression, found, first);
-				if (result === false) continue;
-				if (result === true) return found;
-				return result;
+			var symbol = simpleSelector[1],
+				name = simpleSelector[2],
+				node, nodes;
+
+			if (!symbol){
+
+				if (name == '*' && this.brokenStarGEBTN) break simpleSelectors;
+				nodes = context.getElementsByTagName(name);
+				if (first) return nodes[0] || null;
+				for (i = 0; node = nodes[i++];){
+					if (!hasOthers || !uniques[this.getUID(node)]) found.push(node);
+				}
+
+			} else if (symbol == '#'){
+
+				if (!this.isHTMLDocument || context.nodeType != 9) break simpleSelectors;
+				node = context.getElementById(name);
+				if (!node) return found;
+				if (this.idGetsName && node.getAttributeNode('id').nodeValue != name) break simpleSelectors;
+				if (first) return node || null;
+				if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+
+			} else if (symbol == '.'){
+
+				if (!this.isHTMLDocument || ((!context.getElementsByClassName || this.brokenGEBCN) && context.querySelectorAll)) break simpleSelectors;
+				if (context.getElementsByClassName && !this.brokenGEBCN){
+					nodes = context.getElementsByClassName(name);
+					if (first) return nodes[0] || null;
+					for (i = 0; node = nodes[i++];){
+						if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+					}
+				} else {
+					var matchClass = new RegExp('(^|\\s)'+ Slick.escapeRegExp(name) +'(\\s|$)');
+					nodes = context.getElementsByTagName('*');
+					for (i = 0; node = nodes[i++];){
+						className = node.className;
+						if (!className || !matchClass.test(className)) continue;
+						if (first) return node;
+						if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+					}
+				}
+
 			}
+
+			if (hasOthers) this.sort(found);
+			return (first) ? null : found;
+
 		}
+		/*</simple-selectors-override>*/
+
+		/*<query-selector-override>*/
+		querySelector: if (context.querySelectorAll) {
+
+			if (!this.isHTMLDocument || this.brokenMixedCaseQSA || qsaFailExpCache[expression] ||
+			(this.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
+			(this.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) break querySelector;
+
+			var isDocument = (context.nodeType == 9), _expression = expression;
+			if (!isDocument){
+				// non-document rooted QSA
+				// credits to Andrew Dupont
+				var currentId = context.getAttribute('id'), slickid = 'slickid__';
+				context.setAttribute('id', slickid);
+				_expression = '#' + slickid + ' ' + _expression;
+			}
+
+			try {
+				if (first) return context.querySelector(_expression) || null;
+				else nodes = context.querySelectorAll(_expression);
+			} catch(e) {
+				qsaFailExpCache[expression] = 1;
+				break querySelector;
+			} finally {
+				if (!isDocument){
+					if (currentId) context.setAttribute('id', currentId);
+					else context.removeAttribute('id');
+				}
+			}
+
+			if (this.starSelectsClosedQSA) for (i = 0; node = nodes[i++];){
+				if (node.nodeName > '@' && (!hasOthers || !uniques[this.getUIDHTML(node)])) found.push(node);
+			} else for (i = 0; node = nodes[i++];){
+				if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+			}
+
+			if (hasOthers) this.sort(found);
+			return found;
+
+		}
+		/*</query-selector-override>*/
 
 		parsed = this.Slick.parse(expression);
 		if (!parsed.length) return found;
@@ -263,7 +341,7 @@ local.search = function(context, expression, append, first){
 	/*</nth-pseudo-selectors>*//*</pseudo-selectors>*/
 
 	// if append is null and there is only a single selector with one expression use pushArray, else use pushUID
-	this.push = (!shouldUniques && (first || (parsed.length == 1 && parsed.expressions[0].length == 1))) ? this.pushArray : this.pushUID;
+	this.push = (!hasOthers && (first || (parsed.length == 1 && parsed.expressions[0].length == 1))) ? this.pushArray : this.pushUID;
 
 	if (found == null) found = [];
 
@@ -309,7 +387,8 @@ local.search = function(context, expression, append, first){
 		currentItems = this.found;
 	}
 
-	if (shouldUniques || (parsed.expressions.length > 1)) this.sort(found);
+	// should sort if there are nodes in append and if you pass multiple expressions.
+	if (hasOthers || (parsed.expressions.length > 1)) this.sort(found);
 
 	return (first) ? (found[0] || null) : found;
 };
@@ -745,133 +824,6 @@ local.getAttribute = function(node, name){
 	var attributeNode = node.getAttributeNode(name);
 	return (attributeNode) ? attributeNode.nodeValue : null;
 };
-
-// overrides
-
-local.overrides = [];
-
-local.override = function(regexp, method){
-	this.overrides.push({regexp: regexp, method: method});
-};
-
-/*<overrides>*/
-
-/*<query-selector-override>*/
-
-var reEmptyAttribute = /\[.+[*$^]=(?:""|'')?\]/, qsaFailExpCache = {};
-
-local.override(/./, function(expression, found, first){ //querySelectorAll override
-
-	if (!this.querySelectorAll || !local.isHTMLDocument || local.brokenMixedCaseQSA || qsaFailExpCache[expression] ||
-	(local.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
-	(local.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) return false;
-
-	var nodes, isDocument = (this.nodeType == 9), cacheKey = expression;
-	if (!isDocument){
-		// non-document rooted QSA
-		// credits to Andrew Dupont
-		var currentId = this.getAttribute('id'), id = 'slick:id';
-		this.setAttribute('id', id);
-		expression = '#' + id + ' ' + expression;
-	}
-
-	try {
-		if (first) return this.querySelector(expression) || null;
-		else nodes = this.querySelectorAll(expression);
-	} catch(e) {
-		qsaFailExpCache[cacheKey] = 1;
-		return false;
-	} finally {
-		if (!isDocument){
-			if (currentId) this.setAttribute('id', currentId);
-			else this.removeAttribute('id');
-		}
-	}
-
-	var i, node, hasOthers = !!(found.length);
-
-	if (local.starSelectsClosedQSA) for (i = 0; node = nodes[i++];){
-		if (node.nodeName > '@' && (!hasOthers || !local.uniques[local.getUIDHTML(node)])) found.push(node);
-	} else for (i = 0; node = nodes[i++];){
-		if (!hasOthers || !local.uniques[local.getUIDHTML(node)]) found.push(node);
-	}
-
-	if (hasOthers) local.sort(found);
-
-	return true;
-
-});
-
-/*</query-selector-override>*/
-
-/*<tag-override>*/
-
-local.override(/^[\w-]+$|^\*$/, function(expression, found, first){ // tag override
-	var tag = expression;
-	if (tag == '*' && local.brokenStarGEBTN) return false;
-
-	var nodes = this.getElementsByTagName(tag);
-
-	if (first) return nodes[0] || null;
-	var i, node, hasOthers = !!(found.length);
-
-	for (i = 0; node = nodes[i++];){
-		if (!hasOthers || !local.uniques[local.getUID(node)]) found.push(node);
-	}
-
-	if (hasOthers) local.sort(found);
-
-	return true;
-});
-
-/*</tag-override>*/
-
-/*<class-override>*/
-
-local.override(/^\.[\w-]+$/, function(expression, found, first){ // class override
-	if (!local.isHTMLDocument || ((!this.getElementsByClassName || local.brokenGEBCN) && this.querySelectorAll)) return false;
-
-	var nodes, node, i, hasOthers = !!(found && found.length), className = expression.substring(1);
-	if (this.getElementsByClassName && !local.brokenGEBCN){
-		nodes = this.getElementsByClassName(className);
-		if (first) return nodes[0] || null;
-		for (i = 0; node = nodes[i++];){
-			if (!hasOthers || !local.uniques[local.getUIDHTML(node)]) found.push(node);
-		}
-	} else {
-		var matchClass = new RegExp('(^|\\s)'+ Slick.escapeRegExp(className) +'(\\s|$)');
-		nodes = this.getElementsByTagName('*');
-		for (i = 0; node = nodes[i++];){
-			className = node.className;
-			if (!className || !matchClass.test(className)) continue;
-			if (first) return node;
-			if (!hasOthers || !local.uniques[local.getUIDHTML(node)]) found.push(node);
-		}
-	}
-	if (hasOthers) local.sort(found);
-	return (first) ? null : true;
-});
-
-/*</class-override>*/
-
-/*<id-override>*/
-
-local.override(/^#[\w-]+$/, function(expression, found, first){ // ID override
-	if (!local.isHTMLDocument || this.nodeType != 9) return false;
-
-	var id = expression.substring(1), el = this.getElementById(id);
-	if (!el) return found;
-	if (local.idGetsName && el.getAttributeNode('id').nodeValue != id) return false;
-	if (first) return el || null;
-	var hasOthers = !!(found.length);
-	if (!hasOthers || !local.uniques[local.getUIDHTML(el)]) found.push(el);
-	if (hasOthers) local.sort(found);
-	return true;
-});
-
-/*</id-override>*/
-
-/*</overrides>*/
 
 // Slick
 
