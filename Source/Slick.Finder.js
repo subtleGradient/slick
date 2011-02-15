@@ -7,7 +7,7 @@ requires: Slick.Parser
 ...
 */
 
-(function(){
+;(function(){
 
 var local = {};
 
