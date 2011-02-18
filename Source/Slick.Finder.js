@@ -837,6 +837,10 @@ local.attributeGetters = {
 	'tabindex': function(){
 		var attributeNode = this.getAttributeNode('tabindex');
 		return (attributeNode && attributeNode.specified) ? attributeNode.nodeValue : null;
+	},
+
+	'type': function(){
+		return this.getAttribute('type');
 	}
 
 };

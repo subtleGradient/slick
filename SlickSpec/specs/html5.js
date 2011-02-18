@@ -31,4 +31,10 @@ describe('HTML5 new tags', function(){
 	
 });
 
+describe('HTML5 new input types', function(){
+
+	itShouldFind(1, 'input[type="search"]');
+
+});
+
 };
