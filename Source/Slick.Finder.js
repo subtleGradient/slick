@@ -51,7 +51,8 @@ local.setDocument = function(document){
 	= false;
 
 	var starSelectsClosed, starSelectsComments,
-		brokenSecondClassNameGEBCN, cachedGetElementsByClassName;
+		brokenSecondClassNameGEBCN, cachedGetElementsByClassName,
+		brokenFormAttributeGetter;
 
 	var selected, id = 'slick_uniqueid';
 	var testNode = document.createElement('div');
@@ -132,9 +133,15 @@ local.setDocument = function(document){
 				testNode.innerHTML = '<a class=""></a>';
 				this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
 			} catch(e){};
-			
+
 		}
-		
+
+		// IE6-7, if a form has an input of id x, form.getAttribute(x) returns a reference to the input
+		try {
+			testNode.innerHTML = '<form action="s"><input id="action"/></form>';
+			brokenFormAttributeGetter = (testNode.firstChild.getAttribute('action') != 's');
+		} catch(e){};
+
 		// native matchesSelector function
 
 		this.nativeMatchesSelector = root.matchesSelector || root.msMatchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector;
@@ -148,7 +155,7 @@ local.setDocument = function(document){
 
 	testRoot.removeChild(testNode);
 	testNode = selected = testRoot = null;
-	
+
 	// hasAttribute
 
 	this.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
@@ -189,6 +196,20 @@ local.setDocument = function(document){
 		bRange.setEnd(b, 0);
 		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	} : null ;
+
+	// get attribute
+
+	this.getAttribute = (!this.isHTMLDocument) ? function(node, name){
+		return node.getAttribute(name);
+	} : (brokenFormAttributeGetter) ? function(node, name){
+		var method = this.attributeGetters[name];
+		if (method) return method.call(node);
+		var attributeNode = node.getAttributeNode(name);
+		return (attributeNode) ? attributeNode.nodeValue : null;
+	} : function(node, name){
+		var method = this.attributeGetters[name];
+		return (method) ? method.call(node) : node.getAttribute(name);
+	};
 
 	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
@@ -309,7 +330,7 @@ local.search = function(context, expression, append, first){
 			}
 
 			if (this.starSelectsClosedQSA) for (i = 0; node = nodes[i++];){
-				if (node.nodeName > '@' && (!hasOthers || !uniques[this.getUIDHTML(node)])) found.push(node);
+				if (node.nodeName > '@' && !(hasOthers && uniques[this.getUID(node)])) found.push(node);
 			} else for (i = 0; node = nodes[i++];){
 				if (!(hasOthers && uniques[this.getUID(node)])) found.push(node);
 			}
@@ -333,9 +354,9 @@ local.search = function(context, expression, append, first){
 		return found;
 	}
 
-	// cache elements for the nth selectors
-
 	/*<pseudo-selectors>*//*<nth-pseudo-selectors>*/
+
+	// cache elements for the nth selectors
 
 	this.posNTH = {};
 	this.posNTHLast = {};
@@ -798,19 +819,19 @@ for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 local.attributeGetters = {
 
 	'class': function(){
-		return this.getAttribute('class') || this.className;
+		return this.className;
 	},
 
 	'for': function(){
-		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
+		return this.htmlFor;
 	},
 
 	'href': function(){
-		return ('href' in this) ? this.getAttribute('href', 2) : this.getAttribute('href');
+		return this.getAttribute('href', 2);
 	},
 
 	'style': function(){
-		return (this.style) ? this.style.cssText : this.getAttribute('style');
+		return this.style.cssText;
 	},
 	
 	'tabindex': function(){
@@ -818,15 +839,6 @@ local.attributeGetters = {
 		return (attributeNode && attributeNode.specified) ? attributeNode.nodeValue : null;
 	}
 
-};
-
-local.getAttribute = function(node, name){
-	// FIXME: check if getAttribute() will get input elements on a form on this browser
-	// getAttribute is faster than getAttributeNode().nodeValue
-	var method = this.attributeGetters[name];
-	if (method) return method.call(node);
-	var attributeNode = node.getAttributeNode(name);
-	return (attributeNode) ? attributeNode.nodeValue : null;
 };
 
 // Slick

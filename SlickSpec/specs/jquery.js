@@ -179,7 +179,9 @@ var specsJQuery = function(context){
 
 		same( jQuery("#form").find("input[name=action]").get(), q("text1"), "Name selector within the context of another element" );
 		same( jQuery("#form").find("input[name='foo[bar]']").get(), q("hidden2"), "Name selector for grouped form element within the context of another element" );
-		
+
+		t( "Form with attribute action and an input with the same id inside it", "#form[action='formaction']", ["form"] );
+
 		// fabiomcosta: maybe these specs where forgotten here by mistake, these ids/names are not in the jquery mock.
 		//var a = jQuery('<a id="tName1ID" name="tName1">tName1 A</a><a id="tName2ID" name="tName2">tName2 A</a><div id="tName1">tName1 Div</div>').appendTo('#main');
 		//t( "Find elements that have similar IDs", "[name=tName1]", ["tName1ID"] );
