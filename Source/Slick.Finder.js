@@ -249,7 +249,7 @@ local.search = function(context, expression, append, first){
 				if (!node) return found;
 				if (this.idGetsName && node.getAttributeNode('id').nodeValue != name) break simpleSelectors;
 				if (first) return node || null;
-				if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+				if (!hasOthers || !uniques[this.getUID(node)]) found.push(node);
 
 			} else if (symbol == '.'){
 
@@ -258,7 +258,7 @@ local.search = function(context, expression, append, first){
 					nodes = context.getElementsByClassName(name);
 					if (first) return nodes[0] || null;
 					for (i = 0; node = nodes[i++];){
-						if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+						if (!hasOthers || !uniques[this.getUID(node)]) found.push(node);
 					}
 				} else {
 					var matchClass = new RegExp('(^|\\s)'+ Slick.escapeRegExp(name) +'(\\s|$)');
@@ -267,7 +267,7 @@ local.search = function(context, expression, append, first){
 						className = node.className;
 						if (!className || !matchClass.test(className)) continue;
 						if (first) return node;
-						if (!hasOthers || !uniques[this.getUIDHTML(node)]) found.push(node);
+						if (!hasOthers || !uniques[this.getUID(node)]) found.push(node);
 					}
 				}
 
