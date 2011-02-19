@@ -265,7 +265,7 @@ local.search = function(context, expression, append, first){
 					nodes = context.getElementsByTagName('*');
 					for (i = 0; node = nodes[i++];){
 						className = node.className;
-						if (!className || !matchClass.test(className)) continue;
+						if (!(className && matchClass.test(className))) continue;
 						if (first) return node;
 						if (!(hasOthers && uniques[this.getUID(node)])) found.push(node);
 					}
