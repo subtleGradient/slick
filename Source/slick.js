@@ -1,4 +1,4 @@
-exports.Slick = (function () {
+exports.Slick = (function(){
 	var Parser = require('./Slick.Parser').Slick,
 		Finder = require('./Slick.Finder').Slick;
 	
