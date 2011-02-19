@@ -28,6 +28,7 @@ local.setDocument = function(document){
 	var nodeType = document.nodeType;
 	if (nodeType == 9); // document
 	else if (nodeType) document = document.ownerDocument; // node
+	else if (document.navigator) document = document.document; // window
 	else return;
 
 	// check if it's the old document
@@ -203,8 +204,10 @@ var reSimpleSelector = /^([#.]?)([\w*-]+)$/,
 local.search = function(context, expression, append, first){
 
 	var found = this.found = append || [];
-
-	if (!context || !context.nodeType) return found;
+	
+	if (!context) return found;
+	else if (context.navigator) context = context.document; // Convert the node from a window to a document
+	else if (!context.nodeType) return found;
 
 	// setup
 

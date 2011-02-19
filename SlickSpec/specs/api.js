@@ -62,7 +62,7 @@ var specsSlickAPI = function(context){
 				}
 			});
 			
-			xit('must accept a window', function(){
+			it('must accept a window', function(){
 				expect( SELECT(global.window, '*', []).length ).not.toEqual( 0 );
 				if (context.window && !context.window.fake)
 					expect( SELECT(context.window, '*', []).length ).not.toEqual( 0 );

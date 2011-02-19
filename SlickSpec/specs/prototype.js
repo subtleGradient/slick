@@ -275,7 +275,7 @@ var specsPrototype = function(context){
 			compareArrays($('item_1', 'item_2'), $$('#list > li:nth-child(-n+2)'));
 		});
 		
-		it('should SelectorWithFirstLastNthNthLastOfType (lack of nth-of-type, nth-last-of-type, first-of-type and last-of-type)', function(){
+		it('should SelectorWithFirstLastNthNthLastOfType', function(){
 			compareArrays([$('link_2')], $$('#p a:nth-of-type(2)'), 'nth-of-type');
 			compareArrays([$('link_1')], $$('#p a:nth-of-type(1)'), 'nth-of-type');
 			compareArrays([$('link_2')], $$('#p a:nth-last-of-type(1)'), 'nth-last-of-type');
@@ -310,7 +310,7 @@ var specsPrototype = function(context){
 			compareArrays([], $$('#level_only_child:empty'), 'newlines count as content!');
 		});
 
-		it('should IdenticalResultsFromEquivalentSelectors (lack of nth-last-child)', function(){
+		it('should IdenticalResultsFromEquivalentSelectors', function(){
 			compareArrays($$('div.brothers'), $$('div[class~=brothers]'));
 			compareArrays($$('div.brothers'), $$('div[class~=brothers].brothers'));
 			compareArrays($$('div:not(.brothers)'), $$('div:not([class~=brothers])'));
@@ -333,14 +333,12 @@ var specsPrototype = function(context){
 			compareArrays([], $$('#level2_2 :only-child:not(:first-child)'));
 		});
 
-		it('should CommasFor$$ (document ordering)', function(){
-			// fabiomcosta: specs adapted for Slick
-			// fails for lack of document ordering
+		it('should CommasFor$$', function(){
 			compareArrays($$('#list, #p, #link_1, #item_1, #item_3, #troubleForm'), $$('#list, .first,*[xml:lang="es-us"] , #troubleForm'));
 			compareArrays($$('#commaParent, #commaChild'), $$('form[title*="commas,"], input[value="#commaOne,#commaTwo"]'));
 		});
 
-		it('should $$CombinesResultsWhenMultipleExpressionsArePassed (document ordering)', function(){
+		it('should $$CombinesResultsWhenMultipleExpressionsArePassed', function(){
 			compareArrays($$('#link_1, #link_2, #item_1, #item_2, #item_3'), $$('#p a', null, $$(' ul#list li ')));
 		});
 		
