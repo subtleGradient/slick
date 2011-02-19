@@ -579,7 +579,7 @@ var combinators = {
 				}
 				if (!item){
 					// if the context is in the dom we return, else we will try GEBTN, breaking the getById label
-					if (this.contains(this.document.documentElement, node)) return;
+					if (this.contains(this.root, node)) return;
 					else break getById;
 				} else if (this.document !== node && !this.contains(node, item)) return;
 				this.push(item, tag, null, classes, attributes, pseudos);
