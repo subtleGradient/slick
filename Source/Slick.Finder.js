@@ -197,7 +197,7 @@ local.setDocument = function(document){
 
 // Main Method
 
-var reSimpleSelector = /^([#.]?)([\w*-]+)$/,
+var reSimpleSelector = /^([#.]?)((?:[\w-]+|\*))$/,
 	reEmptyAttribute = /\[.+[*$^]=(?:""|'')?\]/,
 	qsaFailExpCache = {};
 

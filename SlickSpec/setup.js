@@ -5,6 +5,12 @@ var runnerOnLoad = global.onload;
 
 global.onload = function(){
 
+	// Unit tests
+	
+	if (unitTests) unitTests();
+	
+	// Mock creation
+
 	Mock.CreateTemplate('Generic HTML4 (transitional)',			'../mocks/template-transitional.html');
 	Mock.CreateTemplate('Generic HTML4 (standard)',				'../mocks/template-standard.html');
 	Mock.CreateTemplate('Generic HTML4 (almost-standard)',		'../mocks/template-almost.html');
@@ -40,7 +46,7 @@ global.onload = function(){
 	setupMethods(this); new Mock('', setupMethods);
 	verifySetupMethods(this); new Mock('', verifySetupMethods);
 	if (verifySetupContext) new Mock('', verifySetupContext);
-	specsSlickAPI(this);
+	if (specsSlickAPI) specsSlickAPI(this);
 	
 	// Parser specs
 	
