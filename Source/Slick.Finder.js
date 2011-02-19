@@ -213,9 +213,10 @@ local.search = function(context, expression, append, first){
 
 	var parsed, i,
 		uniques = this.uniques = {},
-		hasOthers = !!(append && append.length);
+		hasOthers = !!(append && append.length),
+		contextIsDocument = (context.nodeType == 9);
 
-	if (this.document !== (context.ownerDocument || context)) this.setDocument(context);
+	if (this.document !== (contextIsDocument ? context : context.ownerDocument)) this.setDocument(context);
 
 	// avoid duplicating items already in the append array
 	if (hasOthers) for (i = found.length; i--;) uniques[this.getUID(found[i])] = true;
@@ -243,7 +244,7 @@ local.search = function(context, expression, append, first){
 
 			} else if (symbol == '#'){
 
-				if (!this.isHTMLDocument || context.nodeType != 9) break simpleSelectors;
+				if (!this.isHTMLDocument || !contextIsDocument) break simpleSelectors;
 				node = context.getElementById(name);
 				if (!node) return found;
 				if (this.idGetsName && node.getAttributeNode('id').nodeValue != name) break simpleSelectors;
@@ -285,8 +286,8 @@ local.search = function(context, expression, append, first){
 			(this.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
 			(this.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) break querySelector;
 
-			var isDocument = (context.nodeType == 9), _expression = expression;
-			if (!isDocument){
+			var _expression = expression;
+			if (!contextIsDocument){
 				// non-document rooted QSA
 				// credits to Andrew Dupont
 				var currentId = context.getAttribute('id'), slickid = 'slickid__';
@@ -301,7 +302,7 @@ local.search = function(context, expression, append, first){
 				qsaFailExpCache[expression] = 1;
 				break querySelector;
 			} finally {
-				if (!isDocument){
+				if (!contextIsDocument){
 					if (currentId) context.setAttribute('id', currentId);
 					else context.removeAttribute('id');
 				}
