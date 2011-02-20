@@ -156,6 +156,18 @@ local.setDocument = function(document){
 	testRoot.removeChild(testNode);
 	testNode = selected = testRoot = null;
 
+	// getAttribute
+
+	this.getAttribute = (this.isHTMLDocument && brokenFormAttributeGetter) ? function(node, name){
+		var method = this.attributeGetters[name];
+		if (method) return method.call(node);
+		var attributeNode = node.getAttributeNode(name);
+		return (attributeNode) ? attributeNode.nodeValue : null;
+	} : function(node, name){
+		var method = this.attributeGetters[name];
+		return (method) ? method.call(node) : node.getAttribute(name);
+	};
+
 	// hasAttribute
 
 	this.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
@@ -196,18 +208,6 @@ local.setDocument = function(document){
 		bRange.setEnd(b, 0);
 		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	} : null ;
-
-	// get attribute
-
-	this.getAttribute = (brokenFormAttributeGetter) ? function(node, name){
-		var method = this.attributeGetters[name];
-		if (method) return method.call(node);
-		var attributeNode = node.getAttributeNode(name);
-		return (attributeNode) ? attributeNode.nodeValue : null;
-	} : function(node, name){
-		var method = this.attributeGetters[name];
-		return (method) ? method.call(node) : node.getAttribute(name);
-	};
 
 	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
