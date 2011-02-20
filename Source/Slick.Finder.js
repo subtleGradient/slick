@@ -199,9 +199,7 @@ local.setDocument = function(document){
 
 	// get attribute
 
-	this.getAttribute = (!this.isHTMLDocument) ? function(node, name){
-		return node.getAttribute(name);
-	} : (brokenFormAttributeGetter) ? function(node, name){
+	this.getAttribute = (brokenFormAttributeGetter) ? function(node, name){
 		var method = this.attributeGetters[name];
 		if (method) return method.call(node);
 		var attributeNode = node.getAttributeNode(name);
@@ -819,19 +817,19 @@ for (var p in pseudos) local['pseudo:' + p] = pseudos[p];
 local.attributeGetters = {
 
 	'class': function(){
-		return this.className;
+		return this.getAttribute('class') || this.className;
 	},
 
 	'for': function(){
-		return this.htmlFor;
+		return ('htmlFor' in this) ? this.htmlFor : this.getAttribute('for');
 	},
 
 	'href': function(){
-		return this.getAttribute('href', 2);
+		return ('href' in this) ? this.getAttribute('href', 2) : this.getAttribute('href');
 	},
 
 	'style': function(){
-		return this.style.cssText;
+		return (this.style) ? this.style.cssText : this.getAttribute('style');
 	},
 	
 	'tabindex': function(){
