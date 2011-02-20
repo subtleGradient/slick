@@ -170,6 +170,14 @@ local.setDocument = function(document){
 
 	}
 
+	try {
+		root.slick_expando = 1;
+		delete root.slick_expando;
+		features.getUID = this.getUIDHTML;
+	} catch(e) {
+		features.getUID = this.getUIDXML;
+	}
+
 	testRoot.removeChild(testNode);
 	testNode = selected = testRoot = null;
 
@@ -225,8 +233,6 @@ local.setDocument = function(document){
 		bRange.setEnd(b, 0);
 		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	} : null ;
-
-	features.getUID = (features.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
 	root = null;
 
@@ -440,7 +446,7 @@ local.search = function(context, expression, append, first){
 // Utils
 
 local.uidx = 1;
-local.uidk = 'slick:uniqueid';
+local.uidk = 'slick-uniqueid';
 
 local.getUIDXML = function(node){
 	var uid = node.getAttribute(this.uidk);
