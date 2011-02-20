@@ -9,7 +9,9 @@ requires: Slick.Parser
 
 ;(function(){
 
-var local = {};
+var local = {},
+	featuresCache = {},
+	toString = Object.prototype.toString;
 
 // Feature / Bug detection
 
@@ -18,7 +20,7 @@ local.isNativeCode = function(fn){
 };
 
 local.isXML = function(document){
-	return (!!document.xmlVersion) || (!!document.xml) || (Object.prototype.toString.call(document) == '[object XMLDocument]') ||
+	return (!!document.xmlVersion) || (!!document.xml) || (toString.call(document) == '[object XMLDocument]') ||
 	(document.nodeType == 9 && document.documentElement.nodeName != 'HTML');
 };
 
@@ -35,19 +37,34 @@ local.setDocument = function(document){
 
 	if (this.document === document) return;
 	this.document = document;
-	var root = this.root = document.documentElement;
 
-	this.isXMLDocument = this.isXML(document);
+	// check if we have done feature detection on this document before
 
-	this.brokenStarGEBTN
-	= this.starSelectsClosedQSA
-	= this.idGetsName
-	= this.brokenMixedCaseQSA
-	= this.brokenGEBCN
-	= this.brokenCheckedQSA
-	= this.brokenEmptyAttributeQSA
-	= this.isHTMLDocument
-	= this.nativeMatchesSelector
+	var root = document.documentElement,
+		rootUid = this.getUIDXML(root),
+		features = featuresCache[rootUid];
+
+	if (features){
+		for (feature in features){
+			this[feature] = features[feature];
+		}
+		return;
+	}
+
+	features = featuresCache[rootUid] = {};
+
+	features.root = root;
+	features.isXMLDocument = this.isXML(document);
+
+	features.brokenStarGEBTN
+	= features.starSelectsClosedQSA
+	= features.idGetsName
+	= features.brokenMixedCaseQSA
+	= features.brokenGEBCN
+	= features.brokenCheckedQSA
+	= features.brokenEmptyAttributeQSA
+	= features.isHTMLDocument
+	= features.nativeMatchesSelector
 	= false;
 
 	var starSelectsClosed, starSelectsComments,
@@ -63,10 +80,10 @@ local.setDocument = function(document){
 	// on non-HTML documents innerHTML and getElementsById doesnt work properly
 	try {
 		testNode.innerHTML = '<a id="'+id+'"></a>';
-		this.isHTMLDocument = !!document.getElementById(id);
+		features.isHTMLDocument = !!document.getElementById(id);
 	} catch(e){};
 
-	if (this.isHTMLDocument){
+	if (features.isHTMLDocument){
 
 		testNode.style.display = 'none';
 
@@ -81,12 +98,12 @@ local.setDocument = function(document){
 			starSelectsClosed = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
 		} catch(e){};
 
-		this.brokenStarGEBTN = starSelectsComments || starSelectsClosed;
+		features.brokenStarGEBTN = starSelectsComments || starSelectsClosed;
 
 		// IE returns elements with the name instead of just id for getElementsById for some documents
 		try {
 			testNode.innerHTML = '<a name="'+ id +'"></a><b id="'+ id +'"></b>';
-			this.idGetsName = document.getElementById(id) === testNode.firstChild;
+			features.idGetsName = document.getElementById(id) === testNode.firstChild;
 		} catch(e){};
 
 		if (testNode.getElementsByClassName){
@@ -100,12 +117,12 @@ local.setDocument = function(document){
 			} catch(e){};
 
 			// Opera 9.6 getElementsByClassName doesnt detects the class if its not the first one
-			if (testNode.getElementsByClassName) try {
+			try {
 				testNode.innerHTML = '<a class="a"></a><a class="f b a"></a>';
 				brokenSecondClassNameGEBCN = (testNode.getElementsByClassName('a').length != 2);
 			} catch(e){};
 
-			this.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
+			features.brokenGEBCN = cachedGetElementsByClassName || brokenSecondClassNameGEBCN;
 		}
 		
 		if (testNode.querySelectorAll){
@@ -113,25 +130,25 @@ local.setDocument = function(document){
 			try {
 				testNode.innerHTML = 'foo</foo>';
 				selected = testNode.querySelectorAll('*');
-				this.starSelectsClosedQSA = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
+				features.starSelectsClosedQSA = (selected && !!selected.length && selected[0].nodeName.charAt(0) == '/');
 			} catch(e){};
 
 			// Safari 3.2 querySelectorAll doesnt work with mixedcase on quirksmode
 			try {
 				testNode.innerHTML = '<a class="MiX"></a>';
-				this.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiX').length;
+				features.brokenMixedCaseQSA = !testNode.querySelectorAll('.MiX').length;
 			} catch(e){};
 
 			// Webkit and Opera dont return selected options on querySelectorAll
 			try {
 				testNode.innerHTML = '<select><option selected="selected">a</option></select>';
-				this.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
+				features.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
 			} catch(e){};
 
 			// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
 			try {
 				testNode.innerHTML = '<a class=""></a>';
-				this.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
+				features.brokenEmptyAttributeQSA = (testNode.querySelectorAll('[class*=""]').length != 0);
 			} catch(e){};
 
 		}
@@ -144,11 +161,11 @@ local.setDocument = function(document){
 
 		// native matchesSelector function
 
-		this.nativeMatchesSelector = root.matchesSelector || root.msMatchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector;
-		if (this.nativeMatchesSelector) try {
+		features.nativeMatchesSelector = root.matchesSelector || root.msMatchesSelector || root.mozMatchesSelector || root.webkitMatchesSelector;
+		if (features.nativeMatchesSelector) try {
 			// if matchesSelector trows errors on incorrect sintaxes we can use it
-			this.nativeMatchesSelector.call(root, ':slick');
-			this.nativeMatchesSelector = null;
+			features.nativeMatchesSelector.call(root, ':slick');
+			features.nativeMatchesSelector = null;
 		} catch(e){};
 
 	}
@@ -158,7 +175,7 @@ local.setDocument = function(document){
 
 	// getAttribute
 
-	this.getAttribute = (this.isHTMLDocument && brokenFormAttributeGetter) ? function(node, name){
+	features.getAttribute = (features.isHTMLDocument && brokenFormAttributeGetter) ? function(node, name){
 		var method = this.attributeGetters[name];
 		if (method) return method.call(node);
 		var attributeNode = node.getAttributeNode(name);
@@ -170,7 +187,7 @@ local.setDocument = function(document){
 
 	// hasAttribute
 
-	this.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
+	features.hasAttribute = (root && this.isNativeCode(root.hasAttribute)) ? function(node, attribute) {
 		return node.hasAttribute(attribute);
 	} : function(node, attribute) {
 		node = node.getAttributeNode(attribute);
@@ -179,7 +196,7 @@ local.setDocument = function(document){
 
 	// contains
 	// FIXME: Add specs: local.contains should be different for xml and html documents?
-	this.contains = (root && this.isNativeCode(root.contains)) ? function(context, node){
+	features.contains = (root && this.isNativeCode(root.contains)) ? function(context, node){
 		return context.contains(node);
 	} : (root && root.compareDocumentPosition) ? function(context, node){
 		return context === node || !!(context.compareDocumentPosition(node) & 16);
@@ -193,7 +210,7 @@ local.setDocument = function(document){
 	// document order sorting
 	// credits to Sizzle (http://sizzlejs.com/)
 
-	this.documentSorter = (root.compareDocumentPosition) ? function(a, b){
+	features.documentSorter = (root.compareDocumentPosition) ? function(a, b){
 		if (!a.compareDocumentPosition || !b.compareDocumentPosition) return 0;
 		return a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
 	} : ('sourceIndex' in root) ? function(a, b){
@@ -209,9 +226,13 @@ local.setDocument = function(document){
 		return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
 	} : null ;
 
-	this.getUID = (this.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
+	features.getUID = (features.isHTMLDocument) ? this.getUIDHTML : this.getUIDXML;
 
 	root = null;
+
+	for (feature in features){
+		this[feature] = features[feature];
+	}
 };
 
 // Main Method

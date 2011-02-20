@@ -5,10 +5,11 @@
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
 		<title>setdocument</title>
 		<script type="text/javascript" src="../../benchmarkjs/benchmark.js"></script>
+		<script src="https://github.com/mootools/slick/raw/d3aef7cb747c127f2dd33a608769678ed4e7f9ef/Source/Slick.Parser.js" type="text/javascript" charset="utf-8"></script>
 		<script src="https://github.com/mootools/slick/raw/d3aef7cb747c127f2dd33a608769678ed4e7f9ef/Source/Slick.Finder.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			oldSlick = window.Slick;
-			delete window.Slick;
+			Slick = null;
 		</script>
 		<script src="../../../Source/Slick.Parser.js" type="text/javascript"></script>
 		<script src="../../../Source/Slick.Finder.js" type="text/javascript"></script>
@@ -17,6 +18,7 @@
 	<body>
 		<applet code="nano" archive="../../benchmarkjs/nano.jar"></applet>
 		<script type="text/javascript">
+		
 			var suite = new Benchmark.Suite;
 			// add tests
 			suite
@@ -36,6 +38,7 @@
 				console.log('Fastest is ' + this.filter('fastest').pluck('name'));
 			})
 			.run(true);
+
 		</script>
 	</body>
 </html>
