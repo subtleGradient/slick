@@ -875,7 +875,7 @@ local.attributeGetters = {
 
 var Slick = local.Slick = (this.Slick || {});
 
-Slick.version = '1.1.0';
+Slick.version = '1.1.2';
 
 // Slick finder
 
