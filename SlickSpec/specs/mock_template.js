@@ -259,6 +259,7 @@ var specsMockTemplate = function(context){
 	it_should_find(44 , 'div.example,div.note');
 
 	it_should_find(1 , '#title');
+	it_should_find(0 , '#theres_no_such_id');
 	it_should_find(1 , 'h1#title');
 	it_should_find(1 , 'body #title');
 

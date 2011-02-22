@@ -250,7 +250,7 @@ var reSimpleSelector = /^([#.]?)((?:[\w-]+|\*))$/,
 
 local.search = function(context, expression, append, first){
 
-	var found = this.found = append || [];
+	var found = this.found = (first) ? null : (append || []);
 	
 	if (!context) return found;
 	else if (context.navigator) context = context.document; // Convert the node from a window to a document
