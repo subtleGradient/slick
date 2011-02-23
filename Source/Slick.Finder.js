@@ -953,6 +953,6 @@ Slick.uidOf = function(node){
 	return local.getUIDHTML(node);
 };
 
-if (!this.Slick) this.Slick = Slick;
+this.Slick = Slick;
 
 }).apply(/*<CommonJS>*/(typeof exports != 'undefined') ? exports : /*</CommonJS>*/this);
