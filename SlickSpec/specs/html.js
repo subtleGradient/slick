@@ -32,6 +32,16 @@ describe('Slick', function(){
 	itShouldFind(2, 'body [tabindex="1"]');
 	itShouldFind(4, 'body [tabindex]');
 
+	it('should find `~`', function(){
+		expect(context.SELECT1(context.document.getElementById('one'), '~')).not.toBeNull();
+	});
+	it('should find `~div`', function(){
+		expect(context.SELECT1(context.document.getElementById('one'), '~div')).not.toBeNull();
+	});
+	it('should find `> i`', function(){
+		expect(context.SELECT1(context.document.getElementById('one'), '> i')).not.toBeNull();
+	});
+
 });
 
 };

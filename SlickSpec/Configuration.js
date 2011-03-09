@@ -21,7 +21,7 @@ Configuration.sets = {
 	'specs': {
 		path: 'specs/',
 		files: [
-			'unit', 'syntax', 'api', 'engine_bugs', 'html', 'html5', 
+			'unit', 'syntax', 'api', 'engine_bugs', 'html', 'html5',
 			'select_nth-child', 'select_exhaustive', 'mock_template', 
 			'isxml', 'xml',
 			'match', 'parser',

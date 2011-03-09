@@ -63,6 +63,7 @@ local.setDocument = function(document){
 	= features.brokenMixedCaseQSA
 	= features.brokenGEBCN
 	= features.brokenCheckedQSA
+	= features.brokenGeneralSiblingCombinator
 	= features.brokenEmptyAttributeQSA
 	= features.isHTMLDocument
 	= features.nativeMatchesSelector
@@ -145,6 +146,13 @@ local.setDocument = function(document){
 				testNode.innerHTML = '<select><option selected="selected">a</option></select>';
 				features.brokenCheckedQSA = (testNode.querySelectorAll(':checked').length == 0);
 			} catch(e){};
+
+			try {
+				testNode.innerHTML = '<div id="foo"></div><div></div>';
+				features.brokenGeneralSiblingCombinator = !(testNode.getElementById('foo').querySelector('~ div'));
+			} catch(e){
+				features.brokenGeneralSiblingCombinator = true;
+			}
 
 			// IE returns incorrect results for attr[*^$]="" selectors on querySelectorAll
 			try {
@@ -331,6 +339,7 @@ local.search = function(context, expression, append, first){
 
 			if (!this.isHTMLDocument || this.brokenMixedCaseQSA || qsaFailExpCache[expression] ||
 			(this.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
+			(this.brokenGeneralSiblingCombinator) ||
 			(this.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) break querySelector;
 
 			var _expression = expression;
