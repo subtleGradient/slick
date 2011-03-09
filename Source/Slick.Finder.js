@@ -352,8 +352,8 @@ local.search = function(context, expression, append, first){
 				if (!contextIsDocument){
 					if (currentId) _context.setAttribute('id', currentId);
 					else _context.removeAttribute('id');
+					context = _context;
 				}
-				context = _context;
 			}
 
 			if (this.starSelectsClosedQSA) for (i = 0; node = nodes[i++];){
