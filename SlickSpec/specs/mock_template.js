@@ -245,6 +245,16 @@ var specsMockTemplate = function(context){
 	it_should_find(22  , 'div + p');
 	it_should_find(183 , 'div ~ p');
 
+	var div;
+	div = context.document.getElementsByTagName('div')[2];
+	it_should_find(3, 'p', div);
+	it_should_find(5, '> *', div);
+	it_should_find(3, '> p', div);
+	it_should_find(1, '+ *', div);
+	it_should_find(1, '+ p', div);
+	it_should_find(281, '~ *', div);
+	it_should_find(152, '~ p', div);
+
 	it_should_find(43  , 'div[class^=exa][class$=mple]');
 	it_should_find(12  , 'div p a:not([href^=tel:])');
 	it_should_find(683 , 'div,p,a:not([href^=tel:])');
