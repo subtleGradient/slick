@@ -341,7 +341,7 @@ local.search = function(context, expression, append, first){
 					expression.indexOf(',') > -1
 					//  and the expression begins with a + or ~ combinator
 					//  since non-document rooted QSA can't access nodes that aren't descendants of the context
-					|| (/\s*[~+]/).test(expression)
+					|| (/^\s*[~+]/).test(expression)
 				))
 				|| Slick.disableQSA
 			) break querySelector;
