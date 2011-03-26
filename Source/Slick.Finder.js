@@ -329,9 +329,22 @@ local.search = function(context, expression, append, first){
 		/*<query-selector-override>*/
 		querySelector: if (context.querySelectorAll) {
 
-			if (!this.isHTMLDocument || this.brokenMixedCaseQSA || qsaFailExpCache[expression] ||
-			(this.brokenCheckedQSA && expression.indexOf(':checked') > -1) ||
-			(this.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression)) || Slick.disableQSA) break querySelector;
+			if (!this.isHTMLDocument
+				|| qsaFailExpCache[expression]
+				//TODO: only skip when expression is actually mixed case
+				|| this.brokenMixedCaseQSA
+				|| (this.brokenCheckedQSA && expression.indexOf(':checked') > -1)
+				|| (this.brokenEmptyAttributeQSA && reEmptyAttribute.test(expression))
+				|| (!contextIsDocument && (//Abort when !contextIsDocument and...
+					//  there are multiple expressions in the selector
+					//  since we currently only fix non-document rooted QSA for single expression selectors
+					expression.indexOf(',') > -1
+					//  and the expression begins with a + or ~ combinator
+					//  since non-document rooted QSA can't access nodes that aren't descendants of the context
+					|| (/\s*[~+]/).test(expression)
+				))
+				|| Slick.disableQSA
+			) break querySelector;
 
 			var _expression = expression;
 			if (!contextIsDocument){
