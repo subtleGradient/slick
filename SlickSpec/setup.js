@@ -19,7 +19,7 @@ global.onload = function(){
 	if (!Browser.ie || Browser.version > 8){
 		Mock.CreateTemplate('Generic XHTML',					'../mocks/template.xhtml');
 		Mock.CreateTemplate('Generic XML',						'../mocks/template.xml');
-		Mock.CreateTemplate('SVG',								'../mocks/mootools_logo.svg');
+		Mock.CreateTemplate('SVG',								'../mocks/MooTools_Logo.svg');
 	}
 	
 	if (Browser.ie){
@@ -39,7 +39,7 @@ global.onload = function(){
 	
 	
 	new Mock.Request('XML responseXML',							'../mocks/xml.xml');
-	new Mock.Request('SVG responseXML',							'../mocks/mootools_logo.svg');
+	new Mock.Request('SVG responseXML',							'../mocks/MooTools_Logo.svg');
 
 	// Setup
 	
