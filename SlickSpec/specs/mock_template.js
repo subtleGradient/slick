@@ -1,10 +1,10 @@
 var specsMockTemplate = function(context){
 	
-	var makeSlickTestSearch = function(selector, count, disableQSA) {
+	var makeSlickTestSearch = function(selector, count, disableQSA, subContext) {
 		return function(){
 			context.SELECTOR.disableQSA = !!disableQSA;
-			var selectedArray = context.SELECT(context.document, selector);
-			var selected = context.SELECT1(context.document, selector);
+			var selectedArray = context.SELECT(subContext || context.document, selector);
+			var selected = context.SELECT1(subContext || context.document, selector);
 			expect( selectedArray.length ).toEqual( count );
 			if (count){
 				expect( selected ).not.toBeNull();
@@ -17,10 +17,10 @@ var specsMockTemplate = function(context){
 		};
 	};
 	
-	var it_should_find = function(count, selector){
+	var it_should_find = function(count, selector, subContext){
 		if (global.document.querySelectorAll && !global.cannotDisableQSA)
-			it('should find '+count+' `'+selector+'` with    QSA', makeSlickTestSearch(selector, count, false));
-		it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true));
+			it('should find '+count+' `'+selector+'` with    QSA', makeSlickTestSearch(selector, count, false, subContext));
+		it('should find '+count+' `'+selector + (!global.cannotDisableQSA ? '` without QSA' : ''), makeSlickTestSearch(selector, count, true, subContext));
 	};
 	
 	it_should_find(1, 'html');
