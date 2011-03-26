@@ -240,7 +240,7 @@ var specsMockTemplate = function(context){
 	});
 	it_should_find(140 , 'div p');
 	it_should_find(140 , 'div  p');
-	
+
 	it_should_find(134 , 'div > p');
 	it_should_find(22  , 'div + p');
 	it_should_find(183 , 'div ~ p');
