@@ -247,7 +247,6 @@ var specsMockTemplate = function(context){
 	it_should_find(134 , 'div > p');
 	it_should_find(22  , 'div + p');
 	it_should_find(183 , 'div ~ p');
-	it_should_find(0   , 'div & p');
 
 	it_should_find(43  , 'div[class^=exa][class$=mple]');
 	it_should_find(12  , 'div p a:not([href^=tel:])');
