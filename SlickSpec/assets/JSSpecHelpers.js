@@ -168,7 +168,7 @@ var $try = function(){
 		});
 		Mock.templateCounter++;
 		template.style.display = 'none';
-		template.setAttribute('iframeboder', 0);
+		template.setAttribute('frameborder', 0);
 		template.src = url;
 		document.getElementsByTagName('body')[0].appendChild(template);
 	};
