@@ -142,7 +142,7 @@ var $try = function(){
 			try {
 				Mock.mocks[i].run();
 			} catch(e) {
-				console && console.log(e);
+				window.console && console.log(e);
 			}
 		}
 		global.runSpecs();
@@ -169,7 +169,7 @@ var $try = function(){
 		Mock.templateCounter++;
 		template.style.display = 'none';
 		template.setAttribute('frameborder', 0);
-		template.src = url;
+		template.src = url + (~url.indexOf('?') ? '&' : '?') + '_' + (+new Date);
 		document.getElementsByTagName('body')[0].appendChild(template);
 	};
 
